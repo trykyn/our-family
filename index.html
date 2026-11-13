@@ -223,6 +223,29 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .due.late { background: var(--p1-soft); color: var(--danger); }
 .todo-item .due { justify-self: start; margin-top: 4px; }
 
+/* 처음 화면 '오늘 저녁' (주간식단 앱과 같은 가족 문서의 meals) */
+.dinner-box {
+  display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 12px 14px 12px 16px;
+  background: var(--surface); border-radius: 20px; box-shadow: var(--shadow); color: inherit; text-decoration: none;
+}
+.dinner-box .ico { flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--p2-soft); color: #C27A00; }
+.dinner-box .ico svg { width: 22px; height: 22px; }
+.dinner-box .txt { flex: 1; min-width: 0; display: grid; }
+.dinner-box .lbl { font-size: 13px; font-weight: 600; color: var(--muted); }
+.dinner-box .menu { font-weight: 600; font-size: 16px; overflow-wrap: anywhere; }
+.dinner-box .menu.none { color: var(--muted); font-weight: 500; font-size: 15px; }
+.dinner-box .kid { display: inline-block; margin: 0 4px 0 2px; padding: 0 6px; border-radius: 6px; font-size: 11px; font-weight: 700; background: #E2F2E4; color: #2E7A44; vertical-align: 2px; }
+.dinner-box .chev { flex: none; width: 20px; height: 20px; color: var(--blue); }
+
+/* 담당자 */
+.who { flex: none; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap; color: var(--wc); background: color-mix(in srgb, var(--wc) 15%, transparent); }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.todo-item .meta .due { margin-top: 0; }
+.filters { display: flex; gap: 6px; margin-top: 12px; }
+.filters button { height: 34px; padding: 0 14px; border: 2px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font-weight: 600; font-size: 14px; }
+.filters button[aria-pressed="true"] { border-color: var(--wc, var(--blue)); background: color-mix(in srgb, var(--wc, var(--blue)) 15%, var(--surface)); }
+.seg.four { grid-template-columns: repeat(4, 1fr); }
+
 /* 처음 화면 '챙길 할 일' (높음 + 마감 5일 이내) */
 .todo-box { margin-top: 12px; cursor: default; overflow: hidden; padding-bottom: 6px; }
 .box-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
@@ -375,6 +398,13 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <ul class="events" id="today-events"></ul>
     <p class="events-empty" id="today-empty"></p>
   </section>
+  <a class="dinner-box" id="dinner-box" href="https://trykyn.github.io/weekly-meals/" hidden>
+    <span class="ico" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h18a9 6 0 0 1-18 0zM7 9.5c0-1.2 1-1.5 1-2.7S7 5.3 7 4.5M12 9.5c0-1.2 1-1.5 1-2.7s-1-1.5-1-2.3M17 9.5c0-1.2 1-1.5 1-2.7s-1-1.5-1-2.3"/></svg>
+    </span>
+    <span class="txt"><span class="lbl" data-t="dinnerTitle">오늘 저녁</span><span class="menu" id="dinner-menu"></span></span>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+  </a>
   <section class="today-box todo-box" id="todo-box" hidden>
     <div class="box-h">
       <h2 data-t="homeTodoTitle">챙길 할 일</h2>
@@ -411,6 +441,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
     <span data-t="newTodo">할 일 추가</span>
   </button>
+  <div class="filters" id="todo-filters" role="group"></div>
   <p class="hint swipe-hint" id="swipe-hint" data-t="swipeHint" hidden></p>
   <div id="todo-groups"></div>
   <div class="empty" id="todo-empty"><b data-t="todoEmptyB">할 일이 없어요</b><span data-t="todoEmpty">위의 버튼으로 추가하세요</span></div>
@@ -434,6 +465,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         <button type="button" data-pri="2" style="--pc:var(--p2);--pc-soft:var(--p2-soft)"><span class="dot" style="background:var(--p2)"></span><span data-pri-name="2"></span></button>
         <button type="button" data-pri="3" style="--pc:var(--p3);--pc-soft:var(--p3-soft)"><span class="dot" style="background:var(--p3)"></span><span data-pri-name="3"></span></button>
       </div>
+    </fieldset>
+    <fieldset class="lbl"><legend data-t="fWho">담당</legend>
+      <div class="seg four" id="f-who"></div>
     </fieldset>
     <div class="lbl"><span data-t="fDue">마감일</span>
       <div class="due-row">
@@ -497,6 +531,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     ko: {
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
       homeTodoTitle: '챙길 할 일', seeAll: '전체 보기', moreTodos: (n) => `외 ${n}개`,
+      dinnerTitle: '오늘 저녁', dinnerNone: '아직 정하지 않았어요', kidTag: '아이',
+      fWho: '담당', whoNone: '미정', who: { mom: '엄마', dad: '아빠', both: '같이' }, filterAll: '전체',
       todoEmptyB: '할 일이 없어요', todoEmpty: '위의 버튼으로 추가하세요',
       newTodo: '할 일 추가', editTodo: '할 일 수정', fTitle: '제목', fNote: '상세내용', fNotePh: '메모, 준비물 등 (선택)',
       fPri: '우선순위', pri: ['', '높음', '보통', '낮음'], fDue: '마감일', dueToday: '오늘', dueTomorrow: '내일', dueNone: '없음',
@@ -533,6 +569,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     de: {
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
       homeTodoTitle: 'Wichtig & bald fällig', seeAll: 'Alle anzeigen', moreTodos: (n) => `und ${n} weitere`,
+      dinnerTitle: 'Heute Abend', dinnerNone: 'Noch nichts geplant', kidTag: 'Kinder',
+      fWho: 'Zuständig', whoNone: 'Offen', who: { mom: 'Mama', dad: 'Papa', both: 'Beide' }, filterAll: 'Alle',
       todoEmptyB: 'Keine Aufgaben', todoEmpty: 'Mit der Taste oben hinzufügen',
       newTodo: 'Aufgabe hinzufügen', editTodo: 'Aufgabe bearbeiten', fTitle: 'Titel', fNote: 'Details', fNotePh: 'Notizen, Mitbringen usw. (optional)',
       fPri: 'Priorität', pri: ['', 'Hoch', 'Mittel', 'Niedrig'], fDue: 'Fällig bis', dueToday: 'Heute', dueTomorrow: 'Morgen', dueNone: 'Keins',
@@ -658,7 +696,43 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const todoWrite = (changes) => fb.F.updateDoc(houseRef(), changes).catch((e) => console.warn('todos', e));
   const saveLocal = () => { store(TODO_KEY, localTodos); renderTodos(); };
 
-  // 할 일 = { id, text(제목), note(상세내용), pri(1 높음 · 2 보통 · 3 낮음), due('YYYY-MM-DD' 또는 ''), done, at }
+  /* 오늘 저녁: 주간식단 앱이 같은 가족 문서에 meals.{YYYY-MM-DD}.dinner = [{ text, kid? }] 로 저장 */
+  const DINNER_KEY = 'our-family:dinner';
+  let mealsMap = null; // 가족 문서를 아직 못 받았으면 null → 저장해 둔 오늘 메뉴 사용
+  function dinnerToday() {
+    if (mealsMap) return (mealsMap[todayKey] && mealsMap[todayKey].dinner) || [];
+    const c = load(DINNER_KEY, null);
+    return c && c.date === todayKey ? c.items : null;
+  }
+  function renderDinner() {
+    const items = (isShared() || !S.ready) ? dinnerToday() : null;
+    const box = $('#dinner-box');
+    box.hidden = items == null;
+    if (items == null) return;
+    const menu = $('#dinner-menu');
+    if (!items.length) { menu.className = 'menu none'; menu.textContent = L().dinnerNone; return; }
+    menu.className = 'menu';
+    const grown = items.filter((x) => !x.kid).map((x) => x.text), kids = items.filter((x) => x.kid).map((x) => x.text);
+    menu.replaceChildren(grown.join(' · '),
+      ...(kids.length ? [grown.length ? ' ' : '', h('span', { class: 'kid', text: L().kidTag }), kids.join(' · ')] : []));
+  }
+
+  /* 담당자 */
+  const WHO = { mom: '#D2557F', dad: '#2F7FC1', both: '#2A9690' };
+  const whoChip = (t) => WHO[t.who] ? h('span', { class: 'who', style: `--wc:${WHO[t.who]}`, text: L().who[t.who] }) : null;
+  let todoFilter = load('our-family:todo-filter', 'all');
+  const matchesFilter = (t) => todoFilter === 'all' || t.who === todoFilter || t.who === 'both';
+  function renderFilters(show) {
+    const box = $('#todo-filters');
+    box.hidden = !show;
+    box.replaceChildren(...['all', 'mom', 'dad'].map((k) => h('button', {
+      type: 'button', 'aria-pressed': String(todoFilter === k), style: WHO[k] ? `--wc:${WHO[k]}` : null,
+      text: k === 'all' ? L().filterAll : L().who[k],
+      onclick: () => { todoFilter = k; store('our-family:todo-filter', k); renderTodos(); },
+    })));
+  }
+
+  // 할 일 = { id, text(제목), note(상세내용), pri(1 높음 · 2 보통 · 3 낮음), who('mom'|'dad'|'both'|''), due('YYYY-MM-DD' 또는 ''), done, at }
   function saveTodo(t) {
     if (isShared()) todoWrite({ [`todos.${t.id}`]: t });
     else {
@@ -698,7 +772,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       }
       sharedTodos = Object.values(map).sort((a, b) => (a.at || 0) - (b.at || 0));
       store(SHARED_KEY, sharedTodos);
+      mealsMap = (snap.exists() && snap.data().meals) || {};
+      store(DINNER_KEY, { date: todayKey, items: dinnerToday() });
       renderTodos();
+      renderDinner();
     }, (e) => console.warn('todos', e));
   }
 
@@ -787,14 +864,16 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       h('button', { type: 'button', class: 'body', 'aria-label': L().openTodo(t.text), onclick: () => openSheet(t) },
         h('span', { class: 't', text: t.text }),
         t.note ? h('span', { class: 'd', text: t.note.split('\n')[0] }) : null,
-        dueChip(t)));
+        (WHO[t.who] || t.due) ? h('span', { class: 'meta' }, whoChip(t), dueChip(t)) : null));
     const li = h('li', { class: 'todo-item' + (t.done ? ' done' : ''), style: `--pc:${PRI[priOf(t)].c}` }, fg);
     return swipeRow(li, fg, !!t.done, () => (t.done ? deleteTodo(t) : finishTodo(t)));
   }
 
   function renderTodos() {
     const todos = visibleTodos();
-    const open = todos.filter((t) => !t.done), done = todos.filter((t) => t.done);
+    const shown = todos.filter(matchesFilter);
+    const open = shown.filter((t) => !t.done), done = shown.filter((t) => t.done);
+    renderFilters(todos.length > 0);
     const groups = [];
     for (const p of [1, 2, 3]) {
       const items = open.filter((t) => priOf(t) === p).sort(byDue);
@@ -831,7 +910,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       ...pick.slice(0, MAX).map((t) => {
         const fg = h('div', {}, h('span', { class: 'pdot' }),
           h('button', { type: 'button', class: 'body', 'aria-label': L().openTodo(t.text), onclick: () => openSheet(t) },
-            h('span', { class: 't', text: t.text }), dueChip(t)));
+            h('span', { class: 't', text: t.text }), whoChip(t), dueChip(t)));
         return swipeRow(h('li', { style: `--pc:${PRI[priOf(t)].c}` }, fg), fg, false, () => finishTodo(t));
       }),
       ...(pick.length > MAX ? [h('li', { class: 'more', text: L().moreTodos(pick.length - MAX) })] : []));
@@ -852,6 +931,16 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       b.setAttribute('aria-pressed', String(v === want));
     }
   }
+  let formWho = '';
+  function setFormWho(w) {
+    formWho = w;
+    $('#f-who').replaceChildren(...['', 'mom', 'dad', 'both'].map((k) => h('button', {
+      type: 'button', 'aria-pressed': String(formWho === k),
+      style: `--pc:${WHO[k] || 'var(--blue)'};--pc-soft:${WHO[k] ? `color-mix(in srgb, ${WHO[k]} 15%, var(--surface))` : 'var(--sky-soft)'}`,
+      text: k ? L().who[k] : L().whoNone,
+      onclick: () => setFormWho(k),
+    })));
+  }
   function openSheet(t) {
     editing = t || null;
     $('#sheet-title').textContent = t ? L().editTodo : L().newTodo;
@@ -860,6 +949,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#f-note').value = t ? (t.note || '') : '';
     $('#f-due').value = t ? (t.due || '') : '';
     setFormPri(t ? priOf(t) : 2);
+    // 담당: 새 할 일은 지금 보고 있는 사람(엄마/아빠 필터)으로 시작
+    setFormWho(t ? (WHO[t.who] ? t.who : '') : (WHO[todoFilter] ? todoFilter : ''));
     syncDueChips();
     $('#f-err').hidden = true;
     $('#f-del').hidden = !t;
@@ -889,7 +980,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const text = $('#f-title').value.trim();
     if (!text) { const err = $('#f-err'); err.textContent = L().titleNeeded; err.hidden = false; $('#f-title').focus(); return; }
     const base = editing || { id: newId(), done: false, at: Date.now() };
-    saveTodo({ ...base, text, note: $('#f-note').value.trim(), pri: formPri, due: $('#f-due').value || '' });
+    saveTodo({ ...base, text, note: $('#f-note').value.trim(), pri: formPri, who: formWho, due: $('#f-due').value || '' });
     closeSheet();
   });
   $('#f-del').addEventListener('click', () => {
@@ -958,6 +1049,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     Object.assign(S, { accounts: [], calendars: [], months: {}, error: '', houseError: '' });
     saveCal();
     stopTodos(); sharedTodos = null; store(SHARED_KEY, null);
+    mealsMap = null; store(DINNER_KEY, null);
     showPhoto(null); cachedPhoto('del');
     await fb.A.signOut(fb.auth);
   }
@@ -1349,6 +1441,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   function renderAll() {
     applyStatic();
     renderToday();
+    renderDinner();
     renderAccount();
     renderTodos();
     renderMonth();
