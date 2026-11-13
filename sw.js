@@ -1,9 +1,9 @@
 // 오프라인 지원: 네트워크 우선, 실패하면 캐시.
-const CACHE = 'our-family-v1';
+const CACHE = 'our-family-v2';
 const OK_ORIGINS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png'])));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', 'index.html', 'manifest.webmanifest', 'favicon.png', 'icon-180.png', 'icon-192.png'])));
   self.skipWaiting();
 });
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
