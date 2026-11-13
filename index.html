@@ -241,10 +241,10 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .who { flex: none; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap; color: var(--wc); background: color-mix(in srgb, var(--wc) 15%, transparent); }
 .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 .todo-item .meta .due { margin-top: 0; }
-.filters { display: flex; gap: 6px; margin-top: 12px; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .filters button { height: 34px; padding: 0 14px; border: 2px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font-weight: 600; font-size: 14px; }
 .filters button[aria-pressed="true"] { border-color: var(--wc, var(--blue)); background: color-mix(in srgb, var(--wc, var(--blue)) 15%, var(--surface)); }
-.seg.four { grid-template-columns: repeat(4, 1fr); }
+.seg.four { grid-template-columns: repeat(3, 1fr); }
 
 /* 처음 화면 '챙길 할 일' (높음 + 마감 5일 이내) */
 .todo-box { margin-top: 12px; cursor: default; overflow: hidden; padding-bottom: 6px; }
@@ -532,7 +532,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
       homeTodoTitle: '챙길 할 일', seeAll: '전체 보기', moreTodos: (n) => `외 ${n}개`,
       dinnerTitle: '오늘 저녁', dinnerNone: '아직 정하지 않았어요', kidTag: '아이',
-      fWho: '담당', whoNone: '미정', who: { mom: '엄마', dad: '아빠', both: '같이' }, filterAll: '전체',
+      fWho: '담당', whoNone: '미정', who: { mom: '엄마', dad: '아빠', davin: '다빈', arin: '아린', both: '같이' }, filterAll: '전체',
       todoEmptyB: '할 일이 없어요', todoEmpty: '위의 버튼으로 추가하세요',
       newTodo: '할 일 추가', editTodo: '할 일 수정', fTitle: '제목', fNote: '상세내용', fNotePh: '메모, 준비물 등 (선택)',
       fPri: '우선순위', pri: ['', '높음', '보통', '낮음'], fDue: '마감일', dueToday: '오늘', dueTomorrow: '내일', dueNone: '없음',
@@ -570,7 +570,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
       homeTodoTitle: 'Wichtig & bald fällig', seeAll: 'Alle anzeigen', moreTodos: (n) => `und ${n} weitere`,
       dinnerTitle: 'Heute Abend', dinnerNone: 'Noch nichts geplant', kidTag: 'Kinder',
-      fWho: 'Zuständig', whoNone: 'Offen', who: { mom: 'Mama', dad: 'Papa', both: 'Beide' }, filterAll: 'Alle',
+      fWho: 'Zuständig', whoNone: 'Offen', who: { mom: 'Mama', dad: 'Papa', davin: 'Davin', arin: 'Arin', both: 'Zusammen' }, filterAll: 'Alle',
       todoEmptyB: 'Keine Aufgaben', todoEmpty: 'Mit der Taste oben hinzufügen',
       newTodo: 'Aufgabe hinzufügen', editTodo: 'Aufgabe bearbeiten', fTitle: 'Titel', fNote: 'Details', fNotePh: 'Notizen, Mitbringen usw. (optional)',
       fPri: 'Priorität', pri: ['', 'Hoch', 'Mittel', 'Niedrig'], fDue: 'Fällig bis', dueToday: 'Heute', dueTomorrow: 'Morgen', dueNone: 'Keins',
@@ -718,14 +718,15 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
 
   /* 담당자 */
-  const WHO = { mom: '#D2557F', dad: '#2F7FC1', both: '#2A9690' };
+  const WHO = { mom: '#D2557F', dad: '#2F7FC1', davin: '#C27A00', arin: '#8E52CC', both: '#2A9690' };
   const whoChip = (t) => WHO[t.who] ? h('span', { class: 'who', style: `--wc:${WHO[t.who]}`, text: L().who[t.who] }) : null;
   let todoFilter = load('our-family:todo-filter', 'all');
+  // '같이'는 어느 사람을 골라도 보임
   const matchesFilter = (t) => todoFilter === 'all' || t.who === todoFilter || t.who === 'both';
   function renderFilters(show) {
     const box = $('#todo-filters');
     box.hidden = !show;
-    box.replaceChildren(...['all', 'mom', 'dad'].map((k) => h('button', {
+    box.replaceChildren(...['all', 'mom', 'dad', 'davin', 'arin'].map((k) => h('button', {
       type: 'button', 'aria-pressed': String(todoFilter === k), style: WHO[k] ? `--wc:${WHO[k]}` : null,
       text: k === 'all' ? L().filterAll : L().who[k],
       onclick: () => { todoFilter = k; store('our-family:todo-filter', k); renderTodos(); },
@@ -934,7 +935,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   let formWho = '';
   function setFormWho(w) {
     formWho = w;
-    $('#f-who').replaceChildren(...['', 'mom', 'dad', 'both'].map((k) => h('button', {
+    $('#f-who').replaceChildren(...['', 'mom', 'dad', 'davin', 'arin', 'both'].map((k) => h('button', {
       type: 'button', 'aria-pressed': String(formWho === k),
       style: `--pc:${WHO[k] || 'var(--blue)'};--pc-soft:${WHO[k] ? `color-mix(in srgb, ${WHO[k]} 15%, var(--surface))` : 'var(--sky-soft)'}`,
       text: k ? L().who[k] : L().whoNone,
