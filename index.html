@@ -866,7 +866,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       h('span', { text }),
       undo && h('button', { type: 'button', text: L().undo, onclick: () => { el.remove(); undo(); } }));
     document.body.append(el);
-    toastTimer = setTimeout(() => el.remove(), 5000);
+    toastTimer = setTimeout(() => el.remove(), 2500); // 2.5초 뒤 사라짐
   }
   function finishTodo(t) {
     setDone(t, true);
