@@ -274,7 +274,8 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .home-todos { margin: 0 -16px; }
 .home-todos li { border-top: 1px solid var(--line); }
 .home-todos li:first-child { border-top: 0; }
-.home-todos .swipe-fg { display: flex; align-items: center; gap: 10px; padding: 0 16px; }
+.home-todos .row-v { display: flex; align-items: center; gap: 8px; padding: 10px 16px; }
+.home-todos .row-v .pdot { margin-right: 2px; }
 .home-todos .pdot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--pc); }
 .home-todos .body { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 10px 0; text-align: left; color: inherit; }
 .home-todos .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -978,10 +979,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#todo-box').hidden = pick.length === 0;
     $('#home-todos').replaceChildren(
       ...pick.slice(0, MAX).map((t) => {
-        const fg = h('div', {}, h('span', { class: 'pdot' }),
-          h('button', { type: 'button', class: 'body', 'aria-label': L().openTodo(shownText(t)), onclick: () => openSheet(t) },
+        // 처음 화면은 보기 전용 (고치기·완료는 할일목록에서)
+        return h('li', { style: `--pc:${PRI[priOf(t)].c}` },
+          h('div', { class: 'row-v' }, h('span', { class: 'pdot' }),
             h('span', { class: 't', text: shownText(t) }), whoChip(t), dueChip(t)));
-        return swipeRow(h('li', { style: `--pc:${PRI[priOf(t)].c}` }, fg), fg, false, () => finishTodo(t));
       }),
       ...(pick.length > MAX ? [h('li', { class: 'more', text: L().moreTodos(pick.length - MAX) })] : []));
   }
