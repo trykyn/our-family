@@ -14,7 +14,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=Jua&display=swap">
 <style>
-/* 구조: 홈(큰 버튼 두 개) → 해시(#todo, #calendar)로 앱 안의 앱 화면을 엶. 뒤로가기 = 브라우저 뒤로. */
+/* 구조: 홈(오늘 일정 + 큰 아이콘 두 개) → 해시(#todo, #calendar)로 앱 안의 앱 화면을 엶. 뒤로가기 = 브라우저 뒤로.
+   캘린더는 구글 캘린더 앱처럼 달력 칸 안에 일정 이름을 막대로 보여 줌. 한국어/독일어 전환. */
 :root {
   --bg: #EEF8FD;
   --surface: #FFFFFF;
@@ -73,7 +74,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 /* ── 홈 ── */
 .hero {
   margin: 0 -16px;
-  padding: calc(24px + env(safe-area-inset-top, 0px)) 20px 22px;
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 20px 22px;
   background: linear-gradient(135deg, #8CCFFF 0%, #7EC8E3 55%, #6AAFE6 100%);
   color: #0E2A40;
   border-radius: 0 0 32px 32px;
@@ -84,24 +85,28 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   content: ""; position: absolute; right: -40px; top: -30px; width: 180px; height: 180px;
   border-radius: 50%; background: rgba(255, 255, 255, .22);
 }
-.hero-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; position: relative; z-index: 1; }
-.hero h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 30px; letter-spacing: -.5px; }
-.hero .date { margin: 0; font-size: 15px; font-weight: 600; }
+.hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; position: relative; z-index: 1; }
+.hero h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1.2; letter-spacing: -.5px; }
+.hero .date { margin: 2px 0 0; font-size: 15px; font-weight: 600; }
 
-/* 오늘 일정 (구글 캘린더 연결 후 채움) */
-.today {
+.lang { flex: none; display: flex; padding: 3px; border-radius: 999px; background: rgba(255, 255, 255, .5); }
+.lang button { border: 0; background: none; padding: 5px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; color: #2A4B63; }
+.lang button[aria-pressed="true"] { background: #FFFFFF; color: #0E2A40; }
+
+/* 오늘 일정 */
+.today-box {
   position: relative; z-index: 1; margin-top: 14px; padding: 14px 16px;
-  background: rgba(255, 255, 255, .72); border-radius: 18px; color: #12324A;
+  background: rgba(255, 255, 255, .72); border-radius: 18px; color: #12324A; cursor: pointer;
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
 }
-.today h2 { margin: 0 0 8px; font-family: var(--font-display); font-weight: 400; font-size: 19px; }
+.today-box h2 { margin: 0 0 8px; font-family: var(--font-display); font-weight: 400; font-size: 19px; }
 .events { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.events li { display: flex; gap: 12px; align-items: baseline; }
-.events .time { flex: none; width: 48px; font-weight: 600; color: #2F7FC1; font-variant-numeric: tabular-nums; }
-.events-empty { margin: 0; color: #557489; font-size: 14px; }
-.today { cursor: pointer; }
+.events li { display: flex; gap: 10px; align-items: center; }
+.events .c { flex: none; width: 4px; height: 18px; border-radius: 2px; }
+.events .time { flex: none; min-width: 46px; font-weight: 600; color: #2F7FC1; font-variant-numeric: tabular-nums; }
 .events .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.events .more { color: #557489; font-size: 13px; }
+.events .more { color: #557489; font-size: 13px; padding-left: 14px; }
+.events-empty { margin: 0; color: #557489; font-size: 14px; }
 
 /* 앱 안의 앱: 큰 아이콘 + 이름 */
 .tiles { display: flex; justify-content: center; gap: 36px; margin-top: 32px; }
@@ -118,6 +123,15 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .tile.cal  .ico { background: linear-gradient(140deg, #8CCFFF, #6AAFE6); }
 .tile .ico svg { width: 56px; height: 56px; }
 .tile .name { font-family: var(--font-display); font-size: 22px; line-height: 1.2; }
+
+/* 계정 */
+.account { margin-top: 32px; }
+.account h3, .cal-card h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+.hint { margin: 0; color: var(--muted); font-size: 14px; }
+.hint.err { color: var(--danger); }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.who { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.who span { min-width: 0; overflow-wrap: anywhere; color: var(--muted); font-size: 14px; }
 
 /* ── 하위 화면 공통 상단바 ── */
 .bar {
@@ -137,33 +151,36 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
 .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
 
-/* ── 할일목록 ── */
-.add-row { display: flex; gap: 8px; }
-.add-row input {
+.field {
   flex: 1; min-width: 0; height: 48px; padding: 0 14px;
   border: 2px solid var(--line); border-radius: 14px; background: var(--surface);
   font-size: 16px; /* 아이폰 확대 방지 */
 }
-.add-row input:focus { border-color: var(--blue); outline: none; }
+.field:focus { border-color: var(--blue); outline: none; }
 .btn {
-  height: 48px; padding: 0 18px; border: 0; border-radius: 14px;
-  background: var(--blue); color: #0E2A40; font-weight: 600;
+  height: 44px; padding: 0 16px; border: 0; border-radius: 14px;
+  background: var(--blue); color: #0E2A40; font-weight: 600; white-space: nowrap;
 }
+.btn.ghost { background: var(--sky-soft); color: var(--deep); }
 .btn:active { filter: brightness(.95); }
 .btn[disabled] { opacity: .55; cursor: default; }
+.link-btn { border: 0; background: none; padding: 4px 0; color: var(--muted); font-size: 13px; text-decoration: underline; }
 
+/* ── 할일목록 ── */
+.add-row { display: flex; gap: 8px; }
+.add-row .btn { height: 48px; }
 .todo-list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
 .todo-item {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 8px 12px 14px; background: var(--surface); border-radius: 14px; box-shadow: var(--shadow);
 }
 .todo-item label { flex: 1; display: flex; align-items: center; gap: 12px; min-width: 0; cursor: pointer; }
-.todo-item input[type="checkbox"] {
+.check {
   appearance: none; flex: none; width: 26px; height: 26px; margin: 0;
   border: 2px solid var(--aqua); border-radius: 8px; display: grid; place-items: center;
 }
-.todo-item input[type="checkbox"]:checked { background: var(--aqua); border-color: var(--aqua); }
-.todo-item input[type="checkbox"]:checked::after {
+.check:checked { background: var(--aqua); border-color: var(--aqua); }
+.check:checked::after {
   content: ""; width: 7px; height: 13px; margin-top: -3px;
   border: solid #0E2A40; border-width: 0 3px 3px 0; transform: rotate(45deg);
 }
@@ -173,49 +190,61 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .empty { text-align: center; color: var(--muted); padding: 40px 12px; }
 .empty b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 20px; color: var(--ink); margin-bottom: 4px; }
 
-/* ── 캘린더 ── */
-.month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+/* ── 캘린더: 달 보기 (칸 안에 일정 막대) ── */
+.month { padding: 12px 6px 8px; }
+.month-nav { display: flex; align-items: center; justify-content: space-between; margin: 0 4px 6px; }
 .month-nav h3 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 22px; }
 .month-nav .icon-btn { color: var(--deep); }
 .month-nav .icon-btn:active { background: var(--sky-soft); }
-.grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; }
-.grid .wd { font-size: 13px; font-weight: 600; color: var(--muted); padding: 4px 0; }
-.grid .wd:first-child, .grid .day.sun { color: var(--sun); }
-.grid .wd:last-child, .grid .day.sat { color: var(--sat); }
-.grid .day {
-  aspect-ratio: 1 / 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 6px 0 0; border: 0; border-radius: 12px; background: none;
-  font-size: 15px; font-variant-numeric: tabular-nums; color: inherit;
+.wdrow, .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.wdrow div { text-align: center; font-size: 12px; font-weight: 600; color: var(--muted); padding: 2px 0 6px; }
+.wdrow .sun, .week .day.sun .n { color: var(--sun); }
+.wdrow .sat, .week .day.sat .n { color: var(--sat); }
+.week {
+  grid-template-rows: 26px repeat(3, 18px) 15px; row-gap: 2px;
+  border-top: 1px solid var(--line); padding: 2px 0 3px;
 }
-.grid .day.other { opacity: .35; }
-.grid .day.today { background: var(--sky); color: #0E2A40; font-weight: 600; }
-.grid .day.sel { box-shadow: inset 0 0 0 2px var(--blue); }
-.dots { display: flex; gap: 3px; height: 6px; }
-.dots i { width: 6px; height: 6px; border-radius: 50%; }
+.week .day {
+  grid-row: 1 / -1; min-width: 0; border: 0; background: none; padding: 2px 0 0; border-radius: 8px;
+  display: flex; justify-content: center; align-items: flex-start; color: inherit;
+}
+.week .day .n {
+  width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%;
+  font-size: 13px; font-variant-numeric: tabular-nums;
+}
+.week .day.other { opacity: .4; }
+.week .day.sel { background: var(--sky-soft); }
+.week .day.today .n { background: var(--blue); color: #0E2A40 !important; font-weight: 700; }
+.chip {
+  pointer-events: none; min-width: 0; height: 18px; margin: 0 1px; padding: 0 4px;
+  border-radius: 4px; font-size: 11px; line-height: 18px; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: clip;
+}
+.chip.l { margin-left: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.chip.r { margin-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.chip.timed { color: var(--ink); border-left: 3px solid; padding-left: 3px; }
+.more { pointer-events: none; text-align: center; font-size: 10.5px; line-height: 15px; color: var(--muted); font-weight: 600; }
 
 .day-panel { margin-top: 14px; }
 .day-panel h3 { margin: 0 0 10px; font-family: var(--font-display); font-weight: 400; font-size: 19px; }
 .day-events { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .day-events li { display: flex; align-items: center; gap: 10px; }
 .day-events .c { flex: none; width: 4px; align-self: stretch; min-height: 22px; border-radius: 2px; }
-.day-events .time { flex: none; width: 46px; font-weight: 600; color: var(--deep); font-variant-numeric: tabular-nums; font-size: 14px; }
+.day-events .time { flex: none; min-width: 46px; font-weight: 600; color: var(--deep); font-variant-numeric: tabular-nums; font-size: 14px; }
 .day-events .t { min-width: 0; overflow-wrap: anywhere; }
-.day-panel .none { margin: 0; color: var(--muted); }
 
-.connect { margin-top: 14px; display: flex; gap: 14px; align-items: center; }
-.connect .err { color: var(--danger); }
-.connect #gcal-status { display: block; overflow-wrap: anywhere; }
-.link-btn { display: block; border: 0; background: none; padding: 4px 0; color: var(--muted); font-size: 13px; text-decoration: underline; }
-.connect .ico {
-  flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center;
-  background: var(--sky-soft); color: var(--deep);
-}
-.connect .ico svg { width: 24px; height: 24px; }
-.connect .txt { flex: 1; min-width: 0; }
-.connect b { display: block; }
-.connect span { color: var(--muted); font-size: 14px; }
-.connect .btn { padding: 0 14px; }
-@media (max-width: 340px) { .connect { flex-wrap: wrap; } .connect .btn { width: 100%; } }
+.cal-card { margin-top: 14px; }
+.acc { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 0; border-top: 1px solid var(--line); }
+.acc:first-of-type { border-top: 0; }
+.acc .mail { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 14px; }
+.badge { font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; background: var(--sky-soft); color: var(--deep); }
+.badge.bad { background: transparent; color: var(--danger); border: 1px solid currentColor; }
+.cals { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.cals label { display: flex; align-items: center; gap: 10px; padding: 4px 0; cursor: pointer; }
+.cals .check { width: 22px; height: 22px; border-radius: 6px; }
+.cals .check:checked::after { width: 6px; height: 11px; border-color: #FFFFFF; }
+.cals .nm { min-width: 0; overflow-wrap: anywhere; font-size: 14px; }
+.sub-h { margin: 14px 0 0; font-size: 13px; font-weight: 600; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -224,100 +253,189 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 <main id="home" class="screen">
   <header class="hero">
     <div class="hero-top">
-      <h1>우리가족</h1>
-      <p class="date" id="today-label"></p>
+      <div>
+        <h1 data-t="appName">우리가족</h1>
+        <p class="date" id="today-label"></p>
+      </div>
+      <div class="lang" role="group" aria-label="Language / 언어">
+        <button type="button" data-lang="ko" aria-pressed="true">한국어</button>
+        <button type="button" data-lang="de" aria-pressed="false">Deutsch</button>
+      </div>
     </div>
-    <section class="today" aria-labelledby="today-title" data-go="calendar">
-      <h2 id="today-title">오늘 일정</h2>
+    <section class="today-box" data-go="calendar">
+      <h2 data-t="todayTitle">오늘 일정</h2>
       <ul class="events" id="today-events"></ul>
-      <p class="events-empty" id="today-empty">캘린더에서 구글 캘린더를 연결하세요</p>
+      <p class="events-empty" id="today-empty"></p>
     </section>
   </header>
-  <nav class="tiles" aria-label="메뉴">
+  <nav class="tiles">
     <button class="tile todo" type="button" data-go="todo">
       <span class="ico" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="m8 9 1.6 1.6L12.5 7.8M8 15.5l1.6 1.6 2.9-2.8M15 9.5h1.5M15 16h1.5"/></svg>
       </span>
-      <span class="name">할일목록</span>
+      <span class="name" data-t="todo">할일목록</span>
     </button>
     <button class="tile cal" type="button" data-go="calendar">
       <span class="ico" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/></svg>
       </span>
-      <span class="name">캘린더</span>
+      <span class="name" data-t="calendar">캘린더</span>
     </button>
   </nav>
+  <section class="card account" id="account" hidden></section>
 </main>
 
 <!-- 할일목록 -->
 <main id="todo" class="screen" hidden>
   <header class="bar">
-    <button class="icon-btn" type="button" data-back aria-label="홈으로">
+    <button class="icon-btn" type="button" data-back data-t-label="back" aria-label="홈으로">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
     </button>
-    <h2>할일목록</h2>
+    <h2 data-t="todo">할일목록</h2>
   </header>
   <form class="add-row" id="todo-form" autocomplete="off">
-    <input id="todo-input" type="text" placeholder="할 일 추가" aria-label="할 일" enterkeyhint="done">
-    <button class="btn" type="submit">추가</button>
+    <input class="field" id="todo-input" type="text" data-t-ph="todoAdd" data-t-label="todoAdd" placeholder="할 일 추가" aria-label="할 일 추가" enterkeyhint="done">
+    <button class="btn" type="submit" data-t="add">추가</button>
   </form>
   <ul class="todo-list" id="todo-list"></ul>
-  <div class="empty" id="todo-empty"><b>할 일이 없어요</b>위에 적고 추가를 누르세요</div>
+  <div class="empty" id="todo-empty"><b data-t="todoEmptyB">할 일이 없어요</b><span data-t="todoEmpty">위에 적고 추가를 누르세요</span></div>
 </main>
 
 <!-- 캘린더 -->
 <main id="calendar" class="screen" hidden>
   <header class="bar">
-    <button class="icon-btn" type="button" data-back aria-label="홈으로">
+    <button class="icon-btn" type="button" data-back data-t-label="back" aria-label="홈으로">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
     </button>
-    <h2>캘린더</h2>
+    <h2 data-t="calendar">캘린더</h2>
   </header>
-  <section class="card">
+  <section class="card month">
     <div class="month-nav">
-      <button class="icon-btn" type="button" id="prev-month" aria-label="이전 달">
+      <button class="icon-btn" type="button" id="prev-month" data-t-label="prevMonth" aria-label="이전 달">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
       </button>
       <h3 id="month-label"></h3>
-      <button class="icon-btn" type="button" id="next-month" aria-label="다음 달">
+      <button class="icon-btn" type="button" id="next-month" data-t-label="nextMonth" aria-label="다음 달">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
       </button>
     </div>
-    <div class="grid" id="month-grid"></div>
+    <div class="wdrow" id="wdrow" aria-hidden="true"></div>
+    <div id="weeks"></div>
   </section>
   <section class="card day-panel" aria-live="polite">
     <h3 id="day-title"></h3>
     <ul class="day-events" id="day-events"></ul>
-    <p class="none" id="day-none">일정이 없어요</p>
+    <p class="hint" id="day-none"></p>
   </section>
-  <section class="card connect">
-    <span class="ico" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
-    </span>
-    <span class="txt">
-      <b>구글 캘린더</b>
-      <span id="gcal-status">연결하면 가족 일정이 여기 보여요</span>
-      <button class="link-btn" type="button" id="gcal-off" hidden>연결 끊기</button>
-    </span>
-    <button class="btn" type="button" id="gcal-btn">연결</button>
-  </section>
+  <section class="card cal-card" id="cal-card"></section>
 </main>
 
 <script src="firebase-config.js"></script>
 <script>
 (() => {
   const $ = (s) => document.querySelector(s);
-  const screens = ['home', 'todo', 'calendar'];
-  const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+  const WORKER = 'https://our-family-calendar.weekly-meals-reader.workers.dev';
 
-  // ── 화면 전환: #todo / #calendar, 없으면 홈 ──
+  /* ───────── 말 (한국어 / 독일어) ───────── */
+  const T = {
+    ko: {
+      appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
+      todoAdd: '할 일 추가', add: '추가', todoEmptyB: '할 일이 없어요', todoEmpty: '위에 적고 추가를 누르세요', del: (t) => `${t} 삭제`,
+      prevMonth: '이전 달', nextMonth: '다음 달',
+      weekdays: ['일', '월', '화', '수', '목', '금', '토'], weekStart: 0,
+      monthLabel: (y, m) => `${y}년 ${m + 1}월`,
+      dayLabel: (d) => `${d.getMonth() + 1}월 ${d.getDate()}일 ${T.ko.weekdays[d.getDay()]}요일`,
+      dayAria: (d, n) => `${d.getMonth() + 1}월 ${d.getDate()}일${n ? `, 일정 ${n}개` : ''}`,
+      allDay: '종일', cont: '이어서', noTitle: '(제목 없음)', moreToday: (n) => `외 ${n}개`,
+      noEvents: '일정이 없어요', todayNone: '오늘 일정이 없어요',
+      todaySignIn: '아래에서 로그인하면 가족 일정이 여기 보여요', todayConnect: '캘린더에서 구글 캘린더를 연결하세요',
+      account: '계정', signIn: '구글로 로그인', signOut: '로그아웃',
+      signHint: '로그인하면 가족이 같은 캘린더를 함께 봐요.',
+      houseHint: '장보기 앱의 가족 코드를 넣으면 같은 가족으로 연결돼요.', houseCode: '가족 코드', join: '연결', create: '새로 만들기',
+      houseBad: '그 코드를 찾지 못했어요.', houseOk: (c) => `가족 코드 ${c}`,
+      gcal: '구글 캘린더', gcalConnect: '구글 캘린더 연결', gcalAdd: '다른 구글 계정 추가',
+      gcalNone: '연결하면 가족 일정이 자동으로 보여요. 처음 연결한 계정이 기본 캘린더가 돼요.',
+      needSignIn: '먼저 로그인해 주세요.', needHouse: '먼저 가족 코드를 연결해 주세요.',
+      main: '기본', broken: '다시 연결 필요', reconnect: '다시 연결', disconnect: '연결 끊기',
+      confirmDisconnect: (e) => `${e} 연결을 끊을까요?`, shownCals: '보이는 캘린더',
+      loading: '불러오는 중…', updated: (m) => m < 1 ? '방금 업데이트됨' : m < 60 ? `${m}분 전 업데이트됨` : `${Math.round(m / 60)}시간 전 업데이트됨`,
+      autoNote: '열 때마다 자동으로 새로 불러와요.',
+      errNet: '일정을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.', errSetup: '캘린더 서버 설정이 아직 안 끝났어요.',
+      errSignIn: '로그인하지 못했어요. 다시 해 주세요.',
+    },
+    de: {
+      appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
+      todoAdd: 'Aufgabe hinzufügen', add: 'Hinzufügen', todoEmptyB: 'Keine Aufgaben', todoEmpty: 'Oben eintragen und auf Hinzufügen tippen', del: (t) => `${t} löschen`,
+      prevMonth: 'Vorheriger Monat', nextMonth: 'Nächster Monat',
+      weekdays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'], weekStart: 1,
+      monthLabel: (y, m) => `${['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'][m]} ${y}`,
+      dayLabel: (d) => `${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][d.getDay()]}, ${d.getDate()}. ${T.de.monthLabel(0, d.getMonth()).split(' ')[0]}`,
+      dayAria: (d, n) => `${T.de.dayLabel(d)}${n ? `, ${n} Termin${n > 1 ? 'e' : ''}` : ''}`,
+      allDay: 'Ganztägig', cont: 'weiter', noTitle: '(Ohne Titel)', moreToday: (n) => `und ${n} weitere`,
+      noEvents: 'Keine Termine', todayNone: 'Heute keine Termine',
+      todaySignIn: 'Unten anmelden, dann erscheinen hier die Familientermine', todayConnect: 'Im Kalender den Google Kalender verbinden',
+      account: 'Konto', signIn: 'Mit Google anmelden', signOut: 'Abmelden',
+      signHint: 'Mit Anmeldung seht ihr als Familie denselben Kalender.',
+      houseHint: 'Mit dem Familiencode aus der Einkaufsliste gehört ihr zur selben Familie.', houseCode: 'Familiencode', join: 'Verbinden', create: 'Neu anlegen',
+      houseBad: 'Dieser Code wurde nicht gefunden.', houseOk: (c) => `Familiencode ${c}`,
+      gcal: 'Google Kalender', gcalConnect: 'Google Kalender verbinden', gcalAdd: 'Weiteres Google-Konto hinzufügen',
+      gcalNone: 'Nach dem Verbinden erscheinen die Familientermine automatisch. Das zuerst verbundene Konto ist der Standardkalender.',
+      needSignIn: 'Bitte zuerst anmelden.', needHouse: 'Bitte zuerst den Familiencode verbinden.',
+      main: 'Standard', broken: 'Neu verbinden nötig', reconnect: 'Neu verbinden', disconnect: 'Trennen',
+      confirmDisconnect: (e) => `Verbindung zu ${e} trennen?`, shownCals: 'Angezeigte Kalender',
+      loading: 'Wird geladen…', updated: (m) => m < 1 ? 'Gerade aktualisiert' : m < 60 ? `Vor ${m} Min. aktualisiert` : `Vor ${Math.round(m / 60)} Std. aktualisiert`,
+      autoNote: 'Wird bei jedem Öffnen automatisch aktualisiert.',
+      errNet: 'Termine konnten nicht geladen werden. Bitte Internetverbindung prüfen.', errSetup: 'Der Kalender-Server ist noch nicht fertig eingerichtet.',
+      errSignIn: 'Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
+    },
+  };
+  const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch { return d; } };
+  const store = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+  let lang = load('our-family:lang', (navigator.language || '').toLowerCase().startsWith('de') ? 'de' : 'ko');
+  if (!T[lang]) lang = 'ko';
+  const L = () => T[lang];
+
+  // 작은 DOM 도우미
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(props || {})) {
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'style') el.style.cssText = v;
+      else if (k === 'text') el.textContent = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const c of kids.flat()) if (c != null && c !== false) el.append(c);
+    return el;
+  }
+
+  /* ───────── 날짜 ───────── */
+  const pad = (n) => String(n).padStart(2, '0');
+  const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const fromKey = (k) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+  const monthKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  let now = new Date();
+  let todayKey = keyOf(now);
+  function gridRange(first) { // 달력에 보이는 첫날 ~ 마지막 날 다음 날
+    const off = (first.getDay() - L().weekStart + 7) % 7;
+    const start = addDays(first, -off);
+    const days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+    const weeks = Math.ceil((off + days) / 7);
+    return { start, end: addDays(start, weeks * 7), weeks };
+  }
+
+  /* ───────── 화면 전환: #todo / #calendar, 없으면 홈 ───────── */
+  const screens = ['home', 'todo', 'calendar'];
+  let current = 'home';
   function show() {
     const name = location.hash.slice(1);
-    const cur = screens.includes(name) ? name : 'home';
-    for (const s of screens) document.getElementById(s).hidden = s !== cur;
+    current = screens.includes(name) ? name : 'home';
+    for (const s of screens) document.getElementById(s).hidden = s !== current;
     window.scrollTo(0, 0);
-    if (cur === 'calendar') renderMonth();
-    if (cur === 'home') renderToday();
+    renderAll();
+    if (current !== 'todo') refresh(false);
   }
   let openedFromHome = false; // 홈에서 들어왔으면 '뒤로'는 history.back()
   document.addEventListener('click', (e) => {
@@ -327,39 +445,38 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
       if (openedFromHome) { openedFromHome = false; history.back(); }
       else { history.replaceState(null, '', location.pathname + location.search); show(); }
     }
+    const lb = e.target.closest('[data-lang]');
+    if (lb && lb.dataset.lang !== lang) {
+      lang = lb.dataset.lang; store('our-family:lang', lang);
+      view = new Date(view.getFullYear(), view.getMonth(), 1);
+      renderAll();
+    }
   });
   window.addEventListener('hashchange', show);
 
-  // ── 홈 날짜 ──
-  const now = new Date();
-  $('#today-label').textContent = `${now.getMonth() + 1}월 ${now.getDate()}일 ${WEEK[now.getDay()]}요일`;
+  function applyStatic() {
+    document.documentElement.lang = lang;
+    document.title = L().appName;
+    for (const el of document.querySelectorAll('[data-t]')) el.textContent = L()[el.dataset.t];
+    for (const el of document.querySelectorAll('[data-t-ph]')) el.placeholder = L()[el.dataset.tPh];
+    for (const el of document.querySelectorAll('[data-t-label]')) el.setAttribute('aria-label', L()[el.dataset.tLabel]);
+    for (const b of document.querySelectorAll('[data-lang]')) b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+    $('#today-label').textContent = L().dayLabel(now);
+  }
 
-  // ── 할일목록 (지금은 이 기기에만 저장) ──
-  const KEY = 'our-family:todos';
-  let todos = [];
-  try { todos = JSON.parse(localStorage.getItem(KEY)) || []; } catch { todos = []; }
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(todos)); } catch {} };
-
+  /* ───────── 할일목록 (이 기기에만 저장) ───────── */
+  const TODO_KEY = 'our-family:todos';
+  let todos = load(TODO_KEY, []);
+  const saveTodos = () => store(TODO_KEY, todos);
   function renderTodos() {
     const list = $('#todo-list');
-    list.replaceChildren();
-    for (const t of todos) {
-      const li = document.createElement('li');
-      li.className = 'todo-item' + (t.done ? ' done' : '');
-      const label = document.createElement('label');
-      const cb = document.createElement('input');
-      cb.type = 'checkbox'; cb.checked = t.done;
-      cb.addEventListener('change', () => { t.done = cb.checked; save(); renderTodos(); });
-      const span = document.createElement('span');
-      span.className = 't'; span.textContent = t.text;
-      label.append(cb, span);
-      const del = document.createElement('button');
-      del.type = 'button'; del.className = 'icon-btn'; del.setAttribute('aria-label', `${t.text} 삭제`);
+    list.replaceChildren(...todos.map((t) => {
+      const cb = h('input', { type: 'checkbox', class: 'check', onchange: () => { t.done = cb.checked; saveTodos(); renderTodos(); } });
+      cb.checked = t.done;
+      const del = h('button', { type: 'button', class: 'icon-btn', 'aria-label': L().del(t.text), onclick: () => { todos = todos.filter((x) => x !== t); saveTodos(); renderTodos(); } });
       del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
-      del.addEventListener('click', () => { todos = todos.filter((x) => x !== t); save(); renderTodos(); });
-      li.append(label, del);
-      list.append(li);
-    }
+      return h('li', { class: 'todo-item' + (t.done ? ' done' : '') }, h('label', {}, cb, h('span', { class: 't', text: t.text })), del);
+    }));
     $('#todo-empty').hidden = todos.length > 0;
   }
   $('#todo-form').addEventListener('submit', (e) => {
@@ -369,265 +486,383 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     if (!text) return;
     todos.push({ id: Date.now(), text, done: false });
     input.value = '';
-    save(); renderTodos();
+    saveTodos(); renderTodos();
   });
 
-  // ── 날짜 도우미 ──
-  const pad = (n) => String(n).padStart(2, '0');
-  const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  const monthKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
-  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
-  const todayKey = keyOf(now);
-  function gridRange(first) { // 달력에 보이는 첫날 ~ 마지막 날 다음 날
-    const start = addDays(first, -first.getDay());
-    const days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
-    const weeks = Math.ceil((first.getDay() + days) / 7);
-    return { start, end: addDays(start, weeks * 7), weeks };
-  }
-
-  // ── 구글 캘린더 ──
-  // 로그인은 다른 앱과 같은 Firebase 프로젝트로 하고, 그때 받은 구글 토큰(1시간 유효)으로 일정을 읽음.
-  // 불러온 일정은 이 기기에 저장해 두고, 토큰이 끝나면 '새로고침'을 누를 때 다시 로그인 창을 띄움.
-  const SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
-  const TOKEN_KEY = 'our-family:gcal-token';
-  const CACHE_KEY = 'our-family:gcal';
-  const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch { return d; } };
-  const store = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-  const gcal = {
-    token: load(TOKEN_KEY, null),            // { value, exp, email }
-    cache: load(CACHE_KEY, { email: '', months: {} }), // months['2026-11'] = { at, events }
-    calendars: null, busy: false, error: '',
-    get connected() { return !!this.cache.email; },
-    get tokenOk() { return !!(this.token && this.token.exp > Date.now()); },
+  /* ───────── 로그인 · 가족 코드 (장보기 앱과 같은 Firebase 프로젝트) ───────── */
+  const S = {
+    ready: false, user: null, house: null,
+    accounts: [], calendars: [], months: {},   // months['2026-11'] = { at, events }
+    busy: false, error: '', houseError: '',
   };
-  let fb = null; // { A, auth }
-  const fbReady = (async () => {
+  // 예전 방식(한 시간짜리 토큰)으로 저장한 값은 정리
+  store('our-family:gcal', null); store('our-family:gcal-token', null);
+  const CAL_KEY = 'our-family:cal';
+  Object.assign(S, load(CAL_KEY, {}));
+  const saveCal = () => store(CAL_KEY, { accounts: S.accounts, calendars: S.calendars, months: S.months });
+  let hiddenCals = new Set(load('our-family:hidden-cals', []));
+
+  let fb = null;
+  async function startFirebase() { // 맨 아래에서 호출 (화면 함수들이 모두 준비된 뒤)
     const cfg = window.FIREBASE_CONFIG;
-    if (!cfg) return;
+    if (!cfg) { S.ready = true; renderAll(); return; }
     try {
       const V = 'https://www.gstatic.com/firebasejs/10.12.2/';
-      const [{ initializeApp }, A] = await Promise.all([import(V + 'firebase-app.js'), import(V + 'firebase-auth.js')]);
-      fb = { A, auth: A.getAuth(initializeApp(cfg)) };
-    } catch (e) { console.warn('firebase', e); }
-  })();
+      const [{ initializeApp }, A, F] = await Promise.all(
+        [import(V + 'firebase-app.js'), import(V + 'firebase-auth.js'), import(V + 'firebase-firestore.js')]);
+      const app = initializeApp(cfg);
+      fb = { A, F, auth: A.getAuth(app), db: F.getFirestore(app) };
+      A.onAuthStateChanged(fb.auth, async (user) => {
+        S.user = user; S.house = null;
+        if (user) {
+          try {
+            const u = await F.getDoc(F.doc(fb.db, 'users', user.uid));
+            S.house = (u.exists() && u.data().house) || null;
+          } catch (e) { console.warn('house', e); }
+        }
+        S.ready = true;
+        renderAll();
+        refresh(true);
+      });
+    } catch (e) {
+      console.warn('firebase', e);
+      S.ready = true; renderAll();
+    }
+  }
 
   async function signIn() {
-    if (!fb) await fbReady;
-    if (!fb) throw new Error('로그인 기능을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.');
-    const p = new fb.A.GoogleAuthProvider();
-    p.addScope(SCOPE);
-    if (gcal.cache.email) p.setCustomParameters({ login_hint: gcal.cache.email });
-    const r = await fb.A.signInWithPopup(fb.auth, p);
-    const cred = fb.A.GoogleAuthProvider.credentialFromResult(r);
-    if (!cred || !cred.accessToken) throw new Error('구글에서 캘린더 권한을 받지 못했어요.');
-    gcal.token = { value: cred.accessToken, exp: Date.now() + 55 * 60 * 1000, email: r.user.email || '' };
-    store(TOKEN_KEY, gcal.token);
-    if (gcal.cache.email !== gcal.token.email) gcal.cache = { email: gcal.token.email, months: {} };
-    store(CACHE_KEY, gcal.cache);
+    try { await fb.A.signInWithPopup(fb.auth, new fb.A.GoogleAuthProvider()); }
+    catch (e) {
+      if (!/popup-closed|cancelled-popup/.test(String(e && e.code))) { S.houseError = L().errSignIn; renderAll(); }
+    }
+  }
+  async function signOut() {
+    Object.assign(S, { accounts: [], calendars: [], months: {}, error: '', houseError: '' });
+    saveCal();
+    await fb.A.signOut(fb.auth);
+  }
+  async function linkHouse(code) {
+    await fb.F.setDoc(fb.F.doc(fb.db, 'users', S.user.uid), { house: code });
+    S.house = code; S.houseError = '';
+    renderAll(); refresh(true);
+  }
+  async function joinHouse(raw) {
+    const code = String(raw).toUpperCase().replace(/[^A-Z0-9]/g, '');
+    try {
+      if (!code || !(await fb.F.getDoc(fb.F.doc(fb.db, 'households', code))).exists()) { S.houseError = L().houseBad; renderAll(); return; }
+      await linkHouse(code);
+    } catch (e) { console.warn(e); S.houseError = L().houseBad; renderAll(); }
+  }
+  async function createHouse() {
+    const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const code = [...crypto.getRandomValues(new Uint8Array(10))].map((n) => abc[n % abc.length]).join('');
+    await fb.F.setDoc(fb.F.doc(fb.db, 'households', code), { stores: {}, items: {}, stock: {}, meals: {}, created: Date.now() });
+    await linkHouse(code);
   }
 
-  async function api(path, params) {
-    const res = await fetch(`https://www.googleapis.com/calendar/v3/${path}?${new URLSearchParams(params)}`,
-      { headers: { Authorization: `Bearer ${gcal.token.value}` } });
-    if (res.ok) return res.json();
-    const body = await res.json().catch(() => ({}));
-    const why = JSON.stringify(body);
-    if (res.status === 401) { gcal.token = null; store(TOKEN_KEY, null); throw new Error('연결 시간이 끝났어요. 새로고침을 눌러 주세요.'); }
-    if (/SERVICE_DISABLED|accessNotConfigured/.test(why)) throw new Error('구글 클라우드에서 Google Calendar API를 아직 켜지 않았어요.');
-    if (/insufficient|PERMISSION_DENIED|ACCESS_TOKEN_SCOPE/i.test(why)) throw new Error('로그인할 때 캘린더 보기 권한에 체크해 주세요.');
-    throw new Error(`일정을 불러오지 못했어요 (${res.status}).`);
+  // 계정 칸: 로그인 → 가족 코드 → (완료) 순서
+  function accountBlock() {
+    if (!fb) return [h('p', { class: 'hint', text: S.ready ? L().errNet : L().loading })];
+    if (!S.user) return [
+      h('h3', { text: L().account }),
+      h('p', { class: 'hint', text: L().signHint }),
+      S.houseError && h('p', { class: 'hint err', text: S.houseError }),
+      h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn', text: L().signIn, onclick: signIn })),
+    ];
+    const who = h('div', { class: 'who' },
+      h('span', { text: S.house ? `${S.user.email} · ${L().houseOk(S.house)}` : S.user.email }),
+      h('button', { type: 'button', class: 'link-btn', text: L().signOut, onclick: signOut }));
+    if (S.house) return [h('h3', { text: L().account }), who];
+    const input = h('input', { class: 'field', type: 'text', placeholder: L().houseCode, 'aria-label': L().houseCode, autocapitalize: 'characters', autocomplete: 'off' });
+    return [
+      h('h3', { text: L().account }), who,
+      h('p', { class: 'hint', style: 'margin-top:10px', text: L().houseHint }),
+      S.houseError && h('p', { class: 'hint err', text: S.houseError }),
+      h('form', { class: 'row', onsubmit: (e) => { e.preventDefault(); joinHouse(input.value); } },
+        input, h('button', { type: 'submit', class: 'btn', text: L().join })),
+      h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn ghost', text: L().create, onclick: createHouse })),
+    ];
+  }
+  function renderAccount() {
+    const box = $('#account');
+    box.hidden = !S.ready;
+    box.replaceChildren(...accountBlock());
   }
 
-  function toEvent(it, cal) {
+  /* ───────── 구글 캘린더 (캘린더 서버가 연결을 보관 → 자동 새로고침) ───────── */
+  async function post(path, body) {
+    const token = await S.user.getIdToken();
+    const r = await fetch(WORKER + path, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {}),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error(data.error || String(r.status)); e.code = data.error; throw e; }
+    return data;
+  }
+
+  function toEvent(it, color) {
     const allDay = !!it.start.date;
     let s, e, time = '';
     if (allDay) {
       s = it.start.date;
-      const [y, m, d] = it.end.date.split('-').map(Number);
-      e = keyOf(new Date(y, m - 1, d - 1)); // end.date 는 다음 날이라 하루 빼기
-    } else {
-      const sd = new Date(it.start.dateTime), ed = new Date(it.end.dateTime);
-      s = keyOf(sd);
-      e = keyOf(new Date(ed.getTime() - 1));
+      e = keyOf(addDays(fromKey(it.end.date || it.start.date), -1)); // end.date 는 다음 날
       if (e < s) e = s;
+    } else {
+      const sd = new Date(it.start.dateTime), ed = new Date(it.end.dateTime || it.start.dateTime);
+      s = keyOf(sd);
+      e = keyOf(new Date(Math.max(sd.getTime(), ed.getTime() - 1)));
       time = `${pad(sd.getHours())}:${pad(sd.getMinutes())}`;
     }
-    return { title: it.summary || '(제목 없음)', s, e, time, allDay, color: cal.backgroundColor || '#6AAFE6' };
+    const span = Math.round((fromKey(e) - fromKey(s)) / 864e5) + 1;
+    return { id: it.id, cal: it.cal, title: it.title, s, e, span, time, allDay, color: color || '#6AAFE6' };
   }
 
-  async function fetchMonth(first) {
-    const { start, end } = gridRange(first);
-    if (!gcal.calendars) {
-      const list = await api('users/me/calendarList', { minAccessRole: 'reader', maxResults: '250' });
-      gcal.calendars = (list.items || []).filter((c) => (c.selected || c.primary) && !c.hidden);
-    }
-    const lists = await Promise.all(gcal.calendars.map((cal) =>
-      api(`calendars/${encodeURIComponent(cal.id)}/events`, {
-        timeMin: start.toISOString(), timeMax: end.toISOString(),
-        singleEvents: 'true', orderBy: 'startTime', maxResults: '250',
-      }).then((r) => (r.items || []).filter((it) => it.status !== 'cancelled' && it.start).map((it) => toEvent(it, cal)))));
-    gcal.cache.months[monthKey(first)] = { at: Date.now(), events: lists.flat() };
-    // 저장은 최근 몇 달만
-    const keys = Object.keys(gcal.cache.months).sort();
-    while (keys.length > 6) delete gcal.cache.months[keys.shift()];
-    store(CACHE_KEY, gcal.cache);
+  let inflight = null;
+  async function refresh(force) {
+    if (!S.user || !S.house) return;
+    const first = view, mk = monthKey(first);
+    const c = S.months[mk];
+    if (!force && c && Date.now() - c.at < 2 * 60 * 1000) return;
+    if (inflight) return;
+    S.busy = true; S.error = ''; renderCalCard();
+    inflight = (async () => {
+      try {
+        const { start, end } = gridRange(first);
+        const d = await post('/events', { timeMin: start.toISOString(), timeMax: end.toISOString() });
+        S.accounts = d.accounts || []; S.calendars = d.calendars || [];
+        const colors = Object.fromEntries(S.calendars.map((x) => [x.id, x.color]));
+        S.months[mk] = { at: d.at || Date.now(), events: (d.events || []).map((ev) => toEvent(ev, colors[ev.cal])) };
+        const keys = Object.keys(S.months).sort();
+        while (keys.length > 6) delete S.months[keys.shift()];
+        saveCal();
+      } catch (e) {
+        console.warn('events', e);
+        S.error = e.code === 'not_configured' ? L().errSetup : e.code === 'no_house' ? L().needHouse : L().errNet;
+      } finally {
+        S.busy = false; inflight = null;
+        renderAll();
+        if (monthKey(view) !== mk) refresh(false); // 그 사이 다른 달로 넘겼으면 그 달도
+      }
+    })();
   }
 
-  function eventsOn(key) {
+  function connectGoogle() {
+    // 버튼을 누르는 순간 창을 먼저 열어야 팝업이 막히지 않음
+    const w = window.open('', 'gcal-connect', 'width=480,height=700');
+    if (w) try { w.document.write(`<p style="font-family:system-ui;padding:24px">${L().loading}</p>`); } catch {}
+    post('/connect', { ret: location.href.split('#')[0] })
+      .then(({ url }) => { if (w && !w.closed) w.location.href = url; else location.href = url; })
+      .catch((e) => {
+        if (w) w.close();
+        S.error = e.code === 'not_configured' ? L().errSetup : L().errNet;
+        renderCalCard();
+      });
+  }
+  window.addEventListener('message', (e) => {
+    if (e.origin === WORKER && e.data && e.data.gcal === 'connected') refresh(true);
+  });
+  async function disconnectGoogle(email) {
+    if (!confirm(L().confirmDisconnect(email))) return;
+    try { await post('/disconnect', { email }); } catch (e) { console.warn(e); }
+    S.months = {}; refresh(true);
+  }
+  // 앱으로 돌아오거나 열려 있는 동안 자동으로 새로 불러오기
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    const k = keyOf(new Date());
+    if (k !== todayKey) { now = new Date(); todayKey = k; renderAll(); }
+    refresh(false);
+  });
+  setInterval(() => { if (!document.hidden) refresh(false); }, 5 * 60 * 1000);
+
+  // 여러 달에 걸쳐 저장된 일정 중 [k0, k1] 기간과 겹치는 것 (숨긴 캘린더 제외, 중복 제거)
+  function eventsBetween(k0, k1) {
     const seen = new Set(), out = [];
-    for (const mk of Object.keys(gcal.cache.months)) {
-      for (const ev of gcal.cache.months[mk].events) {
-        if (ev.s > key || ev.e < key) continue;
-        const id = `${ev.title}|${ev.s}|${ev.time}|${ev.color}`;
-        if (seen.has(id)) continue; // 달력 가장자리 날짜는 두 달 모두에 들어 있음
+    for (const mk of Object.keys(S.months)) {
+      for (const ev of S.months[mk].events) {
+        if (ev.s > k1 || ev.e < k0 || hiddenCals.has(ev.cal)) continue;
+        const id = `${ev.cal}|${ev.id || ev.title + ev.s + ev.time}`;
+        if (seen.has(id)) continue;
         seen.add(id); out.push(ev);
       }
     }
-    return out.sort((a, b) => (b.allDay - a.allDay) || (a.s === key ? a.time : '').localeCompare(b.s === key ? b.time : ''));
+    return out;
   }
-  const timeLabel = (ev, key) => ev.allDay ? '종일' : ev.s === key ? ev.time : '이어서';
-
-  // 지금 보는 달을 (필요하면) 다시 불러옴. interactive=true 는 버튼을 눌렀을 때 → 로그인 창 허용
-  async function refresh(first, interactive) {
-    if (gcal.busy) return;
-    const cached = gcal.cache.months[monthKey(first)];
-    if (!interactive && (!gcal.connected || !gcal.tokenOk || (cached && Date.now() - cached.at < 5 * 60 * 1000))) return;
-    gcal.busy = true; gcal.error = ''; renderGcal();
-    try {
-      if (!gcal.tokenOk) await signIn();
-      await fetchMonth(first);
-    } catch (e) {
-      const code = e && e.code;
-      if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') gcal.error = '';
-      else if (code === 'auth/popup-blocked') gcal.error = '팝업이 막혔어요. 다시 눌러 주세요.';
-      else if (code === 'auth/unauthorized-domain') gcal.error = '이 주소에서는 로그인이 허용되지 않았어요.';
-      else gcal.error = (e && e.message) || '문제가 생겼어요.';
-      console.warn('gcal', e);
-    } finally {
-      gcal.busy = false;
-      renderGcal(); renderMonth(); renderToday();
-    }
+  const byDay = (key) => (a, b) => (b.allDay - a.allDay) || (b.span - a.span) ||
+    (a.s === key ? a.time : '').localeCompare(b.s === key ? b.time : '');
+  const eventsOn = (key) => eventsBetween(key, key).sort(byDay(key));
+  const timeLabel = (ev, key) => ev.allDay ? L().allDay : ev.s === key ? ev.time : L().cont;
+  const titleOf = (ev) => ev.title || L().noTitle;
+  // 로그인 확인 전(또는 오프라인)에는 저장해 둔 일정을 그대로 보여 줌. 로그아웃하면 저장분도 지움.
+  const hasCalendar = () => S.accounts.length > 0 && (!S.ready || !!(S.user && S.house));
+  function inkFor(hex) {
+    const n = parseInt(String(hex).slice(1, 7), 16);
+    if (isNaN(n)) return '#FFFFFF';
+    const y = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+    return y > 0.62 ? '#1B1B1B' : '#FFFFFF';
   }
 
-  function renderGcal() {
-    const st = $('#gcal-status'), btn = $('#gcal-btn');
-    st.classList.toggle('err', !!gcal.error);
-    btn.disabled = gcal.busy;
-    $('#gcal-off').hidden = !gcal.connected || gcal.busy;
-    if (gcal.busy) { st.textContent = '불러오는 중…'; btn.textContent = '잠시만요'; return; }
-    btn.textContent = gcal.connected ? '새로고침' : '연결';
-    if (gcal.error) { st.textContent = gcal.error; return; }
-    if (!gcal.connected) { st.textContent = '연결하면 가족 일정이 여기 보여요'; return; }
-    const at = gcal.cache.months[monthKey(view)]?.at;
-    const ago = at ? Math.round((Date.now() - at) / 60000) : null;
-    st.textContent = `${gcal.cache.email}` + (ago == null ? '' : ago < 1 ? ' · 방금 불러옴' : ago < 60 ? ` · ${ago}분 전` : ago < 1440 ? ` · ${Math.round(ago / 60)}시간 전` : ` · ${Math.round(ago / 1440)}일 전`);
-  }
-
-  $('#gcal-btn').addEventListener('click', () => refresh(view, true));
-  $('#gcal-off').addEventListener('click', async () => {
-    const t = gcal.token;
-    gcal.token = null; gcal.cache = { email: '', months: {} }; gcal.calendars = null; gcal.error = '';
-    store(TOKEN_KEY, null); store(CACHE_KEY, null);
-    if (t) fetch('https://oauth2.googleapis.com/revoke', { method: 'POST', body: new URLSearchParams({ token: t.value }) }).catch(() => {});
-    if (fb) fb.A.signOut(fb.auth).catch(() => {});
-    renderGcal(); renderMonth(); renderToday();
-  });
-
-  // ── 홈 상단 '오늘 일정' ──
+  /* ───────── 홈 '오늘 일정' ───────── */
   function renderToday() {
-    const list = $('#today-events');
-    list.replaceChildren();
-    const evs = gcal.connected ? eventsOn(todayKey) : [];
+    const evs = hasCalendar() ? eventsOn(todayKey) : [];
     const MAX = 4;
-    for (const ev of evs.slice(0, MAX)) {
-      const li = document.createElement('li');
-      const time = document.createElement('span');
-      time.className = 'time'; time.textContent = timeLabel(ev, todayKey);
-      const title = document.createElement('span');
-      title.className = 't'; title.textContent = ev.title;
-      li.append(time, title);
-      list.append(li);
-    }
-    if (evs.length > MAX) {
-      const li = document.createElement('li');
-      li.className = 'more'; li.textContent = `외 ${evs.length - MAX}개`;
-      list.append(li);
-    }
+    $('#today-events').replaceChildren(
+      ...evs.slice(0, MAX).map((ev) => h('li', {},
+        h('span', { class: 'c', style: `background:${ev.color}` }),
+        h('span', { class: 'time', text: timeLabel(ev, todayKey) }),
+        h('span', { class: 't', text: titleOf(ev) }))),
+      ...(evs.length > MAX ? [h('li', { class: 'more', text: L().moreToday(evs.length - MAX) })] : []));
     const empty = $('#today-empty');
     empty.hidden = evs.length > 0;
-    empty.textContent = gcal.connected ? '오늘 일정이 없어요' : '캘린더에서 구글 캘린더를 연결하세요';
+    empty.textContent = !S.user || !S.house ? L().todaySignIn : !S.accounts.length ? L().todayConnect : L().todayNone;
   }
 
-  // ── 캘린더 (월 보기) ──
+  /* ───────── 캘린더: 달 보기 ───────── */
   let view = new Date(now.getFullYear(), now.getMonth(), 1);
   let selected = todayKey;
+  const LANES = 3;
+
   function renderMonth() {
     const y = view.getFullYear(), m = view.getMonth();
-    $('#month-label').textContent = `${y}년 ${m + 1}월`;
-    const grid = $('#month-grid');
-    grid.replaceChildren();
-    for (const w of WEEK) {
-      const d = document.createElement('div'); d.className = 'wd'; d.textContent = w; grid.append(d);
-    }
+    $('#month-label').textContent = L().monthLabel(y, m);
+    const ws = L().weekStart;
+    $('#wdrow').replaceChildren(...[0, 1, 2, 3, 4, 5, 6].map((i) => {
+      const wd = (i + ws) % 7;
+      return h('div', { class: wd === 0 ? 'sun' : wd === 6 ? 'sat' : '', text: L().weekdays[wd] });
+    }));
     const { start, weeks } = gridRange(view);
-    for (let i = 0; i < weeks * 7; i++) {
-      const d = addDays(start, i);
-      const key = keyOf(d);
-      const cell = document.createElement('button');
-      cell.type = 'button';
-      cell.className = 'day';
-      if (d.getMonth() !== m) cell.classList.add('other');
-      if (d.getDay() === 0) cell.classList.add('sun');
-      if (d.getDay() === 6) cell.classList.add('sat');
-      if (key === todayKey) cell.classList.add('today');
-      if (key === selected) cell.classList.add('sel');
-      const num = document.createElement('span');
-      num.textContent = d.getDate();
-      const dots = document.createElement('span');
-      dots.className = 'dots';
-      const evs = gcal.connected ? eventsOn(key) : [];
-      for (const ev of evs.slice(0, 3)) {
-        const dot = document.createElement('i'); dot.style.background = ev.color; dots.append(dot);
+    const show = hasCalendar();
+    const rows = [];
+    for (let w = 0; w < weeks; w++) {
+      const days = [0, 1, 2, 3, 4, 5, 6].map((i) => addDays(start, w * 7 + i));
+      const keys = days.map(keyOf);
+      const week = h('div', { class: 'week' });
+      days.forEach((d, i) => {
+        const key = keys[i];
+        const cls = ['day'];
+        if (d.getMonth() !== m) cls.push('other');
+        if (d.getDay() === 0) cls.push('sun');
+        if (d.getDay() === 6) cls.push('sat');
+        if (key === todayKey) cls.push('today');
+        if (key === selected) cls.push('sel');
+        const n = show ? eventsOn(key).length : 0;
+        week.append(h('button', {
+          type: 'button', class: cls.join(' '), style: `grid-column:${i + 1}`,
+          'aria-label': L().dayAria(d, n), 'aria-pressed': String(key === selected),
+          onclick: () => { selected = key; renderMonth(); },
+        }, h('span', { class: 'n', text: d.getDate() })));
+      });
+      if (show) {
+        // 긴 일정(여러 날·종일)부터 줄을 배정 → 구글 캘린더처럼 막대가 이어짐
+        const evs = eventsBetween(keys[0], keys[6]).sort((a, b) =>
+          a.s.localeCompare(b.s) || (b.span - a.span) || (b.allDay - a.allDay) || a.time.localeCompare(b.time));
+        const lanes = [], hidden = Array(7).fill(0);
+        for (const ev of evs) {
+          const a = ev.s < keys[0] ? 0 : keys.indexOf(ev.s);
+          const b = ev.e > keys[6] ? 6 : keys.indexOf(ev.e);
+          if (a < 0 || b < 0) continue;
+          let l = 0;
+          while (l < LANES && lanes[l] && lanes[l].slice(a, b + 1).some(Boolean)) l++;
+          if (l >= LANES) { for (let i = a; i <= b; i++) hidden[i]++; continue; }
+          lanes[l] = lanes[l] || Array(7).fill(false);
+          for (let i = a; i <= b; i++) lanes[l][i] = true;
+          const bar = ev.allDay || ev.span > 1;
+          const cls = ['chip', bar ? 'bar' : 'timed'];
+          if (ev.s < keys[0]) cls.push('l');
+          if (ev.e > keys[6]) cls.push('r');
+          const style = `grid-column:${a + 1} / ${b + 2};grid-row:${l + 2};` + (bar
+            ? `background:${ev.color};color:${inkFor(ev.color)}`
+            : `background:${ev.color}33;border-color:${ev.color}`);
+          week.append(h('div', { class: cls.join(' '), style, 'aria-hidden': 'true', text: titleOf(ev) }));
+        }
+        hidden.forEach((c, i) => {
+          if (c) week.append(h('div', { class: 'more', style: `grid-column:${i + 1};grid-row:${LANES + 2}`, 'aria-hidden': 'true', text: `+${c}` }));
+        });
       }
-      cell.setAttribute('aria-label', `${d.getMonth() + 1}월 ${d.getDate()}일${evs.length ? `, 일정 ${evs.length}개` : ''}`);
-      cell.addEventListener('click', () => { selected = key; renderMonth(); });
-      cell.append(num, dots);
-      grid.append(cell);
+      rows.push(week);
     }
+    $('#weeks').replaceChildren(...rows);
     renderDay();
-    renderGcal();
   }
+
   function renderDay() {
-    const [y, m, d] = selected.split('-').map(Number);
-    const date = new Date(y, m - 1, d);
-    $('#day-title').textContent = `${m}월 ${d}일 ${WEEK[date.getDay()]}요일`;
-    const list = $('#day-events');
-    list.replaceChildren();
-    const evs = gcal.connected ? eventsOn(selected) : [];
-    for (const ev of evs) {
-      const li = document.createElement('li');
-      const c = document.createElement('span'); c.className = 'c'; c.style.background = ev.color;
-      const time = document.createElement('span'); time.className = 'time'; time.textContent = timeLabel(ev, selected);
-      const t = document.createElement('span'); t.className = 't'; t.textContent = ev.title;
-      li.append(c, time, t);
-      list.append(li);
-    }
+    const date = fromKey(selected);
+    $('#day-title').textContent = L().dayLabel(date);
+    const evs = hasCalendar() ? eventsOn(selected) : [];
+    $('#day-events').replaceChildren(...evs.map((ev) => h('li', {},
+      h('span', { class: 'c', style: `background:${ev.color}` }),
+      h('span', { class: 'time', text: timeLabel(ev, selected) }),
+      h('span', { class: 't', text: titleOf(ev) }))));
     const none = $('#day-none');
     none.hidden = evs.length > 0;
-    none.textContent = gcal.connected ? '일정이 없어요' : '구글 캘린더를 연결하면 일정이 보여요';
+    none.textContent = hasCalendar() ? L().noEvents : !S.user || !S.house ? L().todaySignIn : L().gcalNone;
   }
+
+  function renderCalCard() {
+    const box = $('#cal-card');
+    if (!S.user || !S.house) { box.replaceChildren(...accountBlock()); return; }
+    const kids = [h('h3', { text: L().gcal })];
+    const at = S.months[monthKey(view)] && S.months[monthKey(view)].at;
+    if (S.busy) kids.push(h('p', { class: 'hint', text: L().loading }));
+    else if (S.error) kids.push(h('p', { class: 'hint err', text: S.error }));
+    else if (S.accounts.length && at) kids.push(h('p', { class: 'hint', text: `${L().updated(Math.round((Date.now() - at) / 60000))} · ${L().autoNote}` }));
+    if (!S.accounts.length) {
+      kids.push(h('p', { class: 'hint', style: 'margin-top:4px', text: L().gcalNone }));
+      kids.push(h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn', text: L().gcalConnect, disabled: S.busy, onclick: connectGoogle })));
+      box.replaceChildren(...kids);
+      return;
+    }
+    for (const acc of S.accounts) {
+      kids.push(h('div', { class: 'acc' },
+        h('span', { class: 'mail', text: acc.email }),
+        acc.main && h('span', { class: 'badge', text: L().main }),
+        !acc.ok && h('span', { class: 'badge bad', text: L().broken }),
+        !acc.ok && h('button', { type: 'button', class: 'link-btn', text: L().reconnect, onclick: connectGoogle }),
+        h('button', { type: 'button', class: 'link-btn', text: L().disconnect, onclick: () => disconnectGoogle(acc.email) })));
+    }
+    if (S.calendars.length) {
+      kids.push(h('p', { class: 'sub-h', text: L().shownCals }));
+      kids.push(h('ul', { class: 'cals' }, ...S.calendars.map((c) => {
+        const cb = h('input', {
+          type: 'checkbox', class: 'check', style: `border-color:${c.color}`,
+          onchange: () => {
+            cb.checked ? hiddenCals.delete(c.id) : hiddenCals.add(c.id);
+            store('our-family:hidden-cals', [...hiddenCals]);
+            cb.style.background = cb.checked ? c.color : '';
+            renderMonth(); renderToday();
+          },
+        });
+        cb.checked = !hiddenCals.has(c.id);
+        if (cb.checked) cb.style.background = c.color;
+        return h('li', {}, h('label', {}, cb, h('span', { class: 'nm', text: c.name })));
+      })));
+    }
+    kids.push(h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn ghost', text: L().gcalAdd, disabled: S.busy, onclick: connectGoogle })));
+    box.replaceChildren(...kids);
+  }
+
   function moveMonth(n) {
     view = new Date(view.getFullYear(), view.getMonth() + n, 1);
-    selected = view.getMonth() === now.getMonth() && view.getFullYear() === now.getFullYear() ? todayKey : keyOf(view);
-    renderMonth();
-    refresh(view, false);
+    selected = monthKey(view) === monthKey(now) ? todayKey : keyOf(view);
+    renderMonth(); renderCalCard();
+    refresh(false);
   }
   $('#prev-month').addEventListener('click', () => moveMonth(-1));
   $('#next-month').addEventListener('click', () => moveMonth(1));
 
-  renderTodos();
+  function renderAll() {
+    applyStatic();
+    renderToday();
+    renderAccount();
+    renderTodos();
+    renderMonth();
+    renderCalCard();
+  }
+
   show();
-  refresh(new Date(now.getFullYear(), now.getMonth(), 1), false);
+  startFirebase();
 
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();

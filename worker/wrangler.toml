@@ -1,0 +1,15 @@
+name = "our-family-calendar"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+# 구글 캘린더 연결을 보관하는 저장소 (가족 코드별 연결 계정, 잠깐 쓰는 접근 토큰)
+kv_namespaces = [
+  { binding = "STORE", id = "d6fd0d7cc4f642e8805123313e77726c" }
+]
+
+[vars]
+REDIRECT_URI = "https://our-family-calendar.weekly-meals-reader.workers.dev/callback"
+
+# 비밀 값은 여기 적지 않고 아래 명령으로 넣음:
+#   npx wrangler secret put GOOGLE_CLIENT_ID
+#   npx wrangler secret put GOOGLE_CLIENT_SECRET
