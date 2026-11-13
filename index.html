@@ -188,6 +188,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .todo-item.done .t { color: var(--muted); text-decoration: line-through; }
 .todo-item .icon-btn { width: 38px; height: 38px; color: var(--muted); }
 .empty { text-align: center; color: var(--muted); padding: 40px 12px; }
+.todo-note { margin-top: 16px; text-align: center; font-size: 13px; }
 .empty b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 20px; color: var(--ink); margin-bottom: 4px; }
 
 /* ── 캘린더: 달 보기 (칸 안에 일정 막대) ── */
@@ -299,6 +300,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   </form>
   <ul class="todo-list" id="todo-list"></ul>
   <div class="empty" id="todo-empty"><b data-t="todoEmptyB">할 일이 없어요</b><span data-t="todoEmpty">위에 적고 추가를 누르세요</span></div>
+  <p class="hint todo-note" id="todo-note" hidden></p>
 </main>
 
 <!-- 캘린더 -->
@@ -341,6 +343,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     ko: {
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
       todoAdd: '할 일 추가', add: '추가', todoEmptyB: '할 일이 없어요', todoEmpty: '위에 적고 추가를 누르세요', del: (t) => `${t} 삭제`,
+      todoShared: '가족과 함께 보는 목록이에요. 누가 바꿔도 바로 반영돼요.', todoLocal: '지금은 이 휴대폰에만 저장돼요. 홈에서 로그인하면 가족과 함께 써요.',
       prevMonth: '이전 달', nextMonth: '다음 달',
       weekdays: ['일', '월', '화', '수', '목', '금', '토'], weekStart: 0,
       monthLabel: (y, m) => `${y}년 ${m + 1}월`,
@@ -366,6 +369,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     de: {
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
       todoAdd: 'Aufgabe hinzufügen', add: 'Hinzufügen', todoEmptyB: 'Keine Aufgaben', todoEmpty: 'Oben eintragen und auf Hinzufügen tippen', del: (t) => `${t} löschen`,
+      todoShared: 'Diese Liste teilt ihr als Familie. Änderungen erscheinen sofort bei allen.', todoLocal: 'Gerade nur auf diesem Handy gespeichert. Auf der Startseite anmelden, um sie mit der Familie zu teilen.',
       prevMonth: 'Vorheriger Monat', nextMonth: 'Nächster Monat',
       weekdays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'], weekStart: 1,
       monthLabel: (y, m) => `${['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'][m]} ${y}`,
@@ -464,29 +468,81 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     $('#today-label').textContent = L().dayLabel(now);
   }
 
-  /* ───────── 할일목록 (이 기기에만 저장) ───────── */
-  const TODO_KEY = 'our-family:todos';
-  let todos = load(TODO_KEY, []);
-  const saveTodos = () => store(TODO_KEY, todos);
+  /* ───────── 할일목록 ─────────
+     로그인 + 가족 코드가 있으면 households/{코드}.todos (id → 할 일) 로 가족과 공유.
+     바뀐 항목만 필드 단위로 올려서 두 휴대폰이 서로 덮어쓰지 않음. 로그인 전에는 이 기기에만 저장. */
+  const TODO_KEY = 'our-family:todos';          // 이 기기 전용 (로그인 전)
+  const SHARED_KEY = 'our-family:todos-shared'; // 가족 목록의 마지막 모습 (빠른 표시·오프라인용)
+  let localTodos = load(TODO_KEY, []);
+  let sharedTodos = load(SHARED_KEY, null);
+  let todoUnsub = null;
+  const isShared = () => !!(fb && S.user && S.house);
+  const visibleTodos = () => (sharedTodos && (isShared() || !S.ready)) ? sharedTodos : localTodos;
+  const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const houseRef = () => fb.F.doc(fb.db, 'households', S.house);
+  const todoWrite = (changes) => fb.F.updateDoc(houseRef(), changes).catch((e) => console.warn('todos', e));
+  const saveLocal = () => { store(TODO_KEY, localTodos); renderTodos(); };
+
+  function addTodo(text) {
+    const t = { id: newId(), text, done: false, at: Date.now() };
+    if (isShared()) todoWrite({ [`todos.${t.id}`]: t });
+    else { localTodos.push(t); saveLocal(); }
+  }
+  function setDone(t, done) {
+    if (isShared()) todoWrite({ [`todos.${t.id}.done`]: done });
+    else { t.done = done; saveLocal(); }
+  }
+  function removeTodo(t) {
+    if (isShared()) todoWrite({ [`todos.${t.id}`]: fb.F.deleteField() });
+    else { localTodos = localTodos.filter((x) => x !== t); saveLocal(); }
+  }
+  function stopTodos() { if (todoUnsub) todoUnsub(); todoUnsub = null; }
+  function listenTodos() {
+    stopTodos();
+    if (!isShared()) { renderTodos(); return; }
+    let first = true;
+    todoUnsub = fb.F.onSnapshot(houseRef(), (snap) => {
+      const map = (snap.exists() && snap.data().todos) || {};
+      if (first) {
+        first = false;
+        // 로그인 전에 이 기기에만 적어 둔 할 일은 가족 목록으로 옮김
+        if (localTodos.length) {
+          const up = {};
+          for (const t of localTodos) {
+            const id = /^[a-z0-9]+$/.test(String(t.id)) ? String(t.id) : newId();
+            up[`todos.${id}`] = { id, text: t.text, done: !!t.done, at: t.at || Date.now() };
+          }
+          localTodos = []; store(TODO_KEY, localTodos);
+          todoWrite(up);
+        }
+      }
+      sharedTodos = Object.values(map).sort((a, b) => (a.at || 0) - (b.at || 0));
+      store(SHARED_KEY, sharedTodos);
+      renderTodos();
+    }, (e) => console.warn('todos', e));
+  }
+
   function renderTodos() {
-    const list = $('#todo-list');
-    list.replaceChildren(...todos.map((t) => {
-      const cb = h('input', { type: 'checkbox', class: 'check', onchange: () => { t.done = cb.checked; saveTodos(); renderTodos(); } });
-      cb.checked = t.done;
-      const del = h('button', { type: 'button', class: 'icon-btn', 'aria-label': L().del(t.text), onclick: () => { todos = todos.filter((x) => x !== t); saveTodos(); renderTodos(); } });
+    const todos = visibleTodos();
+    $('#todo-list').replaceChildren(...todos.map((t) => {
+      const cb = h('input', { type: 'checkbox', class: 'check', onchange: () => setDone(t, cb.checked) });
+      cb.checked = !!t.done;
+      const del = h('button', { type: 'button', class: 'icon-btn', 'aria-label': L().del(t.text), onclick: () => removeTodo(t) });
       del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
       return h('li', { class: 'todo-item' + (t.done ? ' done' : '') }, h('label', {}, cb, h('span', { class: 't', text: t.text })), del);
     }));
     $('#todo-empty').hidden = todos.length > 0;
+    const note = $('#todo-note');
+    note.hidden = !S.ready;
+    note.textContent = isShared() ? L().todoShared : L().todoLocal;
   }
   $('#todo-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const input = $('#todo-input');
     const text = input.value.trim();
     if (!text) return;
-    todos.push({ id: Date.now(), text, done: false });
     input.value = '';
-    saveTodos(); renderTodos();
+    addTodo(text);
   });
 
   /* ───────── 로그인 · 가족 코드 (장보기 앱과 같은 Firebase 프로젝트) ───────── */
@@ -521,6 +577,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
           } catch (e) { console.warn('house', e); }
         }
         S.ready = true;
+        listenTodos();
         renderAll();
         refresh(true);
       });
@@ -539,11 +596,13 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   async function signOut() {
     Object.assign(S, { accounts: [], calendars: [], months: {}, error: '', houseError: '' });
     saveCal();
+    stopTodos(); sharedTodos = null; store(SHARED_KEY, null);
     await fb.A.signOut(fb.auth);
   }
   async function linkHouse(code) {
     await fb.F.setDoc(fb.F.doc(fb.db, 'users', S.user.uid), { house: code });
     S.house = code; S.houseError = '';
+    listenTodos();
     renderAll(); refresh(true);
   }
   async function joinHouse(raw) {
