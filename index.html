@@ -209,9 +209,25 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .todo-item .body { flex: 1; min-width: 0; border: 0; background: none; padding: 0; text-align: left; color: inherit; display: grid; gap: 2px; }
 .todo-item .t { font-weight: 600; overflow-wrap: anywhere; }
 .todo-item .d { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.todo-item .due { justify-self: start; margin-top: 4px; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; background: var(--sky-soft); color: var(--deep); }
-.todo-item .due.soon { background: var(--p2-soft); color: #A86A00; }
-.todo-item .due.late { background: var(--p1-soft); color: var(--danger); }
+.due { flex: none; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; background: var(--sky-soft); color: var(--deep); white-space: nowrap; }
+.due.soon { background: var(--p2-soft); color: #A86A00; }
+.due.late { background: var(--p1-soft); color: var(--danger); }
+.todo-item .due { justify-self: start; margin-top: 4px; }
+
+/* 처음 화면 '챙길 할 일' (높음 + 마감 5일 이내) */
+.todo-box { margin-top: 12px; cursor: default; }
+.box-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.box-h h2 { margin: 0; }
+.see-all { border: 0; background: none; padding: 4px 0; color: var(--deep); font-size: 13px; font-weight: 600; }
+.home-todos { list-style: none; margin: 0; padding: 0; display: grid; }
+.home-todos li { display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--line); }
+.home-todos li:first-child { border-top: 0; }
+.home-todos .check { width: 22px; height: 22px; border-radius: 6px; border-color: var(--pc); }
+.home-todos .check:checked { background: var(--pc); border-color: var(--pc); }
+.home-todos .check:checked::after { width: 6px; height: 11px; border-color: #FFFFFF; }
+.home-todos .body { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 9px 0; text-align: left; color: inherit; }
+.home-todos .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home-todos .more { color: var(--muted); font-size: 13px; padding: 8px 0 0 32px; border-top: 0; }
 .todo-item.done { box-shadow: none; opacity: .7; }
 .todo-item.done .t { color: var(--muted); text-decoration: line-through; font-weight: 500; }
 
@@ -337,6 +353,13 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <ul class="events" id="today-events"></ul>
     <p class="events-empty" id="today-empty"></p>
   </section>
+  <section class="today-box todo-box" id="todo-box" hidden>
+    <div class="box-h">
+      <h2 data-t="homeTodoTitle">챙길 할 일</h2>
+      <button type="button" class="see-all" data-go="todo" data-t="seeAll">전체 보기</button>
+    </div>
+    <ul class="home-todos" id="home-todos"></ul>
+  </section>
   <nav class="tiles">
     <button class="tile todo" type="button" data-go="todo">
       <span class="ico" aria-hidden="true">
@@ -449,6 +472,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const T = {
     ko: {
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
+      homeTodoTitle: '챙길 할 일', seeAll: '전체 보기', moreTodos: (n) => `외 ${n}개`,
       todoEmptyB: '할 일이 없어요', todoEmpty: '위의 버튼으로 추가하세요',
       newTodo: '할 일 추가', editTodo: '할 일 수정', fTitle: '제목', fNote: '상세내용', fNotePh: '메모, 준비물 등 (선택)',
       fPri: '우선순위', pri: ['', '높음', '보통', '낮음'], fDue: '마감일', dueToday: '오늘', dueTomorrow: '내일', dueNone: '없음',
@@ -481,6 +505,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     },
     de: {
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
+      homeTodoTitle: 'Wichtig & bald fällig', seeAll: 'Alle anzeigen', moreTodos: (n) => `und ${n} weitere`,
       todoEmptyB: 'Keine Aufgaben', todoEmpty: 'Mit der Taste oben hinzufügen',
       newTodo: 'Aufgabe hinzufügen', editTodo: 'Aufgabe bearbeiten', fTitle: 'Titel', fNote: 'Details', fNotePh: 'Notizen, Mitbringen usw. (optional)',
       fPri: 'Priorität', pri: ['', 'Hoch', 'Mittel', 'Niedrig'], fDue: 'Fällig bis', dueToday: 'Heute', dueTomorrow: 'Morgen', dueNone: 'Keins',
@@ -696,6 +721,28 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const note = $('#todo-note');
     note.hidden = !S.ready;
     note.textContent = isShared() ? L().todoShared : L().todoLocal;
+    renderHomeTodos(todos);
+  }
+
+  // 처음 화면: 끝나지 않은 할 일 중 우선순위 '높음'이거나 마감이 5일 이내(지난 것 포함)
+  function renderHomeTodos(todos) {
+    const pick = todos.filter((t) => !t.done && (priOf(t) === 1 || (t.due && daysUntil(t.due) <= 5)))
+      .sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999') || priOf(a) - priOf(b) || (a.at || 0) - (b.at || 0));
+    const MAX = 5;
+    $('#todo-box').hidden = pick.length === 0;
+    $('#home-todos').replaceChildren(
+      ...pick.slice(0, MAX).map((t) => {
+        const cb = h('input', { type: 'checkbox', class: 'check', 'aria-label': L().doneTodo(t.text), onchange: () => setDone(t, cb.checked) });
+        let due = null;
+        if (t.due) {
+          const n = daysUntil(t.due);
+          due = h('span', { class: 'due' + (n < 0 ? ' late' : n <= 1 ? ' soon' : ''), text: L().dueLabel(n, fromKey(t.due)) });
+        }
+        return h('li', { style: `--pc:${PRI[priOf(t)].c}` }, cb,
+          h('button', { type: 'button', class: 'body', 'aria-label': L().openTodo(t.text), onclick: () => openSheet(t) },
+            h('span', { class: 't', text: t.text }), due));
+      }),
+      ...(pick.length > MAX ? [h('li', { class: 'more', text: L().moreTodos(pick.length - MAX) })] : []));
   }
 
   /* 입력·수정 창 */
