@@ -87,21 +87,25 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .hero::before { left: -70px; bottom: 40px; width: 220px; height: 220px; background: rgba(255, 255, 255, .14); }
 
 /* 가족사진 (로그인한 가족에게만 서버에서 받아 옴) */
-.hero-photo { position: relative; z-index: 1; display: flex; justify-content: center; margin-top: 4px; }
-.hero-photo::before { /* 가족 뒤의 부드러운 빛 */
-  content: ""; position: absolute; left: 50%; bottom: 0; width: 360px; height: 260px; transform: translateX(-50%);
-  background: radial-gradient(closest-side, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0));
-}
-.hero-photo img.family { position: relative; display: block; width: min(78vw, 300px); height: auto; margin-bottom: 26px; }
-.hero-photo img.drawing {
-  position: relative; display: block; width: 136px; height: 136px; margin: 14px 0 54px;
-  border-radius: 34px; box-shadow: 0 12px 30px -12px rgba(14, 42, 64, .45);
-}
-.hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; position: relative; z-index: 1; }
+/* 상단: 왼쪽 제목·날짜·언어, 오른쪽 가족사진 (사진은 하늘색 영역 아래 끝에 서 있음) */
+.hero-row { position: relative; z-index: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+.hero-text { align-self: flex-start; min-width: 0; padding: 4px 0 50px; }
 .hero h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1.2; letter-spacing: -.5px; }
 .hero .date { margin: 2px 0 0; font-size: 15px; font-weight: 600; }
+.hero .lang { margin-top: 14px; }
 
-.lang { flex: none; display: flex; padding: 3px; border-radius: 999px; background: rgba(255, 255, 255, .5); }
+.hero-photo { position: relative; flex: none; display: flex; justify-content: center; margin-right: -6px; }
+.hero-photo::before { /* 가족 뒤의 부드러운 빛 */
+  content: ""; position: absolute; left: 50%; bottom: 10px; width: 240px; height: 200px; transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0));
+}
+.hero-photo img.family { position: relative; display: block; width: min(46vw, 200px); height: auto; margin-bottom: 26px; }
+.hero-photo img.drawing {
+  position: relative; display: block; width: 104px; height: 104px; margin: 0 6px 50px 0;
+  border-radius: 28px; box-shadow: 0 12px 30px -12px rgba(14, 42, 64, .45);
+}
+
+.lang { flex: none; display: inline-flex; padding: 3px; border-radius: 999px; background: rgba(255, 255, 255, .5); }
 .lang button { border: 0; background: none; padding: 5px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; color: #2A4B63; }
 .lang button[aria-pressed="true"] { background: #FFFFFF; color: #0E2A40; }
 
@@ -379,18 +383,18 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
 <!-- 홈 -->
 <main id="home" class="screen">
   <header class="hero">
-    <div class="hero-top">
-      <div>
+    <div class="hero-row">
+      <div class="hero-text">
         <h1 data-t="appName">우리가족</h1>
         <p class="date" id="today-label"></p>
+        <div class="lang" role="group" aria-label="Language / 언어">
+          <button type="button" data-lang="ko" aria-pressed="true">한국어</button>
+          <button type="button" data-lang="de" aria-pressed="false">Deutsch</button>
+        </div>
       </div>
-      <div class="lang" role="group" aria-label="Language / 언어">
-        <button type="button" data-lang="ko" aria-pressed="true">한국어</button>
-        <button type="button" data-lang="de" aria-pressed="false">Deutsch</button>
+      <div class="hero-photo" id="hero-photo">
+        <img class="drawing" id="family-img" src="icon-512.png" alt="">
       </div>
-    </div>
-    <div class="hero-photo" id="hero-photo">
-      <img class="drawing" id="family-img" src="icon-512.png" alt="">
     </div>
   </header>
   <section class="today-box" data-go="calendar">
