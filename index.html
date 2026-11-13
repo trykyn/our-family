@@ -74,16 +74,28 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 /* ── 홈 ── */
 .hero {
   margin: 0 -16px;
-  padding: calc(20px + env(safe-area-inset-top, 0px)) 20px 22px;
-  background: linear-gradient(135deg, #8CCFFF 0%, #7EC8E3 55%, #6AAFE6 100%);
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 20px 0;
+  background: linear-gradient(160deg, #8CCFFF 0%, #7EC8E3 55%, #6AAFE6 100%);
   color: #0E2A40;
-  border-radius: 0 0 32px 32px;
+  border-radius: 0 0 36px 36px;
   position: relative;
   overflow: hidden;
 }
-.hero::after {
-  content: ""; position: absolute; right: -40px; top: -30px; width: 180px; height: 180px;
-  border-radius: 50%; background: rgba(255, 255, 255, .22);
+/* 뒤쪽 동그라미 장식 */
+.hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; }
+.hero::after { right: -50px; top: -40px; width: 200px; height: 200px; background: rgba(255, 255, 255, .22); }
+.hero::before { left: -70px; bottom: 40px; width: 220px; height: 220px; background: rgba(255, 255, 255, .14); }
+
+/* 가족사진 (로그인한 가족에게만 서버에서 받아 옴) */
+.hero-photo { position: relative; z-index: 1; display: flex; justify-content: center; margin-top: 4px; }
+.hero-photo::before { /* 가족 뒤의 부드러운 빛 */
+  content: ""; position: absolute; left: 50%; bottom: 0; width: 360px; height: 260px; transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0));
+}
+.hero-photo img.family { position: relative; display: block; width: min(78vw, 300px); height: auto; margin-bottom: 26px; }
+.hero-photo img.drawing {
+  position: relative; display: block; width: 136px; height: 136px; margin: 14px 0 54px;
+  border-radius: 34px; box-shadow: 0 12px 30px -12px rgba(14, 42, 64, .45);
 }
 .hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; position: relative; z-index: 1; }
 .hero h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1.2; letter-spacing: -.5px; }
@@ -95,18 +107,17 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
 /* 오늘 일정 */
 .today-box {
-  position: relative; z-index: 1; margin-top: 14px; padding: 14px 16px;
-  background: rgba(255, 255, 255, .72); border-radius: 18px; color: #12324A; cursor: pointer;
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  position: relative; z-index: 2; margin-top: -30px; padding: 14px 16px;
+  background: var(--surface); border-radius: 20px; box-shadow: var(--shadow); cursor: pointer;
 }
 .today-box h2 { margin: 0 0 8px; font-family: var(--font-display); font-weight: 400; font-size: 19px; }
 .events { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .events li { display: flex; gap: 10px; align-items: center; }
 .events .c { flex: none; width: 4px; height: 18px; border-radius: 2px; }
-.events .time { flex: none; min-width: 46px; font-weight: 600; color: #2F7FC1; font-variant-numeric: tabular-nums; }
+.events .time { flex: none; min-width: 46px; font-weight: 600; color: var(--deep); font-variant-numeric: tabular-nums; }
 .events .t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.events .more { color: #557489; font-size: 13px; padding-left: 14px; }
-.events-empty { margin: 0; color: #557489; font-size: 14px; }
+.events .more { color: var(--muted); font-size: 13px; padding-left: 14px; }
+.events-empty { margin: 0; color: var(--muted); font-size: 14px; }
 
 /* 앱 안의 앱: 큰 아이콘 + 이름 */
 .tiles { display: flex; justify-content: center; gap: 36px; margin-top: 32px; }
@@ -263,12 +274,15 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
         <button type="button" data-lang="de" aria-pressed="false">Deutsch</button>
       </div>
     </div>
-    <section class="today-box" data-go="calendar">
-      <h2 data-t="todayTitle">오늘 일정</h2>
-      <ul class="events" id="today-events"></ul>
-      <p class="events-empty" id="today-empty"></p>
-    </section>
+    <div class="hero-photo" id="hero-photo">
+      <img class="drawing" id="family-img" src="icon-512.png" alt="">
+    </div>
   </header>
+  <section class="today-box" data-go="calendar">
+    <h2 data-t="todayTitle">오늘 일정</h2>
+    <ul class="events" id="today-events"></ul>
+    <p class="events-empty" id="today-empty"></p>
+  </section>
   <nav class="tiles">
     <button class="tile todo" type="button" data-go="todo">
       <span class="ico" aria-hidden="true">
@@ -365,6 +379,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
       autoNote: '열 때마다 자동으로 새로 불러와요.',
       errNet: '일정을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.', errSetup: '캘린더 서버 설정이 아직 안 끝났어요.',
       errSignIn: '로그인하지 못했어요. 다시 해 주세요.',
+      changePhoto: '가족사진 바꾸기', photoSaving: '사진 올리는 중…', photoErr: '사진을 올리지 못했어요. 다시 해 주세요.', photoAlt: '우리 가족 사진',
     },
     de: {
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
@@ -391,6 +406,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
       autoNote: 'Wird bei jedem Öffnen automatisch aktualisiert.',
       errNet: 'Termine konnten nicht geladen werden. Bitte Internetverbindung prüfen.', errSetup: 'Der Kalender-Server ist noch nicht fertig eingerichtet.',
       errSignIn: 'Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
+      changePhoto: 'Familienfoto ändern', photoSaving: 'Foto wird hochgeladen…', photoErr: 'Das Foto konnte nicht hochgeladen werden. Bitte erneut versuchen.', photoAlt: 'Unser Familienfoto',
     },
   };
   const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch { return d; } };
@@ -466,6 +482,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     for (const el of document.querySelectorAll('[data-t-label]')) el.setAttribute('aria-label', L()[el.dataset.tLabel]);
     for (const b of document.querySelectorAll('[data-lang]')) b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
     $('#today-label').textContent = L().dayLabel(now);
+    if (photoUrl) $('#family-img').alt = L().photoAlt;
   }
 
   /* ───────── 할일목록 ─────────
@@ -578,6 +595,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
         }
         S.ready = true;
         listenTodos();
+        loadPhoto();
         renderAll();
         refresh(true);
       });
@@ -597,13 +615,67 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     Object.assign(S, { accounts: [], calendars: [], months: {}, error: '', houseError: '' });
     saveCal();
     stopTodos(); sharedTodos = null; store(SHARED_KEY, null);
+    showPhoto(null); cachedPhoto('del');
     await fb.A.signOut(fb.auth);
   }
   async function linkHouse(code) {
     await fb.F.setDoc(fb.F.doc(fb.db, 'users', S.user.uid), { house: code });
     S.house = code; S.houseError = '';
     listenTodos();
+    loadPhoto();
     renderAll(); refresh(true);
+  }
+
+  /* ───────── 가족사진: 공개 저장소에 두지 않고, 캘린더 서버가 로그인한 같은 가족에게만 보내 줌 ───────── */
+  const PHOTO_CACHE = 'our-family-photo';
+  let photoUrl = null, photoBusy = false, photoMsg = '';
+  function showPhoto(blob) {
+    const img = $('#family-img');
+    if (photoUrl) URL.revokeObjectURL(photoUrl);
+    photoUrl = blob ? URL.createObjectURL(blob) : null;
+    img.src = photoUrl || 'icon-512.png';
+    img.className = photoUrl ? 'family' : 'drawing';
+    img.alt = photoUrl ? L().photoAlt : '';
+  }
+  async function cachedPhoto(op, blob) { // 기기 안에 저장해 두고 다음에 바로 보여 줌 (오프라인 포함)
+    try {
+      if (!('caches' in window)) return null;
+      if (op === 'del') { await caches.delete(PHOTO_CACHE); return null; }
+      const c = await caches.open(PHOTO_CACHE);
+      if (op === 'put') { await c.put('photo', new Response(blob, { headers: { 'Content-Type': blob.type } })); return null; }
+      const r = await c.match('photo');
+      return r ? await r.blob() : null;
+    } catch { return null; }
+  }
+  async function loadPhoto() {
+    if (!S.user || !S.house) { showPhoto(null); cachedPhoto('del'); return; }
+    try {
+      const token = await S.user.getIdToken();
+      const r = await fetch(WORKER + '/photo', { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+      if (r.status === 404) { showPhoto(null); cachedPhoto('del'); return; }
+      if (!r.ok) return; // 잠깐 연결이 안 되면 저장해 둔 사진 그대로
+      const b = await r.blob();
+      showPhoto(b); cachedPhoto('put', b);
+    } catch (e) { console.warn('photo', e); }
+  }
+  async function uploadPhoto(file) {
+    photoBusy = true; photoMsg = ''; renderAccount();
+    try {
+      const bmp = await createImageBitmap(file);
+      const scale = Math.min(1, 900 / Math.max(bmp.width, bmp.height));
+      const cv = document.createElement('canvas');
+      cv.width = Math.round(bmp.width * scale); cv.height = Math.round(bmp.height * scale);
+      cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+      const alpha = /png|webp/.test(file.type); // 배경을 지운 사진이면 투명한 부분을 살림
+      const toBlob = (type, q) => new Promise((res) => cv.toBlob(res, type, q));
+      let blob = await toBlob(alpha ? 'image/webp' : 'image/jpeg', 0.85);
+      if (alpha && (!blob || blob.type !== 'image/webp')) blob = await toBlob('image/png');
+      const token = await S.user.getIdToken();
+      const r = await fetch(WORKER + '/photo/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': blob.type }, body: blob });
+      if (!r.ok) throw new Error(String(r.status));
+      showPhoto(blob); cachedPhoto('put', blob);
+    } catch (e) { console.warn('photo upload', e); photoMsg = L().photoErr; }
+    photoBusy = false; renderAccount();
   }
   async function joinHouse(raw) {
     const code = String(raw).toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -631,7 +703,15 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     const who = h('div', { class: 'who' },
       h('span', { text: S.house ? `${S.user.email} · ${L().houseOk(S.house)}` : S.user.email }),
       h('button', { type: 'button', class: 'link-btn', text: L().signOut, onclick: signOut }));
-    if (S.house) return [h('h3', { text: L().account }), who];
+    if (S.house) {
+      const fileIn = h('input', { type: 'file', accept: 'image/*', hidden: true, onchange: () => { if (fileIn.files[0]) uploadPhoto(fileIn.files[0]); } });
+      return [
+        h('h3', { text: L().account }), who,
+        h('div', { class: 'row' }, fileIn,
+          h('button', { type: 'button', class: 'btn ghost', disabled: photoBusy, text: photoBusy ? L().photoSaving : L().changePhoto, onclick: () => fileIn.click() })),
+        photoMsg && h('p', { class: 'hint err', style: 'margin-top:8px', text: photoMsg }),
+      ];
+    }
     const input = h('input', { class: 'field', type: 'text', placeholder: L().houseCode, 'aria-label': L().houseCode, autocapitalize: 'characters', autocomplete: 'off' });
     return [
       h('h3', { text: L().account }), who,
@@ -921,6 +1001,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   }
 
   show();
+  cachedPhoto('get').then((b) => { if (b && !photoUrl) showPhoto(b); });
   startFirebase();
 
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});

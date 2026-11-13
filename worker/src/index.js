@@ -8,6 +8,8 @@
 //   GET  /callback    ?code&state              → 토큰 저장 후 앱으로 돌아감
 //   POST /events      { timeMin, timeMax }     → { accounts, calendars, events }
 //   POST /disconnect  { email }                → { ok }
+//   POST /photo                                → 가족사진 (그 가족만)
+//   POST /photo/upload  (이미지 본문)           → { ok }
 //
 // POST 는 모두  Authorization: Bearer <Firebase ID 토큰>  필요. 가족 코드는 Firestore users/{uid}.house 에서
 // 그 사람의 토큰으로 직접 읽으므로, 앱이 보낸 값을 믿지 않음.
@@ -45,6 +47,21 @@ export default {
     } catch (e) {
       return json({ error: e.message === "no_house" ? "no_house" : "unauthorized" }, e.message === "no_house" ? 409 : 401);
     }
+    // 가족사진: 로그인한 같은 가족에게만 (공개 저장소에는 두지 않음)
+    if (url.pathname === "/photo") {
+      const { value, metadata } = await env.STORE.getWithMetadata(`photo:${me.house}`, "arrayBuffer");
+      if (!value) return json({ error: "no_photo" }, 404);
+      return new Response(value, { headers: { ...cors, "Content-Type": (metadata && metadata.type) || "image/webp", "Cache-Control": "private, no-store" } });
+    }
+    if (url.pathname === "/photo/upload") {
+      const type = (request.headers.get("Content-Type") || "").split(";")[0].trim();
+      if (!["image/jpeg", "image/png", "image/webp"].includes(type)) return json({ error: "bad_type" }, 400);
+      const buf = await request.arrayBuffer();
+      if (!buf.byteLength || buf.byteLength > 3 * 1024 * 1024) return json({ error: "too_big" }, 413);
+      await env.STORE.put(`photo:${me.house}`, buf, { metadata: { type, by: me.uid, at: Date.now() } });
+      return json({ ok: true });
+    }
+
     let body = {};
     try { body = await request.json(); } catch {}
 
