@@ -156,6 +156,11 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
 /* 계정 */
 .account { margin-top: 32px; }
+.account.folded { padding-top: 12px; padding-bottom: 12px; }
+.acc-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; border: 0; background: none; padding: 2px 0; color: inherit; font-size: 15px; font-weight: 600; }
+.acc-toggle svg { width: 20px; height: 20px; color: var(--muted); transition: transform .15s; }
+.acc-toggle[aria-expanded="true"] { margin-bottom: 6px; }
+.acc-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
 .account h3, .cal-card h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
 .hint { margin: 0; color: var(--muted); font-size: 14px; }
 .hint.err { color: var(--danger); }
@@ -1245,10 +1250,20 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn ghost', text: L().create, onclick: createHouse })),
     ];
   }
+  // 로그인·가족 코드가 다 되어 있으면 계정 칸은 접어 둠 (눌러서 펼침). 할 일이 남아 있으면 펼친 채로.
+  let accountOpen = false;
   function renderAccount() {
     const box = $('#account');
     box.hidden = !S.ready;
-    box.replaceChildren(...accountBlock());
+    const settled = !!(fb && S.user && S.house);
+    box.classList.toggle('folded', settled && !accountOpen);
+    if (!settled) { box.replaceChildren(...accountBlock()); return; }
+    const head = h('button', {
+      type: 'button', class: 'acc-toggle', 'aria-expanded': String(accountOpen),
+      onclick: () => { accountOpen = !accountOpen; renderAccount(); },
+    }, h('span', { text: L().account }));
+    head.insertAdjacentHTML('beforeend', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>');
+    box.replaceChildren(head, ...(accountOpen ? accountBlock().slice(1) : [])); // slice(1): 제목은 버튼이 대신함
   }
 
   /* ───────── 뮌헨 날씨 (Open-Meteo: 무료, 열쇠 필요 없음. 뮌헨 좌표만 보냄) ───────── */
