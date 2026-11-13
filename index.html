@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8CCFFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="우리가족">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>우리가족</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=Jua&display=swap">
+<style>
+/* 구조: 홈(큰 버튼 두 개) → 해시(#todo, #calendar)로 앱 안의 앱 화면을 엶. 뒤로가기 = 브라우저 뒤로. */
+:root {
+  --bg: #EEF8FD;
+  --surface: #FFFFFF;
+  --aqua: #7EC8E3;
+  --blue: #6AAFE6;
+  --sky: #8CCFFF;
+  --sky-soft: #DDF1FF;
+  --deep: #2F7FC1;
+  --ink: #12324A;
+  --muted: #557489;
+  --line: #D3EAF6;
+  --sun: #D9474B;
+  --sat: #2F6FD0;
+  --danger: #C8423A;
+  --shadow: 0 1px 0 rgba(30, 110, 170, .06), 0 10px 24px -14px rgba(30, 110, 170, .45);
+  --font-display: "Jua", "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --radius: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1822; --surface: #142533; --aqua: #5FB3D1; --blue: #4F97D4; --sky: #6FBDF2; --sky-soft: #1B3448;
+    --deep: #8CCFFF; --ink: #E6F3FC; --muted: #9AB6CA; --line: #22394B;
+    --sun: #F28C8F; --sat: #8DB4F5; --danger: #FF8A80;
+    --shadow: 0 10px 24px -14px rgba(0, 0, 0, .8);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C1822; --surface: #142533; --aqua: #5FB3D1; --blue: #4F97D4; --sky: #6FBDF2; --sky-soft: #1B3448;
+  --deep: #8CCFFF; --ink: #E6F3FC; --muted: #9AB6CA; --line: #22394B;
+  --sun: #F28C8F; --sat: #8DB4F5; --danger: #FF8A80;
+  --shadow: 0 10px 24px -14px rgba(0, 0, 0, .8);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  -webkit-text-size-adjust: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+}
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid var(--deep); outline-offset: 2px; }
+
+.screen { max-width: 560px; margin: 0 auto; padding: 0 16px calc(28px + env(safe-area-inset-bottom, 0px)); }
+
+/* ── 홈 ── */
+.hero {
+  margin: 0 -16px;
+  padding: calc(28px + env(safe-area-inset-top, 0px)) 24px 46px;
+  background: linear-gradient(135deg, #8CCFFF 0%, #7EC8E3 55%, #6AAFE6 100%);
+  color: #0E2A40;
+  border-radius: 0 0 32px 32px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: ""; position: absolute; right: -40px; top: -30px; width: 180px; height: 180px;
+  border-radius: 50%; background: rgba(255, 255, 255, .22);
+}
+.hero .date { margin: 0; font-size: 14px; font-weight: 500; opacity: .8; }
+.hero h1 { margin: 2px 0 0; font-family: var(--font-display); font-weight: 400; font-size: 40px; letter-spacing: -.5px; }
+.hero p.hello { margin: 4px 0 0; font-size: 15px; opacity: .85; }
+
+.tiles { display: grid; gap: 14px; margin-top: -26px; position: relative; z-index: 1; }
+.tile {
+  display: flex; align-items: center; gap: 16px;
+  width: 100%; padding: 22px 20px; border: 0; border-radius: var(--radius);
+  background: var(--surface); box-shadow: var(--shadow); text-align: left;
+  transition: transform .12s ease;
+}
+.tile:active { transform: scale(.98); }
+.tile .ico {
+  flex: none; width: 60px; height: 60px; border-radius: 16px;
+  display: grid; place-items: center; color: #0E2A40;
+}
+.tile.todo .ico { background: linear-gradient(140deg, #A6DCEF, #7EC8E3); }
+.tile.cal  .ico { background: linear-gradient(140deg, #8CCFFF, #6AAFE6); }
+.tile .ico svg { width: 30px; height: 30px; }
+.tile .txt { flex: 1; min-width: 0; }
+.tile .name { display: block; font-family: var(--font-display); font-size: 23px; line-height: 1.2; }
+.tile .sub { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.tile .chev { flex: none; color: var(--blue); width: 22px; height: 22px; }
+
+/* ── 하위 화면 공통 상단바 ── */
+.bar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 6px;
+  margin: 0 -16px 16px; padding: calc(10px + env(safe-area-inset-top, 0px)) 10px 10px;
+  background: linear-gradient(135deg, #8CCFFF, #7EC8E3 60%, #6AAFE6);
+  color: #0E2A40;
+}
+.bar h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 24px; }
+.icon-btn {
+  width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent;
+  display: grid; place-items: center; color: inherit;
+}
+.icon-btn:active { background: rgba(255, 255, 255, .35); }
+.icon-btn svg { width: 24px; height: 24px; }
+
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+
+/* ── 할일목록 ── */
+.add-row { display: flex; gap: 8px; }
+.add-row input {
+  flex: 1; min-width: 0; height: 48px; padding: 0 14px;
+  border: 2px solid var(--line); border-radius: 14px; background: var(--surface);
+  font-size: 16px; /* 아이폰 확대 방지 */
+}
+.add-row input:focus { border-color: var(--blue); outline: none; }
+.btn {
+  height: 48px; padding: 0 18px; border: 0; border-radius: 14px;
+  background: var(--blue); color: #0E2A40; font-weight: 600;
+}
+.btn:active { filter: brightness(.95); }
+.btn[disabled] { opacity: .55; cursor: default; }
+
+.todo-list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
+.todo-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 8px 12px 14px; background: var(--surface); border-radius: 14px; box-shadow: var(--shadow);
+}
+.todo-item label { flex: 1; display: flex; align-items: center; gap: 12px; min-width: 0; cursor: pointer; }
+.todo-item input[type="checkbox"] {
+  appearance: none; flex: none; width: 26px; height: 26px; margin: 0;
+  border: 2px solid var(--aqua); border-radius: 8px; display: grid; place-items: center;
+}
+.todo-item input[type="checkbox"]:checked { background: var(--aqua); border-color: var(--aqua); }
+.todo-item input[type="checkbox"]:checked::after {
+  content: ""; width: 7px; height: 13px; margin-top: -3px;
+  border: solid #0E2A40; border-width: 0 3px 3px 0; transform: rotate(45deg);
+}
+.todo-item .t { overflow-wrap: anywhere; }
+.todo-item.done .t { color: var(--muted); text-decoration: line-through; }
+.todo-item .icon-btn { width: 38px; height: 38px; color: var(--muted); }
+.empty { text-align: center; color: var(--muted); padding: 40px 12px; }
+.empty b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 20px; color: var(--ink); margin-bottom: 4px; }
+
+/* ── 캘린더 ── */
+.month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.month-nav h3 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 22px; }
+.month-nav .icon-btn { color: var(--deep); }
+.month-nav .icon-btn:active { background: var(--sky-soft); }
+.grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+.grid .wd { font-size: 13px; font-weight: 600; color: var(--muted); padding: 4px 0; }
+.grid .wd:first-child, .grid .day.sun { color: var(--sun); }
+.grid .wd:last-child, .grid .day.sat { color: var(--sat); }
+.grid .day {
+  aspect-ratio: 1 / 1; display: grid; place-items: start center; padding-top: 6px;
+  border-radius: 12px; font-size: 15px; font-variant-numeric: tabular-nums;
+}
+.grid .day.other { opacity: .35; }
+.grid .day.today { background: var(--sky); color: #0E2A40; font-weight: 600; }
+.connect { margin-top: 14px; display: flex; gap: 14px; align-items: center; }
+.connect .ico {
+  flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center;
+  background: var(--sky-soft); color: var(--deep);
+}
+.connect .ico svg { width: 24px; height: 24px; }
+.connect .txt { flex: 1; min-width: 0; }
+.connect b { display: block; }
+.connect span { color: var(--muted); font-size: 14px; }
+.connect .btn { padding: 0 14px; }
+@media (max-width: 340px) { .connect { flex-wrap: wrap; } .connect .btn { width: 100%; } }
+</style>
+</head>
+<body>
+
+<!-- 홈 -->
+<main id="home" class="screen">
+  <header class="hero">
+    <p class="date" id="today-label"></p>
+    <h1>우리가족</h1>
+    <p class="hello">오늘도 함께 챙겨요</p>
+  </header>
+  <nav class="tiles" aria-label="메뉴">
+    <button class="tile todo" type="button" data-go="todo">
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="m8 9 1.6 1.6L12.5 7.8M8 15.5l1.6 1.6 2.9-2.8M15 9.5h1.5M15 16h1.5"/></svg>
+      </span>
+      <span class="txt"><span class="name">할일목록</span><span class="sub" id="todo-summary">할 일을 적어 두세요</span></span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+    </button>
+    <button class="tile cal" type="button" data-go="calendar">
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/></svg>
+      </span>
+      <span class="txt"><span class="name">캘린더</span><span class="sub">구글 캘린더 연결 예정</span></span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+    </button>
+  </nav>
+</main>
+
+<!-- 할일목록 -->
+<main id="todo" class="screen" hidden>
+  <header class="bar">
+    <button class="icon-btn" type="button" data-back aria-label="홈으로">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
+    </button>
+    <h2>할일목록</h2>
+  </header>
+  <form class="add-row" id="todo-form" autocomplete="off">
+    <input id="todo-input" type="text" placeholder="할 일 추가" aria-label="할 일" enterkeyhint="done">
+    <button class="btn" type="submit">추가</button>
+  </form>
+  <ul class="todo-list" id="todo-list"></ul>
+  <div class="empty" id="todo-empty"><b>할 일이 없어요</b>위에 적고 추가를 누르세요</div>
+</main>
+
+<!-- 캘린더 -->
+<main id="calendar" class="screen" hidden>
+  <header class="bar">
+    <button class="icon-btn" type="button" data-back aria-label="홈으로">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
+    </button>
+    <h2>캘린더</h2>
+  </header>
+  <section class="card">
+    <div class="month-nav">
+      <button class="icon-btn" type="button" id="prev-month" aria-label="이전 달">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
+      </button>
+      <h3 id="month-label"></h3>
+      <button class="icon-btn" type="button" id="next-month" aria-label="다음 달">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
+      </button>
+    </div>
+    <div class="grid" id="month-grid"></div>
+  </section>
+  <section class="card connect">
+    <span class="ico" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
+    </span>
+    <span class="txt"><b>구글 캘린더</b><span>연결하면 가족 일정이 여기 보여요</span></span>
+    <button class="btn" type="button" disabled>준비 중</button>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const screens = ['home', 'todo', 'calendar'];
+  const WEEK = ['일', '월', '화', '수', '목', '금', '토'];
+
+  // ── 화면 전환: #todo / #calendar, 없으면 홈 ──
+  function show() {
+    const name = location.hash.slice(1);
+    const cur = screens.includes(name) ? name : 'home';
+    for (const s of screens) document.getElementById(s).hidden = s !== cur;
+    window.scrollTo(0, 0);
+    if (cur === 'calendar') renderMonth();
+    if (cur === 'home') renderSummary();
+  }
+  let openedFromHome = false; // 홈에서 들어왔으면 '뒤로'는 history.back()
+  document.addEventListener('click', (e) => {
+    const go = e.target.closest('[data-go]');
+    if (go) { openedFromHome = true; location.hash = go.dataset.go; }
+    if (e.target.closest('[data-back]')) {
+      if (openedFromHome) { openedFromHome = false; history.back(); }
+      else { history.replaceState(null, '', location.pathname + location.search); show(); }
+    }
+  });
+  window.addEventListener('hashchange', show);
+
+  // ── 홈 날짜 ──
+  const now = new Date();
+  $('#today-label').textContent = `${now.getMonth() + 1}월 ${now.getDate()}일 ${WEEK[now.getDay()]}요일`;
+
+  // ── 할일목록 (지금은 이 기기에만 저장) ──
+  const KEY = 'our-family:todos';
+  let todos = [];
+  try { todos = JSON.parse(localStorage.getItem(KEY)) || []; } catch { todos = []; }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(todos)); } catch {} };
+
+  function renderTodos() {
+    const list = $('#todo-list');
+    list.replaceChildren();
+    for (const t of todos) {
+      const li = document.createElement('li');
+      li.className = 'todo-item' + (t.done ? ' done' : '');
+      const label = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.checked = t.done;
+      cb.addEventListener('change', () => { t.done = cb.checked; save(); renderTodos(); });
+      const span = document.createElement('span');
+      span.className = 't'; span.textContent = t.text;
+      label.append(cb, span);
+      const del = document.createElement('button');
+      del.type = 'button'; del.className = 'icon-btn'; del.setAttribute('aria-label', `${t.text} 삭제`);
+      del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+      del.addEventListener('click', () => { todos = todos.filter((x) => x !== t); save(); renderTodos(); });
+      li.append(label, del);
+      list.append(li);
+    }
+    $('#todo-empty').hidden = todos.length > 0;
+  }
+  $('#todo-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = $('#todo-input');
+    const text = input.value.trim();
+    if (!text) return;
+    todos.push({ id: Date.now(), text, done: false });
+    input.value = '';
+    save(); renderTodos();
+  });
+
+  function renderSummary() {
+    const left = todos.filter((t) => !t.done).length;
+    $('#todo-summary').textContent = todos.length === 0 ? '할 일을 적어 두세요'
+      : left === 0 ? '모두 끝냈어요' : `남은 할 일 ${left}개`;
+  }
+
+  // ── 캘린더 (월 보기 틀) ──
+  let view = new Date(now.getFullYear(), now.getMonth(), 1);
+  function renderMonth() {
+    const y = view.getFullYear(), m = view.getMonth();
+    $('#month-label').textContent = `${y}년 ${m + 1}월`;
+    const grid = $('#month-grid');
+    grid.replaceChildren();
+    for (const w of WEEK) {
+      const d = document.createElement('div'); d.className = 'wd'; d.textContent = w; grid.append(d);
+    }
+    const start = new Date(y, m, 1 - new Date(y, m, 1).getDay());
+    const weeks = Math.ceil((new Date(y, m, 1).getDay() + new Date(y, m + 1, 0).getDate()) / 7);
+    for (let i = 0; i < weeks * 7; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      const cell = document.createElement('div');
+      cell.className = 'day';
+      if (d.getMonth() !== m) cell.classList.add('other');
+      if (d.getDay() === 0) cell.classList.add('sun');
+      if (d.getDay() === 6) cell.classList.add('sat');
+      if (d.toDateString() === now.toDateString()) cell.classList.add('today');
+      cell.textContent = d.getDate();
+      grid.append(cell);
+    }
+  }
+  $('#prev-month').addEventListener('click', () => { view = new Date(view.getFullYear(), view.getMonth() - 1, 1); renderMonth(); });
+  $('#next-month').addEventListener('click', () => { view = new Date(view.getFullYear(), view.getMonth() + 1, 1); renderMonth(); });
+
+  renderTodos();
+  show();
+
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
