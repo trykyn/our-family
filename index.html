@@ -92,7 +92,22 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .hero-text { align-self: flex-start; min-width: 0; padding: 4px 0 50px; }
 .hero h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1.2; letter-spacing: -.5px; }
 .hero .date { margin: 2px 0 0; font-size: 15px; font-weight: 600; }
-.hero .lang { margin-top: 14px; }
+/* 뮌헨 날씨 (Open-Meteo, 뮌헨 좌표만 보냄) */
+.weather {
+  display: inline-flex; flex-direction: column; gap: 1px; margin-top: 12px; padding: 8px 12px 9px;
+  border-radius: 16px; background: rgba(255, 255, 255, .45); color: #0E2A40;
+}
+.weather .w-top { display: flex; align-items: center; gap: 6px; }
+.weather .w-ico { font-size: 26px; line-height: 1; }
+.weather .w-temp { font-family: var(--font-display); font-size: 28px; line-height: 1.1; }
+.weather .w-desc { font-size: 13px; font-weight: 600; }
+.weather .w-sub { font-size: 12px; font-weight: 500; color: #2A4B63; font-variant-numeric: tabular-nums; }
+/* 언어 (계정 칸 안) */
+.lang-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.lang-row > span { font-size: 14px; color: var(--muted); }
+.account .lang, .cal-card .lang { background: var(--sky-soft); }
+.account .lang button, .cal-card .lang button { color: var(--muted); }
+.account .lang button[aria-pressed="true"], .cal-card .lang button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
 
 .hero-photo { position: relative; flex: none; display: flex; justify-content: center; margin-right: -6px; }
 .hero-photo::before { /* 가족 뒤의 부드러운 빛 */
@@ -387,9 +402,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       <div class="hero-text">
         <h1 data-t="appName">우리가족</h1>
         <p class="date" id="today-label"></p>
-        <div class="lang" role="group" aria-label="Language / 언어">
-          <button type="button" data-lang="ko" aria-pressed="true">한국어</button>
-          <button type="button" data-lang="de" aria-pressed="false">Deutsch</button>
+        <div class="weather" id="weather" hidden>
+          <div class="w-top"><span class="w-ico" id="w-ico" aria-hidden="true"></span><span class="w-temp" id="w-temp"></span></div>
+          <span class="w-desc" id="w-desc"></span>
+          <span class="w-sub" id="w-sub"></span>
         </div>
       </div>
       <div class="hero-photo" id="hero-photo">
@@ -534,7 +550,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const T = {
     ko: {
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
-      homeTodoTitle: '챙길 할 일', seeAll: '전체 보기', moreTodos: (n) => `외 ${n}개`,
+      city: '뮌헨', homeTodoTitle: '챙길 할 일', seeAll: '전체 보기', moreTodos: (n) => `외 ${n}개`,
       dinnerTitle: '오늘 저녁', dinnerNone: '아직 정하지 않았어요', kidTag: '아이',
       fWho: '담당', whoNone: '미정', who: { mom: '엄마', dad: '아빠', davin: '다빈', arin: '아린', both: '같이' }, filterAll: '전체',
       todoEmptyB: '할 일이 없어요', todoEmpty: '위의 버튼으로 추가하세요',
@@ -572,7 +588,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     },
     de: {
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
-      homeTodoTitle: 'Wichtig & bald fällig', seeAll: 'Alle anzeigen', moreTodos: (n) => `und ${n} weitere`,
+      city: 'München', homeTodoTitle: 'Wichtig & bald fällig', seeAll: 'Alle anzeigen', moreTodos: (n) => `und ${n} weitere`,
       dinnerTitle: 'Heute Abend', dinnerNone: 'Noch nichts geplant', kidTag: 'Kinder',
       fWho: 'Zuständig', whoNone: 'Offen', who: { mom: 'Mama', dad: 'Papa', davin: 'Davin', arin: 'Arin', both: 'Zusammen' }, filterAll: 'Alle',
       todoEmptyB: 'Keine Aufgaben', todoEmpty: 'Mit der Taste oben hinzufügen',
@@ -1131,8 +1147,16 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     await linkHouse(code);
   }
 
-  // 계정 칸: 로그인 → 가족 코드 → (완료) 순서
-  function accountBlock() {
+  // 계정 칸: 로그인 → 가족 코드 → (완료) 순서, 맨 아래에 언어
+  function langRow() {
+    return h('div', { class: 'lang-row' },
+      h('span', { text: 'Sprache · 언어' }),
+      h('div', { class: 'lang', role: 'group', 'aria-label': 'Sprache · 언어' },
+        h('button', { type: 'button', 'data-lang': 'ko', 'aria-pressed': String(lang === 'ko'), text: '한국어' }),
+        h('button', { type: 'button', 'data-lang': 'de', 'aria-pressed': String(lang === 'de'), text: 'Deutsch' })));
+  }
+  function accountBlock() { return [...accountParts(), langRow()]; }
+  function accountParts() {
     if (!fb) return [h('p', { class: 'hint', text: S.ready ? L().errNet : L().loading })];
     if (!S.user) return [
       h('h3', { text: L().account }),
@@ -1166,6 +1190,51 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const box = $('#account');
     box.hidden = !S.ready;
     box.replaceChildren(...accountBlock());
+  }
+
+  /* ───────── 뮌헨 날씨 (Open-Meteo: 무료, 열쇠 필요 없음. 뮌헨 좌표만 보냄) ───────── */
+  const WEATHER_KEY = 'our-family:weather';
+  const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=48.137&longitude=11.576'
+    + '&current=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max'
+    + '&timezone=Europe%2FBerlin&forecast_days=1';
+  let weather = load(WEATHER_KEY, null);
+  function wx(code, day) { // WMO 날씨 코드 → [그림, 한국어, 독일어]
+    if (code === 0) return [day ? '☀️' : '🌙', '맑음', 'Klar'];
+    if (code <= 2) return [day ? '🌤️' : '☁️', '구름 조금', 'Heiter'];
+    if (code === 3) return ['☁️', '흐림', 'Bedeckt'];
+    if (code === 45 || code === 48) return ['🌫️', '안개', 'Nebel'];
+    if (code >= 51 && code <= 57) return ['🌦️', '이슬비', 'Nieselregen'];
+    if (code >= 61 && code <= 67) return ['🌧️', '비', 'Regen'];
+    if (code >= 71 && code <= 77) return ['🌨️', '눈', 'Schnee'];
+    if (code >= 80 && code <= 82) return ['🌦️', '소나기', 'Regenschauer'];
+    if (code >= 85 && code <= 86) return ['🌨️', '눈 소나기', 'Schneeschauer'];
+    if (code >= 95) return ['⛈️', '뇌우', 'Gewitter'];
+    return ['🌡️', '', ''];
+  }
+  function renderWeather() {
+    const box = $('#weather');
+    // 반나절 넘게 못 받았으면 숨김 (오래된 날씨는 헷갈림)
+    if (!weather || Date.now() - weather.at > 12 * 3600 * 1000) { box.hidden = true; return; }
+    const [ico, ko, de] = wx(weather.code, weather.day);
+    const r = Math.round;
+    $('#w-ico').textContent = ico;
+    $('#w-temp').textContent = `${r(weather.t)}°`;
+    $('#w-desc').textContent = `${L().city} · ${lang === 'de' ? de : ko}`;
+    $('#w-sub').textContent = `↑${r(weather.max)}° ↓${r(weather.min)}°` + (weather.rain >= 30 ? ` · ☔${weather.rain}%` : '');
+    box.setAttribute('aria-label', `${L().city} ${lang === 'de' ? de : ko} ${r(weather.t)}°`);
+    box.hidden = false;
+  }
+  async function loadWeather() {
+    if (weather && Date.now() - weather.at < 30 * 60 * 1000) { renderWeather(); return; }
+    try {
+      const d = await (await fetch(WEATHER_URL)).json();
+      weather = {
+        at: Date.now(), t: d.current.temperature_2m, code: d.current.weather_code, day: d.current.is_day,
+        max: d.daily.temperature_2m_max[0], min: d.daily.temperature_2m_min[0], rain: d.daily.precipitation_probability_max[0] ?? 0,
+      };
+      store(WEATHER_KEY, weather);
+    } catch (e) { console.warn('weather', e); }
+    renderWeather();
   }
 
   /* ───────── 구글 캘린더 (캘린더 서버가 연결을 보관 → 자동 새로고침) ───────── */
@@ -1253,8 +1322,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const k = keyOf(new Date());
     if (k !== todayKey) { now = new Date(); todayKey = k; renderAll(); }
     refresh(false);
+    loadWeather();
   });
-  setInterval(() => { if (!document.hidden) refresh(false); }, 5 * 60 * 1000);
+  setInterval(() => { if (!document.hidden) { refresh(false); loadWeather(); } }, 5 * 60 * 1000);
 
   // 여러 달에 걸쳐 저장된 일정 중 [k0, k1] 기간과 겹치는 것 (숨긴 캘린더 제외, 중복 제거)
   function eventsBetween(k0, k1) {
@@ -1447,6 +1517,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     applyStatic();
     renderToday();
     renderDinner();
+    renderWeather();
     renderAccount();
     renderTodos();
     renderMonth();
@@ -1454,6 +1525,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
 
   show();
+  loadWeather();
   cachedPhoto('get').then((b) => { if (b && !photoUrl) showPhoto(b); });
   startFirebase();
 
