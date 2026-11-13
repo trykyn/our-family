@@ -146,13 +146,17 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
 /* ── 하위 화면 공통 상단바 ── */
 .bar {
-  position: sticky; top: 0; z-index: 5;
+  /* 아이폰에서 아래 일정 막대가 상단바 위로 비치지 않도록 별도 층으로 올림 */
+  position: sticky; top: 0; z-index: 50;
+  -webkit-transform: translateZ(0); transform: translateZ(0);
   display: flex; align-items: center; gap: 6px;
   margin: 0 -16px 16px; padding: calc(10px + env(safe-area-inset-top, 0px)) 10px 10px;
   background: linear-gradient(135deg, #8CCFFF, #7EC8E3 60%, #6AAFE6);
   color: #0E2A40;
 }
 .bar h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 24px; }
+.bar .bar-end { margin-left: auto; }
+.bar .icon-btn[aria-pressed="true"] { background: rgba(255, 255, 255, .45); }
 .icon-btn {
   width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent;
   display: grid; place-items: center; color: inherit;
@@ -160,7 +164,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .icon-btn:active { background: rgba(255, 255, 255, .35); }
 .icon-btn svg { width: 24px; height: 24px; }
 
-.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; position: relative; z-index: 0; isolation: isolate; }
 
 .field {
   flex: 1; min-width: 0; height: 48px; padding: 0 14px;
@@ -324,6 +328,9 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
     </button>
     <h2 data-t="calendar">캘린더</h2>
+    <button class="icon-btn bar-end" type="button" id="cal-settings-btn" data-t-label="calSettings" aria-label="캘린더 설정" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
   </header>
   <section class="card month">
     <div class="month-nav">
@@ -358,7 +365,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
       todoAdd: '할 일 추가', add: '추가', todoEmptyB: '할 일이 없어요', todoEmpty: '위에 적고 추가를 누르세요', del: (t) => `${t} 삭제`,
       todoShared: '가족과 함께 보는 목록이에요. 누가 바꿔도 바로 반영돼요.', todoLocal: '지금은 이 휴대폰에만 저장돼요. 홈에서 로그인하면 가족과 함께 써요.',
-      prevMonth: '이전 달', nextMonth: '다음 달',
+      prevMonth: '이전 달', nextMonth: '다음 달', calSettings: '캘린더 설정',
       weekdays: ['일', '월', '화', '수', '목', '금', '토'], weekStart: 0,
       monthLabel: (y, m) => `${y}년 ${m + 1}월`,
       dayLabel: (d) => `${d.getMonth() + 1}월 ${d.getDate()}일 ${T.ko.weekdays[d.getDay()]}요일`,
@@ -385,7 +392,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
       todoAdd: 'Aufgabe hinzufügen', add: 'Hinzufügen', todoEmptyB: 'Keine Aufgaben', todoEmpty: 'Oben eintragen und auf Hinzufügen tippen', del: (t) => `${t} löschen`,
       todoShared: 'Diese Liste teilt ihr als Familie. Änderungen erscheinen sofort bei allen.', todoLocal: 'Gerade nur auf diesem Handy gespeichert. Auf der Startseite anmelden, um sie mit der Familie zu teilen.',
-      prevMonth: 'Vorheriger Monat', nextMonth: 'Nächster Monat',
+      prevMonth: 'Vorheriger Monat', nextMonth: 'Nächster Monat', calSettings: 'Kalendereinstellungen',
       weekdays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'], weekStart: 1,
       monthLabel: (y, m) => `${['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'][m]} ${y}`,
       dayLabel: (d) => `${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][d.getDay()]}, ${d.getDate()}. ${T.de.monthLabel(0, d.getMonth()).split(' ')[0]}`,
@@ -939,8 +946,20 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     none.textContent = hasCalendar() ? L().noEvents : !S.user || !S.house ? L().todaySignIn : L().gcalNone;
   }
 
+  // 설정 칸은 평소 숨김. ⚙ 버튼을 누르거나, 연결이 필요하거나 문제가 있을 때만 보임.
+  let calSettingsOpen = false;
+  $('#cal-settings-btn').addEventListener('click', () => {
+    calSettingsOpen = !calSettingsOpen;
+    renderCalCard();
+    if (calSettingsOpen) $('#cal-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
   function renderCalCard() {
     const box = $('#cal-card');
+    const needed = !S.ready || !S.user || !S.house || !S.accounts.length || !!S.error || S.accounts.some((a) => !a.ok);
+    box.hidden = !(needed || calSettingsOpen);
+    const btn = $('#cal-settings-btn');
+    btn.hidden = needed;
+    btn.setAttribute('aria-pressed', String(calSettingsOpen));
     if (!S.user || !S.house) { box.replaceChildren(...accountBlock()); return; }
     const kids = [h('h3', { text: L().gcal })];
     const at = S.months[monthKey(view)] && S.months[monthKey(view)].at;
