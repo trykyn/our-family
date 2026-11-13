@@ -200,12 +200,21 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .done-toggle svg { width: 16px; height: 16px; color: var(--muted); transition: transform .15s; }
 .done-toggle[aria-expanded="true"] svg { transform: rotate(90deg); }
 .todo-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.todo-item {
-  display: flex; align-items: flex-start; gap: 12px;
-  padding: 12px 12px 12px 14px; background: var(--surface); border-radius: 14px; box-shadow: var(--shadow);
-  border-left: 4px solid var(--pc, var(--p2));
+/* 밀기(스와이프): 앞쪽 줄(.swipe-fg)을 옆으로 밀면 뒤쪽 색(.swipe-bg)이 드러남 */
+.swipe { position: relative; overflow: hidden; }
+.swipe-bg {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 18px; background: #34A86A; color: #FFFFFF; font-weight: 700; font-size: 14px;
 }
-.todo-item .check { margin-top: 1px; }
+.swipe-bg.del { background: #D9474B; }
+.swipe-bg span { display: flex; align-items: center; gap: 6px; }
+.swipe-bg svg { width: 18px; height: 18px; }
+.swipe-fg { position: relative; background: var(--surface); touch-action: pan-y; transition: transform .22s ease; -webkit-user-select: none; user-select: none; }
+.swipe-fg.dragging { transition: none; }
+.swipe-hint { margin: 10px 4px 0; font-size: 13px; text-align: center; }
+
+.todo-item { border-radius: 14px; box-shadow: var(--shadow); }
+.todo-item .swipe-fg { display: flex; padding: 12px 14px; border-left: 4px solid var(--pc, var(--p2)); border-radius: 14px; }
 .todo-item .body { flex: 1; min-width: 0; border: 0; background: none; padding: 0; text-align: left; color: inherit; display: grid; gap: 2px; }
 .todo-item .t { font-weight: 600; overflow-wrap: anywhere; }
 .todo-item .d { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -215,21 +224,34 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .todo-item .due { justify-self: start; margin-top: 4px; }
 
 /* 처음 화면 '챙길 할 일' (높음 + 마감 5일 이내) */
-.todo-box { margin-top: 12px; cursor: default; }
+.todo-box { margin-top: 12px; cursor: default; overflow: hidden; padding-bottom: 6px; }
 .box-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
 .box-h h2 { margin: 0; }
 .see-all { border: 0; background: none; padding: 4px 0; color: var(--deep); font-size: 13px; font-weight: 600; }
 .home-todos { list-style: none; margin: 0; padding: 0; display: grid; }
-.home-todos li { display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--line); }
+.home-todos { margin: 0 -16px; }
+.home-todos li { border-top: 1px solid var(--line); }
 .home-todos li:first-child { border-top: 0; }
-.home-todos .check { width: 22px; height: 22px; border-radius: 6px; border-color: var(--pc); }
-.home-todos .check:checked { background: var(--pc); border-color: var(--pc); }
-.home-todos .check:checked::after { width: 6px; height: 11px; border-color: #FFFFFF; }
-.home-todos .body { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 9px 0; text-align: left; color: inherit; }
+.home-todos .swipe-fg { display: flex; align-items: center; gap: 10px; padding: 0 16px; }
+.home-todos .pdot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--pc); }
+.home-todos .body { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 10px 0; text-align: left; color: inherit; }
 .home-todos .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.home-todos .more { color: var(--muted); font-size: 13px; padding: 8px 0 0 32px; border-top: 0; }
-.todo-item.done { box-shadow: none; opacity: .7; }
-.todo-item.done .t { color: var(--muted); text-decoration: line-through; font-weight: 500; }
+.home-todos .more { color: var(--muted); font-size: 13px; padding: 8px 16px 0 36px; border-top: 0; }
+.todo-item.done { box-shadow: none; }
+.todo-item.done .body { opacity: .65; }
+.todo-item.done .t { text-decoration: line-through; font-weight: 500; }
+
+/* 되돌리기 알림 */
+.toast {
+  position: fixed; left: 16px; right: 16px; bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  width: fit-content; max-width: 528px; margin: 0 auto;
+  z-index: 120; display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 18px; border-radius: 14px;
+  background: #12324A; color: #FFFFFF; box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .5);
+  animation: up .2s ease-out;
+}
+.toast span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toast button { flex: none; white-space: nowrap; border: 0; background: rgba(255, 255, 255, .16); color: #FFFFFF; font-weight: 700; padding: 8px 12px; border-radius: 10px; }
+.sheet .done-btn { width: 100%; }
 
 /* 입력·수정 창 (아래에서 올라옴) */
 .sheet-wrap { position: fixed; inset: 0; z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
@@ -389,6 +411,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
     <span data-t="newTodo">할 일 추가</span>
   </button>
+  <p class="hint swipe-hint" id="swipe-hint" data-t="swipeHint" hidden></p>
   <div id="todo-groups"></div>
   <div class="empty" id="todo-empty"><b data-t="todoEmptyB">할 일이 없어요</b><span data-t="todoEmpty">위의 버튼으로 추가하세요</span></div>
   <p class="hint todo-note" id="todo-note" hidden></p>
@@ -421,6 +444,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       </div>
     </div>
     <p class="hint err" id="f-err" hidden></p>
+    <button type="button" class="btn ghost done-btn" id="f-done"></button>
     <div class="sheet-actions">
       <button type="button" class="link-btn danger" id="f-del" data-t="delete">삭제</button>
       <span class="grow"></span>
@@ -477,7 +501,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       newTodo: '할 일 추가', editTodo: '할 일 수정', fTitle: '제목', fNote: '상세내용', fNotePh: '메모, 준비물 등 (선택)',
       fPri: '우선순위', pri: ['', '높음', '보통', '낮음'], fDue: '마감일', dueToday: '오늘', dueTomorrow: '내일', dueNone: '없음',
       save: '저장', cancel: '취소', delete: '삭제', titleNeeded: '제목을 입력해 주세요.',
-      confirmDelete: (t) => `"${t}" 할 일을 삭제할까요?`, doneGroup: '완료', openTodo: (t) => `${t} 열기`, doneTodo: (t) => `${t} 완료`,
+      confirmDelete: (t) => `"${t}" 할 일을 삭제할까요?`, doneGroup: '완료', openTodo: (t) => `${t} 열기`,
+      swipeHint: '옆으로 밀면 완료, 완료에서 한 번 더 밀면 삭제돼요.', swDone: '완료', swDelete: '삭제',
+      doneToast: (t) => `"${t}" 완료`, deletedToast: (t) => `"${t}" 삭제`, undo: '되돌리기',
+      markDone: '✓ 완료로 표시', markUndone: '↺ 다시 할 일로',
       dueLabel: (n, d) => n < 0 ? `${-n}일 지남` : n === 0 ? '오늘까지' : n === 1 ? '내일까지' : n <= 7 ? `D-${n}` : `${d.getMonth() + 1}월 ${d.getDate()}일까지`,
       todoShared: '가족과 함께 보는 목록이에요. 누가 바꿔도 바로 반영돼요.', todoLocal: '지금은 이 휴대폰에만 저장돼요. 홈에서 로그인하면 가족과 함께 써요.',
       prevMonth: '이전 달', nextMonth: '다음 달', calSettings: '캘린더 설정',
@@ -510,7 +537,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       newTodo: 'Aufgabe hinzufügen', editTodo: 'Aufgabe bearbeiten', fTitle: 'Titel', fNote: 'Details', fNotePh: 'Notizen, Mitbringen usw. (optional)',
       fPri: 'Priorität', pri: ['', 'Hoch', 'Mittel', 'Niedrig'], fDue: 'Fällig bis', dueToday: 'Heute', dueTomorrow: 'Morgen', dueNone: 'Keins',
       save: 'Speichern', cancel: 'Abbrechen', delete: 'Löschen', titleNeeded: 'Bitte einen Titel eingeben.',
-      confirmDelete: (t) => `„${t}" löschen?`, doneGroup: 'Erledigt', openTodo: (t) => `${t} öffnen`, doneTodo: (t) => `${t} erledigt`,
+      confirmDelete: (t) => `„${t}" löschen?`, doneGroup: 'Erledigt', openTodo: (t) => `${t} öffnen`,
+      swipeHint: 'Zur Seite wischen = erledigt. Unter „Erledigt" noch einmal wischen = löschen.', swDone: 'Erledigt', swDelete: 'Löschen',
+      doneToast: (t) => `„${t}" erledigt`, deletedToast: (t) => `„${t}" gelöscht`, undo: 'Rückgängig',
+      markDone: '✓ Als erledigt markieren', markUndone: '↺ Wieder offen',
       dueLabel: (n, d) => n < 0 ? `${-n} Tag${n < -1 ? 'e' : ''} überfällig` : n === 0 ? 'Heute fällig' : n === 1 ? 'Morgen fällig' : n <= 7 ? `In ${n} Tagen` : `Bis ${d.getDate()}.${d.getMonth() + 1}.`,
       todoShared: 'Diese Liste teilt ihr als Familie. Änderungen erscheinen sofort bei allen.', todoLocal: 'Gerade nur auf diesem Handy gespeichert. Auf der Startseite anmelden, um sie mit der Familie zu teilen.',
       prevMonth: 'Vorheriger Monat', nextMonth: 'Nächster Monat', calSettings: 'Kalendereinstellungen',
@@ -679,21 +709,87 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const byDue = (a, b) => (a.due || '9999').localeCompare(b.due || '9999') || (a.at || 0) - (b.at || 0);
   let showDone = false;
 
+  /* 되돌리기 알림 */
+  let toastTimer = null;
+  function toast(text, undo) {
+    const old = $('#toast');
+    if (old) old.remove();
+    clearTimeout(toastTimer);
+    const el = h('div', { class: 'toast', id: 'toast', role: 'status' },
+      h('span', { text }),
+      undo && h('button', { type: 'button', text: L().undo, onclick: () => { el.remove(); undo(); } }));
+    document.body.append(el);
+    toastTimer = setTimeout(() => el.remove(), 5000);
+  }
+  function finishTodo(t) {
+    setDone(t, true);
+    toast(L().doneToast(t.text), () => setDone(t, false));
+  }
+  function deleteTodo(t) {
+    const copy = { ...t };
+    removeTodo(t);
+    toast(L().deletedToast(t.text), () => saveTodo(copy));
+  }
+
+  /* 밀기: 줄을 옆으로 35% 넘게 밀면 onSwipe 실행 (양쪽 방향 모두). 세로로 움직이면 그냥 스크롤. */
+  const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>';
+  const ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+  function swipeRow(li, fg, del, onSwipe) {
+    const label = del ? L().swDelete : L().swDone, icon = del ? ICON_TRASH : ICON_CHECK;
+    const side = () => { const s = h('span'); s.innerHTML = icon; s.append(label); return s; };
+    li.classList.add('swipe');
+    li.prepend(h('div', { class: 'swipe-bg' + (del ? ' del' : ''), 'aria-hidden': 'true' }, side(), side()));
+    fg.classList.add('swipe-fg');
+    let x0 = 0, y0 = 0, dx = 0, id = null, mode = null; // mode: null(아직 모름) | 'x'(밀기) | 'y'(스크롤)
+    let quietUntil = 0; // 밀고 난 직후의 클릭(상세 창 열기)은 무시
+    fg.addEventListener('click', (ev) => { if (Date.now() < quietUntil) { ev.stopPropagation(); ev.preventDefault(); } }, true);
+    fg.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      id = e.pointerId; x0 = e.clientX; y0 = e.clientY; dx = 0; mode = null;
+    });
+    fg.addEventListener('pointermove', (e) => {
+      if (e.pointerId !== id || mode === 'y') return;
+      const mx = e.clientX - x0, my = e.clientY - y0;
+      if (!mode) {
+        if (Math.abs(my) > 10 && Math.abs(my) > Math.abs(mx)) { mode = 'y'; return; }
+        if (Math.abs(mx) < 10) return;
+        mode = 'x'; fg.setPointerCapture(id); fg.classList.add('dragging');
+      }
+      dx = mx;
+      fg.style.transform = `translateX(${dx}px)`;
+    });
+    const end = (e) => {
+      if (e.pointerId !== id) return;
+      id = null;
+      if (mode !== 'x') return;
+      fg.classList.remove('dragging');
+      quietUntil = Date.now() + 400;
+      mode = null;
+      const w = fg.offsetWidth;
+      if (Math.abs(dx) > w * 0.35) {
+        fg.style.transform = `translateX(${dx > 0 ? w : -w}px)`;
+        setTimeout(onSwipe, 180);
+      } else fg.style.transform = '';
+    };
+    fg.addEventListener('pointerup', end);
+    fg.addEventListener('pointercancel', (e) => { if (e.pointerId === id) { id = null; mode = null; fg.classList.remove('dragging'); fg.style.transform = ''; } });
+    return li;
+  }
+
+  function dueChip(t) {
+    if (!t.due) return null;
+    const n = daysUntil(t.due);
+    return h('span', { class: 'due' + (t.done ? '' : n < 0 ? ' late' : n <= 1 ? ' soon' : ''), text: L().dueLabel(n, fromKey(t.due)) });
+  }
+
   function todoRow(t) {
-    const p = priOf(t);
-    const cb = h('input', { type: 'checkbox', class: 'check', 'aria-label': L().doneTodo(t.text), onchange: () => setDone(t, cb.checked) });
-    cb.checked = !!t.done;
-    let due = null;
-    if (t.due) {
-      const n = daysUntil(t.due);
-      due = h('span', { class: 'due' + (t.done ? '' : n < 0 ? ' late' : n <= 1 ? ' soon' : ''), text: L().dueLabel(n, fromKey(t.due)) });
-    }
-    return h('li', { class: 'todo-item' + (t.done ? ' done' : ''), style: `--pc:${PRI[p].c}` },
-      cb,
+    const fg = h('div', {},
       h('button', { type: 'button', class: 'body', 'aria-label': L().openTodo(t.text), onclick: () => openSheet(t) },
         h('span', { class: 't', text: t.text }),
         t.note ? h('span', { class: 'd', text: t.note.split('\n')[0] }) : null,
-        due));
+        dueChip(t)));
+    const li = h('li', { class: 'todo-item' + (t.done ? ' done' : ''), style: `--pc:${PRI[priOf(t)].c}` }, fg);
+    return swipeRow(li, fg, !!t.done, () => (t.done ? deleteTodo(t) : finishTodo(t)));
   }
 
   function renderTodos() {
@@ -721,6 +817,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const note = $('#todo-note');
     note.hidden = !S.ready;
     note.textContent = isShared() ? L().todoShared : L().todoLocal;
+    $('#swipe-hint').hidden = todos.length === 0;
     renderHomeTodos(todos);
   }
 
@@ -732,15 +829,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#todo-box').hidden = pick.length === 0;
     $('#home-todos').replaceChildren(
       ...pick.slice(0, MAX).map((t) => {
-        const cb = h('input', { type: 'checkbox', class: 'check', 'aria-label': L().doneTodo(t.text), onchange: () => setDone(t, cb.checked) });
-        let due = null;
-        if (t.due) {
-          const n = daysUntil(t.due);
-          due = h('span', { class: 'due' + (n < 0 ? ' late' : n <= 1 ? ' soon' : ''), text: L().dueLabel(n, fromKey(t.due)) });
-        }
-        return h('li', { style: `--pc:${PRI[priOf(t)].c}` }, cb,
+        const fg = h('div', {}, h('span', { class: 'pdot' }),
           h('button', { type: 'button', class: 'body', 'aria-label': L().openTodo(t.text), onclick: () => openSheet(t) },
-            h('span', { class: 't', text: t.text }), due));
+            h('span', { class: 't', text: t.text }), dueChip(t)));
+        return swipeRow(h('li', { style: `--pc:${PRI[priOf(t)].c}` }, fg), fg, false, () => finishTodo(t));
       }),
       ...(pick.length > MAX ? [h('li', { class: 'more', text: L().moreTodos(pick.length - MAX) })] : []));
   }
@@ -771,6 +863,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     syncDueChips();
     $('#f-err').hidden = true;
     $('#f-del').hidden = !t;
+    const doneBtn = $('#f-done');
+    doneBtn.hidden = !t;
+    if (t) doneBtn.textContent = t.done ? L().markUndone : L().markDone;
     sheet.hidden = false;
     document.body.style.overflow = 'hidden';
     if (!t) setTimeout(() => $('#f-title').focus(), 50);
@@ -801,6 +896,13 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     if (!editing || !confirm(L().confirmDelete(editing.text))) return;
     removeTodo(editing);
     closeSheet();
+  });
+  // 밀기를 못 쓰는 경우(화면 읽기 등)를 위해 창 안에서도 완료/되돌리기 가능
+  $('#f-done').addEventListener('click', () => {
+    if (!editing) return;
+    const t = editing;
+    closeSheet();
+    if (t.done) setDone(t, false); else finishTodo(t);
   });
 
   /* ───────── 로그인 · 가족 코드 (장보기 앱과 같은 Firebase 프로젝트) ───────── */
