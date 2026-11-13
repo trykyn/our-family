@@ -73,7 +73,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 /* ── 홈 ── */
 .hero {
   margin: 0 -16px;
-  padding: calc(28px + env(safe-area-inset-top, 0px)) 24px 46px;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 20px 22px;
   background: linear-gradient(135deg, #8CCFFF 0%, #7EC8E3 55%, #6AAFE6 100%);
   color: #0E2A40;
   border-radius: 0 0 32px 32px;
@@ -84,29 +84,37 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   content: ""; position: absolute; right: -40px; top: -30px; width: 180px; height: 180px;
   border-radius: 50%; background: rgba(255, 255, 255, .22);
 }
-.hero .date { margin: 0; font-size: 14px; font-weight: 500; opacity: .8; }
-.hero h1 { margin: 2px 0 0; font-family: var(--font-display); font-weight: 400; font-size: 40px; letter-spacing: -.5px; }
-.hero p.hello { margin: 4px 0 0; font-size: 15px; opacity: .85; }
+.hero-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; position: relative; z-index: 1; }
+.hero h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 30px; letter-spacing: -.5px; }
+.hero .date { margin: 0; font-size: 15px; font-weight: 600; }
 
-.tiles { display: grid; gap: 14px; margin-top: -26px; position: relative; z-index: 1; }
-.tile {
-  display: flex; align-items: center; gap: 16px;
-  width: 100%; padding: 22px 20px; border: 0; border-radius: var(--radius);
-  background: var(--surface); box-shadow: var(--shadow); text-align: left;
-  transition: transform .12s ease;
+/* 오늘 일정 (구글 캘린더 연결 후 채움) */
+.today {
+  position: relative; z-index: 1; margin-top: 14px; padding: 14px 16px;
+  background: rgba(255, 255, 255, .72); border-radius: 18px; color: #12324A;
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
 }
-.tile:active { transform: scale(.98); }
+.today h2 { margin: 0 0 8px; font-family: var(--font-display); font-weight: 400; font-size: 19px; }
+.events { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.events li { display: flex; gap: 12px; align-items: baseline; }
+.events .time { flex: none; width: 48px; font-weight: 600; color: #2F7FC1; font-variant-numeric: tabular-nums; }
+.events-empty { margin: 0; color: #557489; font-size: 14px; }
+
+/* 앱 안의 앱: 큰 아이콘 + 이름 */
+.tiles { display: flex; justify-content: center; gap: 36px; margin-top: 32px; }
+.tile {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 0; border: 0; background: none; transition: transform .12s ease;
+}
+.tile:active { transform: scale(.95); }
 .tile .ico {
-  flex: none; width: 60px; height: 60px; border-radius: 16px;
-  display: grid; place-items: center; color: #0E2A40;
+  width: 112px; height: 112px; border-radius: 30px;
+  display: grid; place-items: center; color: #0E2A40; box-shadow: var(--shadow);
 }
 .tile.todo .ico { background: linear-gradient(140deg, #A6DCEF, #7EC8E3); }
 .tile.cal  .ico { background: linear-gradient(140deg, #8CCFFF, #6AAFE6); }
-.tile .ico svg { width: 30px; height: 30px; }
-.tile .txt { flex: 1; min-width: 0; }
-.tile .name { display: block; font-family: var(--font-display); font-size: 23px; line-height: 1.2; }
-.tile .sub { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
-.tile .chev { flex: none; color: var(--blue); width: 22px; height: 22px; }
+.tile .ico svg { width: 56px; height: 56px; }
+.tile .name { font-family: var(--font-display); font-size: 22px; line-height: 1.2; }
 
 /* ── 하위 화면 공통 상단바 ── */
 .bar {
@@ -195,24 +203,28 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 <!-- 홈 -->
 <main id="home" class="screen">
   <header class="hero">
-    <p class="date" id="today-label"></p>
-    <h1>우리가족</h1>
-    <p class="hello">오늘도 함께 챙겨요</p>
+    <div class="hero-top">
+      <h1>우리가족</h1>
+      <p class="date" id="today-label"></p>
+    </div>
+    <section class="today" aria-labelledby="today-title">
+      <h2 id="today-title">오늘 일정</h2>
+      <ul class="events" id="today-events"></ul>
+      <p class="events-empty" id="today-empty">구글 캘린더를 연결하면 오늘 일정이 여기 보여요</p>
+    </section>
   </header>
   <nav class="tiles" aria-label="메뉴">
     <button class="tile todo" type="button" data-go="todo">
       <span class="ico" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="m8 9 1.6 1.6L12.5 7.8M8 15.5l1.6 1.6 2.9-2.8M15 9.5h1.5M15 16h1.5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="m8 9 1.6 1.6L12.5 7.8M8 15.5l1.6 1.6 2.9-2.8M15 9.5h1.5M15 16h1.5"/></svg>
       </span>
-      <span class="txt"><span class="name">할일목록</span><span class="sub" id="todo-summary">할 일을 적어 두세요</span></span>
-      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+      <span class="name">할일목록</span>
     </button>
     <button class="tile cal" type="button" data-go="calendar">
       <span class="ico" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/></svg>
       </span>
-      <span class="txt"><span class="name">캘린더</span><span class="sub">구글 캘린더 연결 예정</span></span>
-      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+      <span class="name">캘린더</span>
     </button>
   </nav>
 </main>
@@ -275,7 +287,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     for (const s of screens) document.getElementById(s).hidden = s !== cur;
     window.scrollTo(0, 0);
     if (cur === 'calendar') renderMonth();
-    if (cur === 'home') renderSummary();
+    if (cur === 'home') renderToday();
   }
   let openedFromHome = false; // 홈에서 들어왔으면 '뒤로'는 history.back()
   document.addEventListener('click', (e) => {
@@ -330,10 +342,21 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     save(); renderTodos();
   });
 
-  function renderSummary() {
-    const left = todos.filter((t) => !t.done).length;
-    $('#todo-summary').textContent = todos.length === 0 ? '할 일을 적어 두세요'
-      : left === 0 ? '모두 끝냈어요' : `남은 할 일 ${left}개`;
+  // ── 홈 상단 '오늘 일정' — 구글 캘린더 연결 후 todayEvents 를 채움 ──
+  let todayEvents = []; // [{ time: '09:00' 또는 '종일', title: '...' }]
+  function renderToday() {
+    const list = $('#today-events');
+    list.replaceChildren();
+    for (const ev of todayEvents) {
+      const li = document.createElement('li');
+      const time = document.createElement('span');
+      time.className = 'time'; time.textContent = ev.time;
+      const title = document.createElement('span');
+      title.textContent = ev.title;
+      li.append(time, title);
+      list.append(li);
+    }
+    $('#today-empty').hidden = todayEvents.length > 0;
   }
 
   // ── 캘린더 (월 보기 틀) ──
