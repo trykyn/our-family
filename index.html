@@ -305,6 +305,7 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 }
 @keyframes up { from { transform: translateY(30px); opacity: 0; } }
 .sheet h3 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 22px; }
+.sheet .orig { margin: 0; padding: 8px 12px; border-radius: 10px; background: var(--sky-soft); font-size: 13px; white-space: pre-line; overflow-wrap: anywhere; }
 .lbl { display: grid; gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
 .lbl > span, .lbl > legend { font-size: 13px; font-weight: 600; color: var(--muted); padding: 0; }
 textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: vertical; line-height: 1.5; font-family: inherit; }
@@ -497,6 +498,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         <button type="button" class="chip-btn" data-due="" data-t="dueNone">없음</button>
       </div>
     </div>
+    <p class="hint orig" id="f-orig" hidden></p>
     <p class="hint err" id="f-err" hidden></p>
     <button type="button" class="btn ghost done-btn" id="f-done"></button>
     <div class="sheet-actions">
@@ -558,7 +560,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       fPri: '우선순위', pri: ['', '높음', '보통', '낮음'], fDue: '마감일', dueToday: '오늘', dueTomorrow: '내일', dueNone: '없음',
       save: '저장', cancel: '취소', delete: '삭제', titleNeeded: '제목을 입력해 주세요.',
       confirmDelete: (t) => `"${t}" 할 일을 삭제할까요?`, doneGroup: '완료', openTodo: (t) => `${t} 열기`,
-      swipeHint: '옆으로 밀면 완료, 완료에서 한 번 더 밀면 삭제돼요.', swDone: '완료', swDelete: '삭제',
+      swipeHint: '옆으로 밀면 완료, 완료에서 한 번 더 밀면 삭제돼요.', swDone: '완료', swDelete: '삭제', autoTr: '자동 번역', origLabel: '원문',
       doneToast: (t) => `"${t}" 완료`, deletedToast: (t) => `"${t}" 삭제`, undo: '되돌리기',
       markDone: '✓ 완료로 표시', markUndone: '↺ 다시 할 일로',
       dueLabel: (n, d) => n < 0 ? `${-n}일 지남` : n === 0 ? '오늘까지' : n === 1 ? '내일까지' : n <= 7 ? `D-${n}` : `${d.getMonth() + 1}월 ${d.getDate()}일까지`,
@@ -596,7 +598,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       fPri: 'Priorität', pri: ['', 'Hoch', 'Mittel', 'Niedrig'], fDue: 'Fällig bis', dueToday: 'Heute', dueTomorrow: 'Morgen', dueNone: 'Keins',
       save: 'Speichern', cancel: 'Abbrechen', delete: 'Löschen', titleNeeded: 'Bitte einen Titel eingeben.',
       confirmDelete: (t) => `„${t}" löschen?`, doneGroup: 'Erledigt', openTodo: (t) => `${t} öffnen`,
-      swipeHint: 'Zur Seite wischen = erledigt. Unter „Erledigt" noch einmal wischen = löschen.', swDone: 'Erledigt', swDelete: 'Löschen',
+      swipeHint: 'Zur Seite wischen = erledigt. Unter „Erledigt" noch einmal wischen = löschen.', swDone: 'Erledigt', swDelete: 'Löschen', autoTr: 'Automatisch übersetzt', origLabel: 'Original',
       doneToast: (t) => `„${t}" erledigt`, deletedToast: (t) => `„${t}" gelöscht`, undo: 'Rückgängig',
       markDone: '✓ Als erledigt markieren', markUndone: '↺ Wieder offen',
       dueLabel: (n, d) => n < 0 ? `${-n} Tag${n < -1 ? 'e' : ''} überfällig` : n === 0 ? 'Heute fällig' : n === 1 ? 'Morgen fällig' : n <= 7 ? `In ${n} Tagen` : `Bis ${d.getDate()}.${d.getMonth() + 1}.`,
@@ -807,6 +809,52 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const byDue = (a, b) => (a.due || '9999').localeCompare(b.due || '9999') || (a.at || 0) - (b.at || 0);
   let showDone = false;
 
+  /* 자동 번역 (한국어 ↔ 독일어)
+     쓴 언어(한글이 있으면 한국어, 없으면 독일어)와 이 휴대폰의 언어가 다르면 번역본을 보여 줌.
+     번역본은 할 일 안에 tr = { lang, text, note, sig } 로 같이 저장 → 한 번만 번역하면 가족 모두 씀.
+     sig(원문)가 바뀌면 다시 번역. 번역은 장보기 앱과 같은 무료 서비스(MyMemory). */
+  const hasHangul = (s) => /[ㄱ-ㆎ가-힣]/.test(s);
+  const srcLangOf = (t) => (hasHangul(`${t.text} ${t.note || ''}`) ? 'ko' : 'de');
+  const sigOf = (t) => `${t.text}\n${t.note || ''}`;
+  const trOk = (t) => !!(t.tr && t.tr.sig === sigOf(t) && t.tr.lang === (srcLangOf(t) === 'ko' ? 'de' : 'ko'));
+  const showTr = (t) => srcLangOf(t) !== lang && trOk(t);
+  const shownText = (t) => (showTr(t) ? t.tr.text : t.text);
+  const shownNote = (t) => (showTr(t) ? t.tr.note : (t.note || ''));
+
+  async function translateLine(s, from, to) {
+    if (!s.trim()) return s;
+    const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(s.slice(0, 450))}&langpair=${from}|${to}`);
+    const d = await r.json();
+    const out = d && d.responseData && d.responseData.translatedText;
+    if (!r.ok || Number(d.responseStatus) !== 200 || !out || /MYMEMORY WARNING|QUERY LENGTH LIMIT|INVALID/i.test(out)) throw new Error('translate');
+    return out;
+  }
+  const trTried = new Set(); // 이번에 열려 있는 동안 실패한 건 다시 시도하지 않음
+  let trBusy = false;
+  async function translatePending() {
+    if (trBusy || !navigator.onLine) return;
+    trBusy = true;
+    try {
+      for (;;) {
+        const t = visibleTodos().find((x) => !trOk(x) && !trTried.has(`${x.id}|${sigOf(x)}`));
+        if (!t) break;
+        trTried.add(`${t.id}|${sigOf(t)}`);
+        const from = srcLangOf(t), to = from === 'ko' ? 'de' : 'ko';
+        try {
+          const text = await translateLine(t.text, from, to);
+          const lines = [];
+          for (const line of (t.note || '').split('\n')) lines.push(await translateLine(line, from, to));
+          const tr = { lang: to, text, note: lines.join('\n'), sig: sigOf(t) };
+          if (isShared()) await todoWrite({ [`todos.${t.id}.tr`]: tr });
+          else {
+            const x = localTodos.find((y) => y.id === t.id);
+            if (x && sigOf(x) === tr.sig) { x.tr = tr; saveLocal(); }
+          }
+        } catch (e) { console.warn('translate', e); }
+      }
+    } finally { trBusy = false; }
+  }
+
   /* 되돌리기 알림 */
   let toastTimer = null;
   function toast(text, undo) {
@@ -821,12 +869,12 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
   function finishTodo(t) {
     setDone(t, true);
-    toast(L().doneToast(t.text), () => setDone(t, false));
+    toast(L().doneToast(shownText(t)), () => setDone(t, false));
   }
   function deleteTodo(t) {
     const copy = { ...t };
     removeTodo(t);
-    toast(L().deletedToast(t.text), () => saveTodo(copy));
+    toast(L().deletedToast(shownText(t)), () => saveTodo(copy));
   }
 
   /* 밀기: 줄을 옆으로 35% 넘게 밀면 onSwipe 실행 (양쪽 방향 모두). 세로로 움직이면 그냥 스크롤. */
@@ -882,9 +930,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
 
   function todoRow(t) {
     const fg = h('div', {},
-      h('button', { type: 'button', class: 'body', 'aria-label': L().openTodo(t.text), onclick: () => openSheet(t) },
-        h('span', { class: 't', text: t.text }),
-        t.note ? h('span', { class: 'd', text: t.note.split('\n')[0] }) : null,
+      h('button', { type: 'button', class: 'body', 'aria-label': L().openTodo(shownText(t)), onclick: () => openSheet(t) },
+        h('span', { class: 't', text: shownText(t) }),
+        shownNote(t) ? h('span', { class: 'd', text: shownNote(t).split('\n')[0] }) : null,
         (WHO[t.who] || t.due) ? h('span', { class: 'meta' }, whoChip(t), dueChip(t)) : null));
     const li = h('li', { class: 'todo-item' + (t.done ? ' done' : ''), style: `--pc:${PRI[priOf(t)].c}` }, fg);
     return swipeRow(li, fg, !!t.done, () => (t.done ? deleteTodo(t) : finishTodo(t)));
@@ -919,6 +967,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     note.textContent = isShared() ? L().todoShared : L().todoLocal;
     $('#swipe-hint').hidden = todos.length === 0;
     renderHomeTodos(todos);
+    translatePending();
   }
 
   // 처음 화면: 끝나지 않은 할 일 중 우선순위 '높음'이거나 마감이 5일 이내(지난 것 포함)
@@ -930,8 +979,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#home-todos').replaceChildren(
       ...pick.slice(0, MAX).map((t) => {
         const fg = h('div', {}, h('span', { class: 'pdot' }),
-          h('button', { type: 'button', class: 'body', 'aria-label': L().openTodo(t.text), onclick: () => openSheet(t) },
-            h('span', { class: 't', text: t.text }), whoChip(t), dueChip(t)));
+          h('button', { type: 'button', class: 'body', 'aria-label': L().openTodo(shownText(t)), onclick: () => openSheet(t) },
+            h('span', { class: 't', text: shownText(t) }), whoChip(t), dueChip(t)));
         return swipeRow(h('li', { style: `--pc:${PRI[priOf(t)].c}` }, fg), fg, false, () => finishTodo(t));
       }),
       ...(pick.length > MAX ? [h('li', { class: 'more', text: L().moreTodos(pick.length - MAX) })] : []));
@@ -939,6 +988,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
 
   /* 입력·수정 창 */
   let editing = null; // 고치는 중인 할 일 (새로 만들 때는 null)
+  let sheetShown = { text: '', note: '' }; // 창을 열 때 보여 준 제목·상세내용 (번역본일 수 있음)
   let formPri = 2;
   const sheet = $('#todo-sheet');
   function setFormPri(p) {
@@ -966,8 +1016,13 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     editing = t || null;
     $('#sheet-title').textContent = t ? L().editTodo : L().newTodo;
     for (const el of sheet.querySelectorAll('[data-pri-name]')) el.textContent = L().pri[el.dataset.priName];
-    $('#f-title').value = t ? t.text : '';
-    $('#f-note').value = t ? (t.note || '') : '';
+    // 번역본을 보고 있으면 번역본을 채우고, 원문은 아래에 작게
+    sheetShown = { text: t ? shownText(t) : '', note: t ? shownNote(t) : '' };
+    $('#f-title').value = sheetShown.text;
+    $('#f-note').value = sheetShown.note;
+    const orig = $('#f-orig');
+    orig.hidden = !(t && showTr(t));
+    if (t && showTr(t)) orig.textContent = `🌐 ${L().autoTr} · ${L().origLabel}: ${t.text}${t.note ? `\n${t.note}` : ''}`;
     $('#f-due').value = t ? (t.due || '') : '';
     setFormPri(t ? priOf(t) : 2);
     // 담당: 새 할 일은 지금 보고 있는 사람(엄마/아빠 필터)으로 시작
@@ -1001,11 +1056,14 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const text = $('#f-title').value.trim();
     if (!text) { const err = $('#f-err'); err.textContent = L().titleNeeded; err.hidden = false; $('#f-title').focus(); return; }
     const base = editing || { id: newId(), done: false, at: Date.now() };
-    saveTodo({ ...base, text, note: $('#f-note').value.trim(), pri: formPri, who: formWho, due: $('#f-due').value || '' });
+    const note = $('#f-note').value.trim();
+    // 번역본을 그대로 두고 마감일·담당 등만 바꿨으면 원문을 지킴 (번역의 번역이 되지 않게)
+    const same = editing && text === sheetShown.text.trim() && note === sheetShown.note.trim();
+    saveTodo({ ...base, text: same ? base.text : text, note: same ? (base.note || '') : note, pri: formPri, who: formWho, due: $('#f-due').value || '' });
     closeSheet();
   });
   $('#f-del').addEventListener('click', () => {
-    if (!editing || !confirm(L().confirmDelete(editing.text))) return;
+    if (!editing || !confirm(L().confirmDelete(shownText(editing)))) return;
     removeTodo(editing);
     closeSheet();
   });
