@@ -1588,7 +1588,21 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   cachedPhoto('get').then((b) => { if (b && !photoUrl) showPhoto(b); });
   startFirebase();
 
-  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+  // 오프라인 지원 + 새 버전 바로 적용:
+  // sw.js 는 저장본을 쓰지 않고 늘 서버에서 확인(updateViaCache: 'none'), 앱으로 돌아올 때마다 새 버전 확인,
+  // 새 버전이 자리 잡으면 화면을 한 번 새로 고침.
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || reloading) return; // 처음 설치할 때는 새로 고침 안 함
+      reloading = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
+    }).catch(() => {});
+  }
 })();
 </script>
 </body>
