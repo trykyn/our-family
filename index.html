@@ -148,6 +148,14 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .fam .changed { position: absolute; top: 6px; left: 38px; width: 8px; height: 8px; border-radius: 50%; background: var(--mc); box-shadow: 0 0 0 2px var(--surface); }
 .rt-head { display: flex; align-items: center; gap: 10px; }
 .rt-head img { width: 44px; height: 44px; border-radius: 50%; }
+/* 가족 일정: 함께하는 사람 (얼굴 버튼, 끄면 흐리게) */
+.with-row { display: flex; align-items: center; gap: 8px; margin-top: -6px; flex-wrap: wrap; }
+.with-row > span { font-size: 12px; font-weight: 600; color: var(--muted); margin-right: 2px; }
+.with-row button { display: flex; flex-direction: column; align-items: center; gap: 2px; border: 0; background: none; padding: 0; font-size: 11px; font-weight: 700; color: var(--mc); }
+.with-row img { width: 36px; height: 36px; border-radius: 50%; box-shadow: 0 0 0 2px var(--mc); transition: opacity .15s, filter .15s; }
+.with-row button[aria-pressed="false"] { color: var(--muted); }
+.with-row button[aria-pressed="false"] img { opacity: .35; filter: grayscale(1); box-shadow: 0 0 0 2px var(--line); }
+.fam .sl .ft { color: #2A9690; font-weight: 600; }
 .rt-every { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
 .rt-every .check { width: 22px; height: 22px; border-radius: 6px; }
 
@@ -519,9 +527,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <label class="lbl"><span data-t="am">오전</span>
       <input class="field" id="rt-am" type="text" maxlength="60" list="rt-acts" data-t-label="am">
     </label>
+    <div class="with-row" id="rt-with-am" hidden></div>
     <label class="lbl"><span data-t="pm">오후</span>
       <input class="field" id="rt-pm" type="text" maxlength="60" list="rt-acts" data-t-label="pm">
     </label>
+    <div class="with-row" id="rt-with-pm" hidden></div>
     <datalist id="rt-acts"></datalist>
     <label class="rt-every"><input type="checkbox" class="check" id="rt-every"><span id="rt-every-label"></span></label>
     <p class="hint" id="rt-note"></p>
@@ -620,7 +630,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
       shortDay: (d) => `${d.getMonth() + 1}/${d.getDate()} (${T.ko.weekdays[d.getDay()]})`,
       rtEvery: (wd) => `매주 ${T.ko.weekdays[wd]}요일 기본으로 저장`, rtReset: '기본으로 되돌리기',
-      rtChanged: '이 날만 바꾼 일정이에요.', rtHint: '저장하면 이 날만 바뀌어요. 매주 바꾸려면 아래를 체크하세요.',
+      rtChanged: '이 날만 바꾼 일정이에요.', withLabel: '함께', rtHint: '저장하면 이 날만 바뀌어요. 매주 바꾸려면 아래를 체크하세요.',
       city: '뮌헨', homeTodoTitle: '챙길 할 일', seeAll: '전체 보기', moreTodos: (n) => `외 ${n}개`,
       dinnerTitle: '오늘 저녁', dinnerNone: '아직 정하지 않았어요', kidTag: '아이',
       fWho: '담당', whoNone: '미정', who: { mom: '엄마', dad: '아빠', davin: '다빈', arin: '아린', both: '같이' }, filterAll: '전체',
@@ -662,7 +672,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
       shortDay: (d) => `${T.de.weekdays[d.getDay()]}, ${d.getDate()}.${d.getMonth() + 1}.`,
       rtEvery: (wd) => `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][wd]} als Standard speichern`, rtReset: 'Zurück zum Standard',
-      rtChanged: 'Nur für diesen Tag geändert.', rtHint: 'Speichern ändert nur diesen Tag. Für jede Woche unten ankreuzen.',
+      rtChanged: 'Nur für diesen Tag geändert.', withLabel: 'Dabei', rtHint: 'Speichern ändert nur diesen Tag. Für jede Woche unten ankreuzen.',
       city: 'München', homeTodoTitle: 'Wichtig & bald fällig', seeAll: 'Alle anzeigen', moreTodos: (n) => `und ${n} weitere`,
       dinnerTitle: 'Heute Abend', dinnerNone: 'Noch nichts geplant', kidTag: 'Kinder',
       fWho: 'Zuständig', whoNone: 'Offen', who: { mom: 'Mama', dad: 'Papa', davin: 'Davin', arin: 'Arin', both: 'Zusammen' }, filterAll: 'Alle',
@@ -1564,16 +1574,40 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       h('div', { class: 'fam-head', 'aria-hidden': 'true' }, h('span', { text: L().am }), h('span', { text: L().pm })),
       ...MEMBERS.map((m) => {
         const { e, changed } = entryFor(m, key);
-        const slot = (s) => { const t = slotText(e, s); return h('span', { class: 'sl' + (t ? '' : ' none'), text: t || '—' }); };
+        // 가족 일정에 이 사람이 함께하면 같은 칸에 청록색으로 같이 보여 줌
+        const famEntry = m === 'family' ? null : entryFor('family', key).e;
+        const slot = (s) => {
+          const t = slotText(e, s);
+          const f = famEntry && famEntry[s] && joins(famEntry, s, m) ? slotText(famEntry, s) : '';
+          if (!t && !f) return h('span', { class: 'sl none', text: '—' });
+          return h('span', { class: 'sl' }, t, t && f ? ' · ' : '', f ? h('span', { class: 'ft', text: f }) : null);
+        };
+        const amEl = slot('am'), pmEl = slot('pm');
         return h('button', {
-          type: 'button', class: 'fam', style: `--mc:${MCOLOR[m]}`, 'aria-label': `${nameOf(m)}: ${L().am} ${slotText(e, 'am') || '—'}, ${L().pm} ${slotText(e, 'pm') || '—'}`,
+          type: 'button', class: 'fam', style: `--mc:${MCOLOR[m]}`, 'aria-label': `${nameOf(m)}: ${L().am} ${amEl.textContent}, ${L().pm} ${pmEl.textContent}`,
           onclick: () => openRoutine(m),
-        }, h('img', { src: avatarOf(m), alt: '' }), h('span', { class: 'nm', text: nameOf(m) }), slot('am'), slot('pm'),
+        }, h('img', { src: avatarOf(m), alt: '' }), h('span', { class: 'nm', text: nameOf(m) }), amEl, pmEl,
         changed ? h('span', { class: 'changed', title: L().rtChanged }) : null);
       }));
   }
   $('#fam-prev').addEventListener('click', () => { famOffset--; renderToday(); });
   $('#fam-next').addEventListener('click', () => { famOffset++; renderToday(); });
+
+  /* 가족 일정에 함께하는 사람: entry.with = { am: [...], pm: [...] } (없으면 모두 함께) */
+  const PEOPLE = ['mom', 'dad', 'davin', 'arin'];
+  const joins = (fe, s, m) => !fe.with || !Array.isArray(fe.with[s]) || fe.with[s].includes(m);
+  let rtWith = { am: [], pm: [] };
+  function renderWith() {
+    for (const s of ['am', 'pm']) {
+      $(`#rt-with-${s}`).replaceChildren(h('span', { text: L().withLabel }), ...PEOPLE.map((p) => h('button', {
+        type: 'button', style: `--mc:${MCOLOR[p]}`, 'aria-pressed': String(rtWith[s].includes(p)), 'aria-label': `${L()[s]} · ${nameOf(p)}`,
+        onclick: () => {
+          rtWith[s] = rtWith[s].includes(p) ? rtWith[s].filter((x) => x !== p) : PEOPLE.filter((x) => x === p || rtWith[s].includes(x));
+          renderWith();
+        },
+      }, h('img', { src: avatarOf(p), alt: '' }), nameOf(p))));
+    }
+  }
 
   /* 수정 창 */
   const rtSheet = $('#routine-sheet');
@@ -1591,6 +1625,12 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#rt-acts').replaceChildren(...Object.values(ACT).map((a) => h('option', { value: a[lang === 'de' ? 1 : 0] })));
     $('#rt-reset').hidden = !changed;
     $('#rt-note').textContent = changed ? L().rtChanged : L().rtHint;
+    const isFam = m === 'family';
+    $('#rt-with-am').hidden = $('#rt-with-pm').hidden = !isFam;
+    if (isFam) {
+      rtWith = { am: PEOPLE.filter((p) => joins(e, 'am', p)), pm: PEOPLE.filter((p) => joins(e, 'pm', p)) };
+      renderWith();
+    }
     rtSheet.hidden = false;
     document.body.style.overflow = 'hidden';
   }
@@ -1613,6 +1653,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const { m, key, e } = rt;
     const am = parseSlot($('#rt-am').value, e.am, rt.shown.am), pm = parseSlot($('#rt-pm').value, e.pm, rt.shown.pm);
     const entry = { am, pm };
+    if (m === 'family') entry.with = { am: rtWith.am.slice(), pm: rtWith.pm.slice() };
     const free = [am, pm].filter((v) => v && !v.startsWith('@'));
     if (free.length) {
       entry.src = hasHangul(free.join(' ')) ? 'ko' : 'de';
