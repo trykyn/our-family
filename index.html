@@ -129,17 +129,27 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 /* 가족 하루 일정표 (엄마·아빠·다빈·아린 × 오전·오후) */
 .fam-box { cursor: default; }
 .fam-box .box-h { margin-bottom: 10px; }
-.day-nav { display: flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; color: var(--deep); }
-.day-pick { position: relative; min-width: 64px; text-align: center; padding: 4px 2px; border-bottom: 1.5px dotted currentColor; cursor: pointer; }
+.day-nav { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--deep); }
+.day-pick { position: relative; overflow: hidden; min-width: 44px; text-align: center; padding: 2px 2px; border-bottom: 1.5px dotted currentColor; cursor: pointer; white-space: nowrap; }
 /* 날짜를 누르면 휴대폰의 달력 창이 뜸 (보이지 않는 날짜 입력칸을 위에 겹침) */
-.day-pick input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; font-size: 16px; cursor: pointer; }
+.day-pick input { position: absolute; inset: 0; width: 100%; height: 100%; min-width: 0; max-width: 100%; opacity: 0; border: 0; padding: 0; margin: 0; font-size: 16px; cursor: pointer; -webkit-appearance: none; appearance: none; }
 .fam-tl { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
 .fam-tl h2 { white-space: nowrap; }
 .hols { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
 .hol { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 .hol.pub { background: var(--p1-soft); color: var(--danger); }
 .hol.sch { background: #E2F2E4; color: #2E7A44; }
-.nav-btn { width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--sky-soft); color: var(--deep); display: grid; place-items: center; padding: 0; }
+.hol.vac { background: var(--sky-soft); color: var(--deep); }
+/* 휴가 */
+.vac-link { display: block; margin: 10px auto 0; border: 0; background: none; padding: 4px 8px; color: var(--deep); font-size: 13px; font-weight: 600; }
+.vac-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.vac-list li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--sky-soft); }
+.vac-list .when { font-weight: 700; color: var(--deep); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.vac-list .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vac-list .link-btn { color: var(--danger); }
+.vac-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.vac-dates .field { min-width: 0; width: 100%; }
+.nav-btn { position: relative; z-index: 1; flex: none; width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--sky-soft); color: var(--deep); display: grid; place-items: center; padding: 0; }
 .nav-btn svg { width: 16px; height: 16px; }
 /* 한 사람 한 줄: [얼굴] 이름 │ 오전 │ 오후 — 글은 한 줄, 길면 … (눌러서 전체 보기·수정) */
 .fam-grid { display: grid; gap: 6px; }
@@ -477,6 +487,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       </div>
     </div>
     <div class="fam-grid" id="fam-grid"></div>
+    <button type="button" class="vac-link" id="vac-open"></button>
   </section>
   <a class="dinner-box" id="dinner-box" href="https://trykyn.github.io/weekly-meals/" hidden>
     <span class="ico" aria-hidden="true">
@@ -527,6 +538,27 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   <div class="empty" id="todo-empty"><b data-t="todoEmptyB">할 일이 없어요</b><span data-t="todoEmpty">위의 버튼으로 추가하세요</span></div>
   <p class="hint todo-note" id="todo-note" hidden></p>
 </main>
+
+<!-- 휴가 설정 창 -->
+<div class="sheet-wrap" id="vac-sheet" hidden>
+  <div class="scrim" data-vac-close></div>
+  <form class="sheet" id="vac-form" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="vac-title" novalidate>
+    <h3 id="vac-title">✈️ <span data-t="vacTitle">휴가</span></h3>
+    <p class="hint" data-t="vacHint"></p>
+    <ul class="vac-list" id="vac-list"></ul>
+    <div class="vac-dates">
+      <label class="lbl"><span data-t="vacStart">시작</span><input class="field" id="vac-s" type="date"></label>
+      <label class="lbl"><span data-t="vacEnd">끝</span><input class="field" id="vac-e" type="date"></label>
+    </div>
+    <label class="lbl"><span data-t="vacName">이름 (선택)</span><input class="field" id="vac-name" type="text" maxlength="40" data-t-ph="vacNamePh"></label>
+    <p class="hint err" id="vac-err" hidden></p>
+    <div class="sheet-actions">
+      <span class="grow"></span>
+      <button type="button" class="btn ghost" data-vac-close data-t="close">닫기</button>
+      <button type="submit" class="btn" data-t="vacAdd">추가</button>
+    </div>
+  </form>
+</div>
 
 <!-- 가족 일정 수정 창 -->
 <div class="sheet-wrap" id="routine-sheet" hidden>
@@ -637,6 +669,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     ko: {
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
       famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', pickDay: '날짜 고르기', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
+      vacTitle: '휴가', vacSet: '✈️ 휴가 설정', vacHint: '휴가 기간에는 가족 일정의 기본 일정이 모두 비어요. 그날만 넣은 일정은 그대로 보여요.',
+      vacStart: '시작', vacEnd: '끝', vacName: '이름 (선택)', vacNamePh: '예: 이탈리아 여행', vacAdd: '추가', close: '닫기',
+      vacBad: '끝 날짜가 시작 날짜보다 빨라요.', vacNeed: '시작과 끝 날짜를 골라 주세요.', vacNone: '등록된 휴가가 없어요.',
+      vacRange: (s, e) => (s === e ? `${fromKey(s).getMonth() + 1}/${fromKey(s).getDate()}` : `${fromKey(s).getMonth() + 1}/${fromKey(s).getDate()} – ${fromKey(e).getMonth() + 1}/${fromKey(e).getDate()}`),
+      vacConfirm: (n) => `"${n}" 휴가를 지울까요?`,
       shortDay: (d) => `${d.getMonth() + 1}/${d.getDate()} (${T.ko.weekdays[d.getDay()]})`,
       rtEvery: (wd) => `매주 ${T.ko.weekdays[wd]}요일 기본으로 저장`, rtReset: '기본으로 되돌리기',
       rtChanged: '이 날만 바꾼 일정이에요.', withLabel: '함께', rtHint: '저장하면 이 날만 바뀌어요. 매주 바꾸려면 아래를 체크하세요.',
@@ -679,6 +716,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     de: {
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
       famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', pickDay: 'Datum wählen', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
+      vacTitle: 'Urlaub', vacSet: '✈️ Urlaub eintragen', vacHint: 'Im Urlaub sind die Standard-Pläne im Familienplan leer. Für einzelne Tage Eingetragenes bleibt sichtbar.',
+      vacStart: 'Von', vacEnd: 'Bis', vacName: 'Name (optional)', vacNamePh: 'z. B. Italienreise', vacAdd: 'Hinzufügen', close: 'Schließen',
+      vacBad: 'Das Ende liegt vor dem Anfang.', vacNeed: 'Bitte Anfang und Ende wählen.', vacNone: 'Kein Urlaub eingetragen.',
+      vacRange: (s, e) => (s === e ? `${fromKey(s).getDate()}.${fromKey(s).getMonth() + 1}.` : `${fromKey(s).getDate()}.${fromKey(s).getMonth() + 1}. – ${fromKey(e).getDate()}.${fromKey(e).getMonth() + 1}.`),
+      vacConfirm: (n) => `Urlaub „${n}" löschen?`,
       shortDay: (d) => `${T.de.weekdays[d.getDay()]}, ${d.getDate()}.${d.getMonth() + 1}.`,
       rtEvery: (wd) => `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][wd]} als Standard speichern`, rtReset: 'Zurück zum Standard',
       rtChanged: 'Nur für diesen Tag geändert.', withLabel: 'Dabei', rtHint: 'Speichern ändert nur diesen Tag. Für jede Woche unten ankreuzen.',
@@ -889,6 +931,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       store(SHARED_KEY, sharedTodos);
       mealsMap = (snap.exists() && snap.data().meals) || {};
       routine = { days: (snap.exists() && snap.data().routine) || {}, base: (snap.exists() && snap.data().routineBase) || {} };
+      vacations = (snap.exists() && snap.data().vacations) || {};
+      store(VAC_KEY, vacations);
+      if (!vacSheet.hidden) renderVacList();
       store(ROUTINE_KEY, routine);
       renderToday();
       store(DINNER_KEY, { date: todayKey, items: dinnerToday() });
@@ -1229,6 +1274,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     stopTodos(); sharedTodos = null; store(SHARED_KEY, null);
     mealsMap = null; store(DINNER_KEY, null);
     routine = { days: {}, base: {} }; store(ROUTINE_KEY, null);
+    vacations = {}; store(VAC_KEY, null);
     showPhoto(null); cachedPhoto('del');
     await fb.A.signOut(fb.auth);
   }
@@ -1558,7 +1604,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     // 공휴일: 기본 일정은 모두 쉼. 학교 방학(Buß- und Bettag 포함): 학교·학교 운동만 쉼 (부모 일·유치원·다른 활동은 그대로)
     // 그날만 직접 바꾼 일정은 어느 경우든 그대로.
     const hs = holidaysOn(key);
-    if (hs.some((x) => x.type === 'pub')) return { e: { am: '', pm: '' }, changed: false };
+    // 공휴일·가족 휴가: 기본 일정 모두 쉼
+    if (hs.some((x) => x.type === 'pub') || vacationsOn(key).length) return { e: { am: '', pm: '' }, changed: false };
     if (hs.length) {
       const off = (v) => v === '@school' || v === '@schoolSport';
       if (off(e.am) || off(e.pm)) e = { ...e, am: off(e.am) ? '' : e.am, pm: off(e.pm) ? '' : e.pm };
@@ -1572,6 +1619,61 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     return v;
   }
   // 저장: 가족 문서(로그인) 또는 이 휴대폰. value 가 null 이면 지움. 한 달 넘은 '그날만' 변경은 같이 정리.
+  /* 가족 휴가: vacations.{id} = { s, e, name?, src?, tr?, by } — 기간 동안 기본 일정을 모두 비움 */
+  const VAC_KEY = 'our-family:vacations';
+  let vacations = load(VAC_KEY, {});
+  const vacationsOn = (key) => Object.values(vacations).filter((v) => v && v.s <= key && key <= v.e);
+  const vacName = (v) => (!v.name ? L().vacTitle : (v.src && v.src !== lang && v.tr && !mine(v)) ? v.tr : v.name);
+  function vacWrite(id, value) {
+    if (isShared()) {
+      const F = fb.F, args = [new F.FieldPath('vacations', id), value == null ? F.deleteField() : value];
+      const old = keyOf(addDays(new Date(), -31)); // 한 달 지난 휴가는 정리
+      for (const [k, v] of Object.entries(vacations)) if (k !== id && v && v.e < old) args.push(new F.FieldPath('vacations', k), F.deleteField());
+      F.updateDoc(houseRef(), ...args).catch((e) => console.warn('vacation', e));
+    } else {
+      if (value == null) delete vacations[id]; else vacations[id] = value;
+      store(VAC_KEY, vacations);
+      renderToday(); renderVacList();
+    }
+  }
+  const vacSheet = $('#vac-sheet');
+  function renderVacList() {
+    const today = keyOf(new Date());
+    const list = Object.entries(vacations).filter(([, v]) => v && v.e >= today).sort(([, a], [, b]) => a.s.localeCompare(b.s));
+    $('#vac-list').replaceChildren(...(list.length ? list.map(([id, v]) => h('li', {},
+      h('span', { class: 'when', text: L().vacRange(v.s, v.e) }),
+      h('span', { class: 'nm', text: vacName(v) }),
+      h('button', { type: 'button', class: 'link-btn', text: L().delete, onclick: () => { if (confirm(L().vacConfirm(vacName(v)))) vacWrite(id, null); } })))
+      : [h('li', { class: 'hint', text: L().vacNone })]));
+  }
+  function openVac() {
+    const k = famKey();
+    $('#vac-s').value = k; $('#vac-e').value = k; $('#vac-name').value = '';
+    $('#vac-err').hidden = true;
+    renderVacList();
+    vacSheet.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeVac() { vacSheet.hidden = true; document.body.style.overflow = ''; }
+  $('#vac-open').addEventListener('click', openVac);
+  vacSheet.addEventListener('click', (e) => { if (e.target.closest('[data-vac-close]')) closeVac(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !vacSheet.hidden) closeVac(); });
+  $('#vac-s').addEventListener('change', () => { if ($('#vac-e').value < $('#vac-s').value) $('#vac-e').value = $('#vac-s').value; });
+  $('#vac-form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const s = $('#vac-s').value, e = $('#vac-e').value, name = $('#vac-name').value.trim();
+    const err = $('#vac-err');
+    if (!s || !e) { err.textContent = L().vacNeed; err.hidden = false; return; }
+    if (e < s) { err.textContent = L().vacBad; err.hidden = false; return; }
+    const id = newId();
+    const v = { s, e, by: myId() };
+    if (name) { v.name = name; v.src = hasHangul(name) ? 'ko' : 'de'; }
+    vacWrite(id, v);
+    $('#vac-name').value = ''; err.hidden = true;
+    // 이름은 다른 언어로도 번역해 둠
+    if (name) translateLine(name, v.src, v.src === 'ko' ? 'de' : 'ko').then((tr) => vacWrite(id, { ...v, tr })).catch(() => {});
+  });
+
   function routineWrite(path, value) {
     if (isShared()) {
       const F = fb.F, args = [new F.FieldPath(...path), value == null ? F.deleteField() : value];
@@ -1593,10 +1695,13 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#fam-day').textContent = famOffset === 0 ? L().dayToday : famOffset === 1 ? L().dayTomorrow
       : famOffset === -1 ? L().dayYesterday : L().shortDay(fromKey(key));
     $('#fam-date').value = key;
-    $('#fam-hol').replaceChildren(...holidaysOn(key).map((x) => h('span', {
-      class: `hol ${x.type}`, title: x.de,
-      text: `${x.type === 'pub' ? '🎉' : /Bettag/.test(x.de) ? '🏫' : '🏖️'} ${lang === 'de' ? x.de : (HOL_KO[x.de] || x.de)}`,
-    })));
+    $('#fam-hol').replaceChildren(
+      ...vacationsOn(key).map((v) => h('span', { class: 'hol vac', text: `✈️ ${vacName(v)}` })),
+      ...holidaysOn(key).map((x) => h('span', {
+        class: `hol ${x.type}`, title: x.de,
+        text: `${x.type === 'pub' ? '🎉' : /Bettag/.test(x.de) ? '🏫' : '🏖️'} ${lang === 'de' ? x.de : (HOL_KO[x.de] || x.de)}`,
+      })));
+    $('#vac-open').textContent = L().vacSet;
     $('#fam-grid').replaceChildren(
       h('div', { class: 'fam-head', 'aria-hidden': 'true' }, h('span', { text: L().am }), h('span', { text: L().pm })),
       ...MEMBERS.map((m) => {
