@@ -2587,7 +2587,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const reward = textOf(c.reward, c.rsrc, c.rtr, c.by, {});
     const bigReward = textOf(c.bigReward, c.bsrc, c.btr, c.by, {});
     const rw = $('#kid-reward');
-    rw.replaceChildren(reward ? `🎁 ${reward}` : L().noReward, bigReward ? h('span', { class: 'sub', text: `🏅 ${bigReward}` }) : null);
+    rw.replaceChildren(reward ? `🎁 ${reward}` : L().noReward, ...(bigReward ? [h('span', { class: 'sub', text: `🏅 ${bigReward}` })] : []));
     $('#kid-count').textContent = P.gift ? `🏅 ${P.bigs} / ${c.big}` : `⭐ ${P.smallNow.length} / ${c.small}`;
     // 작은 스티커판
     const slots = [];
