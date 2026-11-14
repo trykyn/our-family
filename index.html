@@ -224,6 +224,62 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .tile .name { font-family: var(--font-display); font-size: 22px; line-height: 1.2; }
 
 /* 계정 */
+/* ── 다빈·아린 칭찬 스티커 (+ 다빈 용돈) ── */
+.kid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; }
+.kid-btn {
+  display: grid; grid-template-columns: 48px 1fr; column-gap: 10px; align-items: center; text-align: left;
+  padding: 12px; border: 0; border-radius: 20px; color: #2A1A0A; box-shadow: var(--shadow);
+  background: linear-gradient(140deg, var(--k1), var(--k2));
+}
+.kid-btn:active { transform: scale(.97); }
+.kid-btn img { grid-row: 1 / 4; width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 0 0 3px rgba(255, 255, 255, .8); }
+.kid-btn .nm { font-family: var(--font-display); font-size: 20px; line-height: 1.1; }
+.kid-btn .st { font-size: 13px; font-weight: 700; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-davin { --k1: #FFD27A; --k2: #FFA65C; --kc: #E07B1E; }
+.k-arin { --k1: #FFC2E2; --k2: #D7B4FF; --kc: #C24FA0; }
+
+#kid .bar { background: linear-gradient(135deg, var(--k1), var(--k2)); color: #2A1A0A; }
+#kid .bar img { width: 36px; height: 36px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(255, 255, 255, .85); }
+.board-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.board-head .rw { font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.board-head .cnt { flex: none; font-family: var(--font-display); font-size: 20px; color: var(--kc); }
+.board-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.slot { aspect-ratio: 1 / 1; border-radius: 50%; display: grid; place-items: center; border: 2px dashed color-mix(in srgb, var(--kc) 35%, transparent); color: color-mix(in srgb, var(--kc) 45%, transparent); font-size: 13px; font-weight: 700; }
+.slot.full { border: 0; background: color-mix(in srgb, var(--k1) 35%, var(--surface)); }
+.slot svg { width: 92%; height: 92%; overflow: visible; }
+.slot.pop svg { animation: pop .55s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes pop { 0% { transform: scale(0) rotate(-30deg); } 70% { transform: scale(1.2) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
+.give { width: 100%; height: 56px; margin-top: 14px; border: 0; border-radius: 18px; font-size: 18px; font-weight: 700; color: #2A1A0A; background: linear-gradient(140deg, var(--k1), var(--k2)); box-shadow: var(--shadow); }
+.give:active { transform: scale(.98); }
+/* 아이 화면·창의 버튼은 그 아이 색 */
+#kid .btn, .sheet.k-davin .btn, .sheet.k-arin .btn { background: var(--k2); color: #2A1A0A; }
+#kid .btn.ghost, .sheet.k-davin .btn.ghost, .sheet.k-arin .btn.ghost { background: color-mix(in srgb, var(--k1) 35%, var(--surface)); color: #2A1A0A; }
+.done-banner { margin-top: 14px; padding: 14px; border-radius: 16px; text-align: center; background: color-mix(in srgb, var(--k1) 40%, var(--surface)); }
+.done-banner b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 22px; }
+.done-banner .btn { margin-top: 10px; }
+.kid-sec { margin-top: 14px; }
+.kid-sec h3 { margin: 0 0 8px; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.hist { list-style: none; margin: 0; padding: 0; display: grid; }
+.hist li { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); }
+.hist li:first-child { border-top: 0; }
+.hist .mini { flex: none; width: 34px; height: 34px; }
+.hist .mini svg { width: 100%; height: 100%; }
+.hist .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hist .d { flex: none; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.hist .amt { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hist .amt.plus { color: #2E9D5A; }
+.hist .amt.minus { color: var(--danger); }
+.hist button.x { flex: none; border: 0; background: none; color: var(--muted); padding: 4px 6px; font-size: 16px; line-height: 1; }
+.money-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.money-top .bal { font-family: var(--font-display); font-size: 30px; color: var(--kc); }
+.money-btns { display: flex; gap: 8px; }
+.money-btns .btn { height: 40px; padding: 0 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { height: 36px; padding: 0 12px; border: 2px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font-weight: 600; font-size: 14px; }
+.chips button[aria-pressed="true"] { border-color: var(--kc, var(--blue)); background: color-mix(in srgb, var(--kc, var(--blue)) 14%, var(--surface)); }
+.sheet .preview { display: grid; place-items: center; }
+.sheet .preview svg { width: 84px; height: 84px; }
+
 .account { margin-top: 32px; }
 .push-row { display: grid; gap: 4px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
 .push-row .push-t { font-weight: 600; font-size: 14px; }
@@ -538,7 +594,46 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       <span class="name" data-t="calendar">캘린더</span>
     </button>
   </nav>
+  <nav class="kid-row" aria-label="Davin · Arin">
+    <button type="button" class="kid-btn k-davin" data-go="davin"><img src="avatar-davin.png" alt=""><span class="nm" data-who-name="davin">다빈</span><span class="st" id="kid-st-davin"></span><span class="st" id="kid-m-davin"></span></button>
+    <button type="button" class="kid-btn k-arin" data-go="arin"><img src="avatar-arin.png" alt=""><span class="nm" data-who-name="arin">아린</span><span class="st" id="kid-st-arin"></span></button>
+  </nav>
   <section class="card account" id="account" hidden></section>
+</main>
+
+<!-- 다빈·아린 칭찬 스티커 -->
+<main id="kid" class="screen" hidden>
+  <header class="bar">
+    <button class="icon-btn" type="button" data-back data-t-label="back" aria-label="홈으로">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
+    </button>
+    <img id="kid-avatar" alt="">
+    <h2 id="kid-title"></h2>
+    <button class="icon-btn bar-end" type="button" id="kid-cfg-btn" data-t-label="kidCfg" aria-label="목표·보상 설정">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 21V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/></svg>
+    </button>
+  </header>
+  <section class="card">
+    <div class="board-head"><span class="rw" id="kid-reward"></span><span class="cnt" id="kid-count"></span></div>
+    <div class="board-grid" id="kid-board"></div>
+    <div id="kid-done"></div>
+    <button type="button" class="give" id="kid-give"></button>
+  </section>
+  <section class="card kid-sec" id="kid-money" hidden>
+    <h3><span data-t="money">💶 용돈</span></h3>
+    <div class="money-top">
+      <span class="bal" id="money-bal"></span>
+      <div class="money-btns">
+        <button type="button" class="btn" id="money-in" data-t="moneyIn">+ 받았어요</button>
+        <button type="button" class="btn ghost" id="money-out" data-t="moneyOut">− 썼어요</button>
+      </div>
+    </div>
+    <ul class="hist" id="money-hist"></ul>
+  </section>
+  <section class="card kid-sec">
+    <h3><span data-t="stickerHist">최근 칭찬</span></h3>
+    <ul class="hist" id="kid-hist"></ul>
+  </section>
 </main>
 
 <!-- 할일목록 -->
@@ -559,6 +654,54 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   <div class="empty" id="todo-empty"><b data-t="todoEmptyB">할 일이 없어요</b><span data-t="todoEmpty">위의 버튼으로 추가하세요</span></div>
   <p class="hint todo-note" id="todo-note" hidden></p>
 </main>
+
+<!-- 칭찬 스티커 주기 창 -->
+<div class="sheet-wrap" id="give-sheet" hidden>
+  <div class="scrim" data-give-close></div>
+  <form class="sheet" id="give-form" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="give-title" novalidate>
+    <div class="preview" id="give-preview"></div>
+    <h3 id="give-title" style="text-align:center"></h3>
+    <div class="lbl"><span data-t="giveWhy">무엇을 잘했나요? (선택)</span><div class="chips" id="give-chips"></div></div>
+    <label class="lbl"><span data-t="giveOwn">직접 쓰기</span><input class="field" id="give-text" type="text" maxlength="60"></label>
+    <div class="sheet-actions">
+      <span class="grow"></span>
+      <button type="button" class="btn ghost" data-give-close data-t="cancel">취소</button>
+      <button type="submit" class="btn" data-t="giveStick">⭐ 붙이기</button>
+    </div>
+  </form>
+</div>
+
+<!-- 목표·보상 설정 창 -->
+<div class="sheet-wrap" id="cfg-sheet" hidden>
+  <div class="scrim" data-cfg-close></div>
+  <form class="sheet" id="cfg-form" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="cfg-title" novalidate>
+    <h3 id="cfg-title"></h3>
+    <label class="lbl"><span data-t="cfgGoal">스티커 몇 개 모으면?</span><input class="field" id="cfg-goal" type="number" inputmode="numeric" min="5" max="60"></label>
+    <label class="lbl"><span data-t="cfgReward">보상</span><input class="field" id="cfg-reward" type="text" maxlength="60" data-t-ph="cfgRewardPh"></label>
+    <div class="sheet-actions">
+      <span class="grow"></span>
+      <button type="button" class="btn ghost" data-cfg-close data-t="cancel">취소</button>
+      <button type="submit" class="btn" data-t="save">저장</button>
+    </div>
+  </form>
+</div>
+
+<!-- 용돈 기록 창 -->
+<div class="sheet-wrap" id="money-sheet" hidden>
+  <div class="scrim" data-money-close></div>
+  <form class="sheet" id="money-form" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="money-title" novalidate>
+    <h3 id="money-title"></h3>
+    <label class="lbl"><span data-t="moneyAmt">금액 (€)</span><input class="field" id="money-amt" type="text" inputmode="decimal" maxlength="9" placeholder="0,00"></label>
+    <div class="lbl"><span data-t="moneyNote">내용</span><div class="chips" id="money-chips"></div></div>
+    <input class="field" id="money-note" type="text" maxlength="60" data-t-ph="moneyNotePh">
+    <p class="hint err" id="money-err" hidden></p>
+    <div class="sheet-actions">
+      <span class="grow"></span>
+      <button type="button" class="btn ghost" data-money-close data-t="cancel">취소</button>
+      <button type="submit" class="btn" data-t="save">저장</button>
+    </div>
+  </form>
+</div>
 
 <!-- 날짜 고르기 창 -->
 <div class="sheet-wrap" id="pick-sheet" hidden>
@@ -711,6 +854,12 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
       famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', pickDay: '날짜 고르기', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
       lgPub: '공휴일', lgSch: '학교 방학',
+      kidCfg: '목표·보상 설정', money: '💶 용돈', moneyIn: '+ 받았어요', moneyOut: '− 썼어요', stickerHist: '최근 칭찬',
+      giveWhy: '무엇을 잘했나요? (선택)', giveOwn: '직접 쓰기', giveStick: '⭐ 붙이기', cfgGoal: '스티커 몇 개 모으면?', cfgReward: '보상', cfgRewardPh: '예: 레고, 놀이공원',
+      moneyAmt: '금액 (€)', moneyNote: '내용', moneyNotePh: '직접 쓰기 (선택)', noReward: '🎁 오른쪽 위 선물 버튼으로 보상을 정해요',
+      doneAll: (n) => `🎉 ${n}개 다 모았어요!`, newBoard: '새 판 시작', giveBtn: '⭐ 칭찬 스티커 주기', goodJob: '잘했어요',
+      delSticker: '이 스티커를 지울까요?', noStickers: '아직 스티커가 없어요.', delMoney: '이 기록을 지울까요?', noMoney: '아직 기록이 없어요.',
+      giveTitle: (n) => `${n}에게 칭찬 스티커!`, cfgTitle: (n) => `${n} 목표·보상`, moneyInTitle: '💶 받은 돈', moneyOutTitle: '💸 쓴 돈', moneyBad: '금액을 넣어 주세요.',
       vacTitle: '휴가', vacSet: '✈️ 휴가 설정', vacHint: '휴가 기간에는 가족 일정의 기본 일정이 모두 비어요. 그날만 넣은 일정은 그대로 보여요.',
       vacStart: '시작', vacEnd: '끝', vacName: '이름 (선택)', vacNamePh: '예: 이탈리아 여행', vacAdd: '추가', close: '닫기',
       vacBad: '끝 날짜가 시작 날짜보다 빨라요.', vacNeed: '시작과 끝 날짜를 골라 주세요.', vacNone: '등록된 휴가가 없어요.',
@@ -763,6 +912,12 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
       famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', pickDay: 'Datum wählen', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
       lgPub: 'Feiertag', lgSch: 'Schulferien',
+      kidCfg: 'Ziel & Belohnung', money: '💶 Taschengeld', moneyIn: '+ Bekommen', moneyOut: '− Ausgegeben', stickerHist: 'Letzte Sticker',
+      giveWhy: 'Wofür? (optional)', giveOwn: 'Selbst schreiben', giveStick: '⭐ Aufkleben', cfgGoal: 'Wie viele Sticker?', cfgReward: 'Belohnung', cfgRewardPh: 'z. B. Lego, Freizeitpark',
+      moneyAmt: 'Betrag (€)', moneyNote: 'Wofür', moneyNotePh: 'Selbst schreiben (optional)', noReward: '🎁 Belohnung oben rechts beim Geschenk festlegen',
+      doneAll: (n) => `🎉 Alle ${n} gesammelt!`, newBoard: 'Neue Runde starten', giveBtn: '⭐ Sticker geben', goodJob: 'Gut gemacht',
+      delSticker: 'Diesen Sticker löschen?', noStickers: 'Noch keine Sticker.', delMoney: 'Diesen Eintrag löschen?', noMoney: 'Noch keine Einträge.',
+      giveTitle: (n) => `Sticker für ${n}!`, cfgTitle: (n) => `Ziel & Belohnung für ${n}`, moneyInTitle: '💶 Bekommen', moneyOutTitle: '💸 Ausgegeben', moneyBad: 'Bitte einen Betrag eingeben.',
       vacTitle: 'Urlaub', vacSet: '✈️ Urlaub eintragen', vacHint: 'Im Urlaub sind die Standard-Pläne im Familienplan leer. Für einzelne Tage Eingetragenes bleibt sichtbar.',
       vacStart: 'Von', vacEnd: 'Bis', vacName: 'Name (optional)', vacNamePh: 'z. B. Italienreise', vacAdd: 'Hinzufügen', close: 'Schließen',
       vacBad: 'Das Ende liegt vor dem Anfang.', vacNeed: 'Bitte Anfang und Ende wählen.', vacNone: 'Kein Urlaub eingetragen.',
@@ -850,15 +1005,16 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
 
   /* ───────── 화면 전환: #todo / #calendar, 없으면 홈 ───────── */
-  const screens = ['home', 'todo', 'calendar'];
+  const screens = ['home', 'todo', 'calendar', 'kid'];
   let current = 'home';
   function show() {
     const name = location.hash.slice(1);
-    current = screens.includes(name) ? name : 'home';
+    if (name === 'davin' || name === 'arin') { kidName = name; current = 'kid'; }
+    else current = screens.includes(name) && name !== 'kid' ? name : 'home';
     for (const s of screens) document.getElementById(s).hidden = s !== current;
     window.scrollTo(0, 0);
     renderAll();
-    if (current !== 'todo') refresh(false);
+    if (current === 'home' || current === 'calendar') refresh(false);
   }
   let openedFromHome = false; // 홈에서 들어왔으면 '뒤로'는 history.back()
   document.addEventListener('click', (e) => {
@@ -983,6 +1139,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       mealsMap = (snap.exists() && snap.data().meals) || {};
       routine = { days: (snap.exists() && snap.data().routine) || {}, base: (snap.exists() && snap.data().routineBase) || {} };
       vacations = (snap.exists() && snap.data().vacations) || {};
+      kidsData = (snap.exists() && snap.data().kids) || {};
+      store(KIDS_KEY, kidsData);
+      renderKids();
       store(VAC_KEY, vacations);
       if (!vacSheet.hidden) renderVacList();
       store(ROUTINE_KEY, routine);
@@ -1326,6 +1485,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     mealsMap = null; store(DINNER_KEY, null);
     routine = { days: {}, base: {} }; store(ROUTINE_KEY, null);
     vacations = {}; store(VAC_KEY, null);
+    kidsData = {}; store(KIDS_KEY, null);
     showPhoto(null); cachedPhoto('del');
     await fb.A.signOut(fb.auth);
   }
@@ -2150,11 +2310,286 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   $('#prev-month').addEventListener('click', () => moveMonth(-1));
   $('#next-month').addEventListener('click', () => moveMonth(1));
 
+  /* ───────── 다빈·아린 칭찬 스티커 (+ 다빈 용돈) ─────────
+     가족 문서 kids.{davin|arin} 에 저장:
+       stickers.{id} = { at, d(그림 번호), why('@brush' 또는 직접 쓴 글), src?, tr?, by }
+       cfg = { goal, reward, rsrc?, rtr?, start }   ← start 이후에 붙인 스티커가 지금 판
+       money.{id} = { at, amt(+받음 −씀, 유로), note, src?, tr?, by }   (다빈만)
+     스티커 그림은 직접 그린 것: 다빈 = 동글동글 속성 몬스터, 아린 = 반짝이 하트 요정 */
+  const KIDS = ['davin', 'arin'];
+  const KIDS_KEY = 'our-family:kids';
+  let kidsData = load(KIDS_KEY, {});
+  let kidName = 'davin';
+  let popId = null; // 방금 붙인 스티커 (톡 튀어나오는 효과)
+
+  const MONSTERS = [
+    { c: '#FF8A3D', b: '#FFD9B8', top: 'flame' }, { c: '#3DA5FF', b: '#C8E8FF', top: 'drop' },
+    { c: '#4CBF5A', b: '#CFF2C9', top: 'leaf' }, { c: '#FFC928', b: '#FFF2BF', top: 'bolt' },
+    { c: '#9C7BFF', b: '#E4DAFF', top: 'horns' }, { c: '#FF6B9A', b: '#FFD6E3', top: 'star' },
+    { c: '#2EC4B6', b: '#C6F3EE', top: 'bubble' }, { c: '#B0805A', b: '#EBD8C6', top: 'rock' },
+  ];
+  const MON_TOP = {
+    flame: '<path d="M50 4c9 11 15 16 11 27 6-2 8-9 8-9 5 11-2 21-19 21S27 43 31 31c0 0 3 7 9 7-5-11 4-20 10-34z" fill="#FF5A1F"/><path d="M50 22c4 6 6 9 4 14-3 4-9 3-10-2 0-4 3-7 6-12z" fill="#FFD23F"/>',
+    drop: '<path d="M50 3c9 13 14 20 14 28a14 14 0 0 1-28 0c0-8 5-15 14-28z" fill="#1E7FD9"/><ellipse cx="45" cy="26" rx="3" ry="5" fill="#fff" opacity=".7"/>',
+    leaf: '<path d="M52 32c-3-15 8-26 26-29-2 18-11 29-26 29z" fill="#2E9D3F"/><path d="M53 31c5-9 12-16 21-23" stroke="#1E6F2B" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+    bolt: '<path d="M57 2 37 31h13l-7 19 22-31H52z" fill="#FF9F1C" stroke="#8A5200" stroke-width="2" stroke-linejoin="round"/>',
+    horns: '<path d="M31 33 21 7l20 18zM69 33l10-26-20 18z" fill="#6A4BD6" stroke="#4A2FB0" stroke-width="1.5" stroke-linejoin="round"/>',
+    star: '<path d="m50 3 5.5 11.5 12.5 1.5-9.3 8.6 2.5 12.4L50 30.7 38.8 37l2.5-12.4L32 16l12.5-1.5z" fill="#FFD23F" stroke="#E09A00" stroke-width="2" stroke-linejoin="round"/>',
+    bubble: '<circle cx="36" cy="18" r="8" fill="#B5F0E9" stroke="#2EC4B6" stroke-width="2.4"/><circle cx="56" cy="9" r="6" fill="#B5F0E9" stroke="#2EC4B6" stroke-width="2.4"/><circle cx="67" cy="23" r="4.5" fill="#B5F0E9" stroke="#2EC4B6" stroke-width="2.4"/>',
+    rock: '<path d="M30 34 37 16l10 7 9-13 12 24z" fill="#7D5A3C" stroke="#5C3F28" stroke-width="2" stroke-linejoin="round"/>',
+  };
+  function monsterSVG(i) {
+    const m = MONSTERS[((i % MONSTERS.length) + MONSTERS.length) % MONSTERS.length];
+    return `<svg viewBox="0 0 100 100" aria-hidden="true">${MON_TOP[m.top]}
+      <ellipse cx="29" cy="90" rx="11" ry="6" fill="${m.c}"/><ellipse cx="71" cy="90" rx="11" ry="6" fill="${m.c}"/>
+      <circle cx="50" cy="60" r="32" fill="${m.c}"/><ellipse cx="50" cy="71" rx="20" ry="15" fill="${m.b}"/>
+      <ellipse cx="38" cy="54" rx="7.5" ry="8.5" fill="#fff"/><ellipse cx="62" cy="54" rx="7.5" ry="8.5" fill="#fff"/>
+      <circle cx="39.5" cy="55.5" r="4.4" fill="#1B1B1B"/><circle cx="63.5" cy="55.5" r="4.4" fill="#1B1B1B"/>
+      <circle cx="41.2" cy="53.6" r="1.6" fill="#fff"/><circle cx="65.2" cy="53.6" r="1.6" fill="#fff"/>
+      <path d="M43 66q7 7.5 14 0" stroke="#1B1B1B" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+      <ellipse cx="29" cy="64" rx="5.5" ry="3.2" fill="#FF6F86" opacity=".5"/><ellipse cx="71" cy="64" rx="5.5" ry="3.2" fill="#FF6F86" opacity=".5"/>
+    </svg>`;
+  }
+  const FAIRIES = [
+    { c: '#FF7EB6', top: 'crown' }, { c: '#B79CFF', top: 'ribbon' }, { c: '#6FD3BE', top: 'flower' }, { c: '#FFB066', top: 'star' },
+    { c: '#7CC4FF', top: 'moon' }, { c: '#FFC93C', top: 'rainbow' }, { c: '#FF8FA0', top: 'heart' }, { c: '#C79BF2', top: 'gem' },
+  ];
+  const FAI_TOP = {
+    crown: '<path d="M33 30 37 11l8 10 5-14 5 14 8-10 4 19z" fill="#FFD23F" stroke="#E09A00" stroke-width="2" stroke-linejoin="round"/><circle cx="50" cy="22" r="2.6" fill="#FF5FA2"/>',
+    ribbon: '<path d="M50 24 30 12v22zM50 24l20-12v22z" fill="#FF5FA2" stroke="#D93A80" stroke-width="1.5" stroke-linejoin="round"/><circle cx="50" cy="24" r="5.5" fill="#E8408A"/>',
+    flower: '<g fill="#FFF3A6" stroke="#F5C400" stroke-width="1.2"><circle cx="50" cy="8" r="6"/><circle cx="60" cy="16" r="6"/><circle cx="56" cy="28" r="6"/><circle cx="44" cy="28" r="6"/><circle cx="40" cy="16" r="6"/></g><circle cx="50" cy="19" r="5" fill="#FF8A3D"/>',
+    star: '<path d="m50 4 5.5 11.5 12.5 1.5-9.3 8.6 2.5 12.4L50 31.7 38.8 38l2.5-12.4L32 17l12.5-1.5z" fill="#FFE066" stroke="#F0B400" stroke-width="2" stroke-linejoin="round"/>',
+    moon: '<path d="M60 4a15 15 0 1 0 7 26 13 13 0 1 1-7-26z" fill="#FFE066" stroke="#F0B400" stroke-width="1.5"/>',
+    rainbow: '<path d="M24 32a26 26 0 0 1 52 0" stroke="#FF6B6B" stroke-width="5" fill="none"/><path d="M30 32a20 20 0 0 1 40 0" stroke="#FFD23F" stroke-width="5" fill="none"/><path d="M36 32a14 14 0 0 1 28 0" stroke="#5BC0EB" stroke-width="5" fill="none"/>',
+    heart: '<path d="M50 30C38 21 36 12 42 8c4-2 7 0 8 3 1-3 4-5 8-3 6 4 4 13-8 22z" fill="#FF3E7F"/>',
+    gem: '<path d="M38 18 44 8h12l6 10-12 14z" fill="#8FE3FF" stroke="#3BA9D9" stroke-width="2" stroke-linejoin="round"/><path d="M38 18h24M44 8l6 10 6-10" stroke="#3BA9D9" stroke-width="1.4" fill="none"/>',
+  };
+  function fairySVG(i) {
+    const f = FAIRIES[((i % FAIRIES.length) + FAIRIES.length) % FAIRIES.length];
+    return `<svg viewBox="0 0 100 100" aria-hidden="true">
+      <ellipse cx="17" cy="52" rx="13" ry="18" fill="#fff" opacity=".85" stroke="${f.c}" stroke-width="2"/><ellipse cx="83" cy="52" rx="13" ry="18" fill="#fff" opacity=".85" stroke="${f.c}" stroke-width="2"/>
+      ${FAI_TOP[f.top]}
+      <path d="M50 95C17 73 9 55 17 40c8-14 27-12 33 1 6-13 25-15 33-1 8 15 0 33-33 55z" fill="${f.c}"/>
+      <ellipse cx="40" cy="58" rx="6.5" ry="8" fill="#fff"/><ellipse cx="60" cy="58" rx="6.5" ry="8" fill="#fff"/>
+      <circle cx="40.5" cy="59.5" r="4.4" fill="#3B1B3B"/><circle cx="60.5" cy="59.5" r="4.4" fill="#3B1B3B"/>
+      <circle cx="42.2" cy="57.4" r="1.7" fill="#fff"/><circle cx="62.2" cy="57.4" r="1.7" fill="#fff"/><circle cx="39" cy="61.5" r=".9" fill="#fff"/><circle cx="59" cy="61.5" r=".9" fill="#fff"/>
+      <path d="M45 69q5 5 10 0" stroke="#3B1B3B" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <ellipse cx="31" cy="67" rx="5" ry="3" fill="#FF3E7F" opacity=".35"/><ellipse cx="69" cy="67" rx="5" ry="3" fill="#FF3E7F" opacity=".35"/>
+      <path d="M84 20l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z" fill="#FFD23F"/>
+    </svg>`;
+  }
+  const stickerSVG = (kid, d) => (kid === 'arin' ? fairySVG(d) : monsterSVG(d));
+  const STICKER_N = 8;
+
+  // 칭찬 이유 (한국어·독일어 둘 다 있는 것)
+  const WHY = {
+    brush: ['양치', 'Zähne putzen'], tidy: ['정리', 'Aufräumen'], homework: ['숙제', 'Hausaufgaben'], help: ['도와줬어요', 'Geholfen'],
+    eat: ['골고루 먹기', 'Gut gegessen'], kind: ['착한 행동', 'Lieb gewesen'], sleep: ['일찍 자기', 'Früh ins Bett'], brave: ['용감했어요', 'Mutig gewesen'],
+  };
+  const MONEY_NOTES = { allowance: ['용돈', 'Taschengeld'], gift: ['선물 받음', 'Geschenk'], snack: ['간식', 'Süßigkeiten'], toy: ['장난감', 'Spielzeug'], save: ['저금', 'Sparen'] };
+  const pickLang = (pair) => pair[lang === 'de' ? 1 : 0];
+  // '@키'면 정해진 말, 아니면 직접 쓴 글 (다른 사람이 다른 언어로 썼으면 번역)
+  function textOf(v, src, tr, by, table) {
+    if (!v) return '';
+    if (v.startsWith('@')) return table[v.slice(1)] ? pickLang(table[v.slice(1)]) : '';
+    if (src && src !== lang && tr && !(by && by === myId())) return tr;
+    return v;
+  }
+  const kidOf = (k) => kidsData[k] || {};
+  const cfgOf = (k) => ({ goal: 20, reward: '', start: 0, ...(kidOf(k).cfg || {}) });
+  const stickersOf = (k) => Object.entries(kidOf(k).stickers || {}).map(([id, s]) => ({ id, ...s })).sort((a, b) => (a.at || 0) - (b.at || 0));
+  const boardOf = (k) => { const c = cfgOf(k); return stickersOf(k).filter((s) => (s.at || 0) >= (c.start || 0)); };
+  const moneyOf = (k) => Object.entries(kidOf(k).money || {}).map(([id, m]) => ({ id, ...m })).sort((a, b) => (b.at || 0) - (a.at || 0));
+  const fmtMoney = (n) => new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'ko-KR', { style: 'currency', currency: 'EUR' }).format(n || 0);
+  const shortDate = (at) => { const k = keyOf(new Date(at)); return L().vacRange(k, k); };
+
+  function kidsWrite(path, value) {
+    if (isShared()) {
+      const F = fb.F;
+      F.updateDoc(houseRef(), new F.FieldPath('kids', ...path), value == null ? F.deleteField() : value).catch((e) => console.warn('kids', e));
+    } else {
+      let o = kidsData;
+      for (const k of path.slice(0, -1)) o = o[k] = o[k] || {};
+      const last = path[path.length - 1];
+      if (value == null) delete o[last]; else o[last] = value;
+      store(KIDS_KEY, kidsData);
+      renderKids();
+    }
+  }
+  // 직접 쓴 글은 다른 언어로도 번역해서 같은 자리에 tr 로 저장
+  function translateInto(path, obj, field, trField) {
+    const v = obj[field];
+    if (!v || v.startsWith('@')) return;
+    const src = hasHangul(v) ? 'ko' : 'de';
+    translateLine(v, src, src === 'ko' ? 'de' : 'ko').then((tr) => kidsWrite(path, { ...obj, [trField]: tr })).catch(() => {});
+  }
+
+  function renderKids() {
+    for (const k of KIDS) {
+      const st = $(`#kid-st-${k}`);
+      if (!st) continue;
+      const c = cfgOf(k), n = boardOf(k).length;
+      st.textContent = `⭐ ${Math.min(n, c.goal)}/${c.goal}`;
+      if (k === 'davin') $('#kid-m-davin').textContent = `💶 ${fmtMoney(moneyOf(k).reduce((a, m) => a + (m.amt || 0), 0))}`;
+    }
+    for (const el of document.querySelectorAll('[data-who-name]')) el.textContent = L().who[el.dataset.whoName];
+    if (current === 'kid') renderKidScreen();
+  }
+
+  function renderKidScreen() {
+    const k = kidName, scr = $('#kid'), c = cfgOf(k), board = boardOf(k), full = board.length >= c.goal;
+    scr.className = `screen k-${k}`;
+    $('#kid-avatar').src = `avatar-${k}.png`;
+    $('#kid-title').textContent = L().who[k];
+    const reward = textOf(c.reward, c.rsrc, c.rtr, c.by, {});
+    $('#kid-reward').textContent = reward ? `🎁 ${reward}` : L().noReward;
+    $('#kid-count').textContent = `${Math.min(board.length, c.goal)} / ${c.goal}`;
+    const slots = [];
+    for (let i = 0; i < c.goal; i++) {
+      const s = board[i];
+      const el = h('div', { class: 'slot' + (s ? ' full' : '') + (s && s.id === popId ? ' pop' : ''), text: s ? '' : String(i + 1) });
+      if (s) el.innerHTML = stickerSVG(k, s.d);
+      slots.push(el);
+    }
+    $('#kid-board').replaceChildren(...slots);
+    popId = null;
+    $('#kid-done').replaceChildren(...(full ? [h('div', { class: 'done-banner' },
+      h('b', { text: L().doneAll(c.goal) }), reward ? h('div', { text: `🎁 ${reward}` }) : null,
+      h('button', { type: 'button', class: 'btn', text: L().newBoard, onclick: () => kidsWrite([k, 'cfg'], { ...c, start: Date.now() }) }))] : []));
+    const give = $('#kid-give');
+    give.hidden = full;
+    give.textContent = L().giveBtn;
+    // 최근 칭찬 (모든 판, 최근 20개). ✕ 로 실수 지우기
+    const hist = stickersOf(k).reverse().slice(0, 20);
+    $('#kid-hist').replaceChildren(...(hist.length ? hist.map((s) => {
+      const mini = h('span', { class: 'mini' }); mini.innerHTML = stickerSVG(k, s.d);
+      return h('li', {}, mini, h('span', { class: 't', text: textOf(s.why, s.src, s.tr, s.by, WHY) || L().goodJob }), h('span', { class: 'd', text: shortDate(s.at) }),
+        h('button', { type: 'button', class: 'x', 'aria-label': L().delete, text: '✕', onclick: () => { if (confirm(L().delSticker)) kidsWrite([k, 'stickers', s.id], null); } }));
+    }) : [h('li', { class: 'hint', text: L().noStickers })]));
+    // 용돈 (다빈만)
+    $('#kid-money').hidden = k !== 'davin';
+    if (k === 'davin') {
+      const ms = moneyOf(k);
+      $('#money-bal').textContent = fmtMoney(ms.reduce((a, m) => a + (m.amt || 0), 0));
+      $('#money-hist').replaceChildren(...(ms.length ? ms.slice(0, 30).map((m) => h('li', {},
+        h('span', { class: 't', text: textOf(m.note, m.src, m.tr, m.by, MONEY_NOTES) || (m.amt >= 0 ? L().moneyIn : L().moneyOut) }),
+        h('span', { class: 'd', text: shortDate(m.at) }),
+        h('span', { class: 'amt ' + (m.amt >= 0 ? 'plus' : 'minus'), text: (m.amt >= 0 ? '+' : '−') + fmtMoney(Math.abs(m.amt)) }),
+        h('button', { type: 'button', class: 'x', 'aria-label': L().delete, text: '✕', onclick: () => { if (confirm(L().delMoney)) kidsWrite([k, 'money', m.id], null); } })))
+        : [h('li', { class: 'hint', text: L().noMoney })]));
+    }
+  }
+
+  /* 스티커 주기 창 */
+  const giveSheet = $('#give-sheet');
+  let giveWhy = '', giveD = 0;
+  function openGive() {
+    giveWhy = ''; giveD = Math.floor(Math.random() * STICKER_N);
+    $('#give-form').className = `sheet k-${kidName}`;
+    $('#give-preview').innerHTML = stickerSVG(kidName, giveD);
+    $('#give-title').textContent = L().giveTitle(L().who[kidName]);
+    $('#give-text').value = '';
+    renderGiveChips();
+    giveSheet.hidden = false; document.body.style.overflow = 'hidden';
+  }
+  function renderGiveChips() {
+    $('#give-chips').replaceChildren(...Object.entries(WHY).map(([key, pair]) => h('button', {
+      type: 'button', 'aria-pressed': String(giveWhy === key), text: pickLang(pair),
+      onclick: () => { giveWhy = giveWhy === key ? '' : key; renderGiveChips(); },
+    })));
+  }
+  const closeGive = () => { giveSheet.hidden = true; document.body.style.overflow = ''; };
+  giveSheet.addEventListener('click', (e) => { if (e.target.closest('[data-give-close]')) closeGive(); });
+  $('#kid-give').addEventListener('click', openGive);
+  $('#give-form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const own = $('#give-text').value.trim();
+    const id = newId();
+    const s = { at: Date.now(), d: giveD, why: own || (giveWhy ? `@${giveWhy}` : ''), by: myId() };
+    if (own) s.src = hasHangul(own) ? 'ko' : 'de';
+    popId = id;
+    kidsWrite([kidName, 'stickers', id], s);
+    closeGive();
+    if (own) translateInto([kidName, 'stickers', id], s, 'why', 'tr');
+  });
+
+  /* 목표·보상 설정 창 */
+  const cfgSheet = $('#cfg-sheet');
+  function openCfg() {
+    const c = cfgOf(kidName);
+    $('#cfg-form').className = `sheet k-${kidName}`;
+    $('#cfg-title').textContent = L().cfgTitle(L().who[kidName]);
+    $('#cfg-goal').value = c.goal;
+    $('#cfg-reward').value = textOf(c.reward, c.rsrc, c.rtr, c.by, {});
+    cfgSheet.hidden = false; document.body.style.overflow = 'hidden';
+  }
+  const closeCfg = () => { cfgSheet.hidden = true; document.body.style.overflow = ''; };
+  cfgSheet.addEventListener('click', (e) => { if (e.target.closest('[data-cfg-close]')) closeCfg(); });
+  $('#kid-cfg-btn').addEventListener('click', openCfg);
+  $('#cfg-form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const c = cfgOf(kidName);
+    const goal = Math.max(5, Math.min(60, Math.round(Number($('#cfg-goal').value) || c.goal)));
+    const typed = $('#cfg-reward').value.trim();
+    const shown = textOf(c.reward, c.rsrc, c.rtr, c.by, {});
+    const next = { ...c, goal };
+    if (typed !== shown) { // 보상을 바꿨을 때만 쓴 사람·번역을 새로
+      next.reward = typed; next.by = myId(); delete next.rtr;
+      if (typed) next.rsrc = hasHangul(typed) ? 'ko' : 'de'; else delete next.rsrc;
+    }
+    kidsWrite([kidName, 'cfg'], next);
+    closeCfg();
+    if (typed && typed !== shown) translateInto([kidName, 'cfg'], next, 'reward', 'rtr');
+  });
+
+  /* 용돈 기록 창 */
+  const moneySheet = $('#money-sheet');
+  let moneySign = 1, moneyKey = '';
+  function openMoney(sign) {
+    moneySign = sign; moneyKey = sign > 0 ? 'allowance' : '';
+    $('#money-form').className = 'sheet k-davin';
+    $('#money-title').textContent = sign > 0 ? L().moneyInTitle : L().moneyOutTitle;
+    $('#money-amt').value = ''; $('#money-note').value = ''; $('#money-err').hidden = true;
+    renderMoneyChips();
+    moneySheet.hidden = false; document.body.style.overflow = 'hidden';
+    setTimeout(() => $('#money-amt').focus(), 50);
+  }
+  function renderMoneyChips() {
+    const keys = moneySign > 0 ? ['allowance', 'gift'] : ['snack', 'toy', 'save'];
+    $('#money-chips').replaceChildren(...keys.map((key) => h('button', {
+      type: 'button', 'aria-pressed': String(moneyKey === key), text: pickLang(MONEY_NOTES[key]),
+      onclick: () => { moneyKey = moneyKey === key ? '' : key; renderMoneyChips(); },
+    })));
+  }
+  const closeMoney = () => { moneySheet.hidden = true; document.body.style.overflow = ''; };
+  moneySheet.addEventListener('click', (e) => { if (e.target.closest('[data-money-close]')) closeMoney(); });
+  $('#money-in').addEventListener('click', () => openMoney(1));
+  $('#money-out').addEventListener('click', () => openMoney(-1));
+  $('#money-form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const amt = Math.round(Number($('#money-amt').value.replace(/\s/g, '').replace(',', '.')) * 100) / 100;
+    if (!(amt > 0)) { const err = $('#money-err'); err.textContent = L().moneyBad; err.hidden = false; return; }
+    const own = $('#money-note').value.trim();
+    const id = newId();
+    const m = { at: Date.now(), amt: moneySign * amt, note: own || (moneyKey ? `@${moneyKey}` : ''), by: myId() };
+    if (own) m.src = hasHangul(own) ? 'ko' : 'de';
+    kidsWrite(['davin', 'money', id], m);
+    closeMoney();
+    if (own) translateInto(['davin', 'money', id], m, 'note', 'tr');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!giveSheet.hidden) closeGive();
+    if (!cfgSheet.hidden) closeCfg();
+    if (!moneySheet.hidden) closeMoney();
+  });
+
   function renderAll() {
     applyStatic();
     renderToday();
     renderDinner();
     renderWeather();
+    renderKids();
     renderAccount();
     renderTodos();
     renderMonth();
