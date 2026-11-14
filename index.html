@@ -243,7 +243,11 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .board-head .rw { font-weight: 700; min-width: 0; overflow-wrap: anywhere; font-size: 16px; }
 .board-head .cnt { flex: none; font-family: var(--font-display); font-size: 24px; color: var(--kc); }
 .board-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
-.slot { aspect-ratio: 1 / 1; border-radius: 50%; display: grid; place-items: center; border: 2px dashed color-mix(in srgb, var(--kc) 35%, transparent); color: color-mix(in srgb, var(--kc) 45%, transparent); font-size: 13px; font-weight: 700; padding: 0; background: none; }
+.slot { position: relative; aspect-ratio: 1 / 1; border-radius: 50%; display: grid; place-items: center; border: 2px dashed color-mix(in srgb, var(--kc) 35%, transparent); color: color-mix(in srgb, var(--kc) 45%, transparent); font-size: 13px; font-weight: 700; padding: 0; background: none; }
+/* 지우기 모드: 스티커마다 빨간 ✕ */
+.slot.del::after { content: "✕"; position: absolute; top: -4px; right: -4px; width: 22px; height: 22px; border-radius: 50%; background: var(--danger); color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center; box-shadow: 0 0 0 2px var(--surface); }
+.slot.del svg { opacity: .7; }
+.del-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; padding: 10px 12px; border-radius: 14px; background: var(--p1-soft); color: var(--danger); font-weight: 700; font-size: 14px; }
 .slot.full { border: 0; background: color-mix(in srgb, var(--k1) 40%, var(--surface)); cursor: pointer; }
 .slot svg { width: 92%; height: 92%; overflow: visible; pointer-events: none; }
 .slot.pop svg { animation: pop .6s cubic-bezier(.2, 1.6, .4, 1); }
@@ -648,6 +652,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   </div>
   <section class="card" id="tab-stickers">
     <div class="board-head"><span class="rw" id="kid-reward"></span><span class="cnt" id="kid-count"></span></div>
+    <div class="del-bar" id="kid-delbar" hidden></div>
     <div class="board-grid" id="kid-board"></div>
     <div id="kid-done"></div>
     <button type="button" class="give" id="kid-give"></button>
@@ -704,6 +709,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <h3 id="cfg-title"></h3>
     <label class="lbl"><span data-t="cfgGoal">스티커 몇 개 모으면?</span><input class="field" id="cfg-goal" type="number" inputmode="numeric" min="5" max="60"></label>
     <label class="lbl"><span data-t="cfgReward">보상</span><input class="field" id="cfg-reward" type="text" maxlength="60" data-t-ph="cfgRewardPh"></label>
+    <button type="button" class="btn ghost" id="cfg-del" data-t="delMode">🗑 스티커 지우기</button>
     <div class="sheet-actions">
       <span class="grow"></span>
       <button type="button" class="btn ghost" data-cfg-close data-t="cancel">취소</button>
@@ -881,7 +887,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', pickDay: '날짜 고르기', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
       lgPub: '공휴일', lgSch: '학교 방학',
       kidCfg: '목표·보상 설정', money: '💶 용돈', moneyIn: '+ 받았어요', moneyOut: '− 썼어요', stickerHist: '최근 칭찬',
-      giveWhy: '무엇을 잘했나요? (선택)', giveOwn: '✏️ 직접 쓰기 (부모용)', tabStickers: '⭐ 칭찬 스티커', tabMoney: '🐷 용돈', tapBox: '상자를 톡톡톡 눌러 봐!', giveStick: '⭐ 붙이기', cfgGoal: '스티커 몇 개 모으면?', cfgReward: '보상', cfgRewardPh: '예: 레고, 놀이공원',
+      giveWhy: '무엇을 잘했나요? (선택)', giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', delHint: '지울 스티커를 누르세요', delDone: '완료', delToast: '스티커를 지웠어요', tabStickers: '⭐ 칭찬 스티커', tabMoney: '🐷 용돈', tapBox: '상자를 톡톡톡 눌러 봐!', giveStick: '⭐ 붙이기', cfgGoal: '스티커 몇 개 모으면?', cfgReward: '보상', cfgRewardPh: '예: 레고, 놀이공원',
       moneyAmt: '금액 (€)', moneyNote: '내용', moneyNotePh: '직접 쓰기 (선택)', noReward: '🎁 오른쪽 위 선물 버튼으로 보상을 정해요',
       doneAll: (n) => `🎉 ${n}개 다 모았어요!`, newBoard: '새 판 시작', giveBtn: '⭐ 칭찬 스티커 주기', goodJob: '잘했어요',
       delSticker: '이 스티커를 지울까요?', noStickers: '아직 스티커가 없어요.', delMoney: '이 기록을 지울까요?', noMoney: '아직 기록이 없어요.',
@@ -939,7 +945,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', pickDay: 'Datum wählen', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
       lgPub: 'Feiertag', lgSch: 'Schulferien',
       kidCfg: 'Ziel & Belohnung', money: '💶 Taschengeld', moneyIn: '+ Bekommen', moneyOut: '− Ausgegeben', stickerHist: 'Letzte Sticker',
-      giveWhy: 'Wofür? (optional)', giveOwn: '✏️ Selbst schreiben (Eltern)', tabStickers: '⭐ Sticker', tabMoney: '🐷 Taschengeld', tapBox: 'Tipp dreimal aufs Geschenk!', giveStick: '⭐ Aufkleben', cfgGoal: 'Wie viele Sticker?', cfgReward: 'Belohnung', cfgRewardPh: 'z. B. Lego, Freizeitpark',
+      giveWhy: 'Wofür? (optional)', giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', delHint: 'Tippe auf einen Sticker zum Löschen', delDone: 'Fertig', delToast: 'Sticker gelöscht', tabStickers: '⭐ Sticker', tabMoney: '🐷 Taschengeld', tapBox: 'Tipp dreimal aufs Geschenk!', giveStick: '⭐ Aufkleben', cfgGoal: 'Wie viele Sticker?', cfgReward: 'Belohnung', cfgRewardPh: 'z. B. Lego, Freizeitpark',
       moneyAmt: 'Betrag (€)', moneyNote: 'Wofür', moneyNotePh: 'Selbst schreiben (optional)', noReward: '🎁 Belohnung oben rechts beim Geschenk festlegen',
       doneAll: (n) => `🎉 Alle ${n} gesammelt!`, newBoard: 'Neue Runde starten', giveBtn: '⭐ Sticker geben', goodJob: 'Gut gemacht',
       delSticker: 'Diesen Sticker löschen?', noStickers: 'Noch keine Sticker.', delMoney: 'Diesen Eintrag löschen?', noMoney: 'Noch keine Einträge.',
@@ -1035,7 +1041,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   let current = 'home';
   function show() {
     const name = location.hash.slice(1);
-    if (name === 'davin' || name === 'arin') { kidName = name; current = 'kid'; }
+    if (name === 'davin' || name === 'arin') { if (kidName !== name || current !== 'kid') delMode = false; kidName = name; current = 'kid'; }
     else current = screens.includes(name) && name !== 'kid' ? name : 'home';
     for (const s of screens) document.getElementById(s).hidden = s !== current;
     window.scrollTo(0, 0);
@@ -2349,6 +2355,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   let kidName = 'davin';
   let kidTab = 'stickers';
   let popId = null; // 방금 붙인 스티커 (톡 튀어나오는 효과)
+  let delMode = false; // 부모용 지우기 모드 (설정 창에서 켬)
 
   const MONSTERS = [
     { c: '#FF8A3D', b: '#FFD9B8', top: 'flame' }, { c: '#3DA5FF', b: '#C8E8FF', top: 'drop' },
@@ -2519,6 +2526,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   function renderKidScreen() {
     const k = kidName, c = cfgOf(k), board = boardOf(k), full = board.length >= c.goal;
     if (k !== 'davin') kidTab = 'stickers';
+    if (kidTab !== 'stickers') delMode = false;
     $('#kid').className = `screen k-${k}`;
     $('#kid-avatar').src = `avatar-${k}.png`;
     $('#kid-title').textContent = L().who[k];
@@ -2537,18 +2545,27 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       const s = board[i];
       if (!s) { slots.push(h('div', { class: 'slot', text: String(i + 1) })); continue; }
       // 붙인 스티커를 누르면 꿈틀 + 소리
-      const el = h('button', { type: 'button', class: 'slot full' + (s.id === popId ? ' pop' : ''), 'aria-label': textOf(s.why, s.src, s.tr, s.by, WHY) || L().goodJob,
-        onclick: () => { wiggle(el); SND.boing(); } });
+      const el = h('button', { type: 'button', class: 'slot full' + (s.id === popId ? ' pop' : '') + (delMode ? ' del' : ''), 'aria-label': (delMode ? `${L().delete}: ` : '') + (textOf(s.why, s.src, s.tr, s.by, WHY) || L().goodJob),
+        onclick: () => {
+          if (!delMode) { wiggle(el); SND.boing(); return; }
+          const copy = { at: s.at, d: s.d, why: s.why || '', by: s.by || myId(), ...(s.src ? { src: s.src } : {}), ...(s.tr ? { tr: s.tr } : {}) };
+          kidsWrite([k, 'stickers', s.id], null);
+          toast(L().delToast, () => kidsWrite([k, 'stickers', s.id], copy));
+        } });
       el.innerHTML = stickerSVG(k, s.d);
       slots.push(el);
     }
     $('#kid-board').replaceChildren(...slots);
     popId = null;
-    $('#kid-done').replaceChildren(...(full ? [h('div', { class: 'done-banner' },
+    // 지우기 모드 안내 줄 (완료 누르면 끝)
+    const bar = $('#kid-delbar');
+    bar.hidden = !delMode;
+    bar.replaceChildren(h('span', { text: L().delHint }), h('button', { type: 'button', class: 'btn', text: L().delDone, onclick: () => { delMode = false; renderKidScreen(); } }));
+    $('#kid-done').replaceChildren(...(full && !delMode ? [h('div', { class: 'done-banner' },
       h('b', { text: L().doneAll(c.goal) }), reward ? h('div', { class: 'rw', text: `🎁 ${reward}` }) : null,
       h('button', { type: 'button', class: 'btn', text: L().newBoard, onclick: () => kidsWrite([k, 'cfg'], { ...c, start: Date.now() }) }))] : []));
     const give = $('#kid-give');
-    give.hidden = full;
+    give.hidden = full || delMode;
     give.textContent = L().giveBtn;
     // 용돈 (다빈만)
     if (k === 'davin') {
@@ -2643,6 +2660,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const closeCfg = () => { cfgSheet.hidden = true; document.body.style.overflow = ''; };
   cfgSheet.addEventListener('click', (e) => { if (e.target.closest('[data-cfg-close]')) closeCfg(); });
   $('#kid-cfg-btn').addEventListener('click', openCfg);
+  $('#cfg-del').addEventListener('click', () => { closeCfg(); delMode = true; renderKidScreen(); });
   $('#cfg-form').addEventListener('submit', (ev) => {
     ev.preventDefault();
     const c = cfgOf(kidName);
