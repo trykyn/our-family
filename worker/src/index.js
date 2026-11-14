@@ -4,7 +4,8 @@
 // 일정을 읽어 줌. 그래서 앱에서 한 시간마다 다시 로그인할 필요가 없고, 같은 가족 코드로 로그인한
 // 가족(예: 남편 휴대폰)도 엄마 캘린더를 볼 수 있음.
 //
-//   POST /connect     { ret }                  → { url }  구글 동의 화면 주소
+//   POST /connect     { ret }                  → { url }  /start 주소 (앱이 연 창에서만 동작)
+//   GET  /start       ?s                       → 이 브라우저에 표시(쿠키)를 남기고 구글 동의 화면으로
 //   GET  /callback    ?code&state              → 토큰 저장 후 앱으로 돌아감
 //   POST /events      { timeMin, timeMax }     → { accounts, calendars, events }
 //   POST /disconnect  { email }                → { ok }
@@ -40,7 +41,8 @@ export default {
       new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json; charset=utf-8" } });
 
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
-    if (request.method === "GET" && url.pathname === "/callback") return callback(url, env);
+    if (request.method === "GET" && url.pathname === "/start") return start(request, url, env);
+    if (request.method === "GET" && url.pathname === "/callback") return callback(request, url, env);
     if (request.method !== "POST") return json({ error: "not_found" }, 404);
 
     let me;
@@ -82,7 +84,7 @@ export default {
 
     if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return json({ error: "not_configured" }, 503);
     try {
-      if (url.pathname === "/connect") return json(await connect(env, me, body));
+      if (url.pathname === "/connect") return json(await connect(env, me, body, url.origin));
       if (url.pathname === "/events") return json(await events(env, me, body));
       if (url.pathname === "/disconnect") return json(await disconnect(env, me, body));
     } catch (e) {
@@ -222,7 +224,7 @@ const redirectUri = (env) => env.REDIRECT_URI;
 const loadHouse = async (env, house) => (await env.STORE.get(`house:${house}`, "json")) || { accounts: [] };
 const saveHouse = (env, house, data) => env.STORE.put(`house:${house}`, JSON.stringify(data));
 
-async function connect(env, me, body) {
+async function connect(env, me, body, self) {
   let ret = APP_URL;
   try {
     const u = new URL(String(body.ret || ""));
@@ -230,6 +232,24 @@ async function connect(env, me, body) {
   } catch {}
   const nonce = [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, "0")).join("");
   await env.STORE.put(`nonce:${nonce}`, JSON.stringify({ uid: me.uid, house: me.house, ret }), { expirationTtl: 600 });
+  return { url: `${self}/start?s=${nonce}` };
+}
+
+// 연결은 '앱에서 연 창'에서만 시작됨: 앱 주소에서 넘어왔는지(Referer) 확인하고, 이 브라우저에 쿠키를 남김.
+// 돌아올 때(/callback) 같은 쿠키가 있어야 저장 → 남이 만든 연결 링크를 받아 눌러도 그 사람 가족에 연결되지 않음.
+const COOKIE = "gcal_s";
+async function start(request, url, env) {
+  const nonce = url.searchParams.get("s") || "";
+  const pending = /^[0-9a-f]{48}$/.test(nonce) && (await env.STORE.get(`nonce:${nonce}`, "json"));
+  if (!pending || pending.started) return page("연결 시간이 지났어요", "앱에서 다시 연결해 주세요. / Bitte in der App erneut verbinden.", APP_URL, false);
+  let from = "";
+  try { from = new URL(request.headers.get("Referer") || "").origin; } catch {}
+  if (!ALLOWED_ORIGINS.includes(from)) {
+    console.warn("start: not from app", request.headers.get("Referer") || "(no referer)");
+    return page("앱에서 연결해 주세요", "우리가족 앱의 캘린더 화면에서 연결 버튼을 눌러 주세요. / Bitte in der App auf „Verbinden“ tippen.", pending.ret, false);
+  }
+  pending.started = true; // 한 번만
+  await env.STORE.put(`nonce:${nonce}`, JSON.stringify(pending), { expirationTtl: 600 });
   const q = new URLSearchParams({
     client_id: env.GOOGLE_CLIENT_ID,
     redirect_uri: redirectUri(env),
@@ -240,7 +260,15 @@ async function connect(env, me, body) {
     include_granted_scopes: "true",
     state: nonce,
   });
-  return { url: `https://accounts.google.com/o/oauth2/v2/auth?${q}` };
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: `https://accounts.google.com/o/oauth2/v2/auth?${q}`,
+      "Set-Cookie": `${COOKIE}=${nonce}; Path=/callback; Max-Age=600; HttpOnly; Secure; SameSite=Lax`,
+      "Cache-Control": "no-store",
+      "Referrer-Policy": "no-referrer",
+    },
+  });
 }
 
 function page(title, text, ret, ok) {
@@ -252,14 +280,19 @@ function page(title, text, ret, ok) {
 a{display:inline-block;margin-top:16px;padding:12px 20px;border-radius:14px;background:#6AAFE6;color:#0E2A40;font-weight:600;text-decoration:none}</style></head>
 <body><div><h1 style="font-size:22px">${safe(title)}</h1><p>${safe(text)}</p><a href="${safe(back)}">우리가족으로 / Zurück</a></div>
 <script>try{if(window.opener){window.opener.postMessage({gcal:${ok ? "'connected'" : "'failed'"}},${JSON.stringify(target.origin)});setTimeout(()=>window.close(),${ok ? 300 : 4000});}else if(${ok}){location.replace(${JSON.stringify(back)});}}catch(e){}</script>
-</body></html>`, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
+</body></html>`, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Set-Cookie": `${COOKIE}=; Path=/callback; Max-Age=0; HttpOnly; Secure; SameSite=Lax` } });
 }
 
-async function callback(url, env) {
+async function callback(request, url, env) {
   const state = url.searchParams.get("state") || "";
   const pending = state && (await env.STORE.get(`nonce:${state}`, "json"));
   if (!pending) return page("연결 시간이 지났어요", "앱에서 다시 연결해 주세요. / Bitte in der App erneut verbinden.", APP_URL, false);
   await env.STORE.delete(`nonce:${state}`);
+  const cookie = (request.headers.get("Cookie") || "").split(/;\s*/).find((c) => c.startsWith(`${COOKIE}=`));
+  if (!cookie || cookie.slice(COOKIE.length + 1) !== state) {
+    console.warn("callback: cookie mismatch");
+    return page("연결하지 못했어요", "앱에서 다시 연결해 주세요. / Bitte in der App erneut verbinden.", pending.ret, false);
+  }
   if (url.searchParams.get("error")) return page("연결을 취소했어요", "Verbindung abgebrochen.", pending.ret, false);
 
   const r = await fetch("https://oauth2.googleapis.com/token", {
@@ -373,6 +406,13 @@ async function events(env, me, body) {
       if (e.revoked && !acc.broken) { acc.broken = true; changed = true; }
     }
   }
-  if (changed) await saveHouse(env, me.house, data);
+  if (changed) {
+    const fresh = await loadHouse(env, me.house);
+    for (const a of fresh.accounts) {
+      const seen = data.accounts.find((x) => x.email === a.email && x.refresh === a.refresh);
+      if (seen) a.broken = !!seen.broken;
+    }
+    await saveHouse(env, me.house, fresh);
+  }
   return { accounts, calendars, events: out, at: Date.now() };
 }
