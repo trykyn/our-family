@@ -1,7 +1,7 @@
 // 오프라인 지원: 네트워크 우선, 실패하면 캐시.
 // 앱 파일은 매번 서버에 "바뀌었나요?"를 물어봄(cache: 'no-cache'). GitHub Pages가 붙이는 10분 저장 표시 때문에
 // 홈 화면 앱이 예전 화면을 계속 보여 주는 일을 막음. 안 바뀌었으면 서버가 짧게 "그대로"라고만 답함.
-const CACHE = 'our-family-v31';
+const CACHE = 'our-family-v32';
 const OK_ORIGINS = ['https://www.gstatic.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
 self.addEventListener('install', (e) => {

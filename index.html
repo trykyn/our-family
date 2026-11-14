@@ -148,8 +148,9 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .vac-list .when { font-weight: 700; color: var(--deep); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .vac-list .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .vac-list .link-btn { color: var(--danger); }
-.vac-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.vac-dates .field { min-width: 0; width: 100%; }
+.vac-dates { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.vac-dates .lbl { min-width: 0; }
+.vac-dates .field { min-width: 0; width: 100%; max-width: 100%; display: block; }
 .nav-btn { position: relative; z-index: 1; flex: none; width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--sky-soft); color: var(--deep); display: grid; place-items: center; padding: 0; }
 .nav-btn svg { width: 16px; height: 16px; }
 /* 한 사람 한 줄: [얼굴] 이름 │ 오전 │ 오후 — 글은 한 줄, 길면 … (눌러서 전체 보기·수정) */
@@ -250,6 +251,9 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
   font-size: 16px; /* 아이폰 확대 방지 */
 }
 .field:focus { border-color: var(--blue); outline: none; }
+/* 아이폰 날짜 칸은 자체 최소 너비가 있어서 칸 밖으로 밀림 → 기본 모양을 끄고 주어진 너비에 맞춤 */
+input[type="date"].field { -webkit-appearance: none; appearance: none; min-width: 0; text-align: left; line-height: 44px; }
+input[type="date"].field::-webkit-date-and-time-value { text-align: left; margin: 0; }
 .btn {
   height: 44px; padding: 0 16px; border: 0; border-radius: 14px;
   background: var(--blue); color: #0E2A40; font-weight: 600; white-space: nowrap;
