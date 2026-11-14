@@ -141,7 +141,8 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .hol.sch { background: #E2F2E4; color: #2E7A44; }
 .hol.vac { background: var(--sky-soft); color: var(--deep); }
 /* 휴가 */
-.vac-link { display: block; margin: 10px auto 0; border: 0; background: none; padding: 4px 8px; color: var(--deep); font-size: 13px; font-weight: 600; }
+button.hol { border: 0; font-family: inherit; cursor: pointer; }
+.rt-vac { justify-self: start; color: var(--deep); font-weight: 600; text-decoration: none; font-size: 14px; }
 .vac-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .vac-list li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--sky-soft); }
 .vac-list .when { font-weight: 700; color: var(--deep); white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -487,7 +488,6 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       </div>
     </div>
     <div class="fam-grid" id="fam-grid"></div>
-    <button type="button" class="vac-link" id="vac-open"></button>
   </section>
   <a class="dinner-box" id="dinner-box" href="https://trykyn.github.io/weekly-meals/" hidden>
     <span class="ico" aria-hidden="true">
@@ -576,6 +576,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <datalist id="rt-acts"></datalist>
     <label class="rt-every"><input type="checkbox" class="check" id="rt-every"><span id="rt-every-label"></span></label>
     <p class="hint" id="rt-note"></p>
+    <button type="button" class="link-btn rt-vac" id="rt-vac" hidden></button>
     <div class="sheet-actions">
       <button type="button" class="link-btn" id="rt-reset" data-t="rtReset">기본으로 되돌리기</button>
       <span class="grow"></span>
@@ -1655,10 +1656,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     document.body.style.overflow = 'hidden';
   }
   function closeVac() { vacSheet.hidden = true; document.body.style.overflow = ''; }
-  $('#vac-open').addEventListener('click', openVac);
   vacSheet.addEventListener('click', (e) => { if (e.target.closest('[data-vac-close]')) closeVac(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !vacSheet.hidden) closeVac(); });
   $('#vac-s').addEventListener('change', () => { if ($('#vac-e').value < $('#vac-s').value) $('#vac-e').value = $('#vac-s').value; });
+  $('#rt-vac').addEventListener('click', () => { closeRoutine(); openVac(); });
   $('#vac-form').addEventListener('submit', (ev) => {
     ev.preventDefault();
     const s = $('#vac-s').value, e = $('#vac-e').value, name = $('#vac-name').value.trim();
@@ -1696,12 +1697,12 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       : famOffset === -1 ? L().dayYesterday : L().shortDay(fromKey(key));
     $('#fam-date').value = key;
     $('#fam-hol').replaceChildren(
-      ...vacationsOn(key).map((v) => h('span', { class: 'hol vac', text: `✈️ ${vacName(v)}` })),
+      // 휴가 표시를 누르면 휴가 설정 창
+      ...vacationsOn(key).map((v) => h('button', { type: 'button', class: 'hol vac', text: `✈️ ${vacName(v)}`, onclick: () => openVac() })),
       ...holidaysOn(key).map((x) => h('span', {
         class: `hol ${x.type}`, title: x.de,
         text: `${x.type === 'pub' ? '🎉' : /Bettag/.test(x.de) ? '🏫' : '🏖️'} ${lang === 'de' ? x.de : (HOL_KO[x.de] || x.de)}`,
       })));
-    $('#vac-open').textContent = L().vacSet;
     $('#fam-grid').replaceChildren(
       h('div', { class: 'fam-head', 'aria-hidden': 'true' }, h('span', { text: L().am }), h('span', { text: L().pm })),
       ...MEMBERS.map((m) => {
@@ -1799,6 +1800,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#rt-note').textContent = changed ? L().rtChanged : L().rtHint;
     const isFam = m === 'family';
     $('#rt-with-am').hidden = $('#rt-with-pm').hidden = !isFam;
+    // 휴가 설정은 '가족' 수정 창 안에만 (화면에서는 숨김)
+    $('#rt-vac').hidden = !isFam;
+    $('#rt-vac').textContent = L().vacSet;
     if (isFam) {
       rtWith = { am: PEOPLE.filter((p) => joins(e, 'am', p)), pm: PEOPLE.filter((p) => joins(e, 'pm', p)) };
       renderWith();
