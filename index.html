@@ -130,9 +130,23 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .fam-box { cursor: default; }
 .fam-box .box-h { margin-bottom: 10px; }
 .day-nav { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--deep); }
-.day-pick { position: relative; overflow: hidden; min-width: 44px; text-align: center; padding: 2px 2px; border-bottom: 1.5px dotted currentColor; cursor: pointer; white-space: nowrap; }
-/* 날짜를 누르면 휴대폰의 달력 창이 뜸 (보이지 않는 날짜 입력칸을 위에 겹침) */
-.day-pick input { position: absolute; inset: 0; width: 100%; height: 100%; min-width: 0; max-width: 100%; opacity: 0; border: 0; padding: 0; margin: 0; font-size: 16px; cursor: pointer; -webkit-appearance: none; appearance: none; }
+.day-pick { min-width: 44px; text-align: center; padding: 2px 2px; border: 0; border-bottom: 1.5px dotted currentColor; background: none; color: inherit; font: inherit; cursor: pointer; white-space: nowrap; }
+/* 우리가족 달력 창 (날짜 누르면): 오늘 버튼 + 공휴일·방학·휴가 점 */
+.pick { gap: 10px; }
+.pick-head { display: flex; align-items: center; justify-content: space-between; }
+.pick-head h3 { font-size: 20px; }
+.pick-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; text-align: center; }
+.pick-grid .wd { font-size: 12px; font-weight: 600; color: var(--muted); padding: 2px 0 4px; }
+.pick-grid .wd.sun, .pick-cell.sun { color: var(--sun); }
+.pick-grid .wd.sat, .pick-cell.sat { color: var(--sat); }
+.pick-cell { position: relative; height: 44px; border: 0; border-radius: 12px; background: none; color: var(--ink); font-size: 15px; font-variant-numeric: tabular-nums; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; }
+.pick-cell.other { opacity: .35; }
+.pick-cell.today { box-shadow: inset 0 0 0 2px var(--blue); font-weight: 700; }
+.pick-cell.sel { background: var(--blue); color: #0E2A40 !important; font-weight: 700; }
+.pick-cell .dots { display: flex; gap: 2px; height: 5px; }
+.pick-cell .dots i { width: 5px; height: 5px; border-radius: 50%; }
+.pick-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted); }
+.pick-legend i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; vertical-align: 1px; }
 .fam-tl { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
 .fam-tl h2 { white-space: nowrap; }
 .hols { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
@@ -485,7 +499,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         <button type="button" class="nav-btn" id="fam-prev" data-t-label="prevDay" aria-label="전날">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
         </button>
-        <label class="day-pick"><span id="fam-day"></span><input type="date" id="fam-date" data-t-label="pickDay"></label>
+        <button type="button" class="day-pick" id="fam-pick" aria-haspopup="dialog"><span id="fam-day"></span></button>
         <button type="button" class="nav-btn" id="fam-next" data-t-label="nextDay" aria-label="다음 날">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
         </button>
@@ -542,6 +556,25 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   <div class="empty" id="todo-empty"><b data-t="todoEmptyB">할 일이 없어요</b><span data-t="todoEmpty">위의 버튼으로 추가하세요</span></div>
   <p class="hint todo-note" id="todo-note" hidden></p>
 </main>
+
+<!-- 날짜 고르기 창 -->
+<div class="sheet-wrap" id="pick-sheet" hidden>
+  <div class="scrim" data-pick-close></div>
+  <div class="sheet pick" role="dialog" aria-modal="true" aria-labelledby="pick-month">
+    <div class="pick-head">
+      <button type="button" class="nav-btn" id="pick-prev" data-t-label="prevMonth" aria-label="이전 달"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></button>
+      <h3 id="pick-month"></h3>
+      <button type="button" class="nav-btn" id="pick-next" data-t-label="nextMonth" aria-label="다음 달"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></button>
+    </div>
+    <div class="pick-grid" id="pick-grid"></div>
+    <div class="pick-legend" id="pick-legend"></div>
+    <div class="sheet-actions">
+      <button type="button" class="btn" id="pick-today" data-t="dayToday">오늘</button>
+      <span class="grow"></span>
+      <button type="button" class="btn ghost" data-pick-close data-t="close">닫기</button>
+    </div>
+  </div>
+</div>
 
 <!-- 휴가 설정 창 -->
 <div class="sheet-wrap" id="vac-sheet" hidden>
@@ -674,6 +707,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     ko: {
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
       famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', pickDay: '날짜 고르기', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
+      lgPub: '공휴일', lgSch: '학교 방학',
       vacTitle: '휴가', vacSet: '✈️ 휴가 설정', vacHint: '휴가 기간에는 가족 일정의 기본 일정이 모두 비어요. 그날만 넣은 일정은 그대로 보여요.',
       vacStart: '시작', vacEnd: '끝', vacName: '이름 (선택)', vacNamePh: '예: 이탈리아 여행', vacAdd: '추가', close: '닫기',
       vacBad: '끝 날짜가 시작 날짜보다 빨라요.', vacNeed: '시작과 끝 날짜를 골라 주세요.', vacNone: '등록된 휴가가 없어요.',
@@ -721,6 +755,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     de: {
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
       famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', pickDay: 'Datum wählen', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
+      lgPub: 'Feiertag', lgSch: 'Schulferien',
       vacTitle: 'Urlaub', vacSet: '✈️ Urlaub eintragen', vacHint: 'Im Urlaub sind die Standard-Pläne im Familienplan leer. Für einzelne Tage Eingetragenes bleibt sichtbar.',
       vacStart: 'Von', vacEnd: 'Bis', vacName: 'Name (optional)', vacNamePh: 'z. B. Italienreise', vacAdd: 'Hinzufügen', close: 'Schließen',
       vacBad: 'Das Ende liegt vor dem Anfang.', vacNeed: 'Bitte Anfang und Ende wählen.', vacNone: 'Kein Urlaub eingetragen.',
@@ -1699,7 +1734,6 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#fam-title').textContent = famOffset === 0 ? L().todayTitle : L().famTitle;
     $('#fam-day').textContent = famOffset === 0 ? L().dayToday : famOffset === 1 ? L().dayTomorrow
       : famOffset === -1 ? L().dayYesterday : L().shortDay(fromKey(key));
-    $('#fam-date').value = key;
     $('#fam-hol').replaceChildren(
       // 휴가 표시를 누르면 휴가 설정 창
       ...vacationsOn(key).map((v) => h('button', { type: 'button', class: 'hol vac', text: `✈️ ${vacName(v)}`, onclick: () => openVac() })),
@@ -1727,14 +1761,52 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         changed ? h('span', { class: 'changed', title: L().rtChanged }) : null);
       }));
   }
-  // 날짜를 누르면 달력 창에서 고르기 (휴대폰 자체 달력)
-  const famDate = $('#fam-date');
-  famDate.addEventListener('click', () => { try { famDate.showPicker(); } catch {} });
-  famDate.addEventListener('change', () => {
-    if (!famDate.value) return;
-    famOffset = Math.round((fromKey(famDate.value) - fromKey(keyOf(new Date()))) / 864e5);
-    renderToday();
-  });
+  // 날짜를 누르면 우리가족 달력 창: 날짜 고르기 + '오늘' 버튼, 공휴일·방학·휴가는 점으로
+  const pickSheet = $('#pick-sheet');
+  let pickView = new Date();
+  function goDay(key) { famOffset = Math.round((fromKey(key) - fromKey(keyOf(new Date()))) / 864e5); closePick(); renderToday(); }
+  function renderPick() {
+    const y = pickView.getFullYear(), m = pickView.getMonth(), sel = famKey(), today = keyOf(new Date());
+    $('#pick-month').textContent = L().monthLabel(y, m);
+    const ws = L().weekStart, { start, weeks } = gridRange(pickView);
+    const cells = [0, 1, 2, 3, 4, 5, 6].map((i) => {
+      const wd = (i + ws) % 7;
+      return h('div', { class: 'wd' + (wd === 0 ? ' sun' : wd === 6 ? ' sat' : ''), text: L().weekdays[wd] });
+    });
+    for (let i = 0; i < weeks * 7; i++) {
+      const d = addDays(start, i), key = keyOf(d);
+      const hs = holidaysOn(key), dots = [];
+      if (hs.some((x) => x.type === 'pub')) dots.push('var(--danger)');
+      if (hs.some((x) => x.type === 'sch')) dots.push('#2E9D5A');
+      if (vacationsOn(key).length) dots.push('var(--deep)');
+      const cls = ['pick-cell'];
+      if (d.getMonth() !== m) cls.push('other');
+      if (d.getDay() === 0) cls.push('sun'); else if (d.getDay() === 6) cls.push('sat');
+      if (key === today) cls.push('today');
+      if (key === sel) cls.push('sel');
+      cells.push(h('button', { type: 'button', class: cls.join(' '), 'aria-label': L().dayLabel(d), 'aria-pressed': String(key === sel), onclick: () => goDay(key) },
+        h('span', { text: d.getDate() }), h('span', { class: 'dots' }, ...dots.map((c) => h('i', { style: `background:${c}` })))));
+    }
+    $('#pick-grid').replaceChildren(...cells);
+    $('#pick-legend').replaceChildren(
+      h('span', {}, h('i', { style: 'background:var(--danger)' }), L().lgPub),
+      h('span', {}, h('i', { style: 'background:#2E9D5A' }), L().lgSch),
+      h('span', {}, h('i', { style: 'background:var(--deep)' }), L().vacTitle));
+  }
+  function openPick() {
+    const d = fromKey(famKey());
+    pickView = new Date(d.getFullYear(), d.getMonth(), 1);
+    renderPick();
+    pickSheet.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closePick() { pickSheet.hidden = true; document.body.style.overflow = ''; }
+  $('#fam-pick').addEventListener('click', openPick);
+  $('#pick-prev').addEventListener('click', () => { pickView = new Date(pickView.getFullYear(), pickView.getMonth() - 1, 1); renderPick(); });
+  $('#pick-next').addEventListener('click', () => { pickView = new Date(pickView.getFullYear(), pickView.getMonth() + 1, 1); renderPick(); });
+  $('#pick-today').addEventListener('click', () => goDay(keyOf(new Date())));
+  pickSheet.addEventListener('click', (e) => { if (e.target.closest('[data-pick-close]')) closePick(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pickSheet.hidden) closePick(); });
 
   /* 바이에른 공휴일·학교 방학 (OpenHolidays, 무료·열쇠 없음, 개인정보 안 보냄). 일주일에 한 번 새로 받음. */
   const HOL_KEY = 'our-family:holidays';
