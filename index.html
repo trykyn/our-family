@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#8CCFFF">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="우리가족">
@@ -52,7 +52,8 @@
   color-scheme: dark;
 }
 
-* { box-sizing: border-box; }
+/* 확대 없음: 두 번 터치든 두 손가락이든 확대되지 않고 스크롤만 (viewport, gesturestart 도 참고) */
+* { box-sizing: border-box; touch-action: pan-x pan-y; }
 [hidden] { display: none !important; }
 html { background: var(--bg); }
 body {
@@ -1830,6 +1831,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     renderCalCard();
   }
 
+  // 아이폰 사파리는 user-scalable=no 를 무시해서, 두 손가락 확대를 따로 막음
+  for (const type of ['gesturestart', 'gesturechange']) document.addEventListener(type, (e) => e.preventDefault(), { passive: false });
   show();
   loadWeather();
   cachedPhoto('get').then((b) => { if (b && !photoUrl) showPhoto(b); });
