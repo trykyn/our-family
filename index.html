@@ -1554,7 +1554,20 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     if (day) return { e: day, changed: true };
     const dow = DOWK[fromKey(key).getDay()];
     const base = routine.base[m] && routine.base[m][dow];
-    return { e: base || ROUTINE_DEFAULT[m][dow] || { am: '', pm: '' }, changed: false };
+    let e = base || ROUTINE_DEFAULT[m][dow] || { am: '', pm: '' };
+    // 공휴일·방학이면 기본 일정에서 쉬는 것은 뺌 (그날만 직접 바꾼 일정은 그대로)
+    const off = offOn(key);
+    if (off.size && (off.has(e.am) || off.has(e.pm))) e = { ...e, am: off.has(e.am) ? '' : e.am, pm: off.has(e.pm) ? '' : e.pm };
+    return { e, changed: false };
+  }
+  // 공휴일: 학교·학교 운동·유치원·일 쉼 / 학교 방학(Buß- und Bettag 포함): 학교·학교 운동만 쉼 (부모 일·유치원은 그대로)
+  function offOn(key) {
+    const off = new Set();
+    for (const x of holidaysOn(key)) {
+      off.add('@school'); off.add('@schoolSport');
+      if (x.type === 'pub') { off.add('@kinder'); off.add('@work'); }
+    }
+    return off;
   }
   function slotText(e, s) {
     const v = e[s] || '';
