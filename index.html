@@ -282,7 +282,7 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .pig.bump svg { animation: bump .45s cubic-bezier(.2, 1.6, .4, 1); }
 .pig.wiggle svg { animation: wiggle .5s ease-in-out; }
 @keyframes bump { 0% { transform: translateY(0) scale(1); } 35% { transform: translateY(6px) scale(1.06, .92); } 70% { transform: translateY(-8px) scale(.97, 1.04); } 100% { transform: none; } }
-.bank .bal { font-family: var(--font-display); font-size: 38px; color: var(--kc); line-height: 1.1; }
+.bank .bal { font-family: var(--font-display); font-size: 38px; color: var(--kc); line-height: 1.1; padding: 2px 12px; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .bank .bal.pop { animation: pop .45s cubic-bezier(.2, 1.6, .4, 1); }
 .plus-pop { position: fixed; z-index: 260; pointer-events: none; font-family: var(--font-display); font-size: 24px; color: #2E9D5A; text-shadow: 0 1px 0 #fff; animation: plusup .9s ease-out forwards; }
 @keyframes plusup { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -48px); opacity: 0; } }
@@ -754,6 +754,22 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   </form>
 </div>
 
+<!-- 저금통 금액 맞추기 (부모용, 금액을 2초 꾹 눌러야 열림) -->
+<div class="sheet-wrap" id="adj-sheet" hidden>
+  <div class="scrim" data-adj-close></div>
+  <form class="sheet k-davin" id="adj-form" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="adj-title" novalidate>
+    <h3 id="adj-title" data-t="adjTitle">🔒 저금통 금액 맞추기</h3>
+    <p class="hint" data-t="adjHint">저금통에 실제로 들어 있는 돈을 넣으면 그 금액으로 맞춰져요.</p>
+    <label class="lbl"><span data-t="adjAmt">저금통에 있는 돈 (€)</span><input class="field" id="adj-amt" type="text" inputmode="decimal" maxlength="9"></label>
+    <p class="hint err" id="adj-err" hidden></p>
+    <div class="sheet-actions">
+      <span class="grow"></span>
+      <button type="button" class="btn ghost" data-adj-close data-t="cancel">취소</button>
+      <button type="submit" class="btn" data-t="save">저장</button>
+    </div>
+  </form>
+</div>
+
 <!-- 용돈 기록 창 -->
 <div class="sheet-wrap" id="money-sheet" hidden>
   <div class="scrim" data-money-close></div>
@@ -923,7 +939,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', pickDay: '날짜 고르기', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
       lgPub: '공휴일', lgSch: '학교 방학',
       kidCfg: '목표·보상 설정', money: '💶 용돈', moneyIn: '+ 받았어요', moneyOut: '− 썼어요', stickerHist: '최근 칭찬',
-      giveWhy: '무엇을 잘했나요? (선택)', giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', delHint: '지울 스티커를 누르세요', delDone: '완료', delToast: '스티커를 지웠어요', tabStickers: '⭐ 칭찬 스티커', tabMoney: '🐷 저금통', coinHint: '동전을 저금통에 넣어 봐!', tapBox: '상자를 톡톡톡 눌러 봐!', giveStick: '⭐ 붙이기', cfgSmall: '작은 스티커 몇 개 = 큰 스티커 1장?', cfgBig: '큰 스티커 몇 장 = 선물?', cfgBigReward: '🏅 큰 스티커 받을 때마다 (선택)', cfgBigRewardPh: '예: 아이스크림', bigEarned: '🏅 큰 스티커!', cfgReward: '🎁 선물', cfgRewardPh: '예: 레고, 놀이공원',
+      giveWhy: '무엇을 잘했나요? (선택)', giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', delHint: '지울 스티커를 누르세요', delDone: '완료', delToast: '스티커를 지웠어요', tabStickers: '⭐ 칭찬 스티커', tabMoney: '🐷 저금통', coinHint: '동전을 저금통에 넣어 봐!', adjTitle: '🔒 저금통 금액 맞추기', adjHint: '저금통에 실제로 들어 있는 돈을 넣으면 그 금액으로 맞춰져요.', adjAmt: '저금통에 있는 돈 (€)', tapBox: '상자를 톡톡톡 눌러 봐!', giveStick: '⭐ 붙이기', cfgSmall: '작은 스티커 몇 개 = 큰 스티커 1장?', cfgBig: '큰 스티커 몇 장 = 선물?', cfgBigReward: '🏅 큰 스티커 받을 때마다 (선택)', cfgBigRewardPh: '예: 아이스크림', bigEarned: '🏅 큰 스티커!', cfgReward: '🎁 선물', cfgRewardPh: '예: 레고, 놀이공원',
       moneyAmt: '금액 (€)', moneyNote: '내용', moneyNotePh: '직접 쓰기 (선택)', noReward: '🎁 오른쪽 위 선물 버튼으로 보상을 정해요',
       doneAll: (n) => `🎉 큰 스티커 ${n}장 다 모았어요!`, newBoard: '새 판 시작', giveBtn: '⭐ 칭찬 스티커 주기', goodJob: '잘했어요',
       delSticker: '이 스티커를 지울까요?', noStickers: '아직 스티커가 없어요.', delMoney: '이 기록을 지울까요?', noMoney: '아직 기록이 없어요.',
@@ -981,7 +997,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', pickDay: 'Datum wählen', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
       lgPub: 'Feiertag', lgSch: 'Schulferien',
       kidCfg: 'Ziel & Belohnung', money: '💶 Taschengeld', moneyIn: '+ Bekommen', moneyOut: '− Ausgegeben', stickerHist: 'Letzte Sticker',
-      giveWhy: 'Wofür? (optional)', giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', delHint: 'Tippe auf einen Sticker zum Löschen', delDone: 'Fertig', delToast: 'Sticker gelöscht', tabStickers: '⭐ Sticker', tabMoney: '🐷 Sparschwein', coinHint: 'Wirf die Münzen ins Sparschwein!', tapBox: 'Tipp dreimal aufs Geschenk!', giveStick: '⭐ Aufkleben', cfgSmall: 'Kleine Sticker für 1 großen?', cfgBig: 'Große Sticker bis zum Geschenk?', cfgBigReward: '🏅 Bei jedem großen Sticker (optional)', cfgBigRewardPh: 'z. B. ein Eis', bigEarned: '🏅 Großer Sticker!', cfgReward: '🎁 Geschenk', cfgRewardPh: 'z. B. Lego, Freizeitpark',
+      giveWhy: 'Wofür? (optional)', giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', delHint: 'Tippe auf einen Sticker zum Löschen', delDone: 'Fertig', delToast: 'Sticker gelöscht', tabStickers: '⭐ Sticker', tabMoney: '🐷 Sparschwein', coinHint: 'Wirf die Münzen ins Sparschwein!', adjTitle: '🔒 Betrag im Sparschwein korrigieren', adjHint: 'Gib ein, wie viel wirklich im Sparschwein ist – der Betrag wird darauf gesetzt.', adjAmt: 'Betrag im Sparschwein (€)', tapBox: 'Tipp dreimal aufs Geschenk!', giveStick: '⭐ Aufkleben', cfgSmall: 'Kleine Sticker für 1 großen?', cfgBig: 'Große Sticker bis zum Geschenk?', cfgBigReward: '🏅 Bei jedem großen Sticker (optional)', cfgBigRewardPh: 'z. B. ein Eis', bigEarned: '🏅 Großer Sticker!', cfgReward: '🎁 Geschenk', cfgRewardPh: 'z. B. Lego, Freizeitpark',
       moneyAmt: 'Betrag (€)', moneyNote: 'Wofür', moneyNotePh: 'Selbst schreiben (optional)', noReward: '🎁 Belohnung oben rechts beim Geschenk festlegen',
       doneAll: (n) => `🎉 Alle ${n} großen Sticker!`, newBoard: 'Neue Runde starten', giveBtn: '⭐ Sticker geben', goodJob: 'Gut gemacht',
       delSticker: 'Diesen Sticker löschen?', noStickers: 'Noch keine Sticker.', delMoney: 'Diesen Eintrag löschen?', noMoney: 'Noch keine Einträge.',
@@ -2650,7 +2666,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     if (k === 'davin') {
       const ms = moneyOf(k);
       renderBalance(false);
-      $('#money-hist').replaceChildren(...(ms.length ? ms.slice(0, 40).map((m) => h('li', {},
+      const shown = ms.filter((m) => m.note !== '@adjust'); // 엄마가 맞춘 기록은 숨김
+      $('#money-hist').replaceChildren(...(shown.length ? shown.slice(0, 40).map((m) => h('li', {},
         h('span', { class: 't', text: textOf(m.note, m.src, m.tr, m.by, MONEY_NOTES) || (m.amt >= 0 ? L().moneyIn : L().moneyOut) }),
         h('span', { class: 'd', text: shortDate(m.at) }),
         h('span', { class: 'amt ' + (m.amt >= 0 ? 'plus' : 'minus'), text: (m.amt >= 0 ? '+' : '−') + fmtMoney(Math.abs(m.amt)) }),
@@ -2767,6 +2784,36 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     }));
   }
   renderCoins();
+  /* 엄마용: 금액 숫자를 2초 꾹 누르면 '금액 맞추기' (버튼 없음, 다빈이가 모르게). 맞춘 차이만큼 숨은 기록을 남김 */
+  const adjSheet = $('#adj-sheet');
+  let pressTimer = null, pressAt = null;
+  const balEl = $('#money-bal');
+  balEl.addEventListener('pointerdown', (e) => {
+    pressAt = { x: e.clientX, y: e.clientY };
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(() => { pressTimer = null; openAdj(); }, 2000);
+  });
+  balEl.addEventListener('pointermove', (e) => { if (pressTimer && pressAt && Math.hypot(e.clientX - pressAt.x, e.clientY - pressAt.y) > 12) { clearTimeout(pressTimer); pressTimer = null; } });
+  for (const t of ['pointerup', 'pointercancel', 'pointerleave']) balEl.addEventListener(t, () => { clearTimeout(pressTimer); pressTimer = null; });
+  balEl.addEventListener('contextmenu', (e) => e.preventDefault());
+  function openAdj() {
+    flushCoins();
+    $('#adj-amt').value = (Math.round(moneySum() * 100) / 100).toFixed(2).replace('.', ',');
+    $('#adj-err').hidden = true;
+    adjSheet.hidden = false; document.body.style.overflow = 'hidden';
+    setTimeout(() => { const i = $('#adj-amt'); i.focus(); i.select(); }, 50);
+  }
+  const closeAdj = () => { adjSheet.hidden = true; document.body.style.overflow = ''; };
+  adjSheet.addEventListener('click', (e) => { if (e.target.closest('[data-adj-close]')) closeAdj(); });
+  $('#adj-form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const raw = $('#adj-amt').value.replace(/\s/g, '').replace('€', '').replace(',', '.');
+    const target = Math.round(Number(raw) * 100) / 100;
+    if (raw === '' || !(target >= 0)) { const err = $('#adj-err'); err.textContent = L().moneyBad; err.hidden = false; return; }
+    const diff = Math.round((target - moneySum()) * 100) / 100;
+    if (diff) kidsWrite(['davin', 'money', newId()], { at: Date.now(), amt: diff, note: '@adjust', by: myId() });
+    closeAdj();
+  });
   $('#pig').addEventListener('click', (e) => { wiggle(e.currentTarget); SND.oink(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) flushCoins(); });
 
