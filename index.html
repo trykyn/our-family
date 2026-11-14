@@ -1491,6 +1491,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   let hiddenCals = new Set(load('our-family:hidden-cals', []));
 
   let fb = null;
+  let fbError = '';
   async function startFirebase() { // 맨 아래에서 호출 (화면 함수들이 모두 준비된 뒤)
     const cfg = window.FIREBASE_CONFIG;
     if (!cfg) { S.ready = true; renderAll(); return; }
@@ -1516,6 +1517,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       });
     } catch (e) {
       console.warn('firebase', e);
+      fbError = errDetail(e);
       S.ready = true; renderAll();
     }
   }
@@ -1683,7 +1685,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
   function accountBlock() { return [...accountParts(), langRow()]; }
   function accountParts() {
-    if (!fb) return [h('p', { class: 'hint', text: S.ready ? L().errNet : L().loading })];
+    if (!fb) return [h('p', { class: 'hint', text: S.ready ? `${L().errNet}${fbError ? ` (${fbError})` : ''}` : L().loading })];
     if (!S.user) return [
       h('h3', { text: L().account }),
       h('p', { class: 'hint', text: L().signHint }),
@@ -1805,6 +1807,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
 
   let inflight = null;
+  let retries = 0; // 연속 실패 횟수 (한 번만 자동 재시도)
+  const errDetail = (e) => String((e && (e.code || e.message || e.name)) || '?').slice(0, 80);
   async function refresh(force) {
     if (!S.user || !S.house) return;
     const first = view, mk = monthKey(first);
@@ -1822,9 +1826,12 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         const keys = Object.keys(S.months).sort();
         while (keys.length > 6) delete S.months[keys.shift()];
         saveCal();
+        retries = 0;
       } catch (e) {
         console.warn('events', e);
-        S.error = e.code === 'not_configured' ? L().errSetup : e.code === 'no_house' ? L().needHouse : L().errNet;
+        const known = e.code === 'not_configured' || e.code === 'no_house';
+        if (!known && retries < 1) { retries++; setTimeout(() => refresh(true), 3000); }
+        S.error = e.code === 'not_configured' ? L().errSetup : e.code === 'no_house' ? L().needHouse : `${L().errNet} (${errDetail(e)})`;
       } finally {
         S.busy = false; inflight = null;
         renderAll();
