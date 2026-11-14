@@ -2,14 +2,21 @@ name = "our-family-calendar"
 main = "src/index.js"
 compatibility_date = "2026-10-01"
 
-# 구글 캘린더 연결을 보관하는 저장소 (가족 코드별 연결 계정, 잠깐 쓰는 접근 토큰)
+# 구글 캘린더 연결을 보관하는 저장소 (가족 코드별 연결 계정, 잠깐 쓰는 접근 토큰, 알림 받을 휴대폰)
 kv_namespaces = [
   { binding = "STORE", id = "d6fd0d7cc4f642e8805123313e77726c" }
 ]
 
+# 아침 7시 알림: 뮌헨은 겨울 UTC+1, 여름 UTC+2 → 05시·06시(UTC)에 깨어나서 뮌헨 시각이 7시일 때만 보냄
+[triggers]
+crons = ["0 5 * * *", "0 6 * * *"]
+
 [vars]
 REDIRECT_URI = "https://our-family-calendar.weekly-meals-reader.workers.dev/callback"
+# 알림 열쇠의 공개 부분 (앱에도 같은 값). 비밀 부분은 VAPID_PRIVATE_JWK 비밀 값.
+VAPID_PUBLIC = "BPNQZDV1vbo7Eji6EgHJcNoy6_uZeebI67LFcsvFRaZMs4t8kZJ0YSb6-InECLeq4eX8pNF12Jinqv3h8Fv7OHs"
 
 # 비밀 값은 여기 적지 않고 아래 명령으로 넣음:
 #   npx wrangler secret put GOOGLE_CLIENT_ID
 #   npx wrangler secret put GOOGLE_CLIENT_SECRET
+#   npx wrangler secret put VAPID_PRIVATE_JWK

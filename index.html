@@ -225,6 +225,9 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 
 /* 계정 */
 .account { margin-top: 32px; }
+.push-row { display: grid; gap: 4px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.push-row .push-t { font-weight: 600; font-size: 14px; }
+.push-row .row { margin-top: 4px; }
 .account.folded { padding-top: 12px; padding-bottom: 12px; }
 .acc-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; border: 0; background: none; padding: 2px 0; color: inherit; font-size: 15px; font-weight: 600; }
 .acc-toggle svg { width: 20px; height: 20px; color: var(--muted); transition: transform .15s; }
@@ -750,6 +753,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       autoNote: '열 때마다 자동으로 새로 불러와요.',
       errNet: '일정을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.', errSetup: '캘린더 서버 설정이 아직 안 끝났어요.',
       errSignIn: '로그인하지 못했어요. 다시 해 주세요.',
+      pushTitle: '아침 7시 알림', pushOn: '알림 켜기', pushOff: '알림 끄기', pushTest: '지금 테스트',
+      pushOnNote: '매일 아침 7시에 "오늘의 가족 일정과 할 일을 확인하세요" 알림이 와요.', pushOffNote: '켜면 매일 아침 7시에 이 휴대폰으로 알림이 와요.',
+      pushUnsupported: '홈 화면에 추가한 앱에서만 켤 수 있어요 (아이폰은 iOS 16.4 이상).', pushDenied: '알림이 막혀 있어요. 아이폰 설정 → 알림 → 우리가족에서 허용해 주세요.',
+      pushErr: '알림을 켜지 못했어요. 잠시 후 다시 해 주세요.', pushSent: '테스트 알림을 보냈어요. 몇 초 안에 와요.',
       changePhoto: '가족사진 바꾸기', photoSaving: '사진 올리는 중…', photoErr: '사진을 올리지 못했어요. 다시 해 주세요.', photoAlt: '우리 가족 사진',
     },
     de: {
@@ -798,6 +805,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       autoNote: 'Wird bei jedem Öffnen automatisch aktualisiert.',
       errNet: 'Termine konnten nicht geladen werden. Bitte Internetverbindung prüfen.', errSetup: 'Der Kalender-Server ist noch nicht fertig eingerichtet.',
       errSignIn: 'Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
+      pushTitle: 'Erinnerung um 7 Uhr', pushOn: 'Einschalten', pushOff: 'Ausschalten', pushTest: 'Jetzt testen',
+      pushOnNote: 'Jeden Morgen um 7 Uhr kommt eine Mitteilung zum Familienplan und den Aufgaben.', pushOffNote: 'Eingeschaltet kommt jeden Morgen um 7 Uhr eine Mitteilung auf dieses Handy.',
+      pushUnsupported: 'Nur in der zum Home-Bildschirm hinzugefügten App (iPhone ab iOS 16.4).', pushDenied: 'Mitteilungen sind blockiert. Bitte unter Einstellungen → Mitteilungen → Unsere Familie erlauben.',
+      pushErr: 'Das hat nicht geklappt. Bitte später erneut versuchen.', pushSent: 'Test-Mitteilung gesendet. Sie kommt in wenigen Sekunden.',
       changePhoto: 'Familienfoto ändern', photoSaving: 'Foto wird hochgeladen…', photoErr: 'Das Foto konnte nicht hochgeladen werden. Bitte erneut versuchen.', photoAlt: 'Unser Familienfoto',
     },
   };
@@ -859,7 +870,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     }
     const lb = e.target.closest('[data-lang]');
     if (lb && lb.dataset.lang !== lang) {
-      lang = lb.dataset.lang; store('our-family:lang', lang);
+      lang = lb.dataset.lang; store('our-family:lang', lang); savePrefs();
       view = new Date(view.getFullYear(), view.getMonth(), 1);
       renderAll();
     }
@@ -1391,6 +1402,69 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     await linkHouse(code);
   }
 
+  /* ───────── 아침 7시 알림 (휴대폰마다 켬. 아이폰은 홈 화면에 추가한 앱 + iOS 16.4 이상) ─────────
+     켜면 이 휴대폰의 알림 주소를 캘린더 서버에 등록 → 서버가 매일 뮌헨 7시에 알림. 문구는 sw.js 가 언어에 맞게. */
+  const VAPID_PUBLIC = 'BPNQZDV1vbo7Eji6EgHJcNoy6_uZeebI67LFcsvFRaZMs4t8kZJ0YSb6-InECLeq4eX8pNF12Jinqv3h8Fv7OHs';
+  let pushState = 'unknown', pushBusy = false, pushMsg = ''; // unsupported | denied | off | on
+  const b64ToBytes = (s) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (s.length % 4)) % 4)), (c) => c.charCodeAt(0));
+  // 서비스 워커가 알림 문구 언어를 알 수 있게 저장
+  function savePrefs() { try { caches.open('our-family-prefs').then((c) => c.put('lang', new Response(lang))).catch(() => {}); } catch {} }
+  async function pushSub() {
+    const reg = await navigator.serviceWorker.ready;
+    return reg.pushManager.getSubscription();
+  }
+  async function refreshPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) pushState = 'unsupported';
+    else if (Notification.permission === 'denied') pushState = 'denied';
+    else { try { pushState = (await pushSub()) ? 'on' : 'off'; } catch { pushState = 'off'; } }
+    renderAccount();
+  }
+  async function pushOn() {
+    pushBusy = true; pushMsg = ''; renderAccount();
+    try {
+      const perm = await Notification.requestPermission(); // 버튼을 누른 순간에 물어봐야 아이폰이 허용
+      if (perm !== 'granted') { pushState = perm === 'denied' ? 'denied' : 'off'; return; }
+      const reg = await navigator.serviceWorker.ready;
+      const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID_PUBLIC) });
+      await post('/push/subscribe', { sub: sub.toJSON() });
+      savePrefs();
+      pushState = 'on';
+    } catch (e) { console.warn('push', e); pushMsg = L().pushErr; }
+    finally { pushBusy = false; renderAccount(); }
+  }
+  async function pushOff() {
+    pushBusy = true; pushMsg = ''; renderAccount();
+    try {
+      const sub = await pushSub();
+      if (sub) { await post('/push/unsubscribe', { endpoint: sub.endpoint }).catch(() => {}); await sub.unsubscribe(); }
+      pushState = 'off';
+    } catch (e) { console.warn('push', e); }
+    finally { pushBusy = false; renderAccount(); }
+  }
+  async function pushTest() {
+    pushBusy = true; pushMsg = ''; renderAccount();
+    try {
+      const sub = await pushSub();
+      const r = sub ? await post('/push/test', { endpoint: sub.endpoint }) : { ok: false };
+      pushMsg = r.ok ? L().pushSent : L().pushErr;
+    } catch (e) { console.warn('push', e); pushMsg = L().pushErr; }
+    finally { pushBusy = false; renderAccount(); }
+  }
+  function pushBlock() {
+    const kids = [h('span', { class: 'push-t', text: `🔔 ${L().pushTitle}` })];
+    if (pushState === 'unsupported') kids.push(h('p', { class: 'hint', text: L().pushUnsupported }));
+    else if (pushState === 'denied') kids.push(h('p', { class: 'hint', text: L().pushDenied }));
+    else if (pushState === 'on' || pushState === 'off') {
+      const on = pushState === 'on';
+      kids.push(h('p', { class: 'hint', text: on ? L().pushOnNote : L().pushOffNote }));
+      kids.push(h('div', { class: 'row' },
+        h('button', { type: 'button', class: on ? 'btn ghost' : 'btn', disabled: pushBusy, text: on ? L().pushOff : L().pushOn, onclick: on ? pushOff : pushOn }),
+        on ? h('button', { type: 'button', class: 'link-btn', disabled: pushBusy, text: L().pushTest, onclick: pushTest }) : null));
+    }
+    if (pushMsg) kids.push(h('p', { class: 'hint', style: 'margin-top:6px', text: pushMsg }));
+    return h('div', { class: 'push-row' }, ...kids);
+  }
+
   // 계정 칸: 로그인 → 가족 코드 → (완료) 순서, 맨 아래에 언어
   function langRow() {
     return h('div', { class: 'lang-row' },
@@ -1418,6 +1492,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         h('div', { class: 'row' }, fileIn,
           h('button', { type: 'button', class: 'btn ghost', disabled: photoBusy, text: photoBusy ? L().photoSaving : L().changePhoto, onclick: () => fileIn.click() })),
         photoMsg && h('p', { class: 'hint err', style: 'margin-top:8px', text: photoMsg }),
+        pushBlock(),
       ];
     }
     const input = h('input', { class: 'field', type: 'text', placeholder: L().houseCode, 'aria-label': L().houseCode, autocapitalize: 'characters', autocomplete: 'off' });
@@ -2091,6 +2166,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   show();
   loadWeather();
   loadHolidays();
+  savePrefs();
+  refreshPush();
   cachedPhoto('get').then((b) => { if (b && !photoUrl) showPhoto(b); });
   startFirebase();
 

@@ -10,6 +10,8 @@
 //   POST /disconnect  { email }                → { ok }
 //   POST /photo                                → 가족사진 (그 가족만)
 //   POST /photo/upload  (이미지 본문)           → { ok }
+//   POST /push/subscribe { sub } · /push/unsubscribe { endpoint } · /push/test { endpoint }
+//   매일 뮌헨 시각 7시 (cron) → 등록된 휴대폰에 알림
 //
 // POST 는 모두  Authorization: Bearer <Firebase ID 토큰>  필요. 가족 코드는 Firestore users/{uid}.house 에서
 // 그 사람의 토큰으로 직접 읽으므로, 앱이 보낸 값을 믿지 않음.
@@ -65,6 +67,19 @@ export default {
     let body = {};
     try { body = await request.json(); } catch {}
 
+    // 아침 7시 알림: 휴대폰마다 등록 / 해제 / 지금 테스트
+    if (url.pathname.startsWith("/push/")) {
+      try {
+        if (url.pathname === "/push/subscribe") return json(await pushSubscribe(env, me, body));
+        if (url.pathname === "/push/unsubscribe") return json(await pushUnsubscribe(env, me, body));
+        if (url.pathname === "/push/test") return json(await pushTest(env, me, body));
+      } catch (e) {
+        console.warn(url.pathname, String(e));
+        return json({ error: e.message === "bad_sub" ? "bad_sub" : "failed" }, e.message === "bad_sub" ? 400 : 502);
+      }
+      return json({ error: "not_found" }, 404);
+    }
+
     if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return json({ error: "not_configured" }, 503);
     try {
       if (url.pathname === "/connect") return json(await connect(env, me, body));
@@ -76,7 +91,83 @@ export default {
     }
     return json({ error: "not_found" }, 404);
   },
+
+  // 매일 05·06시(UTC)에 깨어나서 뮌헨 시각이 7시면 등록된 모든 휴대폰에 알림
+  async scheduled(event, env, ctx) {
+    const hour = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Berlin", hour: "2-digit", hourCycle: "h23" }).format(new Date(event.scheduledTime)));
+    if (hour !== 7) return;
+    ctx.waitUntil(pushAll(env));
+  },
 };
+
+/* ---------- 아침 알림 (Web Push, 내용 없는 알림 → 문구는 휴대폰의 sw.js 가 언어에 맞춰 보여 줌) ---------- */
+
+const b64urlBytes = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const b64urlJson = (o) => b64urlBytes(new TextEncoder().encode(JSON.stringify(o)));
+async function subKey(endpoint) {
+  const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(endpoint));
+  return "push:" + [...new Uint8Array(h)].slice(0, 16).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// 푸시 서버(애플·구글 등)에 "우리 앱이 보낸다"는 서명 (VAPID, ES256)
+async function vapidAuth(env, endpoint) {
+  const header = b64urlJson({ typ: "JWT", alg: "ES256" });
+  const claims = b64urlJson({ aud: new URL(endpoint).origin, exp: Math.floor(Date.now() / 1000) + 12 * 3600, sub: "https://trykyn.github.io/our-family/" });
+  const key = await crypto.subtle.importKey("jwk", JSON.parse(env.VAPID_PRIVATE_JWK), { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, new TextEncoder().encode(`${header}.${claims}`));
+  return `vapid t=${header}.${claims}.${b64urlBytes(sig)}, k=${env.VAPID_PUBLIC}`;
+}
+
+async function sendPush(env, endpoint) {
+  const r = await fetch(endpoint, {
+    method: "POST",
+    headers: { Authorization: await vapidAuth(env, endpoint), TTL: "21600", Urgency: "high", "Content-Length": "0" },
+    body: "",
+  });
+  return r.status;
+}
+
+async function pushSubscribe(env, me, body) {
+  const sub = body.sub || {};
+  let ep;
+  try { ep = new URL(String(sub.endpoint || "")); } catch { throw new Error("bad_sub"); }
+  if (ep.protocol !== "https:") throw new Error("bad_sub");
+  await env.STORE.put(await subKey(ep.href), JSON.stringify({ endpoint: ep.href, uid: me.uid, house: me.house, at: Date.now() }));
+  return { ok: true };
+}
+
+async function pushUnsubscribe(env, me, body) {
+  const key = await subKey(String(body.endpoint || ""));
+  const rec = await env.STORE.get(key, "json");
+  if (rec && rec.uid === me.uid) await env.STORE.delete(key);
+  return { ok: true };
+}
+
+async function pushTest(env, me, body) {
+  const key = await subKey(String(body.endpoint || ""));
+  const rec = await env.STORE.get(key, "json");
+  if (!rec || rec.uid !== me.uid) return { ok: false, error: "not_registered" };
+  const status = await sendPush(env, rec.endpoint);
+  if (status === 404 || status === 410) await env.STORE.delete(key);
+  return { ok: status >= 200 && status < 300, status };
+}
+
+async function pushAll(env) {
+  let cursor;
+  do {
+    const page = await env.STORE.list({ prefix: "push:", cursor });
+    for (const k of page.keys) {
+      const rec = await env.STORE.get(k.name, "json");
+      if (!rec) continue;
+      try {
+        const status = await sendPush(env, rec.endpoint);
+        if (status === 404 || status === 410) await env.STORE.delete(k.name); // 앱을 지웠거나 알림을 끈 휴대폰
+        else if (status >= 300) console.warn("push", status);
+      } catch (e) { console.warn("push", String(e)); }
+    }
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+}
 
 /* ---------- 누구인지, 어느 가족인지 ---------- */
 
