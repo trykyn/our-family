@@ -125,6 +125,30 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .lang button[aria-pressed="true"] { background: #FFFFFF; color: #0E2A40; }
 
 /* 오늘 일정 */
+/* 가족 하루 일정표 (엄마·아빠·다빈·아린 × 오전·오후) */
+.fam-box { cursor: default; }
+.fam-box .box-h { margin-bottom: 10px; }
+.day-nav { display: flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; color: var(--deep); }
+.day-nav span { min-width: 64px; text-align: center; }
+.nav-btn { width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--sky-soft); color: var(--deep); display: grid; place-items: center; padding: 0; }
+.nav-btn svg { width: 16px; height: 16px; }
+.fam-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fam {
+  position: relative; display: grid; grid-template-columns: 40px 1fr; column-gap: 8px; align-items: center;
+  padding: 10px; border: 0; border-radius: 16px; text-align: left; color: inherit;
+  background: color-mix(in srgb, var(--mc) 10%, var(--surface));
+}
+.fam img { grid-row: 1 / 4; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 0 0 2px var(--mc); align-self: start; }
+.fam .nm { font-weight: 700; font-size: 14px; color: var(--mc); }
+.fam .sl { font-size: 13px; line-height: 1.35; min-width: 0; overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; }
+.fam .sl b { font-weight: 600; color: var(--muted); margin-right: 4px; font-size: 11px; }
+.fam .sl.none { color: var(--muted); }
+.fam .changed { position: absolute; top: 8px; right: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--mc); }
+.rt-head { display: flex; align-items: center; gap: 10px; }
+.rt-head img { width: 44px; height: 44px; border-radius: 50%; }
+.rt-every { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
+.rt-every .check { width: 22px; height: 22px; border-radius: 6px; }
+
 .today-box {
   position: relative; z-index: 2; margin-top: -30px; padding: 14px 16px;
   background: var(--surface); border-radius: 20px; box-shadow: var(--shadow); cursor: pointer;
@@ -420,10 +444,20 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       </div>
     </div>
   </header>
-  <section class="today-box" data-go="calendar">
-    <h2 data-t="todayTitle">오늘 일정</h2>
-    <ul class="events" id="today-events"></ul>
-    <p class="events-empty" id="today-empty"></p>
+  <section class="today-box fam-box">
+    <div class="box-h">
+      <h2 id="fam-title">오늘 일정</h2>
+      <div class="day-nav">
+        <button type="button" class="nav-btn" id="fam-prev" data-t-label="prevDay" aria-label="전날">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
+        </button>
+        <span id="fam-day"></span>
+        <button type="button" class="nav-btn" id="fam-next" data-t-label="nextDay" aria-label="다음 날">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="fam-grid" id="fam-grid"></div>
   </section>
   <a class="dinner-box" id="dinner-box" href="https://trykyn.github.io/weekly-meals/" hidden>
     <span class="ico" aria-hidden="true">
@@ -474,6 +508,29 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   <div class="empty" id="todo-empty"><b data-t="todoEmptyB">할 일이 없어요</b><span data-t="todoEmpty">위의 버튼으로 추가하세요</span></div>
   <p class="hint todo-note" id="todo-note" hidden></p>
 </main>
+
+<!-- 가족 일정 수정 창 -->
+<div class="sheet-wrap" id="routine-sheet" hidden>
+  <div class="scrim" data-rt-close></div>
+  <form class="sheet" id="routine-edit" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="rt-title" novalidate>
+    <div class="rt-head"><img id="rt-avatar" alt=""><h3 id="rt-title"></h3></div>
+    <label class="lbl"><span data-t="am">오전</span>
+      <input class="field" id="rt-am" type="text" maxlength="60" list="rt-acts" data-t-label="am">
+    </label>
+    <label class="lbl"><span data-t="pm">오후</span>
+      <input class="field" id="rt-pm" type="text" maxlength="60" list="rt-acts" data-t-label="pm">
+    </label>
+    <datalist id="rt-acts"></datalist>
+    <label class="rt-every"><input type="checkbox" class="check" id="rt-every"><span id="rt-every-label"></span></label>
+    <p class="hint" id="rt-note"></p>
+    <div class="sheet-actions">
+      <button type="button" class="link-btn" id="rt-reset" data-t="rtReset">기본으로 되돌리기</button>
+      <span class="grow"></span>
+      <button type="button" class="btn ghost" data-rt-close data-t="cancel">취소</button>
+      <button type="submit" class="btn" data-t="save">저장</button>
+    </div>
+  </form>
+</div>
 
 <!-- 할 일 입력·수정 창 -->
 <div class="sheet-wrap" id="todo-sheet" hidden>
@@ -558,6 +615,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const T = {
     ko: {
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
+      famTitle: '가족 일정', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
+      shortDay: (d) => `${d.getMonth() + 1}/${d.getDate()} (${T.ko.weekdays[d.getDay()]})`,
+      rtEvery: (wd) => `매주 ${T.ko.weekdays[wd]}요일 기본으로 저장`, rtReset: '기본으로 되돌리기',
+      rtChanged: '이 날만 바꾼 일정이에요.', rtHint: '저장하면 이 날만 바뀌어요. 매주 바꾸려면 아래를 체크하세요.',
       city: '뮌헨', homeTodoTitle: '챙길 할 일', seeAll: '전체 보기', moreTodos: (n) => `외 ${n}개`,
       dinnerTitle: '오늘 저녁', dinnerNone: '아직 정하지 않았어요', kidTag: '아이',
       fWho: '담당', whoNone: '미정', who: { mom: '엄마', dad: '아빠', davin: '다빈', arin: '아린', both: '같이' }, filterAll: '전체',
@@ -596,6 +657,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     },
     de: {
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
+      famTitle: 'Familienplan', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
+      shortDay: (d) => `${T.de.weekdays[d.getDay()]}, ${d.getDate()}.${d.getMonth() + 1}.`,
+      rtEvery: (wd) => `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][wd]} als Standard speichern`, rtReset: 'Zurück zum Standard',
+      rtChanged: 'Nur für diesen Tag geändert.', rtHint: 'Speichern ändert nur diesen Tag. Für jede Woche unten ankreuzen.',
       city: 'München', homeTodoTitle: 'Wichtig & bald fällig', seeAll: 'Alle anzeigen', moreTodos: (n) => `und ${n} weitere`,
       dinnerTitle: 'Heute Abend', dinnerNone: 'Noch nichts geplant', kidTag: 'Kinder',
       fWho: 'Zuständig', whoNone: 'Offen', who: { mom: 'Mama', dad: 'Papa', davin: 'Davin', arin: 'Arin', both: 'Zusammen' }, filterAll: 'Alle',
@@ -802,6 +867,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       sharedTodos = Object.values(map).sort((a, b) => (a.at || 0) - (b.at || 0));
       store(SHARED_KEY, sharedTodos);
       mealsMap = (snap.exists() && snap.data().meals) || {};
+      routine = { days: (snap.exists() && snap.data().routine) || {}, base: (snap.exists() && snap.data().routineBase) || {} };
+      store(ROUTINE_KEY, routine);
+      renderToday();
       store(DINNER_KEY, { date: todayKey, items: dinnerToday() });
       renderTodos();
       renderDinner();
@@ -1135,6 +1203,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     saveCal();
     stopTodos(); sharedTodos = null; store(SHARED_KEY, null);
     mealsMap = null; store(DINNER_KEY, null);
+    routine = { days: {}, base: {} }; store(ROUTINE_KEY, null);
     showPhoto(null); cachedPhoto('del');
     await fb.A.signOut(fb.auth);
   }
@@ -1427,20 +1496,136 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     return y > 0.62 ? '#1B1B1B' : '#FFFFFF';
   }
 
-  /* ───────── 홈 '오늘 일정' ───────── */
-  function renderToday() {
-    const evs = hasCalendar() ? eventsOn(todayKey) : [];
-    const MAX = 4;
-    $('#today-events').replaceChildren(
-      ...evs.slice(0, MAX).map((ev) => h('li', {},
-        h('span', { class: 'c', style: `background:${ev.color}` }),
-        h('span', { class: 'time', text: timeLabel(ev, todayKey) }),
-        h('span', { class: 't', text: titleOf(ev) }))),
-      ...(evs.length > MAX ? [h('li', { class: 'more', text: L().moreToday(evs.length - MAX) })] : []));
-    const empty = $('#today-empty');
-    empty.hidden = evs.length > 0;
-    empty.textContent = !S.user || !S.house ? L().todaySignIn : !S.accounts.length ? L().todayConnect : L().todayNone;
+  /* ───────── 홈 '오늘 일정' = 가족 하루 일정표 (구글 캘린더와 따로) ─────────
+     기본(요일별)은 아래 ROUTINE_DEFAULT. 가족 문서에 저장되는 것:
+       routine.{YYYY-MM-DD}.{사람} = { am, pm, src?, tr? }   → 그날만 바꾼 일정
+       routineBase.{사람}.{요일}   = { am, pm, src?, tr? }   → '매주 기본'으로 바꾼 일정
+     값이 '@swim' 처럼 @로 시작하면 정해진 활동(한국어·독일어 둘 다 있음), 아니면 직접 쓴 글(자동 번역). */
+  const MEMBERS = ['mom', 'dad', 'davin', 'arin'];
+  const DOWK = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  const ACT = {
+    work: ['일', 'Arbeit'], school: ['학교', 'Schule'], kinder: ['유치원', 'Kindergarten'], swim: ['수영', 'Schwimmen'],
+    schoolSport: ['학교 운동', 'Schulsport'], tkd: ['태권도', 'Taekwondo'], music: ['음악', 'Musik'],
+  };
+  const W = (am, pm) => ({ am: am ? `@${am}` : '', pm: pm ? `@${pm}` : '' });
+  const ROUTINE_DEFAULT = {
+    mom: { mon: W('work'), tue: W('work'), wed: W('work'), thu: W('work') },
+    dad: { mon: W('work'), tue: W('work'), wed: W('work'), thu: W('work'), fri: W('work') },
+    davin: { mon: W('school', 'swim'), tue: W('school'), wed: W('school', 'schoolSport'), thu: W('school'), fri: W('school', 'tkd') },
+    arin: { mon: W('kinder'), tue: W('kinder'), wed: W('kinder'), thu: W('kinder', 'swim'), fri: W('kinder', 'music') },
+  };
+  const ROUTINE_KEY = 'our-family:routine';
+  let routine = load(ROUTINE_KEY, { days: {}, base: {} });
+  let famOffset = 0; // 0 = 오늘, 1 = 내일 …
+  const famKey = () => keyOf(addDays(new Date(), famOffset));
+
+  function entryFor(m, key) {
+    const day = routine.days[key] && routine.days[key][m];
+    if (day) return { e: day, changed: true };
+    const dow = DOWK[fromKey(key).getDay()];
+    const base = routine.base[m] && routine.base[m][dow];
+    return { e: base || ROUTINE_DEFAULT[m][dow] || { am: '', pm: '' }, changed: false };
   }
+  function slotText(e, s) {
+    const v = e[s] || '';
+    if (v.startsWith('@')) { const a = ACT[v.slice(1)]; return a ? a[lang === 'de' ? 1 : 0] : ''; }
+    if (v && e.src && e.src !== lang && e.tr && e.tr[s]) return e.tr[s];
+    return v;
+  }
+  // 저장: 가족 문서(로그인) 또는 이 휴대폰. value 가 null 이면 지움. 한 달 넘은 '그날만' 변경은 같이 정리.
+  function routineWrite(path, value) {
+    if (isShared()) {
+      const F = fb.F, args = [new F.FieldPath(...path), value == null ? F.deleteField() : value];
+      const old = keyOf(addDays(new Date(), -31));
+      for (const k of Object.keys(routine.days)) if (k < old) args.push(new F.FieldPath('routine', k), F.deleteField());
+      F.updateDoc(houseRef(), ...args).catch((e) => console.warn('routine', e));
+    } else {
+      const [kind, a, b] = path, box = kind === 'routine' ? routine.days : routine.base;
+      if (value == null) { if (box[a]) { delete box[a][b]; if (!Object.keys(box[a]).length) delete box[a]; } }
+      else (box[a] = box[a] || {})[b] = value;
+      store(ROUTINE_KEY, routine);
+      renderToday();
+    }
+  }
+
+  function renderToday() {
+    const key = famKey();
+    $('#fam-title').textContent = famOffset === 0 ? L().todayTitle : L().famTitle;
+    $('#fam-day').textContent = famOffset === 0 ? L().dayToday : famOffset === 1 ? L().dayTomorrow
+      : famOffset === -1 ? L().dayYesterday : L().shortDay(fromKey(key));
+    $('#fam-grid').replaceChildren(...MEMBERS.map((m) => {
+      const { e, changed } = entryFor(m, key);
+      const slot = (s) => {
+        const t = slotText(e, s);
+        return h('span', { class: 'sl' + (t ? '' : ' none') }, h('b', { text: L()[`${s}S`] }), t || '—');
+      };
+      return h('button', {
+        type: 'button', class: 'fam', style: `--mc:${WHO[m]}`, 'aria-label': `${L().who[m]}: ${L().am} ${slotText(e, 'am') || '—'}, ${L().pm} ${slotText(e, 'pm') || '—'}`,
+        onclick: () => openRoutine(m),
+      }, h('img', { src: `avatar-${m}.png`, alt: '' }), h('span', { class: 'nm', text: L().who[m] }), slot('am'), slot('pm'),
+      changed ? h('span', { class: 'changed', title: L().rtChanged }) : null);
+    }));
+  }
+  $('#fam-prev').addEventListener('click', () => { famOffset--; renderToday(); });
+  $('#fam-next').addEventListener('click', () => { famOffset++; renderToday(); });
+
+  /* 수정 창 */
+  const rtSheet = $('#routine-sheet');
+  let rt = null; // { m, key, e, changed, shown }
+  function openRoutine(m) {
+    const key = famKey(), d = fromKey(key);
+    const { e, changed } = entryFor(m, key);
+    rt = { m, key, e, changed, shown: { am: slotText(e, 'am'), pm: slotText(e, 'pm') } };
+    $('#rt-avatar').src = `avatar-${m}.png`;
+    $('#rt-title').textContent = `${L().who[m]} · ${L().dayLabel(d)}`;
+    $('#rt-am').value = rt.shown.am;
+    $('#rt-pm').value = rt.shown.pm;
+    $('#rt-every').checked = false;
+    $('#rt-every-label').textContent = L().rtEvery(d.getDay());
+    $('#rt-acts').replaceChildren(...Object.values(ACT).map((a) => h('option', { value: a[lang === 'de' ? 1 : 0] })));
+    $('#rt-reset').hidden = !changed;
+    $('#rt-note').textContent = changed ? L().rtChanged : L().rtHint;
+    rtSheet.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeRoutine() { rtSheet.hidden = true; rt = null; document.body.style.overflow = ''; }
+  rtSheet.addEventListener('click', (e) => { if (e.target.closest('[data-rt-close]')) closeRoutine(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !rtSheet.hidden) closeRoutine(); });
+  $('#rt-reset').addEventListener('click', () => { if (rt) routineWrite(['routine', rt.key, rt.m], null); closeRoutine(); });
+
+  // 입력값 → 저장값: 그대로면 원래 값, 정해진 활동 이름이면 '@활동', 아니면 쓴 글
+  function parseSlot(text, stored, shown) {
+    const t = text.trim();
+    if (t === (shown || '').trim()) return stored || '';
+    if (!t) return '';
+    for (const [k, [ko, de]] of Object.entries(ACT)) if (t === ko || t.toLowerCase() === de.toLowerCase()) return `@${k}`;
+    return t;
+  }
+  $('#routine-edit').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    if (!rt) return;
+    const { m, key, e } = rt;
+    const am = parseSlot($('#rt-am').value, e.am, rt.shown.am), pm = parseSlot($('#rt-pm').value, e.pm, rt.shown.pm);
+    const entry = { am, pm };
+    const free = [am, pm].filter((v) => v && !v.startsWith('@'));
+    if (free.length) {
+      entry.src = hasHangul(free.join(' ')) ? 'ko' : 'de';
+      if (e.tr && e.src === entry.src && e.am === am && e.pm === pm) entry.tr = e.tr;
+    }
+    const every = $('#rt-every').checked;
+    const path = every ? ['routineBase', m, DOWK[fromKey(key).getDay()]] : ['routine', key, m];
+    if (every && rt.changed) routineWrite(['routine', key, m], null); // 매주 기본으로 바꾸면 그날만 바꾼 것은 지움
+    routineWrite(path, entry);
+    closeRoutine();
+    // 직접 쓴 글은 다른 언어로도 번역해 둠 (남편 휴대폰은 독일어, 엄마 휴대폰은 한국어)
+    if (free.length && !entry.tr) (async () => {
+      const to = entry.src === 'ko' ? 'de' : 'ko', tr = {};
+      try {
+        for (const s of ['am', 'pm']) if (entry[s] && !entry[s].startsWith('@')) tr[s] = await translateLine(entry[s], entry.src, to);
+        routineWrite(path, { ...entry, tr });
+      } catch (err) { console.warn('translate', err); }
+    })();
+  });
 
   /* ───────── 캘린더: 달 보기 ───────── */
   let view = new Date(now.getFullYear(), now.getMonth(), 1);
