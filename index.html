@@ -256,6 +256,19 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 @keyframes wiggle { 0%, 100% { transform: rotate(0) scale(1); } 20% { transform: rotate(-14deg) scale(1.15); } 40% { transform: rotate(12deg) scale(1.15) translateY(-6px); } 60% { transform: rotate(-8deg) scale(1.08); } 80% { transform: rotate(5deg); } }
 .give { width: 100%; height: 64px; margin-top: 16px; border: 0; border-radius: 20px; font-size: 20px; font-weight: 700; color: #2A1A0A; background: linear-gradient(140deg, var(--k1), var(--k2)); box-shadow: var(--shadow); }
 .give:active { transform: scale(.97); }
+/* 큰 스티커 줄: 황금 큰 스티커 칸들 + 🎁 */
+.big-row { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.big { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; padding: 0; border: 3px dashed color-mix(in srgb, #E0A000 45%, transparent); background: none; color: color-mix(in srgb, #E0A000 55%, transparent); font-size: 22px; }
+.big.full { border: 0; cursor: pointer; }
+.big svg { width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.big.pop svg { animation: bigpop 1s cubic-bezier(.2, 1.6, .4, 1); }
+.big.wiggle svg { animation: wiggle .5s ease-in-out; }
+@keyframes bigpop { 0% { transform: scale(0) rotate(-200deg); filter: brightness(2); } 70% { transform: scale(1.4) rotate(15deg); } 100% { transform: scale(1) rotate(0); filter: none; } }
+.big-gift { font-size: 40px; line-height: 1; margin-left: 2px; filter: grayscale(.6); opacity: .6; transition: transform .2s; }
+.big-gift.ready { filter: none; opacity: 1; animation: wiggle 1.2s ease-in-out infinite; }
+.slot.merge svg { animation: merge .75s ease-in forwards; animation-delay: var(--d, 0ms); }
+@keyframes merge { 35% { transform: scale(1.25); } 100% { transform: translateY(-170px) scale(.15) rotate(360deg); opacity: 0; } }
+.board-head .sub { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 2px; }
 .done-banner { margin-top: 14px; padding: 16px; border-radius: 18px; text-align: center; background: color-mix(in srgb, var(--k1) 45%, var(--surface)); animation: pop .6s cubic-bezier(.2, 1.6, .4, 1); }
 .done-banner b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 26px; }
 .done-banner .rw { font-size: 20px; margin-top: 4px; }
@@ -651,6 +664,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <button type="button" role="tab" data-kid-tab="money" data-t="tabMoney">🐷 용돈</button>
   </div>
   <section class="card" id="tab-stickers">
+    <div class="big-row" id="kid-big"></div>
     <div class="board-head"><span class="rw" id="kid-reward"></span><span class="cnt" id="kid-count"></span></div>
     <div class="del-bar" id="kid-delbar" hidden></div>
     <div class="board-grid" id="kid-board"></div>
@@ -707,7 +721,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   <div class="scrim" data-cfg-close></div>
   <form class="sheet" id="cfg-form" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="cfg-title" novalidate>
     <h3 id="cfg-title"></h3>
-    <label class="lbl"><span data-t="cfgGoal">스티커 몇 개 모으면?</span><input class="field" id="cfg-goal" type="number" inputmode="numeric" min="5" max="60"></label>
+    <label class="lbl"><span data-t="cfgSmall">작은 스티커 몇 개 = 큰 스티커 1장?</span><input class="field" id="cfg-small" type="number" inputmode="numeric" min="3" max="30"></label>
+    <label class="lbl"><span data-t="cfgBig">큰 스티커 몇 장 = 선물?</span><input class="field" id="cfg-big" type="number" inputmode="numeric" min="2" max="8"></label>
+    <label class="lbl"><span data-t="cfgBigReward">🏅 큰 스티커 받을 때마다 (선택)</span><input class="field" id="cfg-bigreward" type="text" maxlength="60" data-t-ph="cfgBigRewardPh"></label>
     <label class="lbl"><span data-t="cfgReward">보상</span><input class="field" id="cfg-reward" type="text" maxlength="60" data-t-ph="cfgRewardPh"></label>
     <button type="button" class="btn ghost" id="cfg-del" data-t="delMode">🗑 스티커 지우기</button>
     <div class="sheet-actions">
@@ -887,9 +903,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', pickDay: '날짜 고르기', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
       lgPub: '공휴일', lgSch: '학교 방학',
       kidCfg: '목표·보상 설정', money: '💶 용돈', moneyIn: '+ 받았어요', moneyOut: '− 썼어요', stickerHist: '최근 칭찬',
-      giveWhy: '무엇을 잘했나요? (선택)', giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', delHint: '지울 스티커를 누르세요', delDone: '완료', delToast: '스티커를 지웠어요', tabStickers: '⭐ 칭찬 스티커', tabMoney: '🐷 용돈', tapBox: '상자를 톡톡톡 눌러 봐!', giveStick: '⭐ 붙이기', cfgGoal: '스티커 몇 개 모으면?', cfgReward: '보상', cfgRewardPh: '예: 레고, 놀이공원',
+      giveWhy: '무엇을 잘했나요? (선택)', giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', delHint: '지울 스티커를 누르세요', delDone: '완료', delToast: '스티커를 지웠어요', tabStickers: '⭐ 칭찬 스티커', tabMoney: '🐷 용돈', tapBox: '상자를 톡톡톡 눌러 봐!', giveStick: '⭐ 붙이기', cfgSmall: '작은 스티커 몇 개 = 큰 스티커 1장?', cfgBig: '큰 스티커 몇 장 = 선물?', cfgBigReward: '🏅 큰 스티커 받을 때마다 (선택)', cfgBigRewardPh: '예: 아이스크림', bigEarned: '🏅 큰 스티커!', cfgReward: '🎁 선물', cfgRewardPh: '예: 레고, 놀이공원',
       moneyAmt: '금액 (€)', moneyNote: '내용', moneyNotePh: '직접 쓰기 (선택)', noReward: '🎁 오른쪽 위 선물 버튼으로 보상을 정해요',
-      doneAll: (n) => `🎉 ${n}개 다 모았어요!`, newBoard: '새 판 시작', giveBtn: '⭐ 칭찬 스티커 주기', goodJob: '잘했어요',
+      doneAll: (n) => `🎉 큰 스티커 ${n}장 다 모았어요!`, newBoard: '새 판 시작', giveBtn: '⭐ 칭찬 스티커 주기', goodJob: '잘했어요',
       delSticker: '이 스티커를 지울까요?', noStickers: '아직 스티커가 없어요.', delMoney: '이 기록을 지울까요?', noMoney: '아직 기록이 없어요.',
       giveTitle: (n) => `${n}, 잘했어요! ⭐`, cfgTitle: (n) => `${n} 목표·보상`, moneyInTitle: '💶 받은 돈', moneyOutTitle: '💸 쓴 돈', moneyBad: '금액을 넣어 주세요.',
       vacTitle: '휴가', vacSet: '✈️ 휴가 설정', vacHint: '휴가 기간에는 가족 일정의 기본 일정이 모두 비어요. 그날만 넣은 일정은 그대로 보여요.',
@@ -945,9 +961,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', pickDay: 'Datum wählen', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
       lgPub: 'Feiertag', lgSch: 'Schulferien',
       kidCfg: 'Ziel & Belohnung', money: '💶 Taschengeld', moneyIn: '+ Bekommen', moneyOut: '− Ausgegeben', stickerHist: 'Letzte Sticker',
-      giveWhy: 'Wofür? (optional)', giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', delHint: 'Tippe auf einen Sticker zum Löschen', delDone: 'Fertig', delToast: 'Sticker gelöscht', tabStickers: '⭐ Sticker', tabMoney: '🐷 Taschengeld', tapBox: 'Tipp dreimal aufs Geschenk!', giveStick: '⭐ Aufkleben', cfgGoal: 'Wie viele Sticker?', cfgReward: 'Belohnung', cfgRewardPh: 'z. B. Lego, Freizeitpark',
+      giveWhy: 'Wofür? (optional)', giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', delHint: 'Tippe auf einen Sticker zum Löschen', delDone: 'Fertig', delToast: 'Sticker gelöscht', tabStickers: '⭐ Sticker', tabMoney: '🐷 Taschengeld', tapBox: 'Tipp dreimal aufs Geschenk!', giveStick: '⭐ Aufkleben', cfgSmall: 'Kleine Sticker für 1 großen?', cfgBig: 'Große Sticker bis zum Geschenk?', cfgBigReward: '🏅 Bei jedem großen Sticker (optional)', cfgBigRewardPh: 'z. B. ein Eis', bigEarned: '🏅 Großer Sticker!', cfgReward: '🎁 Geschenk', cfgRewardPh: 'z. B. Lego, Freizeitpark',
       moneyAmt: 'Betrag (€)', moneyNote: 'Wofür', moneyNotePh: 'Selbst schreiben (optional)', noReward: '🎁 Belohnung oben rechts beim Geschenk festlegen',
-      doneAll: (n) => `🎉 Alle ${n} gesammelt!`, newBoard: 'Neue Runde starten', giveBtn: '⭐ Sticker geben', goodJob: 'Gut gemacht',
+      doneAll: (n) => `🎉 Alle ${n} großen Sticker!`, newBoard: 'Neue Runde starten', giveBtn: '⭐ Sticker geben', goodJob: 'Gut gemacht',
       delSticker: 'Diesen Sticker löschen?', noStickers: 'Noch keine Sticker.', delMoney: 'Diesen Eintrag löschen?', noMoney: 'Noch keine Einträge.',
       giveTitle: (n) => `Super, ${n}! ⭐`, cfgTitle: (n) => `Ziel & Belohnung für ${n}`, moneyInTitle: '💶 Bekommen', moneyOutTitle: '💸 Ausgegeben', moneyBad: 'Bitte einen Betrag eingeben.',
       vacTitle: 'Urlaub', vacSet: '✈️ Urlaub eintragen', vacHint: 'Im Urlaub sind die Standard-Pläne im Familienplan leer. Für einzelne Tage Eingetragenes bleibt sichtbar.',
@@ -2444,7 +2460,26 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     return v;
   }
   const kidOf = (k) => kidsData[k] || {};
-  const cfgOf = (k) => ({ goal: 20, reward: '', start: 0, ...(kidOf(k).cfg || {}) });
+  const cfgOf = (k) => ({ small: k === 'arin' ? 7 : 10, big: 4, reward: '', bigReward: '', start: 0, ...(kidOf(k).cfg || {}) });
+  function progressOf(k) {
+    const c = cfgOf(k), all = boardOf(k);
+    const bigs = Math.min(Math.floor(all.length / c.small), c.big);
+    const gift = bigs >= c.big;
+    return { c, all, bigs, gift, smallNow: gift ? [] : all.slice(bigs * c.small) };
+  }
+  let popBig = -1; // 방금 생긴 큰 스티커 칸
+  // 황금 큰 스티커: 금메달 안에 그 아이 스티커 + 리본
+  function bigSVG(kid, d) {
+    const inner = stickerSVG(kid, d).replace('<svg viewBox="0 0 100 100" aria-hidden="true">', '<svg x="19" y="13" width="62" height="62" viewBox="0 0 100 100">');
+    const rb = kid === 'arin' ? '#FF5FA2' : '#3DA5FF';
+    return `<svg viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M32 72 22 99l13-5 8 9 7-30zM68 72l10 27-13-5-8 9-7-30z" fill="${rb}"/>
+      <circle cx="50" cy="45" r="43" fill="#FFC928" stroke="#E09A00" stroke-width="4"/><circle cx="50" cy="45" r="35" fill="#FFF0A8"/>
+      ${inner}
+      <path d="M17 34a35 35 0 0 1 20-22" stroke="#fff" stroke-width="5" opacity=".7" fill="none" stroke-linecap="round"/>
+      <path d="M86 12l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff"/>
+    </svg>`;
+  }
   const stickersOf = (k) => Object.entries(kidOf(k).stickers || {}).map(([id, s]) => ({ id, ...s })).sort((a, b) => (a.at || 0) - (b.at || 0));
   const boardOf = (k) => { const c = cfgOf(k); return stickersOf(k).filter((s) => (s.at || 0) >= (c.start || 0)); };
   const moneyOf = (k) => Object.entries(kidOf(k).money || {}).map(([id, m]) => ({ id, ...m })).sort((a, b) => (b.at || 0) - (a.at || 0));
@@ -2524,7 +2559,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
 
   function renderKidScreen() {
-    const k = kidName, c = cfgOf(k), board = boardOf(k), full = board.length >= c.goal;
+    const k = kidName, P = progressOf(k), c = P.c;
     if (k !== 'davin') kidTab = 'stickers';
     if (kidTab !== 'stickers') delMode = false;
     $('#kid').className = `screen k-${k}`;
@@ -2536,23 +2571,38 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#tab-stickers').hidden = kidTab !== 'stickers';
     $('#tab-money').hidden = kidTab !== 'money';
     $('#kid-cfg-btn').hidden = kidTab !== 'stickers';
-    // 스티커판
+    // 큰 스티커 줄 (+ 🎁)
+    const bigEls = [];
+    for (let i = 0; i < c.big; i++) {
+      if (i >= P.bigs) { bigEls.push(h('div', { class: 'big', text: '★' })); continue; }
+      const last = P.all[(i + 1) * c.small - 1];
+      const el = h('button', { type: 'button', class: 'big full' + (i === popBig ? ' pop' : ''), 'aria-label': L().bigEarned, onclick: () => { wiggle(el); SND.stick(); } });
+      el.innerHTML = bigSVG(k, last ? last.d : i);
+      bigEls.push(el);
+    }
+    bigEls.push(h('span', { class: 'big-gift' + (P.gift ? ' ready' : ''), 'aria-hidden': 'true', text: '🎁' }));
+    $('#kid-big').replaceChildren(...bigEls);
+    popBig = -1;
+    // 보상 줄
     const reward = textOf(c.reward, c.rsrc, c.rtr, c.by, {});
-    $('#kid-reward').textContent = reward ? `🎁 ${reward}` : L().noReward;
-    $('#kid-count').textContent = `⭐ ${Math.min(board.length, c.goal)} / ${c.goal}`;
+    const bigReward = textOf(c.bigReward, c.bsrc, c.btr, c.by, {});
+    const rw = $('#kid-reward');
+    rw.replaceChildren(reward ? `🎁 ${reward}` : L().noReward, bigReward ? h('span', { class: 'sub', text: `🏅 ${bigReward}` }) : null);
+    $('#kid-count').textContent = P.gift ? `🏅 ${P.bigs} / ${c.big}` : `⭐ ${P.smallNow.length} / ${c.small}`;
+    // 작은 스티커판
     const slots = [];
-    for (let i = 0; i < c.goal; i++) {
-      const s = board[i];
-      if (!s) { slots.push(h('div', { class: 'slot', text: String(i + 1) })); continue; }
-      // 붙인 스티커를 누르면 꿈틀 + 소리
-      const el = h('button', { type: 'button', class: 'slot full' + (s.id === popId ? ' pop' : '') + (delMode ? ' del' : ''), 'aria-label': (delMode ? `${L().delete}: ` : '') + (textOf(s.why, s.src, s.tr, s.by, WHY) || L().goodJob),
+    for (let i = 0; i < (P.gift ? 0 : c.small); i++) {
+      const st = P.smallNow[i];
+      if (!st) { slots.push(h('div', { class: 'slot', text: String(i + 1) })); continue; }
+      // 붙인 스티커를 누르면 꿈틀 + 소리, 지우기 모드면 지움 (되돌리기 가능)
+      const el = h('button', { type: 'button', class: 'slot full' + (st.id === popId ? ' pop' : '') + (delMode ? ' del' : ''), 'aria-label': (delMode ? `${L().delete}: ` : '') + (textOf(st.why, st.src, st.tr, st.by, WHY) || L().goodJob),
         onclick: () => {
           if (!delMode) { wiggle(el); SND.boing(); return; }
-          const copy = { at: s.at, d: s.d, why: s.why || '', by: s.by || myId(), ...(s.src ? { src: s.src } : {}), ...(s.tr ? { tr: s.tr } : {}) };
-          kidsWrite([k, 'stickers', s.id], null);
-          toast(L().delToast, () => kidsWrite([k, 'stickers', s.id], copy));
+          const copy = { at: st.at, d: st.d, why: st.why || '', by: st.by || myId(), ...(st.src ? { src: st.src } : {}), ...(st.tr ? { tr: st.tr } : {}) };
+          kidsWrite([k, 'stickers', st.id], null);
+          toast(L().delToast, () => kidsWrite([k, 'stickers', st.id], copy));
         } });
-      el.innerHTML = stickerSVG(k, s.d);
+      el.innerHTML = stickerSVG(k, st.d);
       slots.push(el);
     }
     $('#kid-board').replaceChildren(...slots);
@@ -2561,11 +2611,12 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const bar = $('#kid-delbar');
     bar.hidden = !delMode;
     bar.replaceChildren(h('span', { text: L().delHint }), h('button', { type: 'button', class: 'btn', text: L().delDone, onclick: () => { delMode = false; renderKidScreen(); } }));
-    $('#kid-done').replaceChildren(...(full && !delMode ? [h('div', { class: 'done-banner' },
-      h('b', { text: L().doneAll(c.goal) }), reward ? h('div', { class: 'rw', text: `🎁 ${reward}` }) : null,
+    // 큰 스티커를 다 모으면 선물 축하
+    $('#kid-done').replaceChildren(...(P.gift && !delMode ? [h('div', { class: 'done-banner' },
+      h('b', { text: L().doneAll(c.big) }), reward ? h('div', { class: 'rw', text: `🎁 ${reward}` }) : null,
       h('button', { type: 'button', class: 'btn', text: L().newBoard, onclick: () => kidsWrite([k, 'cfg'], { ...c, start: Date.now() }) }))] : []));
     const give = $('#kid-give');
-    give.hidden = full || delMode;
+    give.hidden = P.gift || delMode;
     give.textContent = L().giveBtn;
     // 용돈 (다빈만)
     if (k === 'davin') {
@@ -2579,6 +2630,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         : [h('li', { class: 'hint', text: L().noMoney })]));
     }
   }
+
   for (const b of document.querySelectorAll('[data-kid-tab]')) b.addEventListener('click', () => { kidTab = b.dataset.kidTab; SND.tap(1); renderKidScreen(); });
   $('#money-pig').addEventListener('click', (e) => { wiggle(e.currentTarget); SND.oink(); });
 
@@ -2630,21 +2682,42 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   $('#give-form').addEventListener('submit', (ev) => {
     ev.preventDefault();
     const own = $('#give-text').value.trim();
-    const id = newId();
+    const id = newId(), k = kidName;
     const s = { at: Date.now(), d: giveD, why: own || (giveWhy ? `@${giveWhy}` : ''), by: myId() };
     if (own) s.src = hasHangul(own) ? 'ko' : 'de';
-    const willFill = boardOf(kidName).length + 1 >= cfgOf(kidName).goal;
-    popId = id;
-    kidsWrite([kidName, 'stickers', id], s);
+    const P = progressOf(k);
+    const makesBig = !P.gift && P.smallNow.length + 1 >= P.c.small;
+    const makesGift = makesBig && P.bigs + 1 >= P.c.big;
     closeGive();
     SND.stick();
-    // 붙는 순간 판 위에서 반짝, 판을 다 채우면 크게 축하
+    const save = () => { kidsWrite([k, 'stickers', s.id || id], s); if (own) translateInto([k, 'stickers', id], s, 'why', 'tr'); };
+    if (!makesBig) {
+      popId = id;
+      save();
+      setTimeout(() => confetti(document.querySelector('#kid-board .slot.pop') || $('#kid-board'), 24), 60);
+      return;
+    }
+    // 1) 새 스티커를 마지막 빈칸에 먼저 보여 주고
+    const empty = document.querySelector('#kid-board .slot:not(.full)');
+    if (empty) { empty.className = 'slot full pop'; empty.textContent = ''; empty.innerHTML = stickerSVG(k, giveD); confetti(empty, 20); }
+    // 2) 작은 스티커들이 빙글빙글 위로 모여 사라지고
     setTimeout(() => {
-      const el = document.querySelector('#kid-board .slot.pop') || $('#kid-board');
-      confetti(el, willFill ? 60 : 24);
-      if (willFill) { SND.tada(); setTimeout(() => confetti($('#kid-done'), 60), 350); }
-    }, 60);
-    if (own) translateInto([kidName, 'stickers', id], s, 'why', 'tr');
+      document.querySelectorAll('#kid-board .slot.full').forEach((el, i) => { el.style.setProperty('--d', `${i * 45}ms`); el.classList.add('merge'); });
+      SND.tada();
+    }, 650);
+    // 3) 황금 큰 스티커가 톡!
+    setTimeout(() => {
+      popBig = P.bigs;
+      save();
+      setTimeout(() => {
+        const b = document.querySelector('#kid-big .big.pop');
+        if (b) confetti(b, 50);
+        SND.coin();
+        const br = textOf(P.c.bigReward, P.c.bsrc, P.c.btr, P.c.by, {});
+        toast(L().bigEarned + (br ? ` · ${br}` : ''));
+        if (makesGift) setTimeout(() => { SND.tada(); confetti($('#kid-done'), 80); }, 700);
+      }, 80);
+    }, 650 + 750 + Math.min(P.c.small, 30) * 45);
   });
 
   /* 목표·보상 설정 창 (부모용) */
@@ -2653,7 +2726,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const c = cfgOf(kidName);
     $('#cfg-form').className = `sheet k-${kidName}`;
     $('#cfg-title').textContent = L().cfgTitle(L().who[kidName]);
-    $('#cfg-goal').value = c.goal;
+    $('#cfg-small').value = c.small;
+    $('#cfg-big').value = c.big;
+    $('#cfg-bigreward').value = textOf(c.bigReward, c.bsrc, c.btr, c.by, {});
     $('#cfg-reward').value = textOf(c.reward, c.rsrc, c.rtr, c.by, {});
     cfgSheet.hidden = false; document.body.style.overflow = 'hidden';
   }
@@ -2664,17 +2739,32 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   $('#cfg-form').addEventListener('submit', (ev) => {
     ev.preventDefault();
     const c = cfgOf(kidName);
-    const goal = Math.max(5, Math.min(60, Math.round(Number($('#cfg-goal').value) || c.goal)));
-    const typed = $('#cfg-reward').value.trim();
-    const shown = textOf(c.reward, c.rsrc, c.rtr, c.by, {});
-    const next = { ...c, goal };
-    if (typed !== shown) { // 보상을 바꿨을 때만 쓴 사람·번역을 새로
-      next.reward = typed; next.by = myId(); delete next.rtr;
-      if (typed) next.rsrc = hasHangul(typed) ? 'ko' : 'de'; else delete next.rsrc;
+    const num = (id, lo, hi, d) => Math.max(lo, Math.min(hi, Math.round(Number($(id).value) || d)));
+    const next = { ...c, small: num('#cfg-small', 3, 30, c.small), big: num('#cfg-big', 2, 8, c.big) };
+    delete next.goal; // 예전 방식의 개수
+    // 글을 바꿨을 때만 쓴 사람·번역을 새로 (보상 둘 다)
+    const texts = [['#cfg-reward', 'reward', 'rsrc', 'rtr'], ['#cfg-bigreward', 'bigReward', 'bsrc', 'btr']];
+    const changed = [];
+    for (const [sel, f, srcF, trF] of texts) {
+      const typed = $(sel).value.trim(), shown = textOf(c[f], c[srcF], c[trF], c.by, {});
+      if (typed === shown) continue;
+      next[f] = typed; next.by = myId(); delete next[trF];
+      if (typed) { next[srcF] = hasHangul(typed) ? 'ko' : 'de'; changed.push([f, trF]); } else delete next[srcF];
     }
     kidsWrite([kidName, 'cfg'], next);
     closeCfg();
-    if (typed && typed !== shown) translateInto([kidName, 'cfg'], next, 'reward', 'rtr');
+    // 번역은 하나씩 차례로 (두 번역이 서로 덮어쓰지 않게)
+    (async () => {
+      let cur = next;
+      for (const [f, trF] of changed) {
+        try {
+          const src = cur[f === 'reward' ? 'rsrc' : 'bsrc'];
+          const tr = await translateLine(cur[f], src, src === 'ko' ? 'de' : 'ko');
+          cur = { ...cur, [trF]: tr };
+          kidsWrite([kidName, 'cfg'], cur);
+        } catch {}
+      }
+    })();
   });
 
   /* 용돈 기록 창 */
