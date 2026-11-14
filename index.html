@@ -130,7 +130,15 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .fam-box { cursor: default; }
 .fam-box .box-h { margin-bottom: 10px; }
 .day-nav { display: flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; color: var(--deep); }
-.day-nav span { min-width: 64px; text-align: center; }
+.day-pick { position: relative; min-width: 64px; text-align: center; padding: 4px 2px; border-bottom: 1.5px dotted currentColor; cursor: pointer; }
+/* 날짜를 누르면 휴대폰의 달력 창이 뜸 (보이지 않는 날짜 입력칸을 위에 겹침) */
+.day-pick input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; font-size: 16px; cursor: pointer; }
+.fam-tl { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.fam-tl h2 { white-space: nowrap; }
+.hols { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
+.hol { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.hol.pub { background: var(--p1-soft); color: var(--danger); }
+.hol.sch { background: #E2F2E4; color: #2E7A44; }
 .nav-btn { width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--sky-soft); color: var(--deep); display: grid; place-items: center; padding: 0; }
 .nav-btn svg { width: 16px; height: 16px; }
 /* 한 사람 한 줄: [얼굴] 이름 │ 오전 │ 오후 — 글은 한 줄, 길면 … (눌러서 전체 보기·수정) */
@@ -457,12 +465,12 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   </header>
   <section class="today-box fam-box">
     <div class="box-h">
-      <h2 id="fam-title">오늘 일정</h2>
+      <div class="fam-tl"><h2 id="fam-title">오늘 일정</h2><span class="hols" id="fam-hol"></span></div>
       <div class="day-nav">
         <button type="button" class="nav-btn" id="fam-prev" data-t-label="prevDay" aria-label="전날">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>
         </button>
-        <span id="fam-day"></span>
+        <label class="day-pick"><span id="fam-day"></span><input type="date" id="fam-date" data-t-label="pickDay"></label>
         <button type="button" class="nav-btn" id="fam-next" data-t-label="nextDay" aria-label="다음 날">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>
         </button>
@@ -628,7 +636,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const T = {
     ko: {
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
-      famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
+      famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', pickDay: '날짜 고르기', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
       shortDay: (d) => `${d.getMonth() + 1}/${d.getDate()} (${T.ko.weekdays[d.getDay()]})`,
       rtEvery: (wd) => `매주 ${T.ko.weekdays[wd]}요일 기본으로 저장`, rtReset: '기본으로 되돌리기',
       rtChanged: '이 날만 바꾼 일정이에요.', withLabel: '함께', rtHint: '저장하면 이 날만 바뀌어요. 매주 바꾸려면 아래를 체크하세요.',
@@ -670,7 +678,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     },
     de: {
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
-      famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
+      famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', pickDay: 'Datum wählen', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
       shortDay: (d) => `${T.de.weekdays[d.getDay()]}, ${d.getDate()}.${d.getMonth() + 1}.`,
       rtEvery: (wd) => `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][wd]} als Standard speichern`, rtReset: 'Zurück zum Standard',
       rtChanged: 'Nur für diesen Tag geändert.', withLabel: 'Dabei', rtHint: 'Speichern ändert nur diesen Tag. Für jede Woche unten ankreuzen.',
@@ -1575,6 +1583,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#fam-title').textContent = famOffset === 0 ? L().todayTitle : L().famTitle;
     $('#fam-day').textContent = famOffset === 0 ? L().dayToday : famOffset === 1 ? L().dayTomorrow
       : famOffset === -1 ? L().dayYesterday : L().shortDay(fromKey(key));
+    $('#fam-date').value = key;
+    $('#fam-hol').replaceChildren(...holidaysOn(key).map((x) => h('span', {
+      class: `hol ${x.type}`, title: x.de,
+      text: `${x.type === 'pub' ? '🎉' : /Bettag/.test(x.de) ? '🏫' : '🏖️'} ${lang === 'de' ? x.de : (HOL_KO[x.de] || x.de)}`,
+    })));
     $('#fam-grid').replaceChildren(
       h('div', { class: 'fam-head', 'aria-hidden': 'true' }, h('span', { text: L().am }), h('span', { text: L().pm })),
       ...MEMBERS.map((m) => {
@@ -1595,6 +1608,46 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         changed ? h('span', { class: 'changed', title: L().rtChanged }) : null);
       }));
   }
+  // 날짜를 누르면 달력 창에서 고르기 (휴대폰 자체 달력)
+  const famDate = $('#fam-date');
+  famDate.addEventListener('click', () => { try { famDate.showPicker(); } catch {} });
+  famDate.addEventListener('change', () => {
+    if (!famDate.value) return;
+    famOffset = Math.round((fromKey(famDate.value) - fromKey(keyOf(new Date()))) / 864e5);
+    renderToday();
+  });
+
+  /* 바이에른 공휴일·학교 방학 (OpenHolidays, 무료·열쇠 없음, 개인정보 안 보냄). 일주일에 한 번 새로 받음. */
+  const HOL_KEY = 'our-family:holidays';
+  let hol = load(HOL_KEY, null); // { at, list: [{ s, e, de, type: 'pub' | 'sch' }] }
+  const HOL_KO = {
+    'Neujahr': '신정', 'Heilige Drei Könige': '주현절', 'Karfreitag': '성금요일', 'Ostermontag': '부활절 월요일',
+    'Tag der Arbeit': '노동절', 'Christi Himmelfahrt': '예수 승천일', 'Pfingstmontag': '성령강림 월요일',
+    'Fronleichnam': '성체 축일', 'Mariä Himmelfahrt': '성모 승천일', 'Tag der Deutschen Einheit': '독일 통일의 날',
+    'Allerheiligen': '모든 성인의 날', '1. Weihnachtsfeiertag': '성탄절', '2. Weihnachtsfeiertag': '성탄절 다음 날',
+    'Herbstferien': '가을 방학', 'Buß- und Bettag': '학교 쉬는 날', 'Weihnachtsferien': '성탄 방학',
+    'Frühjahrsferien': '봄 방학', 'Osterferien': '부활절 방학', 'Pfingstferien': '성령강림 방학', 'Sommerferien': '여름 방학',
+  };
+  const holidaysOn = (key) => (hol ? hol.list.filter((x) => x.s <= key && key <= x.e).sort((a, b) => (a.type === b.type ? 0 : a.type === 'pub' ? -1 : 1)) : []);
+  async function loadHolidays() {
+    if (hol && Date.now() - hol.at < 7 * 864e5) return;
+    const q = `countryIsoCode=DE&subdivisionCode=DE-BY&languageIsoCode=DE&validFrom=${keyOf(addDays(new Date(), -60))}&validTo=${keyOf(addDays(new Date(), 430))}`;
+    try {
+      const [ph, sh] = await Promise.all(['PublicHolidays', 'SchoolHolidays'].map((p) =>
+        fetch(`https://openholidaysapi.org/${p}?${q}`, { headers: { Accept: 'application/json' } })
+          .then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); })));
+      // 바이에른 전체에 해당하는 것만 (아우크스부르크만 쉬는 Friedensfest 등은 뺌)
+      const inBY = (x) => x.nationwide || (x.subdivisions || []).some((s) => s.code === 'DE-BY');
+      const name = (x) => ((x.name || []).find((n) => n.language === 'DE') || (x.name || [])[0] || {}).text || '';
+      hol = { at: Date.now(), list: [
+        ...ph.filter(inBY).map((x) => ({ s: x.startDate, e: x.endDate, de: name(x), type: 'pub' })),
+        ...sh.filter(inBY).map((x) => ({ s: x.startDate, e: x.endDate, de: name(x), type: 'sch' })),
+      ] };
+      store(HOL_KEY, hol);
+      renderToday();
+    } catch (e) { console.warn('holidays', e); }
+  }
+
   $('#fam-prev').addEventListener('click', () => { famOffset--; renderToday(); });
   $('#fam-next').addEventListener('click', () => { famOffset++; renderToday(); });
 
@@ -1843,6 +1896,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   for (const type of ['gesturestart', 'gesturechange']) document.addEventListener(type, (e) => e.preventDefault(), { passive: false });
   show();
   loadWeather();
+  loadHolidays();
   cachedPhoto('get').then((b) => { if (b && !photoUrl) showPhoto(b); });
   startFirebase();
 
