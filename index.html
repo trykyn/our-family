@@ -2684,13 +2684,15 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <path d="M30 86c-18-2-22-18-12-22 8-3 10 8 2 10" fill="none" stroke="#F27BA6" stroke-width="5" stroke-linecap="round"/>
     <rect x="52" y="118" width="22" height="30" rx="9" fill="#F48AB2"/><rect x="138" y="118" width="22" height="30" rx="9" fill="#F48AB2"/>
     <rect x="80" y="124" width="20" height="26" rx="9" fill="#F79CC0"/><rect x="118" y="124" width="20" height="26" rx="9" fill="#F79CC0"/>
+    <path d="M124 46c0-13 10-22 24-22 4 9-2 20-14 25z" fill="#F07FAA"/>
     <ellipse cx="106" cy="90" rx="78" ry="56" fill="#FFA9CB"/>
-    <path d="M150 44 160 14l20 28z" fill="#F48AB2"/><path d="M156 40l6-18 11 17z" fill="#FFC9DE"/>
+    <path d="M144 48c3-14 17-23 34-20 4 2 5 6 3 10-4 10-14 18-26 20-6 1-10-3-11-10z" fill="#FF97BE"/>
+    <path d="M150 47c3-9 12-15 23-14 2 1 2 3 1 5-3 7-10 12-18 14-4 1-6-2-6-5z" fill="#FFC9DE"/>
     <ellipse cx="78" cy="70" rx="30" ry="16" fill="#fff" opacity=".35"/>
-    <rect x="86" y="36" width="44" height="10" rx="5" fill="#9B3D63"/>
+    <rect x="80" y="36" width="44" height="10" rx="5" fill="#9B3D63"/>
     <ellipse cx="182" cy="92" rx="22" ry="18" fill="#FF8DB8"/><ellipse cx="176" cy="92" rx="3.6" ry="5.5" fill="#B2456F"/><ellipse cx="189" cy="92" rx="3.6" ry="5.5" fill="#B2456F"/>
-    <circle cx="156" cy="72" r="6" fill="#3B1B2B"/><circle cx="158" cy="70" r="2" fill="#fff"/>
-    <ellipse cx="146" cy="104" rx="10" ry="6" fill="#FF6F9E" opacity=".45"/>
+    <circle cx="158" cy="74" r="6" fill="#3B1B2B"/><circle cx="160" cy="72" r="2" fill="#fff"/>
+    <ellipse cx="148" cy="106" rx="10" ry="6" fill="#FF6F9E" opacity=".45"/>
   </svg>`;
   // 동전: 1€(가운데 은색 + 금색 테두리), 50c·20c·10c(금색). 실제 크기 비율에 가깝게
   const COINS = [{ v: 1, size: 64, label: '1', unit: '€', bi: true }, { v: 0.5, size: 66, label: '50', unit: 'c' }, { v: 0.2, size: 60, label: '20', unit: 'c' }, { v: 0.1, size: 54, label: '10', unit: 'c' }];
@@ -2736,7 +2738,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   // 동전을 (from 위치에서) 저금통 구멍으로 날려 보냄
   function flyCoin(c, from) {
     const pr = $('#pig').getBoundingClientRect();
-    const tx = pr.left + pr.width * (108 / 220), ty = pr.top + pr.height * (41 / 160);
+    const tx = pr.left + pr.width * (102 / 220), ty = pr.top + pr.height * (41 / 160);
     const el = document.createElement('div');
     el.className = 'flying-coin';
     el.innerHTML = coinSVG(c);
