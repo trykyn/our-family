@@ -275,10 +275,25 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .done-banner .btn { margin-top: 12px; }
 
 /* 용돈: 돼지 저금통 */
-.piggy { display: grid; justify-items: center; gap: 2px; padding: 8px 0 14px; }
-.piggy .pig { font-size: 64px; line-height: 1; cursor: pointer; }
-.piggy .pig.wiggle { animation: wiggle .5s ease-in-out; }
-.piggy .bal { font-family: var(--font-display); font-size: 36px; color: var(--kc); }
+/* 저금통: 돼지 저금통 + 동전 (누르거나 끌어서 넣기) */
+.bank { position: relative; display: grid; justify-items: center; gap: 0; padding: 4px 0 6px; }
+.pig { width: 210px; max-width: 70%; border: 0; background: none; padding: 0; cursor: pointer; }
+.pig svg { width: 100%; height: auto; display: block; overflow: visible; }
+.pig.bump svg { animation: bump .45s cubic-bezier(.2, 1.6, .4, 1); }
+.pig.wiggle svg { animation: wiggle .5s ease-in-out; }
+@keyframes bump { 0% { transform: translateY(0) scale(1); } 35% { transform: translateY(6px) scale(1.06, .92); } 70% { transform: translateY(-8px) scale(.97, 1.04); } 100% { transform: none; } }
+.bank .bal { font-family: var(--font-display); font-size: 38px; color: var(--kc); line-height: 1.1; }
+.bank .bal.pop { animation: pop .45s cubic-bezier(.2, 1.6, .4, 1); }
+.plus-pop { position: fixed; z-index: 260; pointer-events: none; font-family: var(--font-display); font-size: 24px; color: #2E9D5A; text-shadow: 0 1px 0 #fff; animation: plusup .9s ease-out forwards; }
+@keyframes plusup { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -48px); opacity: 0; } }
+.coin-hint { margin: 2px 0 8px; text-align: center; font-size: 15px; font-weight: 700; color: var(--kc); }
+.coins { display: flex; align-items: flex-end; justify-content: center; gap: 12px; margin-bottom: 16px; }
+.coin { border: 0; background: none; padding: 0; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; }
+.coin svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, .18)); }
+.coin:active svg { transform: scale(.94); }
+.flying-coin { position: fixed; z-index: 250; pointer-events: none; }
+.flying-coin svg { width: 100%; height: 100%; display: block; }
+.money-btns.small .btn { height: 44px; font-size: 15px; }
 .money-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
 .money-btns .btn { height: 56px; font-size: 18px; }
 .hist { list-style: none; margin: 0; padding: 0; display: grid; }
@@ -672,8 +687,13 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <button type="button" class="give" id="kid-give"></button>
   </section>
   <section class="card" id="tab-money" hidden>
-    <div class="piggy"><span class="pig" id="money-pig" role="img" aria-label="🐷">🐷</span><span class="bal" id="money-bal"></span></div>
-    <div class="money-btns">
+    <div class="bank">
+      <button type="button" class="pig" id="pig" data-t-label="tabMoney" aria-label="저금통"></button>
+      <span class="bal" id="money-bal"></span>
+    </div>
+    <p class="coin-hint" data-t="coinHint">동전을 저금통에 넣어 봐!</p>
+    <div class="coins" id="coins"></div>
+    <div class="money-btns small">
       <button type="button" class="btn" id="money-in" data-t="moneyIn">+ 받았어요</button>
       <button type="button" class="btn ghost" id="money-out" data-t="moneyOut">− 썼어요</button>
     </div>
@@ -903,7 +923,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', pickDay: '날짜 고르기', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
       lgPub: '공휴일', lgSch: '학교 방학',
       kidCfg: '목표·보상 설정', money: '💶 용돈', moneyIn: '+ 받았어요', moneyOut: '− 썼어요', stickerHist: '최근 칭찬',
-      giveWhy: '무엇을 잘했나요? (선택)', giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', delHint: '지울 스티커를 누르세요', delDone: '완료', delToast: '스티커를 지웠어요', tabStickers: '⭐ 칭찬 스티커', tabMoney: '🐷 용돈', tapBox: '상자를 톡톡톡 눌러 봐!', giveStick: '⭐ 붙이기', cfgSmall: '작은 스티커 몇 개 = 큰 스티커 1장?', cfgBig: '큰 스티커 몇 장 = 선물?', cfgBigReward: '🏅 큰 스티커 받을 때마다 (선택)', cfgBigRewardPh: '예: 아이스크림', bigEarned: '🏅 큰 스티커!', cfgReward: '🎁 선물', cfgRewardPh: '예: 레고, 놀이공원',
+      giveWhy: '무엇을 잘했나요? (선택)', giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', delHint: '지울 스티커를 누르세요', delDone: '완료', delToast: '스티커를 지웠어요', tabStickers: '⭐ 칭찬 스티커', tabMoney: '🐷 저금통', coinHint: '동전을 저금통에 넣어 봐!', tapBox: '상자를 톡톡톡 눌러 봐!', giveStick: '⭐ 붙이기', cfgSmall: '작은 스티커 몇 개 = 큰 스티커 1장?', cfgBig: '큰 스티커 몇 장 = 선물?', cfgBigReward: '🏅 큰 스티커 받을 때마다 (선택)', cfgBigRewardPh: '예: 아이스크림', bigEarned: '🏅 큰 스티커!', cfgReward: '🎁 선물', cfgRewardPh: '예: 레고, 놀이공원',
       moneyAmt: '금액 (€)', moneyNote: '내용', moneyNotePh: '직접 쓰기 (선택)', noReward: '🎁 오른쪽 위 선물 버튼으로 보상을 정해요',
       doneAll: (n) => `🎉 큰 스티커 ${n}장 다 모았어요!`, newBoard: '새 판 시작', giveBtn: '⭐ 칭찬 스티커 주기', goodJob: '잘했어요',
       delSticker: '이 스티커를 지울까요?', noStickers: '아직 스티커가 없어요.', delMoney: '이 기록을 지울까요?', noMoney: '아직 기록이 없어요.',
@@ -961,7 +981,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', pickDay: 'Datum wählen', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
       lgPub: 'Feiertag', lgSch: 'Schulferien',
       kidCfg: 'Ziel & Belohnung', money: '💶 Taschengeld', moneyIn: '+ Bekommen', moneyOut: '− Ausgegeben', stickerHist: 'Letzte Sticker',
-      giveWhy: 'Wofür? (optional)', giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', delHint: 'Tippe auf einen Sticker zum Löschen', delDone: 'Fertig', delToast: 'Sticker gelöscht', tabStickers: '⭐ Sticker', tabMoney: '🐷 Taschengeld', tapBox: 'Tipp dreimal aufs Geschenk!', giveStick: '⭐ Aufkleben', cfgSmall: 'Kleine Sticker für 1 großen?', cfgBig: 'Große Sticker bis zum Geschenk?', cfgBigReward: '🏅 Bei jedem großen Sticker (optional)', cfgBigRewardPh: 'z. B. ein Eis', bigEarned: '🏅 Großer Sticker!', cfgReward: '🎁 Geschenk', cfgRewardPh: 'z. B. Lego, Freizeitpark',
+      giveWhy: 'Wofür? (optional)', giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', delHint: 'Tippe auf einen Sticker zum Löschen', delDone: 'Fertig', delToast: 'Sticker gelöscht', tabStickers: '⭐ Sticker', tabMoney: '🐷 Sparschwein', coinHint: 'Wirf die Münzen ins Sparschwein!', tapBox: 'Tipp dreimal aufs Geschenk!', giveStick: '⭐ Aufkleben', cfgSmall: 'Kleine Sticker für 1 großen?', cfgBig: 'Große Sticker bis zum Geschenk?', cfgBigReward: '🏅 Bei jedem großen Sticker (optional)', cfgBigRewardPh: 'z. B. ein Eis', bigEarned: '🏅 Großer Sticker!', cfgReward: '🎁 Geschenk', cfgRewardPh: 'z. B. Lego, Freizeitpark',
       moneyAmt: 'Betrag (€)', moneyNote: 'Wofür', moneyNotePh: 'Selbst schreiben (optional)', noReward: '🎁 Belohnung oben rechts beim Geschenk festlegen',
       doneAll: (n) => `🎉 Alle ${n} großen Sticker!`, newBoard: 'Neue Runde starten', giveBtn: '⭐ Sticker geben', goodJob: 'Gut gemacht',
       delSticker: 'Diesen Sticker löschen?', noStickers: 'Noch keine Sticker.', delMoney: 'Diesen Eintrag löschen?', noMoney: 'Noch keine Einträge.',
@@ -1056,6 +1076,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const screens = ['home', 'todo', 'calendar', 'kid'];
   let current = 'home';
   function show() {
+    if (typeof flushCoins === 'function') flushCoins();
     const name = location.hash.slice(1);
     if (name === 'davin' || name === 'arin') { if (kidName !== name || current !== 'kid') delMode = false; kidName = name; current = 'kid'; }
     else current = screens.includes(name) && name !== 'kid' ? name : 'home';
@@ -2455,7 +2476,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     eat: ['🥦', '골고루 먹기', 'Gut gegessen'], kind: ['💖', '착한 행동', 'Lieb gewesen'], sleep: ['😴', '일찍 자기', 'Früh ins Bett'], brave: ['🦁', '용감했어요', 'Mutig gewesen'],
   };
   const MONEY_NOTES = {
-    allowance: ['💶', '용돈', 'Taschengeld'], gift: ['🎁', '선물 받음', 'Geschenk'], found: ['⭐', '칭찬 보상', 'Belohnung'],
+    coins: ['🪙', '동전 넣기', 'Münzen eingeworfen'], allowance: ['💶', '용돈', 'Taschengeld'], gift: ['🎁', '선물 받음', 'Geschenk'], found: ['⭐', '칭찬 보상', 'Belohnung'],
     snack: ['🍭', '간식', 'Süßigkeiten'], toy: ['🧸', '장난감', 'Spielzeug'], save: ['🐷', '저금', 'Sparen'],
   };
   const labelOf = (t) => t[lang === 'de' ? 2 : 1];
@@ -2628,7 +2649,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     // 용돈 (다빈만)
     if (k === 'davin') {
       const ms = moneyOf(k);
-      $('#money-bal').textContent = fmtMoney(ms.reduce((a, m) => a + (m.amt || 0), 0));
+      renderBalance(false);
       $('#money-hist').replaceChildren(...(ms.length ? ms.slice(0, 40).map((m) => h('li', {},
         h('span', { class: 't', text: textOf(m.note, m.src, m.tr, m.by, MONEY_NOTES) || (m.amt >= 0 ? L().moneyIn : L().moneyOut) }),
         h('span', { class: 'd', text: shortDate(m.at) }),
@@ -2639,7 +2660,115 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
 
   for (const b of document.querySelectorAll('[data-kid-tab]')) b.addEventListener('click', () => { kidTab = b.dataset.kidTab; SND.tap(1); renderKidScreen(); });
-  $('#money-pig').addEventListener('click', (e) => { wiggle(e.currentTarget); SND.oink(); });
+  /* 저금통: 직접 그린 돼지 저금통 + 1€·50c·20c·10c 동전.
+     동전을 누르거나 저금통으로 끌어 놓으면 날아가 구멍으로 쏙 → 짤랑, 저금통 들썩, 금액 올라감.
+     연달아 넣은 동전은 1.5초 동안 모아서 기록 한 줄로 저장. */
+  const PIG_SVG = `<svg viewBox="0 0 220 160" aria-hidden="true">
+    <path d="M30 86c-18-2-22-18-12-22 8-3 10 8 2 10" fill="none" stroke="#F27BA6" stroke-width="5" stroke-linecap="round"/>
+    <rect x="52" y="118" width="22" height="30" rx="9" fill="#F48AB2"/><rect x="138" y="118" width="22" height="30" rx="9" fill="#F48AB2"/>
+    <rect x="80" y="124" width="20" height="26" rx="9" fill="#F79CC0"/><rect x="118" y="124" width="20" height="26" rx="9" fill="#F79CC0"/>
+    <ellipse cx="106" cy="90" rx="78" ry="56" fill="#FFA9CB"/>
+    <path d="M150 44 160 14l20 28z" fill="#F48AB2"/><path d="M156 40l6-18 11 17z" fill="#FFC9DE"/>
+    <ellipse cx="78" cy="70" rx="30" ry="16" fill="#fff" opacity=".35"/>
+    <rect x="86" y="36" width="44" height="10" rx="5" fill="#9B3D63"/>
+    <ellipse cx="182" cy="92" rx="22" ry="18" fill="#FF8DB8"/><ellipse cx="176" cy="92" rx="3.6" ry="5.5" fill="#B2456F"/><ellipse cx="189" cy="92" rx="3.6" ry="5.5" fill="#B2456F"/>
+    <circle cx="156" cy="72" r="6" fill="#3B1B2B"/><circle cx="158" cy="70" r="2" fill="#fff"/>
+    <ellipse cx="146" cy="104" rx="10" ry="6" fill="#FF6F9E" opacity=".45"/>
+  </svg>`;
+  // 동전: 1€(가운데 은색 + 금색 테두리), 50c·20c·10c(금색). 실제 크기 비율에 가깝게
+  const COINS = [{ v: 1, size: 64, label: '1', unit: '€', bi: true }, { v: 0.5, size: 66, label: '50', unit: 'c' }, { v: 0.2, size: 60, label: '20', unit: 'c' }, { v: 0.1, size: 54, label: '10', unit: 'c' }];
+  function coinSVG(c) {
+    const ring = c.bi ? '#E2B84A' : '#D9A92E', face = c.bi ? '#D5DAE0' : '#F0C64E', ink = c.bi ? '#5A6470' : '#8A6200';
+    return `<svg viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="48" fill="${ring}"/><circle cx="50" cy="50" r="48" fill="none" stroke="${c.bi ? '#B8902A' : '#B88A1C'}" stroke-width="3" stroke-dasharray="3 3"/>
+      <circle cx="50" cy="50" r="${c.bi ? 34 : 40}" fill="${face}"/>
+      <path d="M26 34a30 30 0 0 1 22-14" stroke="#fff" stroke-width="5" opacity=".6" fill="none" stroke-linecap="round"/>
+      <text x="50" y="${c.unit === '€' ? 62 : 58}" text-anchor="middle" font-family="Jua, sans-serif" font-size="${c.label.length > 1 ? 34 : 42}" fill="${ink}">${c.label}</text>
+      <text x="50" y="80" text-anchor="middle" font-family="Jua, sans-serif" font-size="16" fill="${ink}">${c.unit === '€' ? 'EURO' : 'CENT'}</text>
+    </svg>`;
+  }
+  let coinPending = 0, coinTimer = null;
+  const moneySum = () => moneyOf('davin').reduce((a, m) => a + (m.amt || 0), 0);
+  function renderBalance(pop) {
+    const el = $('#money-bal');
+    el.textContent = fmtMoney(Math.round((moneySum() + coinPending) * 100) / 100);
+    if (pop) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+  }
+  function flushCoins() {
+    clearTimeout(coinTimer);
+    if (!coinPending) return;
+    const amt = Math.round(coinPending * 100) / 100;
+    coinPending = 0;
+    kidsWrite(['davin', 'money', newId()], { at: Date.now(), amt, note: '@coins', by: myId() });
+  }
+  function landed(c) {
+    SND.coin();
+    const pig = $('#pig');
+    pig.classList.remove('bump'); void pig.offsetWidth; pig.classList.add('bump');
+    coinPending = Math.round((coinPending + c.v) * 100) / 100;
+    renderBalance(true);
+    // "+50c" 가 저금통 위로 떠오름
+    const r = pig.getBoundingClientRect();
+    const t = h('div', { class: 'plus-pop', text: c.v >= 1 ? `+${c.v} €` : `+${Math.round(c.v * 100)} c` });
+    t.style.left = `${r.left + r.width / 2}px`; t.style.top = `${r.top - 6}px`;
+    document.body.append(t);
+    setTimeout(() => t.remove(), 950);
+    clearTimeout(coinTimer);
+    coinTimer = setTimeout(flushCoins, 1500);
+  }
+  // 동전을 (from 위치에서) 저금통 구멍으로 날려 보냄
+  function flyCoin(c, from) {
+    const pr = $('#pig').getBoundingClientRect();
+    const tx = pr.left + pr.width * (108 / 220), ty = pr.top + pr.height * (41 / 160);
+    const el = document.createElement('div');
+    el.className = 'flying-coin';
+    el.innerHTML = coinSVG(c);
+    Object.assign(el.style, { left: `${from.left}px`, top: `${from.top}px`, width: `${from.width}px`, height: `${from.height}px` });
+    document.body.append(el);
+    const dx = tx - (from.left + from.width / 2), dy = ty - (from.top + from.height / 2);
+    const anim = el.animate([
+      { transform: 'translate(0, 0) rotate(0) scale(1)' },
+      { transform: `translate(${dx * 0.5}px, ${dy * 0.5 - 70}px) rotate(200deg) scale(1.08)`, offset: 0.5 },
+      { transform: `translate(${dx}px, ${dy - 10}px) rotate(360deg) scale(.75, .75)`, offset: 0.82 },
+      { transform: `translate(${dx}px, ${dy + 14}px) rotate(360deg) scale(.12, .6)`, opacity: 0 },
+    ], { duration: 680, easing: 'cubic-bezier(.45, 0, .55, 1)' });
+    anim.onfinish = () => { el.remove(); landed(c); };
+  }
+  function renderCoins() {
+    $('#pig').innerHTML = PIG_SVG;
+    $('#coins').replaceChildren(...COINS.map((c) => {
+      const b = h('button', { type: 'button', class: 'coin', style: `width:${c.size}px;height:${c.size}px`, 'aria-label': c.v >= 1 ? '1 €' : `${Math.round(c.v * 100)} Cent` });
+      b.innerHTML = coinSVG(c);
+      // 누르면 날아가고, 끌어서 저금통에 놓아도 들어감
+      let start = null, ghost = null;
+      b.addEventListener('pointerdown', (e) => { start = { x: e.clientX, y: e.clientY, id: e.pointerId }; b.setPointerCapture(e.pointerId); });
+      b.addEventListener('pointermove', (e) => {
+        if (!start || e.pointerId !== start.id) return;
+        if (!ghost && Math.hypot(e.clientX - start.x, e.clientY - start.y) < 8) return;
+        if (!ghost) { ghost = document.createElement('div'); ghost.className = 'flying-coin'; ghost.innerHTML = coinSVG(c); Object.assign(ghost.style, { width: `${c.size}px`, height: `${c.size}px` }); document.body.append(ghost); SND.tap(1); }
+        ghost.style.left = `${e.clientX - c.size / 2}px`; ghost.style.top = `${e.clientY - c.size / 2}px`;
+      });
+      const end = (e, cancel) => {
+        if (!start || e.pointerId !== start.id) return;
+        start = null;
+        if (!ghost) { if (!cancel) flyCoin(c, b.getBoundingClientRect()); return; }
+        const g = ghost; ghost = null;
+        const pr = $('#pig').getBoundingClientRect(), gr = g.getBoundingClientRect();
+        const cx = gr.left + gr.width / 2, cy = gr.top + gr.height / 2;
+        const over = !cancel && cx > pr.left - 20 && cx < pr.right + 20 && cy > pr.top - 40 && cy < pr.bottom + 10;
+        if (over) { g.remove(); flyCoin(c, gr); return; }
+        // 저금통 밖에 놓으면 제자리로
+        const br = b.getBoundingClientRect();
+        g.animate([{ transform: 'none' }, { transform: `translate(${br.left - gr.left}px, ${br.top - gr.top}px)` }], { duration: 250, easing: 'ease-out' }).onfinish = () => g.remove();
+      };
+      b.addEventListener('pointerup', (e) => end(e, false));
+      b.addEventListener('pointercancel', (e) => end(e, true));
+      return b;
+    }));
+  }
+  renderCoins();
+  $('#pig').addEventListener('click', (e) => { wiggle(e.currentTarget); SND.oink(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) flushCoins(); });
 
   /* 스티커 주기 창: 이유(그림) → 선물 상자 3번 톡톡톡 → 펑! 스티커 → 붙이기 */
   const giveSheet = $('#give-sheet');
@@ -2808,8 +2937,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     if (own) m.src = hasHangul(own) ? 'ko' : 'de';
     kidsWrite(['davin', 'money', id], m);
     closeMoney();
-    if (moneySign > 0) { SND.coin(); confetti($('#money-pig'), 20); } else SND.tap(0);
-    wiggle($('#money-pig'));
+    if (moneySign > 0) { SND.coin(); confetti($('#pig'), 20); } else SND.tap(0);
+    wiggle($('#pig'));
     if (own) translateInto(['davin', 'money', id], m, 'note', 'tr');
   });
   document.addEventListener('keydown', (e) => {
