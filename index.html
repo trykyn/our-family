@@ -132,18 +132,20 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .day-nav span { min-width: 64px; text-align: center; }
 .nav-btn { width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--sky-soft); color: var(--deep); display: grid; place-items: center; padding: 0; }
 .nav-btn svg { width: 16px; height: 16px; }
-.fam-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+/* 한 사람 한 줄: [얼굴] 이름 │ 오전 │ 오후 — 글은 한 줄, 길면 … (눌러서 전체 보기·수정) */
+.fam-grid { display: grid; gap: 6px; }
+.fam-head, .fam { display: grid; grid-template-columns: 34px 54px minmax(0, 1fr) minmax(0, 1fr); column-gap: 8px; align-items: center; }
+.fam-head { padding: 0 10px 2px; font-size: 11px; font-weight: 600; color: var(--muted); }
+.fam-head span:first-child { grid-column: 3; }
 .fam {
-  position: relative; display: grid; grid-template-columns: 40px 1fr; column-gap: 8px; align-items: center;
-  padding: 10px; border: 0; border-radius: 16px; text-align: left; color: inherit;
+  position: relative; padding: 7px 10px; border: 0; border-radius: 14px; text-align: left; color: inherit;
   background: color-mix(in srgb, var(--mc) 10%, var(--surface));
 }
-.fam img { grid-row: 1 / 4; width: 40px; height: 40px; border-radius: 50%; box-shadow: 0 0 0 2px var(--mc); align-self: start; }
-.fam .nm { font-weight: 700; font-size: 14px; color: var(--mc); }
-.fam .sl { font-size: 13px; line-height: 1.35; min-width: 0; overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; }
-.fam .sl b { font-weight: 600; color: var(--muted); margin-right: 4px; font-size: 11px; }
+.fam img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--mc); }
+.fam .nm { font-weight: 700; font-size: 14px; color: var(--mc); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fam .sl { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fam .sl.none { color: var(--muted); }
-.fam .changed { position: absolute; top: 8px; right: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--mc); }
+.fam .changed { position: absolute; top: 6px; left: 38px; width: 8px; height: 8px; border-radius: 50%; background: var(--mc); box-shadow: 0 0 0 2px var(--surface); }
 .rt-head { display: flex; align-items: center; gap: 10px; }
 .rt-head img { width: 44px; height: 44px; border-radius: 50%; }
 .rt-every { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
@@ -615,7 +617,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const T = {
     ko: {
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
-      famTitle: '가족 일정', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
+      famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
       shortDay: (d) => `${d.getMonth() + 1}/${d.getDate()} (${T.ko.weekdays[d.getDay()]})`,
       rtEvery: (wd) => `매주 ${T.ko.weekdays[wd]}요일 기본으로 저장`, rtReset: '기본으로 되돌리기',
       rtChanged: '이 날만 바꾼 일정이에요.', rtHint: '저장하면 이 날만 바뀌어요. 매주 바꾸려면 아래를 체크하세요.',
@@ -657,7 +659,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     },
     de: {
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
-      famTitle: 'Familienplan', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
+      famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
       shortDay: (d) => `${T.de.weekdays[d.getDay()]}, ${d.getDate()}.${d.getMonth() + 1}.`,
       rtEvery: (wd) => `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][wd]} als Standard speichern`, rtReset: 'Zurück zum Standard',
       rtChanged: 'Nur für diesen Tag geändert.', rtHint: 'Speichern ändert nur diesen Tag. Für jede Woche unten ankreuzen.',
@@ -1501,7 +1503,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
        routine.{YYYY-MM-DD}.{사람} = { am, pm, src?, tr? }   → 그날만 바꾼 일정
        routineBase.{사람}.{요일}   = { am, pm, src?, tr? }   → '매주 기본'으로 바꾼 일정
      값이 '@swim' 처럼 @로 시작하면 정해진 활동(한국어·독일어 둘 다 있음), 아니면 직접 쓴 글(자동 번역). */
-  const MEMBERS = ['mom', 'dad', 'davin', 'arin'];
+  // 'family' = 가족 모두 함께하는 일정 (맨 위 줄)
+  const MEMBERS = ['family', 'mom', 'dad', 'davin', 'arin'];
+  const MCOLOR = { family: '#2A9690', mom: WHO.mom, dad: WHO.dad, davin: WHO.davin, arin: WHO.arin };
+  const nameOf = (m) => (m === 'family' ? L().famAll : L().who[m]);
+  const avatarOf = (m) => (m === 'family' ? 'icon-180.png' : `avatar-${m}.png`);
   const DOWK = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
   const ACT = {
     work: ['일', 'Arbeit'], school: ['학교', 'Schule'], kinder: ['유치원', 'Kindergarten'], swim: ['수영', 'Schwimmen'],
@@ -1509,6 +1515,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   };
   const W = (am, pm) => ({ am: am ? `@${am}` : '', pm: pm ? `@${pm}` : '' });
   const ROUTINE_DEFAULT = {
+    family: {},
     mom: { mon: W('work'), tue: W('work'), wed: W('work'), thu: W('work') },
     dad: { mon: W('work'), tue: W('work'), wed: W('work'), thu: W('work'), fri: W('work') },
     davin: { mon: W('school', 'swim'), tue: W('school'), wed: W('school', 'schoolSport'), thu: W('school'), fri: W('school', 'tkd') },
@@ -1553,18 +1560,17 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#fam-title').textContent = famOffset === 0 ? L().todayTitle : L().famTitle;
     $('#fam-day').textContent = famOffset === 0 ? L().dayToday : famOffset === 1 ? L().dayTomorrow
       : famOffset === -1 ? L().dayYesterday : L().shortDay(fromKey(key));
-    $('#fam-grid').replaceChildren(...MEMBERS.map((m) => {
-      const { e, changed } = entryFor(m, key);
-      const slot = (s) => {
-        const t = slotText(e, s);
-        return h('span', { class: 'sl' + (t ? '' : ' none') }, h('b', { text: L()[`${s}S`] }), t || '—');
-      };
-      return h('button', {
-        type: 'button', class: 'fam', style: `--mc:${WHO[m]}`, 'aria-label': `${L().who[m]}: ${L().am} ${slotText(e, 'am') || '—'}, ${L().pm} ${slotText(e, 'pm') || '—'}`,
-        onclick: () => openRoutine(m),
-      }, h('img', { src: `avatar-${m}.png`, alt: '' }), h('span', { class: 'nm', text: L().who[m] }), slot('am'), slot('pm'),
-      changed ? h('span', { class: 'changed', title: L().rtChanged }) : null);
-    }));
+    $('#fam-grid').replaceChildren(
+      h('div', { class: 'fam-head', 'aria-hidden': 'true' }, h('span', { text: L().am }), h('span', { text: L().pm })),
+      ...MEMBERS.map((m) => {
+        const { e, changed } = entryFor(m, key);
+        const slot = (s) => { const t = slotText(e, s); return h('span', { class: 'sl' + (t ? '' : ' none'), text: t || '—' }); };
+        return h('button', {
+          type: 'button', class: 'fam', style: `--mc:${MCOLOR[m]}`, 'aria-label': `${nameOf(m)}: ${L().am} ${slotText(e, 'am') || '—'}, ${L().pm} ${slotText(e, 'pm') || '—'}`,
+          onclick: () => openRoutine(m),
+        }, h('img', { src: avatarOf(m), alt: '' }), h('span', { class: 'nm', text: nameOf(m) }), slot('am'), slot('pm'),
+        changed ? h('span', { class: 'changed', title: L().rtChanged }) : null);
+      }));
   }
   $('#fam-prev').addEventListener('click', () => { famOffset--; renderToday(); });
   $('#fam-next').addEventListener('click', () => { famOffset++; renderToday(); });
@@ -1576,8 +1582,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const key = famKey(), d = fromKey(key);
     const { e, changed } = entryFor(m, key);
     rt = { m, key, e, changed, shown: { am: slotText(e, 'am'), pm: slotText(e, 'pm') } };
-    $('#rt-avatar').src = `avatar-${m}.png`;
-    $('#rt-title').textContent = `${L().who[m]} · ${L().dayLabel(d)}`;
+    $('#rt-avatar').src = avatarOf(m);
+    $('#rt-title').textContent = `${nameOf(m)} · ${L().dayLabel(d)}`;
     $('#rt-am').value = rt.shown.am;
     $('#rt-pm').value = rt.shown.pm;
     $('#rt-every').checked = false;
