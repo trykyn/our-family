@@ -193,6 +193,14 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .fam .sl .ft { color: #2A9690; font-weight: 600; }
 .rt-every { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
 .rt-every .check { width: 22px; height: 22px; border-radius: 6px; }
+/* 🎒 준비물: 오늘 일정 아래 한 줄 (그날 것 + 매주 그 요일 것). 집 패드(우리집 한눈에)에 아침 7시에 크게 뜸 */
+.pack-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.pack-row .pk-t { font-size: 13px; font-weight: 700; color: var(--muted); margin-right: 2px; }
+.pack-chip { display: inline-flex; align-items: center; gap: 5px; border: 0; padding: 3px 10px 3px 3px; border-radius: 999px; color: inherit; font-size: 14px; font-weight: 600; background: color-mix(in srgb, var(--mc) 14%, var(--surface)); }
+.pack-chip img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+.pack-chip .rep { font-size: 11px; color: var(--muted); }
+.pack-add { border: 1.5px dashed var(--line); background: none; border-radius: 999px; padding: 4px 12px; font-size: 14px; font-weight: 600; color: var(--deep); }
+.pack-who button[aria-pressed="true"] img { opacity: 1; filter: none; }
 
 .today-box {
   position: relative; z-index: 2; margin-top: -30px; padding: 14px 16px;
@@ -630,6 +638,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       </div>
     </div>
     <div class="fam-grid" id="fam-grid"></div>
+    <div class="pack-row" id="pack-row"></div>
   </section>
   <div class="dinner-box" id="dinner-box" hidden>
     <span class="ico" aria-hidden="true">
@@ -862,6 +871,26 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   </form>
 </div>
 
+<!-- 🎒 준비물 입력·수정 창 -->
+<div class="sheet-wrap" id="pack-sheet" hidden>
+  <div class="scrim" data-pk-close></div>
+  <form class="sheet" id="pack-edit" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="pk-title" novalidate>
+    <h3 id="pk-title"></h3>
+    <label class="lbl"><span data-t="packWhat">무엇을</span>
+      <input class="field" id="pk-text" type="text" maxlength="60" list="pk-sugg" data-t-ph="packPh">
+    </label>
+    <datalist id="pk-sugg"></datalist>
+    <div class="with-row pack-who" id="pk-who"></div>
+    <label class="rt-every"><input type="checkbox" class="check" id="pk-every"><span id="pk-every-label"></span></label>
+    <div class="sheet-actions">
+      <button type="button" class="link-btn" id="pk-del" data-t="delete" style="color:var(--danger)">지우기</button>
+      <span class="grow"></span>
+      <button type="button" class="btn ghost" data-pk-close data-t="cancel">취소</button>
+      <button type="submit" class="btn" data-t="save">저장</button>
+    </div>
+  </form>
+</div>
+
 <!-- 할 일 입력·수정 창 -->
 <div class="sheet-wrap" id="todo-sheet" hidden>
   <div class="scrim" data-sheet-close></div>
@@ -972,6 +1001,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       vacConfirm: (n) => `"${n}" 휴가를 지울까요?`,
       shortDay: (d) => `${d.getMonth() + 1}/${d.getDate()} (${T.ko.weekdays[d.getDay()]})`,
       rtEvery: (wd) => `매주 ${T.ko.weekdays[wd]}요일 기본으로 저장`, rtReset: '기본으로 되돌리기',
+      packTitle: '🎒 준비물', packAdd: '+ 준비물', packWhat: '무엇을', packPh: '예: 체육복, 수영 가방', packWhoLabel: '누가', packAll: '모두',
+      packEvery: (wd) => `매주 ${T.ko.weekdays[wd]}요일마다`, packEdit: (d) => `🎒 준비물 · ${d}`,
+      packSugg: ['체육복', '운동화', '수영 가방', '실내화', '도시락', '간식', '물병', '숙제', '알림장', '우산', '도서관 책', '준비물 돈'],
       rtChanged: '이 날만 바꾼 일정이에요.', withLabel: '함께', rtHint: '저장하면 이 날만 바뀌어요. 매주 바꾸려면 아래를 체크하세요.',
       city: '뮌헨', homeTodoTitle: '챙길 할 일', seeAll: '전체 보기', moreTodos: (n) => `외 ${n}개`,
       lunchTitle: '오늘 점심', dinnerTitle: '오늘 저녁', dinnerNone: '아직 정하지 않았어요', kidTag: '아이',
@@ -1030,6 +1062,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       vacConfirm: (n) => `Urlaub „${n}" löschen?`,
       shortDay: (d) => `${T.de.weekdays[d.getDay()]}, ${d.getDate()}.${d.getMonth() + 1}.`,
       rtEvery: (wd) => `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][wd]} als Standard speichern`, rtReset: 'Zurück zum Standard',
+      packTitle: '🎒 Mitnehmen', packAdd: '+ Mitnehmen', packWhat: 'Was', packPh: 'z. B. Sportsachen, Schwimmtasche', packWhoLabel: 'Wer', packAll: 'Alle',
+      packEvery: (wd) => `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][wd]}`, packEdit: (d) => `🎒 Mitnehmen · ${d}`,
+      packSugg: ['Sportsachen', 'Turnschuhe', 'Schwimmtasche', 'Hausschuhe', 'Brotzeit', 'Trinkflasche', 'Hausaufgaben', 'Hausaufgabenheft', 'Regenschirm', 'Büchereibuch', 'Geld'],
       rtChanged: 'Nur für diesen Tag geändert.', withLabel: 'Dabei', rtHint: 'Speichern ändert nur diesen Tag. Für jede Woche unten ankreuzen.',
       city: 'München', homeTodoTitle: 'Wichtig & bald fällig', seeAll: 'Alle anzeigen', moreTodos: (n) => `und ${n} weitere`,
       lunchTitle: 'Heute Mittag', dinnerTitle: 'Heute Abend', dinnerNone: 'Noch nichts geplant', kidTag: 'Kinder',
@@ -1178,13 +1213,14 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         if (cur && typeof cur === 'object' && ok(cur)) tx.update(ref, new F.FieldPath(...path, field), value);
       }).catch((e) => console.warn('patch', e));
     }
-    const roots = { kids: kidsData, vacations, routine: routine.days, routineBase: routine.base };
+    const roots = { kids: kidsData, vacations, routine: routine.days, routineBase: routine.base, pack: packData };
     let cur = roots[path[0]];
     for (const k of path.slice(1)) cur = cur && cur[k];
     if (!cur || typeof cur !== 'object' || !ok(cur)) return;
     cur[field] = value;
     if (path[0] === 'kids') { store(KIDS_KEY, kidsData); renderKids(); }
     else if (path[0] === 'vacations') { store(VAC_KEY, vacations); if (!vacSheet.hidden) renderVacList(); renderToday(); }
+    else if (path[0] === 'pack') { store(PACK_KEY, packData); renderPack(); }
     else { store(ROUTINE_KEY, routine); renderToday(); }
   }
 
@@ -1289,7 +1325,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       }
       // 장보기·주간식단도 같은 문서를 씀 → 이 앱이 쓰는 부분이 바뀌었을 때만 다시 그림
       const sig = (v) => JSON.stringify(v === undefined ? null : v);
-      const now = { todos: sig(d.todos), plan: sig([d.routine, d.routineBase, d.vacations]), kids: sig(d.kids), dinner: sig(d.meals && d.meals[todayKey]) };
+      const now = { todos: sig(d.todos), plan: sig([d.routine, d.routineBase, d.vacations]), kids: sig(d.kids), dinner: sig(d.meals && d.meals[todayKey]), pack: sig(d.pack) };
       const changed = (k) => last[k] !== now[k];
       mealsMap = d.meals || {};
       if (changed('todos')) {
@@ -1311,6 +1347,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         store(KIDS_KEY, kidsData);
         renderKids();
         renderAccount();
+      }
+      if (changed('pack')) {
+        packData = d.pack || {};
+        store(PACK_KEY, packData);
+        renderPack();
       }
       if (changed('dinner')) {
         store(DINNER_KEY, { date: todayKey, day: mealsToday() });
@@ -1368,6 +1409,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     }
     for (const [id, v] of Object.entries(d.vacations || {})) if (!v || !v.s || !v.e || v.e < cutKey) ops.push([['vacations', id], null]);
     for (const [k, v] of Object.entries(d.routine || {})) if (k < cutKey || !v) ops.push([['routine', k], null]);
+    for (const [id, v] of Object.entries(d.pack || {})) if (!v || !v.text || (v.date && v.date < cutKey)) ops.push([['pack', id], null]);
     return ops;
   }
   // 로그인 안 한 휴대폰(이 기기에만 저장)도 같은 기준으로 정리
@@ -1737,6 +1779,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     routine = { days: {}, base: {} }; store(ROUTINE_KEY, null);
     vacations = {}; store(VAC_KEY, null);
     kidsData = {}; store(KIDS_KEY, null);
+    packData = {}; store(PACK_KEY, null);
     showPhoto(null); cachedPhoto('del');
     store(HOUSE_KEY, null);
     // 로그아웃한 휴대폰에는 가족 알림이 더 오지 않게
@@ -2169,6 +2212,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   };
   const ROUTINE_KEY = 'our-family:routine';
   let routine = load(ROUTINE_KEY, { days: {}, base: {} });
+  /* 🎒 준비물: 가족 문서 pack.{id} = { text, who('davin'|'arin'|'mom'|'dad'|''=모두), date?(그날만) | dow?(매주 그 요일), src?, tr?, by, at }
+     집 패드의 '우리집 한눈에'가 아침 7시에 그날 준비물을 크게 띄움 */
+  const PACK_KEY = 'our-family:pack';
+  let packData = load(PACK_KEY, {});
   let famOffset = 0; // 0 = 오늘, 1 = 내일 …
   const famKey = () => keyOf(addDays(new Date(), famOffset));
 
@@ -2268,6 +2315,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
 
   function renderToday() {
     const key = famKey();
+    renderPack();
     $('#fam-title').textContent = famOffset === 0 ? L().todayTitle : L().famTitle;
     $('#fam-day').textContent = famOffset === 0 ? L().dayToday : famOffset === 1 ? L().dayTomorrow
       : famOffset === -1 ? L().dayYesterday : L().shortDay(fromKey(key));
@@ -2465,6 +2513,79 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         await patchEntry(path, (c) => (c.am || '') === (entry.am || '') && (c.pm || '') === (entry.pm || ''), 'tr', tr);
       } catch (err) { console.warn('translate', err); }
     })();
+  });
+
+  /* ───────── 🎒 준비물 ───────── */
+  const WHO_ORDER = ['davin', 'arin', 'mom', 'dad', ''];
+  function packOn(key) {
+    const dow = DOWK[fromKey(key).getDay()];
+    return Object.entries(packData).filter(([, p]) => p && p.text && (p.date === key || (!p.date && p.dow === dow)))
+      .map(([id, p]) => ({ id, ...p })).sort((a, b) => WHO_ORDER.indexOf(a.who || '') - WHO_ORDER.indexOf(b.who || '') || (a.at || 0) - (b.at || 0));
+  }
+  const packText = (p) => (p.src && p.src !== lang && p.tr && !mine(p) ? p.tr : p.text);
+  function renderPack() {
+    const row = $('#pack-row');
+    if (!row) return;
+    const items = packOn(famKey());
+    row.replaceChildren(h('span', { class: 'pk-t', text: L().packTitle }),
+      ...items.map((p) => h('button', { type: 'button', class: 'pack-chip', style: `--mc:${p.who ? MCOLOR[p.who] : MCOLOR.family}`, onclick: () => openPack(p) },
+        h('img', { src: avatarOf(p.who || 'family'), alt: '' }), packText(p), p.dow ? h('span', { class: 'rep', text: '🔁' }) : null)),
+      h('button', { type: 'button', class: 'pack-add', text: L().packAdd, onclick: () => openPack(null) }));
+  }
+  function packWrite(id, value) {
+    if (isShared()) {
+      const F = fb.F;
+      F.updateDoc(houseRef(), new F.FieldPath('pack', id), value == null ? F.deleteField() : value).catch((e) => console.warn('pack', e));
+    } else {
+      if (value == null) delete packData[id]; else packData[id] = value;
+      store(PACK_KEY, packData);
+      renderPack();
+    }
+  }
+  const pkSheet = $('#pack-sheet');
+  let pk = null; // { item, key, who }
+  function renderPkWho() {
+    $('#pk-who').replaceChildren(h('span', { text: L().packWhoLabel }), ...[...PEOPLE, ''].map((p) => h('button', {
+      type: 'button', style: `--mc:${MCOLOR[p || 'family']}`, 'aria-pressed': String(pk.who === p),
+      onclick: () => { pk.who = p; renderPkWho(); },
+    }, h('img', { src: avatarOf(p || 'family'), alt: '' }), p ? nameOf(p) : L().packAll)));
+  }
+  function openPack(item) {
+    const key = famKey(), d = fromKey(key);
+    pk = { item, key, who: item ? (item.who || '') : 'davin' };
+    $('#pk-title').textContent = L().packEdit(L().dayLabel(d));
+    $('#pk-text').value = item ? packText(item) : '';
+    $('#pk-every').checked = !!(item && item.dow);
+    $('#pk-every-label').textContent = L().packEvery(d.getDay());
+    $('#pk-sugg').replaceChildren(...L().packSugg.map((v) => h('option', { value: v })));
+    $('#pk-del').hidden = !item;
+    renderPkWho();
+    pkSheet.hidden = false;
+    document.body.style.overflow = 'hidden';
+    if (!item) setTimeout(() => $('#pk-text').focus(), 50);
+  }
+  function closePack() { pkSheet.hidden = true; pk = null; document.body.style.overflow = ''; }
+  pkSheet.addEventListener('click', (e) => { if (e.target.closest('[data-pk-close]')) closePack(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pkSheet.hidden) closePack(); });
+  $('#pk-del').addEventListener('click', () => { if (pk && pk.item) packWrite(pk.item.id, null); closePack(); });
+  $('#pack-edit').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    if (!pk) return;
+    const typed = $('#pk-text').value.trim();
+    if (!typed) { $('#pk-text').focus(); return; }
+    const { item, key } = pk;
+    const same = item && typed === packText(item).trim();
+    const text = same ? item.text : typed;
+    const entry = { text, who: pk.who, by: same && item.by ? item.by : myId(), at: item ? (item.at || Date.now()) : Date.now() };
+    if ($('#pk-every').checked) entry.dow = (item && item.dow) || DOWK[fromKey(key).getDay()]; else entry.date = (item && item.date) || key;
+    entry.src = same && item.src ? item.src : hasHangul(text) ? 'ko' : 'de';
+    if (same && item.tr) entry.tr = item.tr;
+    const id = item ? item.id : newId();
+    packWrite(id, entry);
+    closePack();
+    // 아빠 휴대폰은 독일어, 엄마 휴대폰은 한국어로 보이게 번역해 둠
+    if (!entry.tr) translateLine(text, entry.src, entry.src === 'ko' ? 'de' : 'ko')
+      .then((tr) => patchEntry(['pack', id], (c) => c.text === text, 'tr', tr)).catch(() => {});
   });
 
   /* ───────── 캘린더: 달 보기 ───────── */
