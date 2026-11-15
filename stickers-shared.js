@@ -134,7 +134,7 @@
 
   /* ── 🎯 오늘의 미션: 그날 할 일을 다 하면 스티커 1장 ──
      kids.{k}.missions = [{ id: 'brushAM', wd?: true(평일만) } | { id: 'c…', text, src?, wd? }]  (없으면 아래 기본 목록)
-     kids.{k}.mdone.{YYYY-MM-DD} = { [미션 id]: true, got?: 받은 스티커 id } */
+     kids.{k}.mdone.{YYYY-MM-DD} = { [미션 id]: true, got?: 받은 스티커 id, off?: 쉬는 날, sick?: 아픈 날(일정에서 자동) } */
   const MISSIONS = {
     brushAM: ['🪥', '아침 양치', 'Zähne putzen (morgens)'], brushPM: ['🌙', '저녁 양치', 'Zähne putzen (abends)'],
     bag: ['🎒', '가방 챙기기', 'Schultasche packen'], study: ['📚', '공부', 'Lernen'], dress: ['👗', '혼자 옷 입기', 'Allein anziehen'],
@@ -168,8 +168,10 @@
   function weekState(kidData, k, today) {
     const keys = weekKeys(today), st = (kidData && kidData.stickers) || {}, md = (kidData && kidData.mdone) || {};
     const days = keys.map((key, i) => {
-      const got = md[key] && md[key].got, s = got && st[got], off = !got && !!(md[key] && md[key].off);
-      return { key, i, got: !!got, off, id: got || '', d: s && typeof s.d === 'number' ? s.d : i,
+      // sick = 우리가족 '오늘 일정'에서 그 아이를 🤒 아파요로 넣은 날 (자동으로 쉬는 날처럼 셈)
+      const got = md[key] && md[key].got, s = got && st[got], sick = !got && !!(md[key] && md[key].sick);
+      const off = !got && (sick || !!(md[key] && md[key].off));
+      return { key, i, got: !!got, off, sick, id: got || '', d: s && typeof s.d === 'number' ? s.d : i,
         status: got ? 'got' : off ? 'off' : key === today ? 'today' : key < today ? 'missed' : 'future' };
     });
     const count = days.filter((x) => x.got).length, offs = days.filter((x) => x.off).length;

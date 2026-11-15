@@ -156,6 +156,8 @@ button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .hol.vac { background: var(--sky-soft); color: var(--deep); }
 /* 휴가 */
 button.hol { border: 0; font-family: inherit; cursor: pointer; }
+.rt-sick { justify-self: start; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 999px; border: 2px solid #F3B3A6; background: #FFF4F1; color: #C2412D; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.rt-sick[aria-pressed="true"] { background: #F26B54; border-color: #F26B54; color: #fff; }
 .rt-vac { justify-self: start; color: var(--deep); font-weight: 600; text-decoration: none; font-size: 14px; }
 .vac-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .vac-list li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--sky-soft); }
@@ -905,6 +907,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   <div class="scrim" data-rt-close></div>
   <form class="sheet" id="routine-edit" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="rt-title" novalidate>
     <div class="rt-head"><img id="rt-avatar" alt=""><h3 id="rt-title"></h3></div>
+    <button type="button" class="rt-sick" id="rt-sick" aria-pressed="false" data-t="sickBtn">🤒 아파요</button>
     <label class="lbl"><span data-t="am">오전</span>
       <input class="field" id="rt-am" type="text" maxlength="60" list="rt-acts" data-t-label="am">
     </label>
@@ -1049,7 +1052,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       moneyAmt: '금액 (€)', moneyNote: '내용', moneyNotePh: '직접 쓰기 (선택)', noReward: '🎁 오른쪽 위 선물 버튼으로 보상을 정해요',
       doneAll: (n) => `🎉 큰 스티커 ${n}장 다 모았어요!`, newBoard: '새 판 시작', giveBtn: '⭐ 칭찬 스티커 주기', goodJob: '잘했어요',
       delSticker: '이 스티커를 지울까요?', noStickers: '아직 스티커가 없어요.', delMoney: '이 기록을 지울까요?', noMoney: '아직 기록이 없어요.',
-      offDay: '쉬는 날', offHint: '빈 칸을 누르면 엄마·아빠가 🏖️ 쉬는 날(아프거나 여행 간 날)로 표시할 수 있어요', offDone: '🏖️ 쉬는 날로 표시했어요', offUndone: '쉬는 날 표시를 지웠어요', ttCfg: '📚 다빈 시간표 (월~금, 1~6교시)',
+      sickBtn: '🤒 아파요', offDay: '쉬는 날',offHint: '빈 칸을 누르면 엄마·아빠가 🏖️ 쉬는 날(아프거나 여행 간 날)로 표시할 수 있어요', offDone: '🏖️ 쉬는 날로 표시했어요', offUndone: '쉬는 날 표시를 지웠어요', ttCfg: '📚 다빈 시간표 (월~금, 1~6교시)',
       weekRule: '매일 미션 → 그날 칸에 스티커, 일주일 다 채우면 🏅 황금 스티커', goldTitle: '🏅 황금 스티커', weekGold: '🏅 이번 주 완성! 황금 스티커를 받았어요', goldDone: (n) => `🎉 황금 스티커 ${n}개 다 모았어요!`,
       msTitle: '🎯 오늘의 미션', msClaim: '🎁 선물 상자 열기!', msGiftTitle: '🎉 오늘 미션 다 했어요!', stkYay: '와! 스티커가 나왔어요!', msGot: '✅ 오늘 미션 스티커를 받았어요!', msCfg: '🎯 오늘의 미션 (다 하면 스티커 1장)', msWd: '평일만', msAdd: '+ 추가', msOwnPh: '직접 쓰기 (예: 피아노 연습)',
       giveTitle: (n) => `${n}, 잘했어요! ⭐`, cfgTitle: (n) => `${n} 목표·보상`, moneyInTitle: '💶 받은 돈', moneyOutTitle: '💸 쓴 돈', moneyBad: '금액을 넣어 주세요.',
@@ -1113,7 +1116,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       moneyAmt: 'Betrag (€)', moneyNote: 'Wofür', moneyNotePh: 'Selbst schreiben (optional)', noReward: '🎁 Belohnung oben rechts beim Geschenk festlegen',
       doneAll: (n) => `🎉 Alle ${n} großen Sticker!`, newBoard: 'Neue Runde starten', giveBtn: '⭐ Sticker geben', goodJob: 'Gut gemacht',
       delSticker: 'Diesen Sticker löschen?', noStickers: 'Noch keine Sticker.', delMoney: 'Diesen Eintrag löschen?', noMoney: 'Noch keine Einträge.',
-      offDay: 'Pausentag', offHint: 'Leeres Feld antippen: Eltern können einen 🏖️ Pausentag eintragen (krank, Urlaub)', offDone: '🏖️ Als Pausentag eingetragen', offUndone: 'Pausentag entfernt', ttCfg: '📚 Davins Stundenplan (Mo–Fr, 1.–6. Stunde)',
+      sickBtn: '🤒 Krank', offDay: 'Pausentag',offHint: 'Leeres Feld antippen: Eltern können einen 🏖️ Pausentag eintragen (krank, Urlaub)', offDone: '🏖️ Als Pausentag eingetragen', offUndone: 'Pausentag entfernt', ttCfg: '📚 Davins Stundenplan (Mo–Fr, 1.–6. Stunde)',
       weekRule: 'Jeden Tag Mission → Sticker, ganze Woche voll → 🏅 Goldsticker', goldTitle: '🏅 Goldsticker', weekGold: '🏅 Woche geschafft! Goldsticker bekommen', goldDone: (n) => `🎉 Alle ${n} Goldsticker gesammelt!`,
       msTitle: '🎯 Tagesmission', msClaim: '🎁 Geschenk öffnen!', msGiftTitle: '🎉 Heute alles geschafft!', stkYay: 'Juhu! Ein Sticker!', msGot: '✅ Heute schon einen Missions-Sticker bekommen!', msCfg: '🎯 Tagesmission (alles geschafft = 1 Sticker)', msWd: 'Nur Mo–Fr', msAdd: '+ Hinzufügen', msOwnPh: 'Selbst schreiben (z. B. Klavier üben)',
       giveTitle: (n) => `Super, ${n}! ⭐`, cfgTitle: (n) => `Ziel & Belohnung für ${n}`, moneyInTitle: '💶 Bekommen', moneyOutTitle: '💸 Ausgegeben', moneyBad: 'Bitte einen Betrag eingeben.',
@@ -2270,6 +2273,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const ACT = {
     work: ['일', 'Arbeit'], school: ['학교', 'Schule'], kinder: ['유치원', 'Kindergarten'], swim: ['수영', 'Schwimmen'],
     schoolSport: ['학교 운동', 'Schulsport'], tkd: ['태권도', 'Taekwondo'], music: ['음악', 'Musik'],
+    sick: ['🤒 아파요', '🤒 Krank'], // 아이가 이날 아프면 주간 미션 칸도 자동으로 🤒 (쉬는 날처럼 셈)
   };
   const W = (am, pm) => ({ am: am ? `@${am}` : '', pm: pm ? `@${pm}` : '' });
   const ROUTINE_DEFAULT = {
@@ -2611,20 +2615,54 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#rt-vac').textContent = L().vacSet;
     rtWith = { am: [m], pm: [m] };
     renderWith();
+    syncSickBtn();
     rtSheet.hidden = false;
     document.body.style.overflow = 'hidden';
   }
   function closeRoutine() { rtSheet.hidden = true; rt = null; document.body.style.overflow = ''; }
   rtSheet.addEventListener('click', (e) => { if (e.target.closest('[data-rt-close]')) closeRoutine(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !rtSheet.hidden) closeRoutine(); });
-  $('#rt-reset').addEventListener('click', () => { if (rt) routineWrite(['routine', rt.key, rt.m], null); closeRoutine(); });
+  $('#rt-reset').addEventListener('click', () => {
+    if (rt) { const { m, key } = rt; routineWrite(['routine', key, m], null); syncSick(m, key, baseEntry(m, key)); }
+    closeRoutine();
+  });
 
-  // 입력값 → 저장값: 그대로면 원래 값, 정해진 활동 이름이면 '@활동', 아니면 쓴 글
+  // 🤒 아파요: 한 번 누르면 오전·오후 모두 '아파요', 다시 누르면 처음 값으로
+  const sickLabel = () => ACT.sick[lang === 'de' ? 1 : 0];
+  const isSickText = (v) => parseSlot(v, '', '\u0000') === '@sick';
+  function syncSickBtn() { $('#rt-sick').setAttribute('aria-pressed', String(isSickText($('#rt-am').value) && isSickText($('#rt-pm').value))); }
+  $('#rt-sick').addEventListener('click', () => {
+    if (!rt) return;
+    const on = $('#rt-sick').getAttribute('aria-pressed') !== 'true';
+    for (const s of ['am', 'pm']) $(`#rt-${s}`).value = on ? sickLabel() : (isSickText(rt.shown[s]) ? '' : rt.shown[s]);
+    syncSickBtn();
+  });
+  for (const s of ['am', 'pm']) $(`#rt-${s}`).addEventListener('input', syncSickBtn);
+
+  // 아이 일정이 '아파요'면 주간 미션 그날 칸에 🤒 (kids.{k}.mdone.{날짜}.sick) — 그걸로 이번 주가 다 차면 🏅 황금 스티커도
+  function baseEntry(p, key) {
+    const dow = DOWK[fromKey(key).getDay()];
+    return (routine.base[p] && routine.base[p][dow]) || ROUTINE_DEFAULT[p][dow] || { am: '', pm: '' };
+  }
+  function syncSick(k, key, e) {
+    if (k !== 'davin' && k !== 'arin') return;
+    const sick = !!e && (e.am === '@sick' || e.pm === '@sick');
+    const md = ((kidOf(k).mdone || {})[key]) || {};
+    if (sick === !!md.sick) return;
+    if (!sick) { kidsWrite([k, 'mdone', key, 'sick'], null); return; }
+    if (!md.got && !md.off && FS.weekCompletesWithOff(kidOf(k), k, key, key)) {
+      kidsWrite([k, 'golds', FS.weekKeys(key)[0]], { at: Date.now(), d: Math.floor(Math.random() * STICKER_N) });
+    }
+    kidsWrite([k, 'mdone', key, 'sick'], true);
+  }
+
+  // 입력값 → 저장값: 그대로면 원래 값, 정해진 활동 이름이면 '@활동', 아니면 쓴 글 (앞의 그림 글자는 없어도 됨: '아파요' = '🤒 아파요')
+  const bare = (x) => String(x || '').replace(/^[\p{Extended_Pictographic}️‍\s]+/u, '').trim().toLowerCase();
   function parseSlot(text, stored, shown) {
     const t = text.trim();
     if (t === (shown || '').trim()) return stored || '';
     if (!t) return '';
-    for (const [k, [ko, de]] of Object.entries(ACT)) if (t === ko || t.toLowerCase() === de.toLowerCase()) return `@${k}`;
+    for (const [k, [ko, de]] of Object.entries(ACT)) if (bare(t) === bare(ko) || bare(t) === bare(de)) return `@${k}`;
     return t;
   }
   $('#routine-edit').addEventListener('submit', (ev) => {
@@ -2662,6 +2700,14 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     routineWriteMany(writes);
     closeRoutine();
     for (const [pth, v] of writes) if (v) translateRoutine(pth, v);
+    // 다빈·아린 일정이 바뀌었으면 그날 주간 미션의 🤒 표시도 맞춤
+    for (const p of ['davin', 'arin']) {
+      const w = writes.find(([pp]) => pp[0] === 'routine' && pp[1] === key && pp[2] === p);
+      const b = writes.find(([pp]) => pp[0] === 'routineBase' && pp[1] === p && pp[2] === dow);
+      if (!w && !b) continue;
+      const base = b ? b[1] : baseEntry(p, key);
+      syncSick(p, key, w ? (w[1] || base) : ((routine.days[key] && routine.days[key][p]) || base));
+    }
   });
 
   /* ───────── 🎒 준비물 ───────── */
@@ -3054,7 +3100,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     board.style.gridTemplateColumns = 'repeat(7, minmax(0, 1fr))';
     board.replaceChildren(...W.days.map((x) => {
       if (!x.got) return h('button', { type: 'button', class: `slot wk ${x.status}`, 'aria-label': `${labels[x.i]} ${L().offDay}`, onclick: () => parentOnly(() => toggleOff(k, x)) },
-        h('span', { class: 'day', text: labels[x.i] }), x.off ? '🏖️' : x.status === 'missed' ? '·' : '');
+        h('span', { class: 'day', text: labels[x.i] }), x.sick ? '🤒' : x.off ? '🏖️' : x.status === 'missed' ? '·' : '');
       const el = h('button', { type: 'button', class: 'slot wk full' + (x.id === popId ? ' pop' : ''), 'aria-label': `${labels[x.i]} ⭐`, onclick: () => { if (delMode) return delDay(k, x); wiggle(el); SND.boing(); } });
       el.innerHTML = stickerSVG(k, x.d);
       el.append(h('span', { class: 'day', text: labels[x.i] }));
@@ -3259,7 +3305,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   // 쉬는 날 표시/해제 (아프거나 여행 간 날). 표시해서 이번 주가 다 차면 황금 스티커도
   function toggleOff(k, x) {
     const today = keyOf(new Date());
-    if (x.off) { kidsWrite([k, 'mdone', x.key, 'off'], null); toast(L().offUndone); return; }
+    if (x.off) { kidsWrite([k, 'mdone', x.key, 'off'], null); if (x.sick) kidsWrite([k, 'mdone', x.key, 'sick'], null); toast(L().offUndone); return; }
     if (FS.weekCompletesWithOff(kidOf(k), k, today, x.key)) { const wk = FS.weekKeys(today)[0]; kidsWrite([k, 'golds', wk], { at: Date.now(), d: Math.floor(Math.random() * STICKER_N) }); popGold = wk; setTimeout(() => SND.tada(), 300); }
     kidsWrite([k, 'mdone', x.key, 'off'], true);
     toast(L().offDone, () => kidsWrite([k, 'mdone', x.key, 'off'], null));
