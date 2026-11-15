@@ -148,15 +148,34 @@
   };
   const missionsOf = (kidData, k) => ((kidData && Array.isArray(kidData.missions)) ? kidData.missions : (MISSION_DEFAULT[k] || [])).filter((x) => x && x.id);
   const dowOf = (key) => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
-  const missionsOn = (kidData, k, key) => { const w = dowOf(key); return missionsOf(kidData, k).filter((x) => !x.wd || (w >= 1 && w <= 5)); };
+  const isWeekday = (key) => { const w = dowOf(key); return w >= 1 && w <= 5; };
+  // 미션은 월~금만 (주말은 쉬는 날)
+  const missionsOn = (kidData, k, key) => (isWeekday(key) ? missionsOf(kidData, k) : []);
   function missionState(kidData, k, key) {
     const list = missionsOn(kidData, k, key), day = (kidData && kidData.mdone && kidData.mdone[key]) || {};
     const done = list.filter((x) => day[x.id]).length;
     return { list, day, done, total: list.length, all: list.length > 0 && done === list.length, got: !!day.got };
   }
+  /* ── 주간 스티커판: 월~금 5칸. 그날 미션을 다 하고 받은 스티커(mdone.{날짜}.got)가 그 요일 칸에 붙음. 5칸 다 차면 이번 주 선물(cfg.reward) ── */
+  const WEEK_LABEL = { ko: ['월', '화', '수', '목', '금'], de: ['Mo', 'Di', 'Mi', 'Do', 'Fr'] };
+  const keyOfDate = (x) => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+  function weekKeys(key) {
+    const [y, m, d] = key.split('-').map(Number), dt = new Date(y, m - 1, d), off = (dt.getDay() + 6) % 7;
+    return [0, 1, 2, 3, 4].map((i) => keyOfDate(new Date(y, m - 1, d - off + i)));
+  }
+  function weekState(kidData, k, today) {
+    const keys = weekKeys(today), st = (kidData && kidData.stickers) || {}, md = (kidData && kidData.mdone) || {};
+    const days = keys.map((key, i) => {
+      const got = md[key] && md[key].got, s = got && st[got];
+      return { key, i, got: !!got, id: got || '', d: s && typeof s.d === 'number' ? s.d : i,
+        status: got ? 'got' : key === today ? 'today' : key < today ? 'missed' : 'future' };
+    });
+    const count = days.filter((x) => x.got).length;
+    return { keys, days, count, all: count === 5, weekend: !isWeekday(today) };
+  }
   const missionIcon = (x) => (MISSIONS[x.id] ? MISSIONS[x.id][0] : x.ic || '⭐');
   const missionLabel = (x, lang) => (MISSIONS[x.id] ? MISSIONS[x.id][lang === 'de' ? 2 : 1] : (x.text || ''));
 
   window.FamilyStickers = { monsterSVG, fairySVG, stickerSVG, STICKER_N, giftSVG, bigSVG, WHY, tone, SND, cfgOf, stickersOf, boardOf, progressOf,
-    MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionLabel };
+    MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionLabel, isWeekday, weekKeys, weekState, WEEK_LABEL };
 })();
