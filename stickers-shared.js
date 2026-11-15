@@ -201,13 +201,35 @@
   // 키우기 방 자료가 들어 있는 칸: kids.{k}.room (2026-11-15 밤 엄마 요청으로 모두 새로 시작 — 예전 kids.{k}.poke 는 안 씀)
   const ROOM = 'room';
   // 오늘 미션 선물: 열매 2/3, 코인 1/3. d = 2000 + 열매 번호, 2100 = 코인
-  const newRewardD = () => (Math.random() < 1 / 3 ? 2100 : 2000 + Math.floor(Math.random() * BERRIES.length));
+  // 매일 미션 선물 (2026-11-15 엄마: 코인이 너무 느려서) = 열매 1개 + 🪙 코인 1개. d = 2000 + 열매 번호 (예전 2100 = 코인만)
+  // 코인은 같은 스티커 id 뒤에 'c' 를 붙여 가방에: items.{id} = 열매, items.{id}c = 'coin'
+  const newRewardD = () => 2000 + Math.floor(Math.random() * BERRIES.length);
   const rewardItem = (d) => (d === 2100 ? 'coin' : d >= 2000 && BERRIES[d - 2000] ? BERRIES[d - 2000][0] : '');
   const rewardIcon = (d) => (d === 2100 ? '🪙' : BERRIES[d - 2000] ? BERRIES[d - 2000][1] : '⭐');
   const rewardLabel = (d, lang) => (d === 2100 ? (lang === 'de' ? 'Münze' : '코인') : BERRIES[d - 2000] ? BERRIES[d - 2000][lang === 'de' ? 3 : 2] : '');
   const rewardSVG = (d) => `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="${d === 2100 ? '#FFE9A8' : '#FFE1E8'}" stroke="${d === 2100 ? '#F0B400' : '#FF9EB5'}" stroke-width="4"/>
     <text x="50" y="52" text-anchor="middle" dominant-baseline="central" font-size="56">${rewardIcon(d)}</text></svg>`;
-  const stickerSVG = (kid, d) => (d >= 2000 ? rewardSVG(d) : kid === 'arin' ? fairySVG(d) : monsterSVG(d));
+  // 미션 완료 스티커 (요일 칸 · 황금 스티커 안): 포켓몬 = 볼 5가지, 아린(티니핑) = 반짝 하트 보석 5가지
+  const BALLS = [ // [위, 아래, 가운데 줄, 무늬]
+    ['#E8343A', '#fff', '#2B2B2B', ''],
+    ['#2F7BE0', '#fff', '#2B2B2B', '<path d="M17 30c4-9 10-14 18-17l-2 15zM83 30c-4-9-10-14-18-17l2 15z" fill="#E8343A"/>'],
+    ['#2B2B2B', '#fff', '#2B2B2B', '<path d="M23 44l6-26 8 3-2 23zM77 44l-6-26-8 3 2 23z" fill="#FFD23F"/>'],
+    ['#F7F7F7', '#fff', '#E8343A', ''],
+    ['#7B4BC4', '#fff', '#2B2B2B', '<circle cx="27" cy="31" r="7" fill="#F06CB4"/><circle cx="73" cy="31" r="7" fill="#F06CB4"/><path d="M40 33V19l10 9 10-9v14" stroke="#fff" stroke-width="4" fill="none" stroke-linejoin="round"/>'],
+  ];
+  const ballSVG = (v) => { const [t, b, l, x] = BALLS[v] || BALLS[0];
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="44" fill="${b}" stroke="#2B2B2B" stroke-width="5"/><path d="M8.5 50a41.5 41.5 0 0 1 83 0z" fill="${t}"/>${x}`
+      + `<path d="M7 50h86" stroke="${l}" stroke-width="7"/><circle cx="50" cy="50" r="13" fill="#fff" stroke="${l}" stroke-width="5"/><circle cx="50" cy="50" r="6" fill="#fff" stroke="#ccc" stroke-width="2"/>`
+      + `<ellipse cx="31" cy="27" rx="9" ry="5" fill="#fff" opacity=".55" transform="rotate(-32 31 27)"/></svg>`; };
+  const GEMS = [['#FFC2DD', '#FF4F98'], ['#E2CCFF', '#9A5BFF'], ['#C4F5EA', '#22BFA0'], ['#CDE6FF', '#3D96F5'], ['#FFF0B0', '#F2A516']];
+  const gemSVG = (v) => { const [a, b] = GEMS[v] || GEMS[0], id = `gm${v}`;
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>`
+      + `<path d="M50 92C19 70 5 52 5 33 5 18 17 8 30 8c9 0 16 5 20 13 4-8 11-13 20-13 13 0 25 10 25 25 0 19-14 37-45 59z" fill="url(#${id})" stroke="#fff" stroke-width="5"/>`
+      + `<path d="M50 21 35 40l15 38 15-38z" fill="#fff" opacity=".22"/><ellipse cx="28" cy="28" rx="10" ry="6" fill="#fff" opacity=".7" transform="rotate(-35 28 28)"/>`
+      + `<path d="M74 22l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#fff"/><path d="M60 62l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="#fff" opacity=".85"/></svg>`; };
+  const missionSVG = (kid, d) => { const v = d >= 2000 && d < 2005 ? d - 2000 : 0; return kid === 'arin' ? gemSVG(v) : ballSVG(v); };
+  const rewardText = (d, lang) => (d === 2100 ? `🪙 ${rewardLabel(d, lang)}` : `${rewardIcon(d)} ${rewardLabel(d, lang)} + 🪙 ${lang === 'de' ? 'Münze' : '코인'}`);
+  const stickerSVG = (kid, d) => (d >= 2000 ? missionSVG(kid, d) : kid === 'arin' ? fairySVG(d) : monsterSVG(d));
   // 선물 상자 (아이 색)
   const giftSVG = (kid) => {
     const [a, b] = kid === 'arin' ? ['#FF9ED2', '#C79BF2'] : ['#FFE45C', '#FF9F1C'];
@@ -363,6 +385,6 @@
   const ttOf = (kidData) => (kidData && kidData.timetable && typeof kidData.timetable === 'object') ? { ...TT_DEFAULT, ...kidData.timetable } : TT_DEFAULT;
 
   window.FamilyStickers = { TT_TIMES, TT_DEFAULT, SUBJECTS, ttOf, weekCompletesWithOff, monsterSVG, fairySVG, stickerSVG, STICKER_N, giftSVG, bigSVG, WHY, tone, SND, cfgOf, stickersOf, boardOf, progressOf,
-    BASE, ROOM, PING, charSet, DEX, POKE_N, pokeName, pokeArt, pokeWalk, pokeStage, pokeNext, BERRIES, favBerry, EGGS, START_EGGS, EGG_PRICE, eggHTML, hatchPick, newRewardD, rewardItem, rewardIcon, rewardLabel, rewardSVG,
+    BASE, ROOM, PING, charSet, DEX, POKE_N, pokeName, pokeArt, pokeWalk, pokeStage, pokeNext, BERRIES, favBerry, EGGS, START_EGGS, EGG_PRICE, eggHTML, hatchPick, newRewardD, rewardText, rewardItem, rewardIcon, rewardLabel, rewardSVG,
     MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionLabel, isWeekday, weekKeys, weekState, WEEK_LABEL, weekCompletesToday, goldState };
 })();
