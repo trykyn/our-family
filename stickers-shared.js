@@ -155,7 +155,7 @@
     ['coolping', '덜덜핑', 'Coolping', 'blueberry', 0, 0],
     ['curieping', '모야핑', 'Curieping', 'strawberry', 0, 0],
     ['dadaping', '바로핑', 'Dadaping', 'blueberry', 0, 0],
-    ['dajoping', '다죠핑', 'Dajoping', 'pepper', 0, 0],
+    ['dajoping', '다조핑', 'Allmineping', 'pepper', 0, 0],
     ['dareping', '부투핑', 'Dareping', 'strawberry', 0, 0],
     ['dianaping', '다이아나핑', 'Dianaping', 'strawberry', 1, 0],
     ['dreamping', '띠용핑', 'Dreamping', 'blueberry', 0, 0],
