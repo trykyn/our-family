@@ -41,11 +41,11 @@
     ko: { eggInfo: (n) => `💖 열매 ${n}개 더 먹으면 티니핑이 나와요`, goldEgg: '👑 황금 하트가 생겼어요! 특별한 티니핑이 들어 있대요', eggCame: (n) => `💖 ${iga(n)} 왔어요!`,
       eggs: '💖 하트 알', toEvo: (n) => `변신까지 하트 ${n}개`, changed: (n) => `✨ ${n} 모습으로 변신했어요!`,
       tapEgg: '💖 하트를 톡 눌러 봐요! 바로 깨어나요', toGift: (n) => `선물까지 하트 ${n}개`,
-      thanks: (n, c) => `🎁 ${iga(n)} 고맙다고 🪙 코인 ${c}개를 줬어요!`, bff: (n) => `✨ ${rang(n)} 단짝이 됐어요! 반짝반짝` },
+      refund: (c) => `🪑 가구가 바뀌어서 🪙 코인 ${c}개를 돌려받았어요`, thanks: (n, c) => `🎁 ${iga(n)} 고맙다고 🪙 코인 ${c}개를 줬어요!`, bff: (n) => `✨ ${rang(n)} 단짝이 됐어요! 반짝반짝` },
     de: { eggInfo: (n) => `💖 Noch ${n} Beeren, dann kommt ein Teenieping`, goldEgg: '👑 Ein Goldherz! Darin steckt ein besonderes Teenieping', eggCame: (n) => `💖 ${n} ist da!`,
       eggs: '💖 Herz-Eier', toEvo: (n) => `Noch ${n} Herzen bis zur Verwandlung`, changed: (n) => `✨ Verwandelt in ${n}!`,
       tapEgg: '💖 Tippe das Herz an – es schlüpft sofort!', dexHead: (n, N) => `Sammlung ${n} / ${N}`, toGift: (n) => `Noch ${n} Herzen bis zum Geschenk`,
-      thanks: (n, c) => `🎁 ${n} sagt Danke und schenkt dir 🪙 ${c} Münzen!`, bff: (n) => `✨ ${n} ist jetzt deine beste Freundin! Glitzer!` },
+      refund: (c) => `🪑 Neue Möbel – 🪙 ${c} Münzen zurück`, thanks: (n, c) => `🎁 ${n} sagt Danke und schenkt dir 🪙 ${c} Münzen!`, bff: (n) => `✨ ${n} ist jetzt deine beste Freundin! Glitzer!` },
   };
   // 가구: [이모지, 기본 x, 기본 y, 벽(1), 크기, 값(코인)]
   const DECO = {
@@ -54,12 +54,14 @@
     rainbow: ['🌈', 22, 18, 1, 1.2, 5], bed: ['🛏️', 16, 70, 0, 1.5, 6], sofa: ['🛋️', 82, 66, 0, 1.4, 6], piano: ['🎹', 66, 60, 0, 1.2, 8], tent: ['⛺', 40, 64, 0, 1.4, 8], slide: ['🛝', 24, 62, 0, 1.4, 8],
   };
   // 👑 공주방 가구 (아린)
+  // (티니핑이 몸에 하는 것처럼 보이는 리본 · 왕관 · 드레스 · 발레 슈즈 · 요술봉 · 보석은 2026-11-15 뺌 — 진짜 방 가구만)
   const DECO_P = {
-    rug: ['', 50, 80, 0, 1, 3], flowers: ['💐', 7, 58, 0, 1, 3], ribbon: ['🎀', 20, 24, 1, .9, 2], crown: ['👑', 50, 8, 1, .8, 4], mirror: ['🪞', 82, 30, 1, 1.1, 4],
-    dress: ['👗', 92, 30, 1, .9, 4], cupcake: ['🧁', 44, 78, 0, .7, 2], teapot: ['🫖', 56, 76, 0, .8, 3], ballet: ['🩰', 34, 92, 0, .8, 3], wand: ['🪄', 64, 92, 0, .7, 2],
-    teddy: ['🧸', 28, 90, 0, .9, 3], gem: ['💎', 70, 22, 1, .8, 3], rainbow: ['🌈', 22, 14, 1, 1.1, 5], unicorn: ['🦄', 74, 88, 0, 1.1, 5],
-    bed: ['🛏️', 16, 70, 0, 1.5, 6], piano: ['🎹', 66, 60, 0, 1.2, 8], carousel: ['🎠', 86, 66, 0, 1.4, 8], castle: ['🏰', 30, 62, 0, 1.4, 8],
+    rug: ['', 50, 80, 0, 1, 3], flowers: ['💐', 7, 58, 0, 1, 3], tulip: ['🌷', 94, 60, 0, .9, 2], mirror: ['🪞', 82, 30, 1, 1.1, 4], frame: ['🖼️', 20, 24, 1, 1, 3],
+    clock: ['🕰️', 66, 18, 1, .9, 4], disco: ['🪩', 50, 6, 1, .8, 5], rainbow: ['🌈', 22, 14, 1, 1.1, 5], cupcake: ['🧁', 44, 78, 0, .7, 2], teapot: ['🫖', 56, 76, 0, .8, 3],
+    cake: ['🎂', 38, 74, 0, .8, 3], books: ['📚', 92, 88, 0, .9, 3], teddy: ['🧸', 28, 90, 0, .9, 3], unicorn: ['🦄', 74, 88, 0, 1.1, 5],
+    sofa: ['🛋️', 84, 68, 0, 1.4, 6], bed: ['🛏️', 16, 70, 0, 1.5, 6], piano: ['🎹', 66, 60, 0, 1.2, 8], fountain: ['⛲', 50, 64, 0, 1.3, 8], carousel: ['🎠', 86, 66, 0, 1.4, 8], castle: ['🏰', 30, 62, 0, 1.4, 8],
   };
+  const DECO_GONE = { ribbon: 2, crown: 4, dress: 4, ballet: 3, wand: 2, gem: 3 }; // 뺀 가구: 이미 샀으면 코인 돌려줌
   const css = `
 .pr { --pr-s: 1; position: relative; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .pr-room { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; touch-action: pan-y; /* 방 빈 곳을 밀면 창이 스크롤됨 (포켓몬·가구는 touch-action: none 이라 그대로 끌림) */
@@ -260,6 +262,15 @@
       setTimeout(() => news(L().eggCame(eggName(SET.eggs[0]))), 400);
     }
     // 황금 스티커: 🪙 3개씩 (주마다 한 번), 4개마다 황금 알 — 알을 고른 다음에 받은 것만
+    // 가게에서 빠진 가구를 이미 샀으면 치우고 코인을 돌려줌 (한 번만 — 치운 뒤엔 다시 안 함)
+    function refundGone() {
+      if (!alive || SET.room !== 'princess') return;
+      const deco = pk().deco || {}, gone = Object.keys(deco).filter((k) => DECO_GONE[k] && !DK[k]);
+      if (!gone.length) return;
+      let c = 0;
+      for (const k of gone) { W(['deco', k], null); for (let i = 0; i < DECO_GONE[k]; i++) W(['items', uid('r')], 'coin'); c += DECO_GONE[k]; }
+      news(L().refund(c));
+    }
     function grants() {
       const start = pk().start;
       if (!alive || !start || Date.now() - grantAt < 3000) return;
@@ -547,6 +558,7 @@
     renderAll();
     // 쓰기는 mount 가 끝난 다음에 (앱이 쓰자마자 다시 그리면서 방을 또 만들지 않게)
     setTimeout(grants, 900);
+    setTimeout(refundGone, 1200);
     root._pr = { update: () => { renderAll(); grants(); }, destroy };
     return root._pr;
   }
