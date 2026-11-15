@@ -59,7 +59,7 @@
   };
   const css = `
 .pr { --pr-s: 1; position: relative; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
-.pr-room { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; touch-action: none;
+.pr-room { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; touch-action: pan-y; /* 방 빈 곳을 밀면 창이 스크롤됨 (포켓몬·가구는 touch-action: none 이라 그대로 끌림) */
   background: linear-gradient(#FFF4E0 0 52%, #E8B27A 52% 53.2%, #D9A066 53.2%); box-shadow: inset 0 0 0 3px rgba(0,0,0,.06); }
 .pr-room::before { content: ''; position: absolute; inset: 53.2% 0 0; background: repeating-linear-gradient(90deg, transparent 0 11.5%, rgba(120,70,30,.18) 11.5% 12%), repeating-linear-gradient(0deg, transparent 0 24%, rgba(120,70,30,.10) 24% 25%); }
 .pr-room::after { content: ''; position: absolute; inset: 0 0 48%; background: radial-gradient(circle at 12px 12px, rgba(255,180,120,.22) 3px, transparent 3.5px) 0 0 / 28px 28px; pointer-events: none; }
