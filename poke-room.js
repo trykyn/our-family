@@ -12,6 +12,7 @@
   const HOME_MAX = 6, EGG_NEED = 5;
   const BERRY = Object.fromEntries(FS.BERRIES.map((b) => [b[0], b]));
   const jong = (w) => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c < 11172 ? c % 28 : 0; };
+  const rang = (w) => w + (jong(w) ? '이랑' : '랑');
   const iga = (w) => w + (jong(w) ? '이' : '가'), euro = (w) => w + (jong(w) && jong(w) !== 8 ? '으로' : '로');
   const T = {
     ko: {
@@ -39,10 +40,12 @@
   const TP = {
     ko: { eggInfo: (n) => `💖 열매 ${n}개 더 먹으면 티니핑이 나와요`, goldEgg: '👑 황금 하트가 생겼어요! 특별한 티니핑이 들어 있대요', eggCame: (n) => `💖 ${iga(n)} 왔어요!`,
       eggs: '💖 하트 알', toEvo: (n) => `변신까지 하트 ${n}개`, changed: (n) => `✨ ${n} 모습으로 변신했어요!`,
-      tapEgg: '💖 하트를 톡 눌러 봐요! 바로 깨어나요' },
+      tapEgg: '💖 하트를 톡 눌러 봐요! 바로 깨어나요', toGift: (n) => `선물까지 하트 ${n}개`,
+      thanks: (n, c) => `🎁 ${iga(n)} 고맙다고 🪙 코인 ${c}개를 줬어요!`, bff: (n) => `✨ ${rang(n)} 단짝이 됐어요! 반짝반짝` },
     de: { eggInfo: (n) => `💖 Noch ${n} Beeren, dann kommt ein Teenieping`, goldEgg: '👑 Ein Goldherz! Darin steckt ein besonderes Teenieping', eggCame: (n) => `💖 ${n} ist da!`,
       eggs: '💖 Herz-Eier', toEvo: (n) => `Noch ${n} Herzen bis zur Verwandlung`, changed: (n) => `✨ Verwandelt in ${n}!`,
-      tapEgg: '💖 Tippe das Herz an – es schlüpft sofort!', dexHead: (n, N) => `Sammlung ${n} / ${N}` },
+      tapEgg: '💖 Tippe das Herz an – es schlüpft sofort!', dexHead: (n, N) => `Sammlung ${n} / ${N}`, toGift: (n) => `Noch ${n} Herzen bis zum Geschenk`,
+      thanks: (n, c) => `🎁 ${n} sagt Danke und schenkt dir 🪙 ${c} Münzen!`, bff: (n) => `✨ ${n} ist jetzt deine beste Freundin! Glitzer!` },
   };
   // 가구: [이모지, 기본 x, 기본 y, 벽(1), 크기, 값(코인)]
   const DECO = {
@@ -99,10 +102,15 @@
 .pr.smooth .pr-mon.jump > .pr-body { animation: pr-jump .5s ease-out; }
 .pr.smooth .pr-mon.flip.jump > .pr-body { animation-name: pr-jumpf; }
 .pr.smooth .pr-mon.evo > .pr-body { animation: pr-evo 1.4s ease-in-out; }
-.pr.smooth .pr-mon:not(.egg):not(.walk):not(.jump):not(.evo) > .pr-body { animation: pr-idle 2.6s ease-in-out infinite; animation-delay: var(--wd, 0s); }
-.pr.smooth.night .pr-mon:not(.egg):not(.walk):not(.jump):not(.evo) > .pr-body { animation-duration: 4.5s; }
+.pr.smooth .pr-mon:not(.egg):not(.walk):not(.jump):not(.evo):not(.dance) > .pr-body { animation: pr-idle 2.6s ease-in-out infinite; animation-delay: var(--wd, 0s); }
+.pr.smooth.night .pr-mon:not(.egg):not(.walk):not(.jump):not(.evo):not(.dance) > .pr-body { animation-duration: 4.5s; }
+/* 💗3 단짝: 몸 둘레에 은은한 반짝 빛, 가끔 춤 */
+.pr.smooth .pr-mon.glow img { animation: pr-glow 2.4s ease-in-out infinite; }
+@keyframes pr-glow { 0%, 100% { filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 7px rgba(255,130,200,.55)); } 50% { filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 14px rgba(255,110,190,.95)); } }
+.pr.smooth .pr-mon.dance > .pr-body { animation: pr-dance 1.4s ease-in-out; }
+@keyframes pr-dance { 0%, 100% { translate: 0 0; rotate: 0deg; scale: 1 1; } 15% { translate: 0 -14%; rotate: -14deg; } 30% { translate: 0 0; rotate: 0deg; scale: 1.06 .94; } 45% { translate: 0 -14%; rotate: 14deg; } 60% { translate: 0 0; rotate: 0deg; scale: 1.06 .94; } 80% { translate: 0 -8%; scale: .96 1.05; } }
 @keyframes pr-idle { 0%, 100% { scale: 1 1; rotate: 0deg; } 25% { rotate: -3deg; } 50% { scale: 1.04 .96; } 75% { rotate: 3deg; } }
-.pr.smooth .pr-mon.walk:not(.jump):not(.evo) > .pr-body { animation: pr-bob .42s ease-in-out infinite alternate; }
+.pr.smooth .pr-mon.walk:not(.jump):not(.evo):not(.dance) > .pr-body { animation: pr-bob .42s ease-in-out infinite alternate; }
 @keyframes pr-bob { from { translate: 0 0; rotate: -3deg; } to { translate: 0 -6%; rotate: 3deg; } }
 .pr.princess .pr-room { background: linear-gradient(#FFE6F3 0 52%, #F4A9CB 52% 53.2%, #FAD4E6 53.2%); box-shadow: inset 0 0 0 3px rgba(240,120,170,.25); }
 .pr.princess .pr-room::before { background: conic-gradient(#FFF7FB 25%, #F9C9DE 0 50%, #FFF7FB 0 75%, #F9C9DE 0) 0 0 / 12.5% 25%; opacity: .95; }
@@ -228,6 +236,9 @@
     const seenSet = () => new Set([...Object.keys(pk().dex || {}), ...mons().filter(hatched).map((m) => String(m.p))]);
     const meet = (...ids) => { const d = pk().dex || {}; for (const p of ids) if (p != null && !d[String(p)]) W(['dex', String(p)], 1); };
     const say = (t) => { msg.textContent = t; msgUntil = Date.now() + 3000; };
+    // 💗 친해지기 (변신 없는 티니핑): 하트 5개마다 한 단계 — 단계가 오르면 고맙다고 🪙 2개, 💗3부터 단짝(반짝 빛 · 춤)
+    const FRIEND = 5, THANKS = 2;
+    const lvOf = (m) => (SET.friend && hatched(m) && !SET.next(m.p).length ? Math.floor((m.f || 0) / FRIEND) : 0);
     function addHome(id) { const h = pk().home; if (Array.isArray(h) && h.length < HOME_MAX) W(['home'], [...h, id]); }
 
     // 처음 고르는 알 (정해진 포켓몬) + 딸기 3개
@@ -305,6 +316,7 @@
     }
     function setLook(e, m) {
       const egg = !hatched(m), cracked = egg && ((m.f || 0) >= 3 || !!m.q), key = egg ? `egg/${m.egg}/${cracked ? 1 : 0}` : `${m.p}/${m.s ? 1 : 0}`;
+      e.classList.toggle('glow', lvOf(m) >= 3);
       if (e._key === key) return;
       e._key = key; e._egg = egg;
       e.classList.toggle('egg', egg); e.classList.toggle('crack', cracked); e.classList.remove('hatch');
@@ -337,8 +349,9 @@
       snd.boing();
       if (!hatched(m)) { bubble(x, y, eggName(m.egg)); say(L().eggInfo(Math.max(1, EGG_NEED - (m.f || 0)))); return; }
       const fav = BERRY[SET.fav(m.p)][1], n = need(m);
-      bubble(x, y, `${m.s ? '✨ ' : ''}${name(m.p)} ${'💖'.repeat(Math.min(3, Math.ceil((m.f || 0) / 4)))}`);
-      say(`${name(m.p)} · ${L().likes(fav)}${n ? ' · ' + L().toEvo(Math.max(1, n - (m.f || 0))) : ''}`);
+      const lv = lvOf(m), fr = SET.friend && !n;
+      bubble(x, y, fr ? `${name(m.p)}${lv ? ` 💗${lv}` : ''}` : `${m.s ? '✨ ' : ''}${name(m.p)} ${'💖'.repeat(Math.min(3, Math.ceil((m.f || 0) / 4)))}`);
+      say(`${name(m.p)} · ${L().likes(fav)}${n ? ' · ' + L().toEvo(Math.max(1, n - (m.f || 0))) : fr ? ' · ' + L().toGift(FRIEND - ((m.f || 0) % FRIEND)) : ''}`);
     }
     // 알이 깨어남: 정해진 포켓몬/티니핑(첫 알) 또는 랜덤
     function hatchEgg(e, m, x, y) {
@@ -367,7 +380,15 @@
           e._busy = true; e.classList.add('evo');
           setTimeout(() => { W(['mons', id], { ...v, p: to, f: 0 }); meet(from, to); }, 700);
           setTimeout(() => { e._busy = false; e.classList.remove('evo'); news(SET.key === 'ping' ? L().changed(name(to)) : L().evolved(name(from), name(to))); }, 1400);
-        } else { W(['mons', id], { ...v, f }); bubble(x, y, fav ? L().fav : L().ate(name(m.p))); }
+        } else {
+          W(['mons', id], { ...v, f }); bubble(x, y, fav ? L().fav : L().ate(name(m.p)));
+          const lv0 = lvOf(m), lv1 = lvOf({ ...m, f });
+          if (lv1 > lv0) { // 한 단계 친해짐 → 고맙다고 코인 (2단계 이상 한 번에 오르면 그만큼)
+            for (let i = 0; i < THANKS * (lv1 - lv0); i++) W(['items', uid('t')], 'coin');
+            setTimeout(() => news(lv0 < 3 && lv1 >= 3 ? L().bff(name(m.p)) : L().thanks(name(m.p), THANKS * (lv1 - lv0))), 600);
+            setTimeout(() => hearts(x, y, 6, '🪙'), 600);
+          }
+        }
       }
       setTimeout(renderBar, 60);
     }
@@ -395,6 +416,10 @@
       if (isNight()) return;
       for (const e of monEls.values()) {
         if (e._egg || e._busy || e.classList.contains('drag') || (e._rest && Date.now() < e._rest) || Math.random() > 0.3) continue;
+        if (e.classList.contains('glow') && Math.random() < 0.3) { // 💗3 단짝: 춤추며 하트 퐁퐁
+          e.classList.remove('dance'); void e.offsetWidth; e.classList.add('dance'); setTimeout(() => e.classList.remove('dance'), 1450);
+          hearts(parseFloat(e.style.left), parseFloat(e.style.top) - 16, 3); e._rest = Date.now() + rnd(3000, 6000); continue;
+        }
         if (SET.room && Math.random() < 0.35) { // 티니핑: 가끔은 걷는 대신 제자리에서 폴짝 / 뒤돌아보기
           if (Math.random() < 0.6) { e.classList.remove('jump'); void e.offsetWidth; e.classList.add('jump'); setTimeout(() => e.classList.remove('jump'), 520); }
           else e.classList.toggle('flip');
