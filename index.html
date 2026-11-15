@@ -281,6 +281,16 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .ms-tile.done { border-color: #4CBE8C; background: #EAF8F0; }
 .ms-tile.done::after { content: '✓'; position: absolute; top: 3px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: #4CBE8C; color: #fff; font-size: 13px; font-weight: 700; line-height: 20px; text-align: center; }
 .ms-claim { width: 100%; height: 52px; margin-top: 10px; border: 0; border-radius: 16px; font-size: 18px; font-weight: 700; color: #2A1A0A; background: linear-gradient(140deg, var(--k1), var(--k2)); box-shadow: var(--shadow); }
+.ms-gift { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; background: rgba(14, 42, 64, .45); }
+.ms-gift-card { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 28px; border-radius: 28px; background: var(--surface); box-shadow: 0 30px 70px -20px rgba(0,0,0,.5); }
+.ms-gift-card b { font-family: var(--font-display); font-size: 24px; font-weight: 400; }
+.ms-gift-card .gift { width: 170px; height: 170px; border: 0; background: none; padding: 0; }
+.ms-gift-card .gift svg, .ms-gift-card .reveal svg { width: 100%; height: 100%; }
+.ms-gift-card .reveal { width: 180px; height: 180px; animation: pop .7s cubic-bezier(.2, 1.6, .4, 1); }
+.ms-gift-card .taps { display: flex; gap: 8px; }
+.ms-gift-card .taps i { width: 14px; height: 14px; border-radius: 50%; background: var(--line); }
+.ms-gift-card .taps i.on { background: var(--kc); }
+.ms-gift-card .box-hint { font-weight: 700; color: var(--muted); }
 .ms-got { margin-top: 8px; text-align: center; font-weight: 700; color: #2E9D5A; }
 .ms-cfg { display: grid; gap: 6px; margin-top: 6px; }
 .ms-cfg .row-m { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 12px; background: var(--sky-soft); }
@@ -1024,7 +1034,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       doneAll: (n) => `🎉 큰 스티커 ${n}장 다 모았어요!`, newBoard: '새 판 시작', giveBtn: '⭐ 칭찬 스티커 주기', goodJob: '잘했어요',
       delSticker: '이 스티커를 지울까요?', noStickers: '아직 스티커가 없어요.', delMoney: '이 기록을 지울까요?', noMoney: '아직 기록이 없어요.',
       weekRule: '매일 미션 → 그날 칸에 스티커, 일주일 다 채우면 🏅 황금 스티커', goldTitle: '🏅 황금 스티커', weekGold: '🏅 이번 주 완성! 황금 스티커를 받았어요', goldDone: (n) => `🎉 황금 스티커 ${n}개 다 모았어요!`,
-      msTitle: '🎯 오늘의 미션', msClaim: '🎁 미션 스티커 받기!', msGot: '✅ 오늘 미션 스티커를 받았어요!', msCfg: '🎯 오늘의 미션 (다 하면 스티커 1장)', msWd: '평일만', msAdd: '+ 추가', msOwnPh: '직접 쓰기 (예: 피아노 연습)',
+      msTitle: '🎯 오늘의 미션', msClaim: '🎁 선물 상자 열기!', msGiftTitle: '🎉 오늘 미션 다 했어요!', stkYay: '와! 스티커가 나왔어요!', msGot: '✅ 오늘 미션 스티커를 받았어요!', msCfg: '🎯 오늘의 미션 (다 하면 스티커 1장)', msWd: '평일만', msAdd: '+ 추가', msOwnPh: '직접 쓰기 (예: 피아노 연습)',
       giveTitle: (n) => `${n}, 잘했어요! ⭐`, cfgTitle: (n) => `${n} 목표·보상`, moneyInTitle: '💶 받은 돈', moneyOutTitle: '💸 쓴 돈', moneyBad: '금액을 넣어 주세요.',
       vacTitle: '휴가', vacSet: '✈️ 휴가 설정', vacHint: '휴가 기간에는 가족 일정의 기본 일정이 모두 비어요. 그날만 넣은 일정은 그대로 보여요.',
       vacStart: '시작', vacEnd: '끝', vacName: '이름 (선택)', vacNamePh: '예: 이탈리아 여행', vacAdd: '추가', close: '닫기',
@@ -1087,7 +1097,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       doneAll: (n) => `🎉 Alle ${n} großen Sticker!`, newBoard: 'Neue Runde starten', giveBtn: '⭐ Sticker geben', goodJob: 'Gut gemacht',
       delSticker: 'Diesen Sticker löschen?', noStickers: 'Noch keine Sticker.', delMoney: 'Diesen Eintrag löschen?', noMoney: 'Noch keine Einträge.',
       weekRule: 'Jeden Tag Mission → Sticker, ganze Woche voll → 🏅 Goldsticker', goldTitle: '🏅 Goldsticker', weekGold: '🏅 Woche geschafft! Goldsticker bekommen', goldDone: (n) => `🎉 Alle ${n} Goldsticker gesammelt!`,
-      msTitle: '🎯 Tagesmission', msClaim: '🎁 Missions-Sticker holen!', msGot: '✅ Heute schon einen Missions-Sticker bekommen!', msCfg: '🎯 Tagesmission (alles geschafft = 1 Sticker)', msWd: 'Nur Mo–Fr', msAdd: '+ Hinzufügen', msOwnPh: 'Selbst schreiben (z. B. Klavier üben)',
+      msTitle: '🎯 Tagesmission', msClaim: '🎁 Geschenk öffnen!', msGiftTitle: '🎉 Heute alles geschafft!', stkYay: 'Juhu! Ein Sticker!', msGot: '✅ Heute schon einen Missions-Sticker bekommen!', msCfg: '🎯 Tagesmission (alles geschafft = 1 Sticker)', msWd: 'Nur Mo–Fr', msAdd: '+ Hinzufügen', msOwnPh: 'Selbst schreiben (z. B. Klavier üben)',
       giveTitle: (n) => `Super, ${n}! ⭐`, cfgTitle: (n) => `Ziel & Belohnung für ${n}`, moneyInTitle: '💶 Bekommen', moneyOutTitle: '💸 Ausgegeben', moneyBad: 'Bitte einen Betrag eingeben.',
       vacTitle: 'Urlaub', vacSet: '✈️ Urlaub eintragen', vacHint: 'Im Urlaub sind die Standard-Pläne im Familienplan leer. Für einzelne Tage Eingetragenes bleibt sichtbar.',
       vacStart: 'Von', vacEnd: 'Bis', vacName: 'Name (optional)', vacNamePh: 'z. B. Italienreise', vacAdd: 'Hinzufügen', close: 'Schließen',
@@ -3131,11 +3141,42 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         onclick: () => {
           const on = !M.day[x.id];
           kidsWrite([k, 'mdone', day, x.id], on ? true : null);
-          if (on && M.done + 1 === M.total && !M.got) SND.tada(); else SND.tap(on ? 3 : 1);
+          SND.tap(on ? 3 : 1);
+          if (on && M.done + 1 === M.total && !M.got) setTimeout(() => missionGift(k), 350); // 마지막 미션을 누르면 바로 선물 상자
         } }, h('span', { class: 'e', text: FS.missionIcon(x) }), h('span', { class: 't', text: FS.missionLabel(x, lang) })))),
       ...(M.got ? [h('div', { class: 'ms-got', text: L().msGot })]
         : M.all ? [h('button', { type: 'button', class: 'ms-claim', text: (unlocked() ? '' : '🔒 ') + L().msClaim,
-          onclick: () => parentOnly(() => { openGive(); giveMission = true; giveWhy = 'mission'; renderGivePics(); }) })] : []));
+          onclick: () => missionGift(k) })] : []));
+  }
+  // 🎁 미션 선물 상자: 화면 위에 떠서 톡톡톡 3번 → 스티커가 펑 → 저절로 그 요일 칸에 붙음 (+ 일주일 다 채우면 🏅 황금 스티커)
+  function missionGift(k) {
+    const d = Math.floor(Math.random() * STICKER_N);
+    let taps = 0;
+    const wrap = h('div', { class: `ms-gift k-${k}` });
+    const dots = h('div', { class: 'taps' }, ...[0, 1, 2].map(() => h('i')));
+    const hint = h('span', { class: 'box-hint', text: L().tapBox });
+    const gift = h('button', { type: 'button', class: 'gift', 'aria-label': L().tapBox, onclick: () => {
+      if (taps >= 3) return;
+      taps++; SND.tap(taps);
+      [...dots.children].forEach((x, i) => x.classList.toggle('on', i < taps));
+      if (taps < 3) { gift.classList.remove('shake'); void gift.offsetWidth; gift.classList.add('shake'); return; }
+      SND.tada();
+      const rv = h('div', { class: 'reveal' }); rv.innerHTML = stickerSVG(k, d);
+      gift.replaceWith(rv); dots.remove(); hint.textContent = L().stkYay;
+      confetti(rv, 36);
+      setTimeout(() => { wrap.remove(); saveMissionSticker(k, d); }, 1500);
+    } });
+    gift.innerHTML = giftSVG(k);
+    wrap.append(h('div', { class: 'ms-gift-card' }, h('b', { text: L().msGiftTitle }), gift, dots, hint));
+    document.body.append(wrap);
+  }
+  function saveMissionSticker(k, d) {
+    const id = newId(), day = keyOf(new Date());
+    if (FS.weekCompletesToday(kidOf(k), k, day)) { const wk = FS.weekKeys(day)[0]; kidsWrite([k, 'golds', wk], { at: Date.now(), d }); popGold = wk; setTimeout(() => SND.tada(), 500); }
+    popId = id;
+    kidsWrite([k, 'mdone', day, 'got'], id);
+    kidsWrite([k, 'stickers', id], { at: Date.now(), d, why: '@mission', by: myId() });
+    SND.stick();
   }
   function openGive() {
     giveMission = false;
