@@ -1,4 +1,4 @@
-/* 🥚 포켓몬 방 — 우리가족 앱과 우리집 한눈에(아이패드)가 같이 씀. 다빈 · 아린 · 엄마 · 아빠 각자 방이 하나씩.
+/* 🥚 포켓몬 방 / 💖 티니핑 공주방(아린) — 우리가족 앱과 우리집 한눈에(아이패드)가 같이 씀. 다빈 · 아린 · 엄마 · 아빠 각자 방이 하나씩.
    네 명 모두 똑같이: 🎯 미션 탭에서 오늘 미션을 다 하면 선물 상자 → 스티커 + 열매/코인이 이 방 가방에 들어옴.
    처음엔 알 하나를 고름 (불꽃=파이리, 물=꼬부기, 풀=이상해씨, 번개=피카츄).
    오늘 미션을 다 하면 선물 상자에서 열매(5가지) 또는 🪙 코인. 열매를 먹이면 알이 깨고(5개) 포켓몬이 진화(하트 10개, 15개).
@@ -21,7 +21,7 @@
       evolved: (a, b) => `${iga(a)} ${euro(b)} 진화했어요!`, eggInfo: (n) => `🥚 열매 ${n}개 더 먹으면 태어나요`, toEvo: (n) => `진화까지 하트 ${n}개`, likes: (b) => `좋아하는 열매 ${b}`,
       shopHead: (c) => `🪙 코인 ${c}개`, eggs: '🥚 알', furn: '🪑 가구', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
       eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
-      homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, dexHead: (n) => `도감 ${n} / 151`,
+      homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, dexHead: (n, N) => `도감 ${n} / ${N}`,
       goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
     },
     de: {
@@ -31,15 +31,31 @@
       evolved: (a, b) => `${a} hat sich zu ${b} entwickelt!`, eggInfo: (n) => `🥚 Noch ${n} Beeren bis zum Schlüpfen`, toEvo: (n) => `Noch ${n} Herzen bis zur Entwicklung`, likes: (b) => `Lieblingsbeere ${b}`,
       shopHead: (c) => `🪙 ${c} Münzen`, eggs: '🥚 Eier', furn: '🪑 Möbel', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
       eggCame: (n) => `🥚 Ein ${n} ist da!`, decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
-      homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, dexHead: (n) => `Pokédex ${n} / 151`,
+      homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, dexHead: (n, N) => `Pokédex ${n} / ${N}`,
       goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
     },
+  };
+  // 💖 티니핑 방(아린)에서 바뀌는 글
+  const TP = {
+    ko: { eggInfo: (n) => `💖 열매 ${n}개 더 먹으면 티니핑이 나와요`, goldEgg: '👑 황금 하트가 생겼어요! 특별한 티니핑이 들어 있대요', eggCame: (n) => `💖 ${iga(n)} 왔어요!`,
+      eggs: '💖 하트 알', toEvo: (n) => `변신까지 하트 ${n}개`, changed: (n) => `✨ ${n} 모습으로 변신했어요!`, accNext: (n, e) => `하트 ${n}개 더 모으면 ${e}`,
+      accGot: (e) => `${e} 받았어요! 예쁘다!`, came: (n) => `💖 ${iga(n)} 놀러 왔어요!` },
+    de: { eggInfo: (n) => `💖 Noch ${n} Beeren, dann kommt ein Teenieping`, goldEgg: '👑 Ein Goldherz! Darin steckt ein besonderes Teenieping', eggCame: (n) => `💖 ${n} ist da!`,
+      eggs: '💖 Herz-Eier', toEvo: (n) => `Noch ${n} Herzen bis zur Verwandlung`, changed: (n) => `✨ Verwandelt in ${n}!`, accNext: (n, e) => `Noch ${n} Herzen bis ${e}`,
+      accGot: (e) => `${e} bekommen! Wie hübsch!`, came: (n) => `💖 ${n} ist zu Besuch!`, dexHead: (n, N) => `Sammlung ${n} / ${N}` },
   };
   // 가구: [이모지, 기본 x, 기본 y, 벽(1), 크기, 값(코인)]
   const DECO = {
     rug: ['', 50, 80, 0, 1, 3], plant: ['🪴', 7, 58, 0, 1.1, 3], teddy: ['🧸', 30, 90, 0, .9, 3], ball: ['⚽', 62, 92, 0, .7, 2], cake: ['🍰', 52, 72, 0, .8, 2],
     balloon: ['🎈', 92, 30, 1, 1, 2], frame: ['🖼️', 70, 22, 1, 1, 3], books: ['📚', 92, 88, 0, .9, 3], clock: ['🕰️', 50, 12, 1, .9, 4], kite: ['🪁', 36, 26, 1, 1, 4],
     rainbow: ['🌈', 22, 18, 1, 1.2, 5], bed: ['🛏️', 16, 70, 0, 1.5, 6], sofa: ['🛋️', 82, 66, 0, 1.4, 6], piano: ['🎹', 66, 60, 0, 1.2, 8], tent: ['⛺', 40, 64, 0, 1.4, 8], slide: ['🛝', 24, 62, 0, 1.4, 8],
+  };
+  // 👑 공주방 가구 (아린)
+  const DECO_P = {
+    rug: ['', 50, 80, 0, 1, 3], flowers: ['💐', 7, 58, 0, 1, 3], ribbon: ['🎀', 20, 24, 1, .9, 2], crown: ['👑', 50, 8, 1, .8, 4], mirror: ['🪞', 82, 30, 1, 1.1, 4],
+    dress: ['👗', 92, 30, 1, .9, 4], cupcake: ['🧁', 44, 78, 0, .7, 2], teapot: ['🫖', 56, 76, 0, .8, 3], ballet: ['🩰', 34, 92, 0, .8, 3], wand: ['🪄', 64, 92, 0, .7, 2],
+    teddy: ['🧸', 28, 90, 0, .9, 3], gem: ['💎', 70, 22, 1, .8, 3], rainbow: ['🌈', 22, 14, 1, 1.1, 5], unicorn: ['🦄', 74, 88, 0, 1.1, 5],
+    bed: ['🛏️', 16, 70, 0, 1.5, 6], piano: ['🎹', 66, 60, 0, 1.2, 8], carousel: ['🎠', 86, 66, 0, 1.4, 8], castle: ['🏰', 30, 62, 0, 1.4, 8],
   };
   const css = `
 .pr { --pr-s: 1; position: relative; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
@@ -76,6 +92,21 @@
 @keyframes pr-evo { 0%, 100% { filter: none; } 20%, 60% { filter: brightness(0) invert(1); transform: scale(1.15); } 40%, 80% { filter: none; } }
 .pr-mon.egg.hatch > .pk-egg { animation: pr-hatch 1.3s ease-in-out forwards; }
 @keyframes pr-hatch { 0% { transform: rotate(0); } 10%, 30%, 50% { transform: rotate(-14deg); } 20%, 40%, 60% { transform: rotate(14deg); } 85% { transform: scale(1.3); filter: brightness(0) invert(1); } 100% { transform: scale(1.4); filter: brightness(0) invert(1); opacity: .6; } }
+.pr.smooth .pr-mon img { image-rendering: auto; filter: drop-shadow(0 2px 2px rgba(0,0,0,.12)); }
+.pr.smooth .pr-mon.walk:not(.jump):not(.evo) > img { animation: pr-bob .42s ease-in-out infinite alternate; }
+@keyframes pr-bob { from { translate: 0 0; rotate: -3deg; } to { translate: 0 -6%; rotate: 3deg; } }
+.pr-mon .acc { position: absolute; left: 50%; top: 0; transform: translate(-50%, -55%); font-size: calc(17px * var(--pr-s)); line-height: 1; white-space: nowrap; pointer-events: none; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+.pr.princess .pr-room { background: linear-gradient(#FFE6F3 0 52%, #F4A9CB 52% 53.2%, #FAD4E6 53.2%); box-shadow: inset 0 0 0 3px rgba(240,120,170,.25); }
+.pr.princess .pr-room::before { background: conic-gradient(#FFF7FB 25%, #F9C9DE 0 50%, #FFF7FB 0 75%, #F9C9DE 0) 0 0 / 12.5% 25%; opacity: .95; }
+.pr.princess .pr-room::after { background: repeating-linear-gradient(90deg, rgba(255,255,255,.55) 0 14px, transparent 14px 34px), radial-gradient(circle at 17px 14px, rgba(246,200,107,.8) 2px, transparent 2.6px) 0 0 / 34px 30px; }
+.pr.princess .pr-win { border-color: #F6C86B; border-radius: 50% 50% 6px 6px / 40% 40% 6px 6px; background: linear-gradient(#B9C8FF, #FFD9EE); }
+.pr.princess .pr-win::before, .pr.princess .pr-win::after { background: #F6C86B; }
+.pr-cur { position: absolute; top: 6%; width: 9%; height: 40%; z-index: 2; pointer-events: none; background: repeating-linear-gradient(90deg, #FF8FC0 0 6px, #FFB3D5 6px 12px); box-shadow: 0 2px 0 rgba(0,0,0,.08); }
+.pr-cur.l { left: 32%; border-radius: 0 0 90% 30%; } .pr-cur.r { right: 32%; border-radius: 0 0 30% 90%; }
+.pr-cur::before { content: ''; position: absolute; left: -12%; right: -12%; top: -6px; height: 10px; border-radius: 6px; background: #F6C86B; }
+.pr.princess.night .pr-room { background: linear-gradient(#5A3E7A 0 52%, #46305E 52% 53.2%, #6A4C82 53.2%); }
+.pr.princess.night .pr-room::before { opacity: .3; }
+.pr.princess.night .pr-win { background: linear-gradient(#1D2457, #3B3F7C); }
 .pr-mon .zz { position: absolute; right: -6px; top: -10px; font-size: calc(14px * var(--pr-s)); animation: pr-zz 2.4s infinite; pointer-events: none; }
 @keyframes pr-zz { 0% { opacity: 0; transform: translateY(6px); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateY(-12px); } }
 .pr-mon .shine { position: absolute; left: 0; top: 0; font-size: calc(12px * var(--pr-s)); animation: pr-tw 1.6s infinite; pointer-events: none; }
@@ -153,10 +184,11 @@
     addCss();
     if (root._pr) root._pr.destroy(); // 같은 자리에 방이 이미 있으면 먼저 정리
     const lang = () => (o.lang() === 'de' ? 'de' : 'ko');
-    const L = () => T[lang()];
-    const name = (id) => FS.pokeName(id, lang());
+    const SET = FS.charSet(o.kid), DK = SET.room === 'princess' ? DECO_P : DECO; // 아린 = 💖 티니핑 공주방, 나머지 = 🥚 포켓몬
+    const L = () => (SET.key === 'ping' ? { ...T[lang()], ...TP.ko, ...(lang() === 'de' ? TP.de : {}) } : T[lang()]);
+    const name = (id) => SET.name(id, lang());
     const bName = (k) => BERRY[k][lang() === 'de' ? 3 : 2];
-    const eggName = (egg) => (FS.EGGS[egg] || FS.EGGS.mystery)[lang() === 'de' ? 3 : 2];
+    const eggName = (egg) => SET.eggName(egg, lang());
     const snd = { tap() {}, tada() {}, boing() {}, stick() {}, coin() {}, ...(o.snd || {}) };
     const roomEl = el('div', { class: 'pr-room' }, el('div', { class: 'pr-win', 'aria-hidden': 'true' }, el('i'), el('b')));
     const berryRow = el('div', { class: 'pr-berries' });
@@ -165,7 +197,8 @@
     const btnDex = el('button', { type: 'button', 'aria-pressed': 'false' });
     const msg = el('p', { class: 'pr-msg' });
     const panel = el('div', { class: 'pr-panel', hidden: '' });
-    const wrap = el('div', { class: 'pr' }, roomEl, berryRow, el('div', { class: 'pr-bar' }, coinEl, btnShop, btnDex), msg, panel);
+    if (SET.room === 'princess') roomEl.append(el('div', { class: 'pr-cur l' }), el('div', { class: 'pr-cur r' }));
+    const wrap = el('div', { class: 'pr' + (SET.room ? ` ${SET.room} smooth` : '') }, roomEl, berryRow, el('div', { class: 'pr-bar' }, coinEl, btnShop, btnDex), msg, panel);
     root.replaceChildren(wrap);
     let feeding = '', open = '', alive = true, scale = 1, armed = '', grantAt = 0, msgUntil = 0;
     const monEls = new Map(), decoEls = new Map();
@@ -175,24 +208,37 @@
     const items = () => Object.entries(pk().items || {});
     const count = (kind) => items().filter(([, v]) => v === kind).length;
     const take = (kind, n) => items().filter(([, v]) => v === kind).slice(0, n).map(([id]) => id);
-    const mons = () => Object.entries(pk().mons || {}).filter(([, m]) => m && (m.egg || FS.DEX[m.p])).map(([id, m]) => ({ id, ...m })).sort((a, b) => (a.at || 0) - (b.at || 0));
-    const hatched = (m) => !!m.h && !!FS.DEX[m.p];
+    const mons = () => Object.entries(pk().mons || {}).filter(([, m]) => m && (m.egg || SET.valid(m.p))).map(([id, m]) => ({ id, ...m })).sort((a, b) => (a.at || 0) - (b.at || 0));
+    const hatched = (m) => !!m.h && SET.valid(m.p);
     const homeIds = () => {
       const all = mons(), h = pk().home;
       if (Array.isArray(h)) { const ok = new Set(all.map((m) => m.id)); return h.filter((id) => ok.has(id)).slice(0, HOME_MAX); }
       return all.slice(-HOME_MAX).map((m) => m.id);
     };
-    const need = (m) => (!hatched(m) ? EGG_NEED : FS.pokeNext(m.p).length ? (FS.pokeStage(m.p) === 1 ? 10 : 15) : 0);
+    const need = (m) => (!hatched(m) ? EGG_NEED : SET.next(m.p).length ? SET.evoNeed(m.p) : 0);
+    const accOf = (m) => (SET.acc && hatched(m) && !SET.next(m.p).length ? SET.acc(m.f || 0) : ''); // 💖 변신 없는 티니핑: 하트로 🎀 → 👑
     const say = (t) => { msg.textContent = t; msgUntil = Date.now() + 3000; };
     function addHome(id) { const h = pk().home; if (Array.isArray(h) && h.length < HOME_MAX) W(['home'], [...h, id]); }
 
     // 처음 고르는 알 (정해진 포켓몬) + 딸기 3개
     function pickEgg(egg) {
       if (mons().length) return;
-      W(['mons', uid('e')], { egg, p: FS.START_EGGS[egg], f: 0, at: Date.now() });
+      W(['mons', uid('e')], { egg, p: SET.startEggs[egg], f: 0, at: Date.now() });
       if (!pk().start) W(['start'], Date.now());
       for (const n of [1, 2, 3]) W(['items', `w${n}`], 'strawberry');
       news(L().eggCame(eggName(egg)));
+    }
+    // 💖 티니핑 방: 처음엔 하츄핑이 바로 와 있음 (알 고르기 없음). 예전 포켓몬 자료는 정리 (열매 · 코인은 그대로)
+    let booted = false;
+    function boot() {
+      const p = pk();
+      if (!alive || !SET.start || booted || (p.set === SET.key && mons().length)) return;
+      booted = true;
+      if (p.set !== SET.key) { W(['mons'], null); W(['home'], null); W(['deco'], null); W(['set'], SET.key); }
+      W(['mons', 'start'], { p: SET.start, h: Date.now(), f: 0, at: Date.now() });
+      if (!p.start) W(['start'], Date.now());
+      for (const n of [1, 2, 3]) W(['items', `w${n}`], 'strawberry');
+      setTimeout(() => news(L().came(name(SET.start))), 400);
     }
     // 황금 스티커: 🪙 3개씩 (주마다 한 번), 4개마다 황금 알 — 알을 고른 다음에 받은 것만
     function grants() {
@@ -235,9 +281,11 @@
       if (Math.abs(x - ox) > 0.5) e.classList.toggle('flip', x > ox);
       e.style.setProperty('--d', `${d}s`);
       e.style.left = `${x}%`; e.style.top = `${y}%`; e.style.zIndex = String(10 + Math.round(y));
+      if (d > 0) { e.classList.add('walk'); clearTimeout(e._wt); e._wt = setTimeout(() => e.classList.remove('walk'), d * 1000); }
     }
     function sizeImg(e) {
       if (e._egg) { const img = e.querySelector('.pk-egg'); if (img) img.style.width = `${34 * scale}px`; return; }
+      if (e._img && SET.room) { e._img.style.height = `${52 * scale}px`; return; } // 티니핑 그림은 크기가 제각각 → 키를 맞춤
       if (e._img && e._img.naturalWidth) e._img.style.width = `${e._img.naturalWidth * scale}px`;
     }
     function monEl(id) {
@@ -248,20 +296,21 @@
       return e;
     }
     function setLook(e, m) {
-      const egg = !hatched(m), cracked = egg && (m.f || 0) >= 3, key = egg ? `egg/${m.egg}/${cracked ? 1 : 0}` : `${m.p}/${m.s ? 1 : 0}`;
+      const egg = !hatched(m), cracked = egg && (m.f || 0) >= 3, acc = accOf(m), key = egg ? `egg/${m.egg}/${cracked ? 1 : 0}` : `${m.p}/${m.s ? 1 : 0}/${acc}`;
       if (e._key === key) return;
       e._key = key; e._egg = egg;
       e.classList.toggle('egg', egg); e.classList.toggle('crack', cracked); e.classList.remove('hatch');
       if (egg) {
-        e.innerHTML = FS.eggHTML(m.egg) + (cracked ? CRACK : '');
+        e.innerHTML = SET.eggHTML(m.egg) + (cracked ? CRACK : '');
         e.style.setProperty('--wd', `${rnd(0, 3).toFixed(1)}s`);
         e.setAttribute('aria-label', eggName(m.egg));
         e._img = null;
       } else {
-        const img = el('img', { alt: '', draggable: 'false', src: FS.pokeWalk(m.p, m.s) });
+        const img = el('img', { alt: '', draggable: 'false', src: SET.walk(m.p, m.s) });
         img.onload = () => sizeImg(e);
         e.replaceChildren(img); e._img = img;
         if (m.s) e.append(el('span', { class: 'shine', text: '✨' }));
+        if (acc) e.append(el('span', { class: 'acc', text: acc }));
         e.setAttribute('aria-label', name(m.p));
       }
     }
@@ -274,9 +323,9 @@
       if (feeding && count(feeding) > 0) return feed(e, m, feeding, x, y);
       snd.boing();
       if (!hatched(m)) { bubble(x, y, eggName(m.egg)); say(L().eggInfo(Math.max(1, EGG_NEED - (m.f || 0)))); return; }
-      const fav = BERRY[FS.favBerry(m.p)][1], n = need(m);
+      const fav = BERRY[SET.fav(m.p)][1], n = need(m), accN = !n && SET.acc ? SET.accAt.find((t) => t > (m.f || 0)) : 0;
       bubble(x, y, `${m.s ? '✨ ' : ''}${name(m.p)} ${'💖'.repeat(Math.min(3, Math.ceil((m.f || 0) / 4)))}`);
-      say(`${name(m.p)} · ${L().likes(fav)}${n ? ' · ' + L().toEvo(Math.max(1, n - (m.f || 0))) : ''}`);
+      say(`${name(m.p)} · ${L().likes(fav)}${n ? ' · ' + L().toEvo(Math.max(1, n - (m.f || 0))) : accN ? ' · ' + L().accNext(accN - (m.f || 0), SET.acc(accN)) : ''}`);
     }
     function feed(e, m, kind, x, y) {
       const key = take(kind, 1)[0];
@@ -288,19 +337,19 @@
         hearts(x, y, 2, BERRY[kind][1]); snd.coin();
         if (f >= EGG_NEED) {
           const have = new Set(mons().filter(hatched).map((z) => z.p));
-          const p = FS.DEX[m.p] ? m.p : FS.hatchPick(m.egg, have), s = Math.random() < 0.1;
+          const p = SET.valid(m.p) ? m.p : SET.hatch(m.egg, have), s = Math.random() < SET.shiny;
           e._busy = true; e.classList.add('hatch');
           setTimeout(() => { e._busy = false; W(['mons', id], { ...v, p, s, h: Date.now(), f: 0 }); news(s ? L().shinyHatch(name(p)) : L().hatched(name(p))); hearts(x, y, 8); }, 1300);
         } else { W(['mons', id], { ...v, f }); bubble(x, y, L().eggInfo(EGG_NEED - f)); }
       } else {
-        const fav = FS.favBerry(m.p) === kind, f = (m.f || 0) + (fav ? 2 : 1), nexts = FS.pokeNext(m.p), n = need(m);
+        const fav = SET.fav(m.p) === kind, f = (m.f || 0) + (fav ? 2 : 1), nexts = SET.next(m.p), n = need(m), a0 = accOf(m), a1 = accOf({ ...m, f });
         hearts(x, y, fav ? 6 : 3, BERRY[kind][1]); snd.coin();
         if (nexts.length && f >= n) {
           const to = pick(nexts), from = m.p;
           e._busy = true; e.classList.add('evo');
           setTimeout(() => { W(['mons', id], { ...v, p: to, f: 0 }); }, 700);
-          setTimeout(() => { e._busy = false; e.classList.remove('evo'); news(L().evolved(name(from), name(to))); }, 1400);
-        } else { W(['mons', id], { ...v, f }); bubble(x, y, fav ? L().fav : L().ate(name(m.p))); }
+          setTimeout(() => { e._busy = false; e.classList.remove('evo'); news(SET.key === 'ping' ? L().changed(name(to)) : L().evolved(name(from), name(to))); }, 1400);
+        } else { W(['mons', id], { ...v, f }); bubble(x, y, fav ? L().fav : L().ate(name(m.p))); if (a1 !== a0) setTimeout(() => news(L().accGot(a1)), 500); }
       }
       setTimeout(renderBar, 60);
     }
@@ -338,7 +387,7 @@
 
     // ── 가구 ──
     function decoEl(key) {
-      const [em, , , , z] = DECO[key];
+      const [em, , , , z] = DK[key];
       const e = el('div', { class: 'pr-deco' + (key === 'rug' ? ' rug' : ''), text: em, style: `--z:${z}` });
       dragable(e, () => {}, (x, y) => { e.style.left = `${x}%`; e.style.top = `${y}%`; e.style.zIndex = key === 'rug' ? '3' : String(10 + Math.round(y)); },
         () => W(['deco', key], { ...((pk().deco || {})[key] || {}), x: Math.round(parseFloat(e.style.left)), y: Math.round(parseFloat(e.style.top)) }));
@@ -350,23 +399,24 @@
       scale = Math.min(2.4, Math.max(1, roomEl.clientWidth / 300));
       wrap.style.setProperty('--pr-s', o.big ? Math.min(1.8, Math.max(1, roomEl.clientWidth / 520)).toFixed(2) : '1');
       // 처음: 알 고르기
+      if (SET.start && !booted) setTimeout(boot, 0); // 쓰기는 mount 가 끝난 다음에 (앱이 쓰자마자 방을 다시 만들지 않게)
       let pickEl = roomEl.querySelector('.pr-pick');
-      if (!mons().length) {
+      if (!mons().length && !SET.start) {
         if (!pickEl) {
           pickEl = el('div', { class: 'pr-pick' }, el('b', { text: L().pickTitle }), el('p', { text: L().pickSub }),
-            el('div', { class: 'row' }, ...Object.keys(FS.START_EGGS).map((egg) => el('button', { type: 'button', onclick: () => pickEgg(egg), html: FS.eggHTML(egg) }, eggName(egg)))));
+            el('div', { class: 'row' }, ...Object.keys(SET.startEggs).map((egg) => el('button', { type: 'button', onclick: () => pickEgg(egg), html: SET.eggHTML(egg) }, eggName(egg)))));
           roomEl.append(pickEl);
         }
       } else if (pickEl) pickEl.remove();
       // 가구
       const deco = pk().deco || {};
-      for (const [key, e] of decoEls) if (!deco[key] || deco[key].off || !DECO[key]) { e.remove(); decoEls.delete(key); }
+      for (const [key, e] of decoEls) if (!deco[key] || deco[key].off || !DK[key]) { e.remove(); decoEls.delete(key); }
       for (const [key, v] of Object.entries(deco)) {
-        if (!DECO[key] || !v || v.off) continue;
+        if (!DK[key] || !v || v.off) continue;
         let e = decoEls.get(key);
         if (!e) { e = decoEl(key); decoEls.set(key, e); roomEl.append(e); }
         if (!e.classList.contains('drag')) {
-          const [, dx, dy, wall] = DECO[key], x = typeof v.x === 'number' ? v.x : dx, y = typeof v.y === 'number' ? v.y : dy;
+          const [, dx, dy, wall] = DK[key], x = typeof v.x === 'number' ? v.x : dx, y = typeof v.y === 'number' ? v.y : dy;
           e.style.left = `${x}%`; e.style.top = `${y}%`; e.style.zIndex = key === 'rug' ? '3' : String(wall ? 2 : 10 + Math.round(y));
         }
       }
@@ -393,7 +443,7 @@
       }));
       coinEl.textContent = `🪙 ${count('coin')}`;
       btnShop.textContent = `🛒 ${L().shop}`; btnShop.setAttribute('aria-pressed', String(open === 'shop'));
-      btnDex.textContent = `📖 ${new Set(mons().filter(hatched).map((m) => m.p)).size}/151`; btnDex.setAttribute('aria-pressed', String(open === 'dex'));
+      btnDex.textContent = `📖 ${new Set(mons().filter(hatched).map((m) => m.p)).size}/${SET.dex.length}`; btnDex.setAttribute('aria-pressed', String(open === 'dex'));
       if (!msgUntil || Date.now() > msgUntil) msg.textContent = feeding ? L().feedHint(`${BERRY[feeding][1]} ${bName(feeding)}`) : isNight() ? L().sleep : mons().length ? L().pickBerry : '';
     }
     function buy(key, price, done) {
@@ -411,15 +461,15 @@
       const coins = count('coin');
       if (open === 'shop') {
         const deco = pk().deco || {};
-        const eggs = el('div', { class: 'pr-grid' }, ...['fire', 'water', 'grass', 'electric', 'mystery'].map((egg) => el('button', { type: 'button', class: armed === `egg:${egg}` ? 'armed' : coins < FS.EGG_PRICE ? 'poor' : '',
+        const eggs = el('div', { class: 'pr-grid' }, ...SET.eggs.map((egg) => el('button', { type: 'button', class: armed === `egg:${egg}` ? 'armed' : coins < FS.EGG_PRICE ? 'poor' : '',
           onclick: () => buy(`egg:${egg}`, FS.EGG_PRICE, () => { const id = uid('e'); W(['mons', id], { egg, f: 0, at: Date.now() }); addHome(id); news(L().eggCame(eggName(egg))); }) },
-          el('span', { class: 'eg', html: FS.eggHTML(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', { text: `🪙 ${FS.EGG_PRICE}` }))));
-        const furn = el('div', { class: 'pr-grid' }, ...Object.keys(DECO).map((key) => {
-          const v = deco[key], has = !!v, on = has && !v.off, price = DECO[key][5];
-          const ic = key === 'rug' ? el('span', { class: 'rug-ic' }) : el('span', { class: 'e', text: DECO[key][0] });
+          el('span', { class: 'eg', html: SET.eggHTML(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', { text: `🪙 ${FS.EGG_PRICE}` }))));
+        const furn = el('div', { class: 'pr-grid' }, ...Object.keys(DK).map((key) => {
+          const v = deco[key], has = !!v, on = has && !v.off, price = DK[key][5];
+          const ic = key === 'rug' ? el('span', { class: 'rug-ic' }) : el('span', { class: 'e', text: DK[key][0] });
           return el('button', { type: 'button', class: on ? 'on' : armed === `deco:${key}` ? 'armed' : !has && coins < price ? 'poor' : '', onclick: () => {
             if (has) { W(['deco', key], { ...v, off: on ? true : null }); snd.stick(); return; }
-            buy(`deco:${key}`, price, () => W(['deco', key], { x: DECO[key][1], y: DECO[key][2] }));
+            buy(`deco:${key}`, price, () => W(['deco', key], { x: DK[key][1], y: DK[key][2] }));
           } }, ic, has ? null : el('span', { text: `🪙 ${price}` }));
         }));
         panel.replaceChildren(el('h4', {}, el('span', { text: L().shopHead(coins) }), closeB), el('h4', {}, el('span', { text: L().eggs })), eggs,
@@ -430,11 +480,11 @@
           const h = homeIds(), i = h.indexOf(m.id);
           if (i >= 0) h.splice(i, 1); else if (h.length >= HOME_MAX) { say(L().homeFull); return; } else h.push(m.id);
           W(['home'], h); snd.tap(i >= 0 ? 1 : 3);
-        } }, hatched(m) ? el('img', { src: FS.pokeArt(m.p), alt: '', loading: 'lazy' }) : el('span', { class: 'eg', html: FS.eggHTML(m.egg) }),
+        } }, hatched(m) ? el('img', { src: SET.art(m.p), alt: '', loading: 'lazy' }) : el('span', { class: 'eg', html: SET.eggHTML(m.egg) }),
           el('span', { class: 'n', text: hatched(m) ? name(m.p) : eggName(m.egg) }), m.s && hatched(m) ? el('span', { class: 'b', text: '✨' }) : null)));
-        const dex = el('div', { class: 'pr-grid' }, ...Array.from({ length: FS.POKE_N }, (_, i) => i + 1).map((id) => el('button', { type: 'button', class: seen.has(id) ? '' : 'unk', tabindex: '-1' },
-          el('img', { src: FS.pokeArt(id), alt: '', loading: 'lazy' }), el('span', { class: 'n', text: seen.has(id) ? name(id) : `#${id}` }))));
-        panel.replaceChildren(el('h4', {}, el('span', { text: L().homeHead(home.length) }), closeB), grid, el('h4', {}, el('span', { text: L().dexHead(seen.size) })), dex);
+        const dex = el('div', { class: 'pr-grid' }, ...SET.dex.map((id) => el('button', { type: 'button', class: seen.has(id) ? '' : 'unk', tabindex: '-1' },
+          el('img', { src: SET.art(id), alt: '', loading: 'lazy' }), el('span', { class: 'n', text: seen.has(id) ? name(id) : typeof id === 'number' ? `#${id}` : '?' }))));
+        panel.replaceChildren(el('h4', {}, el('span', { text: L().homeHead(home.length) }), closeB), grid, el('h4', {}, el('span', { text: L().dexHead(seen.size, SET.dex.length) })), dex);
       }
     }
     function renderAll() { if (!alive) return; renderRoom(); renderBar(); renderPanel(); }
@@ -452,5 +502,5 @@
     root._pr = { update: () => { renderAll(); grants(); }, destroy };
     return root._pr;
   }
-  window.PokeRoom = { mount, DECO };
+  window.PokeRoom = { mount, DECO, DECO_P };
 })();

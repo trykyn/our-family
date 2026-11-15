@@ -8,7 +8,8 @@
    🥚 포켓몬 알 키우기 (다빈·아린·엄마·아빠): 오늘 미션을 다 하면 선물 상자에서 열매(5가지) 또는 🪙 코인이 나옴.
      그날 스티커의 d = 2000 + 열매 번호 / 2100 = 코인 (스티커판에도 그 그림). 받은 것은 kids.{k}.poke.items.{스티커 id} = 'apple' | 'coin' …
      kids.{k}.poke = { start, items: {id: 열매|'coin'}, mons: {id: { egg, p?(태어난 포켓몬), f(하트), s?(반짝이), at }}, deco: {가구: {x, y, off?}}, home?: [방에 나온 id], gp: {황금 주: 1} }
-     그림은 PokeAPI에서 받아 poke/ (art = 도감, walk/walk-s = 방에서 걷는 그림). 방 화면은 poke-room.js */
+     그림은 PokeAPI에서 받아 poke/ (art = 도감, walk/walk-s = 방에서 걷는 그림). 방 화면은 poke-room.js
+   💖 아린 방만 티니핑 (charSet): 같은 kids.arin.poke 에 저장, poke.set = 'ping'. 처음엔 하츄핑이 와 있고 나머지는 하트 알에서 랜덤. 그림 ping/{id}.webp */
 (() => {
   'use strict';
   const MONSTERS = [
@@ -131,6 +132,72 @@
     const fresh = all.filter((x) => !have.has(x)), list = fresh.length ? fresh : all;
     return list[Math.floor(Math.random() * list.length)];
   }
+  /* ── 💖 티니핑 (아린 방) ── PING = [id, 한국어, 독일어 화면 이름, 좋아하는 열매, 전설(황금 하트에서만), 하츄핑 몇 기(0 = 변신 없음)]
+     그림은 엄마가 저장한 것 → 배경 투명하게 다듬어 ping/{id}.webp (240px). 하츄핑은 하트 10개마다 다음 기 모습으로 변신,
+     다른 티니핑은 하트로 🎀(5) → 👑(10) → 👑✨(15). 새 그림을 넣으면 여기 한 줄 + ping/ 파일 하나 */
+  const PING = [
+    ['heartsping1', '하츄핑', 'Heartsping', 'strawberry', 0, 1],
+    ['heartsping2', '하츄핑 2기', 'Heartsping S2', 'strawberry', 0, 2],
+    ['heartsping3', '하츄핑 3기', 'Heartsping S3', 'strawberry', 0, 3],
+    ['heartsping4', '하츄핑 4기', 'Heartsping S4', 'strawberry', 0, 4],
+    ['heartsping5', '하츄핑 5기', 'Heartsping S5', 'strawberry', 0, 5],
+    ['heartsping6', '하츄핑 6기', 'Heartsping S6', 'strawberry', 0, 6],
+    ['auroraping', '오로라핑', 'Auroraping', 'strawberry', 1, 0],
+    ['balletping', '발레핑', 'Balletping', 'strawberry', 0, 0],
+    ['bonnyping', '뽀니핑', 'Bonnyping', 'apple', 0, 0],
+    ['chachaping', '차차핑', 'Chachaping', 'apple', 0, 0],
+    ['charmping', '아잉핑', 'Charmping', 'strawberry', 0, 0],
+    ['claireping', '아름핑', 'Claireping', 'strawberry', 0, 0],
+    ['dadaping', '바로핑', 'Dadaping', 'blueberry', 0, 0],
+    ['fluffyping', '포실핑', 'Fluffyping', 'blueberry', 0, 0],
+    ['gogoping', '아자핑', 'Gogoping', 'pepper', 0, 0],
+    ['happying', '해핑', 'Happying', 'strawberry', 0, 0],
+    ['jellyping', '말랑핑', 'Jellyping', 'strawberry', 0, 0],
+    ['joahping', '조아핑', 'Joahping', 'pepper', 0, 0],
+    ['kikiping', '키키핑', 'Kikiping', 'blueberry', 0, 0],
+    ['lalaping', '라라핑', 'Lalaping', 'strawberry', 0, 0],
+    ['luckyping', '행운핑', 'Luckyping', 'blueberry', 1, 0],
+    ['nanaping', '나나핑', 'Nanaping', 'strawberry', 0, 0],
+    ['okeydokeyping', '꾸래핑', 'Okeydokeyping', 'blueberry', 0, 0],
+    ['princeping', '왕자핑', 'Princeping', 'blueberry', 0, 0],
+    ['shashaping', '샤샤핑', 'Shashaping', 'blueberry', 0, 0],
+    ['shimmerping', '빛나핑', 'Shimmerping', 'blueberry', 0, 0],
+    ['shyping', '부끄핑', 'Shyping', 'blueberry', 0, 0],
+    ['sparkleping', '초롱핑', 'Sparkleping', 'blueberry', 0, 0],
+    ['sweetping', '달콤핑', 'Sweetping', 'strawberry', 1, 0],
+    ['tangyping', '새콤핑', 'Tangyping', 'apple', 1, 0],
+    ['teeheeping', '방글핑', 'Teeheeping', 'strawberry', 0, 0],
+    ['trueping', '솔찌핑', 'Trueping', 'pepper', 0, 0],
+    ['trustping', '믿어핑', 'Trustping', 'blueberry', 0, 0],
+    ['twinkleping', '빤짝핑', 'Twinkleping', 'blueberry', 0, 0]
+  ];
+  const PINGD = Object.fromEntries(PING.map((r) => [r[0], r]));
+  const PING_EGGS = { heart: ['반짝 하트', 'Glitzerherz'], gold: ['황금 하트', 'Goldherz'] };
+  const pingHeart = (egg) => {
+    const g = egg === 'gold', id = g ? 'pgh-g' : 'pgh-p';
+    return `<svg class="pk-egg pg-heart" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${g ? '#FFF1A8' : '#FFD3E6'}"/><stop offset="1" stop-color="${g ? '#F2B21B' : '#FF5FA2'}"/></linearGradient></defs>`
+      + `<path d="M50 90C20 68 5 50 5 32 5 17 17 7 30 7c9 0 16 5 20 13 4-8 11-13 20-13 13 0 25 10 25 25 0 18-15 36-45 58z" fill="url(#${id})" stroke="#fff" stroke-width="4"/>`
+      + `<ellipse cx="28" cy="27" rx="10" ry="6" fill="#fff" opacity=".75" transform="rotate(-35 28 27)"/><path d="M71 26l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#fff"/><path d="M58 60l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="#fff" opacity=".85"/></svg>`;
+  };
+  // 하트 알에서 나올 티니핑: 아직 없는 것 먼저 (하츄핑 · 전설 빼고). 황금 하트 = 전설
+  function pingHatch(egg, have) {
+    const all = PING.filter((r) => !r[5] && r[4] === (egg === 'gold' ? 1 : 0)).map((r) => r[0]);
+    const fresh = all.filter((x) => !have.has(x)), list = fresh.length ? fresh : all;
+    return list[Math.floor(Math.random() * list.length)];
+  }
+  const pingNext = (id) => { const n = PINGD[id] && PINGD[id][5]; return n && PINGD[`heartsping${n + 1}`] ? [`heartsping${n + 1}`] : []; };
+  // 아이별 캐릭터 세트 — 방 화면(poke-room.js)은 이것만 보고 그림
+  const SETS = {
+    poke: { key: 'poke', name: pokeName, art: pokeArt, walk: pokeWalk, valid: (p) => !!DEX[p], next: pokeNext, evoNeed: (p) => (pokeStage(p) === 1 ? 10 : 15), fav: favBerry,
+      dex: Array.from({ length: POKE_N }, (_, i) => i + 1), eggs: ['fire', 'water', 'grass', 'electric', 'mystery'], startEggs: START_EGGS, start: null,
+      eggName: (egg, lang) => (EGGS[egg] || EGGS.mystery)[lang === 'de' ? 3 : 2], eggHTML, hatch: hatchPick, shiny: 0.1, acc: null, room: '' },
+    ping: { key: 'ping', name: (id, lang) => (PINGD[id] ? PINGD[id][lang === 'de' ? 2 : 1] : ''), art: (id) => `${BASE}ping/${id}.webp`, walk: (id) => `${BASE}ping/${id}.webp`,
+      valid: (p) => !!PINGD[p], next: pingNext, evoNeed: () => 10, fav: (id) => (PINGD[id] ? PINGD[id][3] : 'strawberry'),
+      dex: PING.map((r) => r[0]), eggs: ['heart'], startEggs: null, start: 'heartsping1',
+      eggName: (egg, lang) => (PING_EGGS[egg] || PING_EGGS.heart)[lang === 'de' ? 1 : 0], eggHTML: pingHeart, hatch: pingHatch, shiny: 0,
+      acc: (f) => (f >= 15 ? '👑✨' : f >= 10 ? '👑' : f >= 5 ? '🎀' : ''), accAt: [5, 10, 15], room: 'princess' },
+  };
+  const charSet = (kid) => SETS[kid === 'arin' ? 'ping' : 'poke'];
   // 오늘 미션 선물: 열매 2/3, 코인 1/3. d = 2000 + 열매 번호, 2100 = 코인
   const newRewardD = () => (Math.random() < 1 / 3 ? 2100 : 2000 + Math.floor(Math.random() * BERRIES.length));
   const rewardItem = (d) => (d === 2100 ? 'coin' : d >= 2000 && BERRIES[d - 2000] ? BERRIES[d - 2000][0] : '');
@@ -293,6 +360,6 @@
   const ttOf = (kidData) => (kidData && kidData.timetable && typeof kidData.timetable === 'object') ? { ...TT_DEFAULT, ...kidData.timetable } : TT_DEFAULT;
 
   window.FamilyStickers = { TT_TIMES, TT_DEFAULT, SUBJECTS, ttOf, weekCompletesWithOff, monsterSVG, fairySVG, stickerSVG, STICKER_N, giftSVG, bigSVG, WHY, tone, SND, cfgOf, stickersOf, boardOf, progressOf,
-    BASE, DEX, POKE_N, pokeName, pokeArt, pokeWalk, pokeStage, pokeNext, BERRIES, favBerry, EGGS, START_EGGS, EGG_PRICE, eggHTML, hatchPick, newRewardD, rewardItem, rewardIcon, rewardLabel, rewardSVG,
+    BASE, PING, charSet, DEX, POKE_N, pokeName, pokeArt, pokeWalk, pokeStage, pokeNext, BERRIES, favBerry, EGGS, START_EGGS, EGG_PRICE, eggHTML, hatchPick, newRewardD, rewardItem, rewardIcon, rewardLabel, rewardSVG,
     MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionLabel, isWeekday, weekKeys, weekState, WEEK_LABEL, weekCompletesToday, goldState };
 })();
