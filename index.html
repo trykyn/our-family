@@ -650,6 +650,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
 .cals .check:checked::after { width: 6px; height: 11px; border-color: #FFFFFF; }
 .cals .nm { min-width: 0; overflow-wrap: anywhere; font-size: 14px; }
 .sub-h { margin: 14px 0 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+
+/* 🗑 스티커 지우기 모드: 붙은 스티커에 빨간 ✕ */
+.del-on .wk-slot.got, .del-on .slot.wk.full, .del-on .big.full { position: relative; }
+.del-on .wk-slot.got::after, .del-on .slot.wk.full::after, .del-on .big.full::after { content: '✕'; position: absolute; top: -6px; right: -6px; width: 24px; height: 24px; border-radius: 50%; background: #E5484D; color: #fff; font: 700 14px/24px system-ui, sans-serif; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,.25); z-index: 2; }
 </style>
 </head>
 <body>
@@ -3036,7 +3040,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     for (let i = 0; i < G.need; i++) {
       const g = G.golds[i];
       if (!g) { golds.push(h('div', { class: 'big', text: '★' })); continue; }
-      const el = h('button', { type: 'button', class: 'big full' + (g.week === popGold ? ' pop' : ''), 'aria-label': L().goldTitle, onclick: () => { wiggle(el); SND.stick(); } });
+      const el = h('button', { type: 'button', class: 'big full' + (g.week === popGold ? ' pop' : ''), 'aria-label': L().goldTitle, onclick: () => { if (delMode) return delGold(k, g); wiggle(el); SND.stick(); } });
       el.innerHTML = bigSVG(k, g.d || 0);
       golds.push(el);
     }
@@ -3051,13 +3055,16 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     board.replaceChildren(...W.days.map((x) => {
       if (!x.got) return h('button', { type: 'button', class: `slot wk ${x.status}`, 'aria-label': `${labels[x.i]} ${L().offDay}`, onclick: () => parentOnly(() => toggleOff(k, x)) },
         h('span', { class: 'day', text: labels[x.i] }), x.off ? '🏖️' : x.status === 'missed' ? '·' : '');
-      const el = h('button', { type: 'button', class: 'slot wk full' + (x.id === popId ? ' pop' : ''), 'aria-label': `${labels[x.i]} ⭐`, onclick: () => { wiggle(el); SND.boing(); } });
+      const el = h('button', { type: 'button', class: 'slot wk full' + (x.id === popId ? ' pop' : ''), 'aria-label': `${labels[x.i]} ⭐`, onclick: () => { if (delMode) return delDay(k, x); wiggle(el); SND.boing(); } });
       el.innerHTML = stickerSVG(k, x.d);
       el.append(h('span', { class: 'day', text: labels[x.i] }));
       return el;
     }));
     popId = null;
-    $('#kid-delbar').hidden = true;
+    $('#kid-delbar').hidden = !delMode;
+    $('#tab-stickers').classList.toggle('del-on', delMode);
+    if (delMode) $('#kid-delbar').replaceChildren(h('span', { text: L().delHint }),
+      h('button', { type: 'button', class: 'btn', text: L().delDone, onclick: () => { delMode = false; renderKidScreen(); } }));
     $('#kid-done').replaceChildren(...(G.gift ? [h('div', { class: 'done-banner' },
       h('b', { text: L().goldDone(G.need) }), reward ? h('div', { class: 'rw', text: `🎁 ${reward}` }) : null,
       h('button', { type: 'button', class: 'btn', text: L().newBoard, onclick: () => parentOnly(() => kidsWrite([k, 'cfg'], { ...c, start: Date.now() })) }))]
@@ -3278,6 +3285,19 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     wrap.append(h('div', { class: 'ms-gift-card' }, h('b', { text: L().msGiftTitle }), gift, dots, hint));
     document.body.append(wrap);
   }
+  // 🗑 지우기: 그날 스티커 (그 주 황금 스티커도 — 이제 주가 안 찼으니) / 황금 스티커. 되돌리기 가능
+  function delDay(k, x) {
+    const kd = kidOf(k), s = (kd.stickers || {})[x.id], wk = FS.weekKeys(x.key)[0], g = (kd.golds || {})[wk];
+    kidsWrite([k, 'mdone', x.key, 'got'], null);
+    kidsWrite([k, 'stickers', x.id], null);
+    if (g) kidsWrite([k, 'golds', wk], null);
+    toast(L().delToast, () => { kidsWrite([k, 'mdone', x.key, 'got'], x.id); if (s) kidsWrite([k, 'stickers', x.id], s); if (g) kidsWrite([k, 'golds', wk], g); });
+  }
+  function delGold(k, g) {
+    const { week, ...v } = g;
+    kidsWrite([k, 'golds', week], null);
+    toast(L().delToast, () => kidsWrite([k, 'golds', week], v));
+  }
   function saveMissionSticker(k, d) {
     const id = newId(), day = keyOf(new Date());
     if (FS.weekCompletesToday(kidOf(k), k, day)) { const wk = FS.weekKeys(day)[0]; kidsWrite([k, 'golds', wk], { at: Date.now(), d }); popGold = wk; setTimeout(() => SND.tada(), 500); }
@@ -3413,6 +3433,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#cfg-tt-box').hidden = !cfgTT;
     if (cfgTT) renderCfgTT();
     renderCfgMissions();
+    $('#cfg-del').hidden = false;
     const c = cfgOf(kidName);
     $('#cfg-form').className = `sheet k-${kidName}`;
     $('#cfg-title').textContent = L().cfgTitle(L().who[kidName]);
