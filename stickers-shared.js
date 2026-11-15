@@ -133,9 +133,9 @@
     return list[Math.floor(Math.random() * list.length)];
   }
   /* ── 💖 티니핑 (아린 방) ── PING = [id, 한국어, 독일어 화면 이름, 좋아하는 열매, 전설(황금 하트에서만), 하츄핑 몇 기(0 = 변신 없음),
-       장신구 자리 % [머리 가운데 x, 머리 꼭대기 y, 머리 오른쪽 x, 그 높이 y, 발 가운데 x] — 그림에서 자동으로 찾음]
+       그림 속 자리 % [머리 가운데 x, 머리 꼭대기 y, 머리 오른쪽 x, 그 높이 y, 발 가운데 x] — 그림에서 자동으로 찾음 (지금은 안 씀)]
      그림은 엄마가 저장한 것 → 배경 투명하게 다듬어 ping/{id}.webp (240px). 하츄핑은 하트 10개마다 다음 기 모습으로 변신,
-     다른 티니핑은 하트로 🎀(5) → 👑(10) → 👑✨(15). 새 그림을 넣으면 여기 한 줄 + ping/ 파일 하나 */
+     다른 티니핑은 변신 없음. 새 그림을 넣으면 여기 한 줄 + ping/ 파일 하나 */
   const PING = [
     ['heartsping1', '하츄핑', 'Heartsping', 'strawberry', 0, 1, [41, 3, 73, 15, 39]],
     ['heartsping2', '하츄핑 2기', 'Heartsping S2', 'strawberry', 0, 2, [48, 3, 86, 15, 51]],
@@ -240,18 +240,16 @@
     return list[Math.floor(Math.random() * list.length)];
   }
   const pingNext = (id) => { const n = PINGD[id] && PINGD[id][5]; return n && PINGD[`heartsping${n + 1}`] ? [`heartsping${n + 1}`] : []; };
-  // 변신 없는 티니핑: 하트를 모으면 하나씩 입음 (모두 그대로 쌓임) — 🎀 머리 리본 → 🩰 구두 → 👑 왕관 → ✨ 반짝이
-  const PING_ACC = [[5, '🎀'], [10, '🩰'], [15, '👑'], [20, '✨']];
   // 아이별 캐릭터 세트 — 방 화면(poke-room.js)은 이것만 보고 그림
   const SETS = {
     poke: { key: 'poke', name: pokeName, art: pokeArt, walk: pokeWalk, valid: (p) => !!DEX[p], next: pokeNext, evoNeed: (p) => (pokeStage(p) === 1 ? 10 : 15), fav: favBerry,
       dex: Array.from({ length: POKE_N }, (_, i) => i + 1), eggs: ['fire', 'water', 'grass', 'electric', 'mystery'], startEggs: START_EGGS, start: null,
-      eggName: (egg, lang) => (EGGS[egg] || EGGS.mystery)[lang === 'de' ? 3 : 2], eggHTML, hatch: hatchPick, shiny: 0.1, acc: null, room: '' },
+      eggName: (egg, lang) => (EGGS[egg] || EGGS.mystery)[lang === 'de' ? 3 : 2], eggHTML, hatch: hatchPick, shiny: 0.1, room: '' },
     ping: { key: 'ping', name: (id, lang) => (PINGD[id] ? PINGD[id][lang === 'de' ? 2 : 1] : ''), art: (id) => `${BASE}ping/${id}.webp`, walk: (id) => `${BASE}ping/${id}.webp`,
       valid: (p) => !!PINGD[p], next: pingNext, evoNeed: () => 10, fav: (id) => (PINGD[id] ? PINGD[id][3] : 'strawberry'),
       dex: PING.map((r) => r[0]), eggs: ['heart'], startEggs: null, start: 'heartsping1',
       eggName: (egg, lang) => (PING_EGGS[egg] || PING_EGGS.heart)[lang === 'de' ? 1 : 0], eggHTML: pingHeart, hatch: pingHatch, shiny: 0,
-      acc: (f) => PING_ACC.filter(([t]) => f >= t).map((a) => a[1]).join(''), accAt: PING_ACC.map((a) => a[0]), accNew: (t) => (PING_ACC.find((a) => a[0] === t) || ['', ''])[1], anchor: (id) => (PINGD[id] && PINGD[id][6]) || [50, 2, 85, 14, 50], room: 'princess' },
+      room: 'princess' },
   };
   const charSet = (kid) => SETS[kid === 'arin' ? 'ping' : 'poke'];
   // 키우기 방 자료가 들어 있는 칸: kids.{k}.room (2026-11-15 밤 엄마 요청으로 모두 새로 시작 — 예전 kids.{k}.poke 는 안 씀)
