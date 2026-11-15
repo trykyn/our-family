@@ -189,6 +189,7 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .with-row button { display: flex; flex-direction: column; align-items: center; gap: 2px; border: 0; background: none; padding: 0; font-size: 11px; font-weight: 700; color: var(--mc); }
 .with-row img { width: 36px; height: 36px; border-radius: 50%; box-shadow: 0 0 0 2px var(--mc); transition: opacity .15s, filter .15s; }
 .with-row button[aria-pressed="false"] { color: var(--muted); }
+.with-row button:disabled { cursor: default; }
 .with-row button[aria-pressed="false"] img { opacity: .35; filter: grayscale(1); box-shadow: 0 0 0 2px var(--line); }
 .fam .sl .ft { color: #2A9690; font-weight: 600; }
 .rt-every { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
@@ -1048,7 +1049,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       packTitle: '🎒 준비물', packAdd: '+ 준비물', packWhat: '무엇을', packPh: '예: 체육복, 수영 가방', packWhoLabel: '누가', packAll: '모두',
       packEvery: (wd) => `매주 ${T.ko.weekdays[wd]}요일마다`, packEdit: (d) => `🎒 준비물 · ${d}`,
       packSugg: ['체육복', '운동화', '수영 가방', '실내화', '도시락', '간식', '물병', '숙제', '알림장', '우산', '도서관 책', '준비물 돈'],
-      rtChanged: '이 날만 바꾼 일정이에요.', withLabel: '함께', rtHint: '저장하면 이 날만 바뀌어요. 매주 바꾸려면 아래를 체크하세요.',
+      rtChanged: '이 날만 바꾼 일정이에요.', withLabel: '같이', rtHint: '저장하면 이 날만 바뀌어요. 매주 바꾸려면 아래를 체크하세요. 다른 사람 얼굴을 누르면 같은 일정이 그 사람에게도 들어가요.',
       city: '뮌헨', homeTodoTitle: '챙길 할 일', seeAll: '전체 보기', moreTodos: (n) => `외 ${n}개`,
       lunchTitle: '오늘 점심', dinnerTitle: '오늘 저녁', dinnerNone: '아직 정하지 않았어요', kidTag: '아이',
       fWho: '담당', whoNone: '미정', who: { mom: '엄마', dad: '아빠', davin: '다빈', arin: '아린', both: '같이' }, filterAll: '전체',
@@ -1111,7 +1112,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       packTitle: '🎒 Mitnehmen', packAdd: '+ Mitnehmen', packWhat: 'Was', packPh: 'z. B. Sportsachen, Schwimmtasche', packWhoLabel: 'Wer', packAll: 'Alle',
       packEvery: (wd) => `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][wd]}`, packEdit: (d) => `🎒 Mitnehmen · ${d}`,
       packSugg: ['Sportsachen', 'Turnschuhe', 'Schwimmtasche', 'Hausschuhe', 'Brotzeit', 'Trinkflasche', 'Hausaufgaben', 'Hausaufgabenheft', 'Regenschirm', 'Büchereibuch', 'Geld'],
-      rtChanged: 'Nur für diesen Tag geändert.', withLabel: 'Dabei', rtHint: 'Speichern ändert nur diesen Tag. Für jede Woche unten ankreuzen.',
+      rtChanged: 'Nur für diesen Tag geändert.', withLabel: 'Auch für', rtHint: 'Speichern ändert nur diesen Tag. Für jede Woche unten ankreuzen. Tippe auf andere Gesichter, um denselben Plan auch für sie einzutragen.',
       city: 'München', homeTodoTitle: 'Wichtig & bald fällig', seeAll: 'Alle anzeigen', moreTodos: (n) => `und ${n} weitere`,
       lunchTitle: 'Heute Mittag', dinnerTitle: 'Heute Abend', dinnerNone: 'Noch nichts geplant', kidTag: 'Kinder',
       fWho: 'Zuständig', whoNone: 'Offen', who: { mom: 'Mama', dad: 'Papa', davin: 'Davin', arin: 'Arin', both: 'Zusammen' }, filterAll: 'Alle',
@@ -1458,6 +1459,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const mCut = keyOf(addDays(new Date(), -14)); // 오늘의 미션 ✓ 기록은 2주만
     for (const k of ['davin', 'arin']) for (const day of Object.keys((d.kids && d.kids[k] && d.kids[k].mdone) || {})) if (day < mCut) ops.push([['kids', k, 'mdone', day], null]);
     for (const [id, v] of Object.entries(d.pack || {})) if (!v || !v.text || (v.date && v.date < cutKey)) ops.push([['pack', id], null]);
+    ops.push(...famOps(d));
     return ops;
   }
   // 로그인 안 한 휴대폰(이 기기에만 저장)도 같은 기준으로 정리
@@ -1467,6 +1469,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const before = localTodos.length;
     localTodos = localTodos.filter((t) => !(t.done && (t.doneAt || t.at || 0) < cut));
     if (localTodos.length !== before) store(TODO_KEY, localTodos);
+    const fops = famOps({ routine: routine.days, routineBase: routine.base });
+    if (fops.length) { for (const [path, v] of fops) routineLocalSet(path, v); store(ROUTINE_KEY, routine); renderToday(); }
     const ops = pruneOps({ kids: kidsData });
     for (const [path, v] of ops) {
       let o = kidsData;
@@ -2241,7 +2245,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
        routineBase.{사람}.{요일}   = { am, pm, src?, tr? }   → '매주 기본'으로 바꾼 일정
      값이 '@swim' 처럼 @로 시작하면 정해진 활동(한국어·독일어 둘 다 있음), 아니면 직접 쓴 글(자동 번역). */
   // 'family' = 가족 모두 함께하는 일정 (맨 위 줄)
-  const MEMBERS = ['family', 'mom', 'dad', 'davin', 'arin'];
+  // 예전에는 맨 위에 'family'(가족 모두) 줄이 있었음. 이제는 사람별로만 — 같은 일정은 수정 창에서 여러 사람에게 한 번에 넣음.
+  // 예전 가족 일정은 앱을 열 때 함께하는 사람들의 일정으로 옮겨짐 (famOps)
+  const MEMBERS = ['mom', 'dad', 'davin', 'arin'];
   const MCOLOR = { family: '#2A9690', mom: WHO.mom, dad: WHO.dad, davin: WHO.davin, arin: WHO.arin };
   const nameOf = (m) => (m === 'family' ? L().famAll : L().who[m]);
   const avatarOf = (m) => (m === 'family' ? 'icon-180.png' : `avatar-${m}.png`);
@@ -2346,19 +2352,94 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     if (name) translateLine(name, v.src, v.src === 'ko' ? 'de' : 'ko').then((tr) => patchEntry(['vacations', id], (c) => c.name === name, 'tr', tr)).catch(() => {});
   });
 
-  function routineWrite(path, value) {
+  function routineWrite(path, value) { routineWriteMany([[path, value]]); }
+  function routineWriteMany(list) {
+    if (!list.length) return;
     if (isShared()) {
-      const F = fb.F, args = [new F.FieldPath(...path), value == null ? F.deleteField() : value];
+      const F = fb.F, args = [];
+      for (const [path, value] of list) args.push(new F.FieldPath(...path), value == null ? F.deleteField() : value);
       const old = keyOf(cutoffDate());
       for (const k of Object.keys(routine.days)) if (k < old) args.push(new F.FieldPath('routine', k), F.deleteField());
       F.updateDoc(houseRef(), ...args).catch((e) => console.warn('routine', e));
     } else {
-      const [kind, a, b] = path, box = kind === 'routine' ? routine.days : routine.base;
-      if (value == null) { if (box[a]) { delete box[a][b]; if (!Object.keys(box[a]).length) delete box[a]; } }
-      else (box[a] = box[a] || {})[b] = value;
+      for (const [path, value] of list) routineLocalSet(path, value);
       store(ROUTINE_KEY, routine);
       renderToday();
     }
+  }
+  function routineLocalSet(path, value) {
+    const [kind, a, b] = path, box = kind === 'routine' ? routine.days : routine.base;
+    if (b === undefined) { if (value == null) delete box[a]; else box[a] = value; return; }
+    if (value == null) { if (box[a]) { delete box[a][b]; if (!Object.keys(box[a]).length) delete box[a]; } }
+    else (box[a] = box[a] || {})[b] = value;
+  }
+  // t 의 일정에 from 의 slots(오전/오후)만 덮어써서 새 일정 만들기. 번역은 글이 그대로인 칸만 유지
+  function withSlots(t, from, slots, by) {
+    t = t || {};
+    const out = { am: t.am || '', pm: t.pm || '' };
+    for (const x of slots) out[x] = from[x] || '';
+    if (by) out.by = by; else if (t.by) out.by = t.by;
+    const free = ['am', 'pm'].filter((x) => out[x] && !out[x].startsWith('@'));
+    if (free.length) {
+      out.src = hasHangul(free.map((x) => out[x]).join(' ')) ? 'ko' : 'de';
+      const tr = {};
+      for (const x of free) {
+        const o = slots.includes(x) ? from : t;
+        if (o.tr && o.tr[x] && o[x] === out[x] && o.src === out.src) tr[x] = o.tr[x];
+      }
+      if (Object.keys(tr).length) out.tr = tr;
+    }
+    return out;
+  }
+  // 직접 쓴 글 중 번역이 없는 칸만 번역해서 붙임 (남편 휴대폰은 독일어, 엄마 휴대폰은 한국어)
+  async function translateRoutine(path, entry) {
+    const need = ['am', 'pm'].filter((x) => entry[x] && !entry[x].startsWith('@') && !(entry.tr && entry.tr[x]));
+    if (!need.length || !entry.src) return;
+    const to = entry.src === 'ko' ? 'de' : 'ko', tr = { ...(entry.tr || {}) };
+    try {
+      for (const x of need) tr[x] = await translateLine(entry[x], entry.src, to);
+      await patchEntry(path, (c) => (c.am || '') === (entry.am || '') && (c.pm || '') === (entry.pm || ''), 'tr', tr);
+    } catch (err) { console.warn('translate', err); }
+  }
+
+  /* 예전 '가족' 일정 → 함께하는 사람들 각자의 일정으로 옮김 (그 사람 일정이 이미 있으면 ' · '로 이어 붙임) */
+  function famOps(d) {
+    const ops = [], days = d.routine || {}, base = d.routineBase || {};
+    const word = (v) => (v.startsWith('@') ? ((ACT[v.slice(1)] || [])[lang === 'de' ? 1 : 0] || '') : v);
+    const merge = (own, fe, p) => {
+      own = own || {};
+      const add = { am: own.am || '', pm: own.pm || '' }, slots = [];
+      for (const x of ['am', 'pm']) {
+        const v = fe[x];
+        if (!v || !joins(fe, x, p) || add[x] === v) continue;
+        add[x] = add[x] ? `${word(add[x])} · ${word(v)}` : v;
+        slots.push(x);
+      }
+      if (!slots.length) return null;
+      // 그대로 옮긴 칸은 가족 일정의 번역을 그대로 씀
+      const from = { ...add, src: fe.src, tr: fe.tr };
+      return withSlots(own, from, slots, own.by || fe.by);
+    };
+    for (const [k, day] of Object.entries(days)) {
+      const fe = day && day.family;
+      if (!fe) continue;
+      for (const p of PEOPLE) {
+        const out = merge(day[p] || entryFor(p, k).e, fe, p);
+        if (out) ops.push([['routine', k, p], out]);
+      }
+      ops.push([['routine', k, 'family'], null]);
+    }
+    if (base.family) {
+      for (const [dow, fe] of Object.entries(base.family)) {
+        if (!fe) continue;
+        for (const p of PEOPLE) {
+          const out = merge((base[p] && base[p][dow]) || ROUTINE_DEFAULT[p][dow], fe, p);
+          if (out) ops.push([['routineBase', p, dow], out]);
+        }
+      }
+      ops.push([['routineBase', 'family'], null]);
+    }
+    return ops;
   }
 
   function renderToday() {
@@ -2483,7 +2564,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     for (const s of ['am', 'pm']) {
       $(`#rt-with-${s}`).replaceChildren(h('span', { text: L().withLabel }), ...PEOPLE.map((p) => h('button', {
         type: 'button', style: `--mc:${MCOLOR[p]}`, 'aria-pressed': String(rtWith[s].includes(p)), 'aria-label': `${L()[s]} · ${nameOf(p)}`,
+        disabled: !!(rt && p === rt.m),
         onclick: () => {
+          if (rt && p === rt.m) return;
           rtWith[s] = rtWith[s].includes(p) ? rtWith[s].filter((x) => x !== p) : PEOPLE.filter((x) => x === p || rtWith[s].includes(x));
           renderWith();
         },
@@ -2507,15 +2590,12 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#rt-acts').replaceChildren(...Object.values(ACT).map((a) => h('option', { value: a[lang === 'de' ? 1 : 0] })));
     $('#rt-reset').hidden = !changed;
     $('#rt-note').textContent = changed ? L().rtChanged : L().rtHint;
-    const isFam = m === 'family';
-    $('#rt-with-am').hidden = $('#rt-with-pm').hidden = !isFam;
-    // 휴가 설정은 '가족' 수정 창 안에만 (화면에서는 숨김)
-    $('#rt-vac').hidden = !isFam;
+    // 같은 일정을 다른 사람에게도: 오전·오후 따로 고름 (연 사람은 항상 포함)
+    $('#rt-with-am').hidden = $('#rt-with-pm').hidden = false;
+    $('#rt-vac').hidden = false;
     $('#rt-vac').textContent = L().vacSet;
-    if (isFam) {
-      rtWith = { am: PEOPLE.filter((p) => joins(e, 'am', p)), pm: PEOPLE.filter((p) => joins(e, 'pm', p)) };
-      renderWith();
-    }
+    rtWith = { am: [m], pm: [m] };
+    renderWith();
     rtSheet.hidden = false;
     document.body.style.overflow = 'hidden';
   }
@@ -2542,7 +2622,6 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     // 화면에 보였던 글과 다르게 입력했으면 '내가 고친 것' (번역본을 보고 원문을 다시 써도 내 글로 기록)
     const edited = $('#rt-am').value.trim() !== (rt.shown.am || '').trim() || $('#rt-pm').value.trim() !== (rt.shown.pm || '').trim();
     if (edited || am !== e.am || pm !== e.pm) entry.by = myId(); else if (e.by) entry.by = e.by;
-    if (m === 'family') entry.with = { am: rtWith.am.slice(), pm: rtWith.pm.slice() };
     const free = [am, pm].filter((v) => v && !v.startsWith('@'));
     if (free.length) {
       entry.src = hasHangul(free.join(' ')) ? 'ko' : 'de';
@@ -2550,17 +2629,24 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     }
     const every = $('#rt-every').checked;
     const path = every ? ['routineBase', m, DOWK[fromKey(key).getDay()]] : ['routine', key, m];
-    if (every && rt.changed) routineWrite(['routine', key, m], null); // 매주 기본으로 바꾸면 그날만 바꾼 것은 지움
-    routineWrite(path, entry);
+    const writes = [];
+    if (every && rt.changed) writes.push([['routine', key, m], null]); // 매주 기본으로 바꾸면 그날만 바꾼 것은 지움
+    writes.push([path, entry]);
+    // '같이'로 고른 사람: 고른 칸(오전/오후)만 같은 일정으로. 나머지 칸은 그 사람 일정 그대로
+    const dow = DOWK[fromKey(key).getDay()];
+    for (const p of PEOPLE) {
+      if (p === m) continue;
+      const slots = ['am', 'pm'].filter((x) => rtWith[x].includes(p));
+      if (!slots.length) continue;
+      const dayOwn = routine.days[key] && routine.days[key][p];
+      if (every) {
+        writes.push([['routineBase', p, dow], withSlots((routine.base[p] && routine.base[p][dow]) || ROUTINE_DEFAULT[p][dow], entry, slots, myId())]);
+        if (dayOwn) writes.push([['routine', key, p], withSlots(dayOwn, entry, slots, myId())]); // 그날만 바꾼 게 있으면 거기도
+      } else writes.push([['routine', key, p], withSlots(dayOwn || entryFor(p, key).e, entry, slots, myId())]);
+    }
+    routineWriteMany(writes);
     closeRoutine();
-    // 직접 쓴 글은 다른 언어로도 번역해 둠 (남편 휴대폰은 독일어, 엄마 휴대폰은 한국어)
-    if (free.length && !entry.tr) (async () => {
-      const to = entry.src === 'ko' ? 'de' : 'ko', tr = {};
-      try {
-        for (const s of ['am', 'pm']) if (entry[s] && !entry[s].startsWith('@')) tr[s] = await translateLine(entry[s], entry.src, to);
-        await patchEntry(path, (c) => (c.am || '') === (entry.am || '') && (c.pm || '') === (entry.pm || ''), 'tr', tr);
-      } catch (err) { console.warn('translate', err); }
-    })();
+    for (const [pth, v] of writes) if (v) translateRoutine(pth, v);
   });
 
   /* ───────── 🎒 준비물 ───────── */
