@@ -93,6 +93,9 @@
 .pr-mon.egg.hatch > .pk-egg { animation: pr-hatch 1.3s ease-in-out forwards; }
 @keyframes pr-hatch { 0% { transform: rotate(0); } 10%, 30%, 50% { transform: rotate(-14deg); } 20%, 40%, 60% { transform: rotate(14deg); } 85% { transform: scale(1.3); filter: brightness(0) invert(1); } 100% { transform: scale(1.4); filter: brightness(0) invert(1); opacity: .6; } }
 .pr.smooth .pr-mon img { image-rendering: auto; filter: drop-shadow(0 2px 2px rgba(0,0,0,.12)); }
+.pr.smooth .pr-mon:not(.egg):not(.walk):not(.jump):not(.evo) > img { animation: pr-idle 2.6s ease-in-out infinite; animation-delay: var(--wd, 0s); }
+.pr.smooth.night .pr-mon:not(.egg):not(.walk):not(.jump):not(.evo) > img { animation-duration: 4.5s; }
+@keyframes pr-idle { 0%, 100% { scale: 1 1; rotate: 0deg; } 25% { rotate: -3deg; } 50% { scale: 1.04 .96; } 75% { rotate: 3deg; } }
 .pr.smooth .pr-mon.walk:not(.jump):not(.evo) > img { animation: pr-bob .42s ease-in-out infinite alternate; }
 @keyframes pr-bob { from { translate: 0 0; rotate: -3deg; } to { translate: 0 -6%; rotate: 3deg; } }
 .pr-mon .acc { position: absolute; left: 50%; top: 0; transform: translate(-50%, -55%); font-size: calc(17px * var(--pr-s)); line-height: 1; white-space: nowrap; pointer-events: none; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
@@ -310,6 +313,7 @@
         const img = el('img', { alt: '', draggable: 'false', src: SET.walk(m.p, m.s) });
         img.onload = () => sizeImg(e);
         e.replaceChildren(img); e._img = img;
+        e.style.setProperty('--wd', `-${rnd(0, 2.6).toFixed(2)}s`); // 친구마다 움직이는 박자가 다르게
         if (m.s) e.append(el('span', { class: 'shine', text: '✨' }));
         if (acc) e.append(el('span', { class: 'acc', text: acc }));
         e.setAttribute('aria-label', name(m.p));
@@ -384,6 +388,11 @@
       if (isNight()) return;
       for (const e of monEls.values()) {
         if (e._egg || e._busy || e.classList.contains('drag') || (e._rest && Date.now() < e._rest) || Math.random() > 0.3) continue;
+        if (SET.room && Math.random() < 0.35) { // 티니핑: 가끔은 걷는 대신 제자리에서 폴짝 / 뒤돌아보기
+          if (Math.random() < 0.6) { e.classList.remove('jump'); void e.offsetWidth; e.classList.add('jump'); setTimeout(() => e.classList.remove('jump'), 520); }
+          else e.classList.toggle('flip');
+          e._rest = Date.now() + rnd(1500, 4000); continue;
+        }
         const ox = parseFloat(e.style.left), oy = parseFloat(e.style.top);
         const x = Math.min(94, Math.max(6, ox + rnd(-28, 28))), y = Math.min(96, Math.max(60, oy + rnd(-12, 12)));
         const d = Math.max(1, Math.hypot(x - ox, (y - oy) * 0.75) / 9);
