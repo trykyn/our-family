@@ -3,7 +3,7 @@
    처음엔 알 하나를 고름 (불꽃=파이리, 물=꼬부기, 풀=이상해씨, 번개=피카츄).
    오늘 미션을 다 하면 선물 상자에서 열매(5가지) 또는 🪙 코인. 열매를 먹이면 알이 깨고(5개) 포켓몬이 진화(하트 10개, 15개).
    좋아하는 열매는 하트 2개. 코인으로 새 알(10개)과 가구를 삼. 황금 스티커 = 🪙 3개, 황금 스티커 4개마다 🌟 황금 알(전설).
-   자료: kids.{k}.poke (stickers-shared.js 맨 위 설명). 방 배경·가구·알은 직접 그린 것/이모지, 포켓몬 그림만 poke/ 폴더.
+   자료: kids.{k}.room (FS.ROOM, stickers-shared.js 맨 위 설명). 방 배경·가구·알은 직접 그린 것/이모지, 포켓몬 그림만 poke/ 폴더.
    쓰는 법: const room = PokeRoom.mount(el, { kid, lang: () => 'ko', data: () => kids[k], write: (path, v) => …(kids.{k} 아래 경로), big?, snd? });
             room.update(); room.destroy(); */
 (() => {
@@ -22,7 +22,7 @@
       shopHead: (c) => `🪙 코인 ${c}개`, eggs: '🥚 알', furn: '🪑 가구', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
       eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
       homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, dexHead: (n, N) => `도감 ${n} / ${N}`,
-      goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
+      tapEgg: '🥚 알을 톡 눌러 봐요! 바로 깨어나요', goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
     },
     de: {
       pickTitle: '🥚 Such dir ein Ei aus!', pickSub: 'Füttere es mit Beeren, dann schlüpft ein Pokémon', shop: 'Laden', close: 'Schließen',
@@ -32,17 +32,17 @@
       shopHead: (c) => `🪙 ${c} Münzen`, eggs: '🥚 Eier', furn: '🪑 Möbel', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
       eggCame: (n) => `🥚 Ein ${n} ist da!`, decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
       homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, dexHead: (n, N) => `Pokédex ${n} / ${N}`,
-      goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
+      tapEgg: '🥚 Tippe das Ei an – es schlüpft sofort!', goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
     },
   };
   // 💖 티니핑 방(아린)에서 바뀌는 글
   const TP = {
     ko: { eggInfo: (n) => `💖 열매 ${n}개 더 먹으면 티니핑이 나와요`, goldEgg: '👑 황금 하트가 생겼어요! 특별한 티니핑이 들어 있대요', eggCame: (n) => `💖 ${iga(n)} 왔어요!`,
       eggs: '💖 하트 알', toEvo: (n) => `변신까지 하트 ${n}개`, changed: (n) => `✨ ${n} 모습으로 변신했어요!`, accNext: (n, e) => `하트 ${n}개 더 모으면 ${e}`,
-      accGot: (e) => `${e} 받았어요! 예쁘다!`, came: (n) => `💖 ${iga(n)} 놀러 왔어요!` },
+      accGot: (e) => `${e} 받았어요! 예쁘다!`, tapEgg: '💖 하트를 톡 눌러 봐요! 바로 깨어나요' },
     de: { eggInfo: (n) => `💖 Noch ${n} Beeren, dann kommt ein Teenieping`, goldEgg: '👑 Ein Goldherz! Darin steckt ein besonderes Teenieping', eggCame: (n) => `💖 ${n} ist da!`,
       eggs: '💖 Herz-Eier', toEvo: (n) => `Noch ${n} Herzen bis zur Verwandlung`, changed: (n) => `✨ Verwandelt in ${n}!`, accNext: (n, e) => `Noch ${n} Herzen bis ${e}`,
-      accGot: (e) => `${e} bekommen! Wie hübsch!`, came: (n) => `💖 ${n} ist zu Besuch!`, dexHead: (n, N) => `Sammlung ${n} / ${N}` },
+      accGot: (e) => `${e} bekommen! Wie hübsch!`, tapEgg: '💖 Tippe das Herz an – es schlüpft sofort!', dexHead: (n, N) => `Sammlung ${n} / ${N}` },
   };
   // 가구: [이모지, 기본 x, 기본 y, 벽(1), 크기, 값(코인)]
   const DECO = {
@@ -203,8 +203,8 @@
     let feeding = '', open = '', alive = true, scale = 1, armed = '', grantAt = 0, msgUntil = 0;
     const monEls = new Map(), decoEls = new Map();
 
-    const W = (path, v) => o.write(['poke', ...path], v);
-    const pk = () => (o.data() && o.data().poke) || {};
+    const W = (path, v) => o.write([FS.ROOM, ...path], v);
+    const pk = () => (o.data() && o.data()[FS.ROOM]) || {};
     const items = () => Object.entries(pk().items || {});
     const count = (kind) => items().filter(([, v]) => v === kind).length;
     const take = (kind, n) => items().filter(([, v]) => v === kind).slice(0, n).map(([id]) => id);
@@ -223,22 +223,20 @@
     // 처음 고르는 알 (정해진 포켓몬) + 딸기 3개
     function pickEgg(egg) {
       if (mons().length) return;
-      W(['mons', uid('e')], { egg, p: SET.startEggs[egg], f: 0, at: Date.now() });
+      W(['mons', uid('e')], { egg, p: SET.startEggs[egg], f: 0, q: 1, at: Date.now() }); // q = 첫 알: 톡 누르면 바로 깨어남
       if (!pk().start) W(['start'], Date.now());
       for (const n of [1, 2, 3]) W(['items', `w${n}`], 'strawberry');
       news(L().eggCame(eggName(egg)));
     }
-    // 💖 티니핑 방: 처음엔 하츄핑이 바로 와 있음 (알 고르기 없음). 예전 포켓몬 자료는 정리 (열매 · 코인은 그대로)
+    // 💖 티니핑 방: 알 고르기 없이 하츄핑이 하트 알 안에 와 있음 (첫 알 → 톡 누르면 바로 깨어남)
     let booted = false;
     function boot() {
-      const p = pk();
-      if (!alive || !SET.start || booted || (p.set === SET.key && mons().length)) return;
+      if (!alive || !SET.start || booted || mons().length) return;
       booted = true;
-      if (p.set !== SET.key) { W(['mons'], null); W(['home'], null); W(['deco'], null); W(['set'], SET.key); }
-      W(['mons', 'start'], { p: SET.start, h: Date.now(), f: 0, at: Date.now() });
-      if (!p.start) W(['start'], Date.now());
+      W(['mons', 'start'], { egg: SET.eggs[0], p: SET.start, f: 0, q: 1, at: Date.now() });
+      if (!pk().start) W(['start'], Date.now());
       for (const n of [1, 2, 3]) W(['items', `w${n}`], 'strawberry');
-      setTimeout(() => news(L().came(name(SET.start))), 400);
+      setTimeout(() => news(L().eggCame(eggName(SET.eggs[0]))), 400);
     }
     // 황금 스티커: 🪙 3개씩 (주마다 한 번), 4개마다 황금 알 — 알을 고른 다음에 받은 것만
     function grants() {
@@ -284,7 +282,7 @@
       if (d > 0) { e.classList.add('walk'); clearTimeout(e._wt); e._wt = setTimeout(() => e.classList.remove('walk'), d * 1000); }
     }
     function sizeImg(e) {
-      if (e._egg) { const img = e.querySelector('.pk-egg'); if (img) img.style.width = `${34 * scale}px`; return; }
+      if (e._egg) { const img = e.querySelector('.pk-egg'); if (img) img.style.width = `${(SET.room ? 46 : 34) * scale}px`; return; }
       if (e._img && SET.room) { e._img.style.height = `${52 * scale}px`; return; } // 티니핑 그림은 크기가 제각각 → 키를 맞춤
       if (e._img && e._img.naturalWidth) e._img.style.width = `${e._img.naturalWidth * scale}px`;
     }
@@ -296,7 +294,7 @@
       return e;
     }
     function setLook(e, m) {
-      const egg = !hatched(m), cracked = egg && (m.f || 0) >= 3, acc = accOf(m), key = egg ? `egg/${m.egg}/${cracked ? 1 : 0}` : `${m.p}/${m.s ? 1 : 0}/${acc}`;
+      const egg = !hatched(m), cracked = egg && ((m.f || 0) >= 3 || !!m.q), acc = accOf(m), key = egg ? `egg/${m.egg}/${cracked ? 1 : 0}` : `${m.p}/${m.s ? 1 : 0}/${acc}`;
       if (e._key === key) return;
       e._key = key; e._egg = egg;
       e.classList.toggle('egg', egg); e.classList.toggle('crack', cracked); e.classList.remove('hatch');
@@ -320,12 +318,22 @@
       const m = { id: e._id, ...raw };
       const x = parseFloat(e.style.left), y = parseFloat(e.style.top) - 14;
       e.classList.remove('jump'); void e.offsetWidth; e.classList.add('jump');
+      if (!hatched(m) && m.q) return hatchEgg(e, m, x, y); // 첫 알: 바로 깨어남
       if (feeding && count(feeding) > 0) return feed(e, m, feeding, x, y);
       snd.boing();
       if (!hatched(m)) { bubble(x, y, eggName(m.egg)); say(L().eggInfo(Math.max(1, EGG_NEED - (m.f || 0)))); return; }
       const fav = BERRY[SET.fav(m.p)][1], n = need(m), accN = !n && SET.acc ? SET.accAt.find((t) => t > (m.f || 0)) : 0;
       bubble(x, y, `${m.s ? '✨ ' : ''}${name(m.p)} ${'💖'.repeat(Math.min(3, Math.ceil((m.f || 0) / 4)))}`);
       say(`${name(m.p)} · ${L().likes(fav)}${n ? ' · ' + L().toEvo(Math.max(1, n - (m.f || 0))) : accN ? ' · ' + L().accNext(accN - (m.f || 0), SET.acc(accN)) : ''}`);
+    }
+    // 알이 깨어남: 정해진 포켓몬/티니핑(첫 알) 또는 랜덤
+    function hatchEgg(e, m, x, y) {
+      if (e._busy) return;
+      const { id, q, ...v } = m;
+      const have = new Set(mons().filter(hatched).map((z) => z.p));
+      const p = SET.valid(m.p) ? m.p : SET.hatch(m.egg, have), s = Math.random() < SET.shiny;
+      e._busy = true; e.classList.add('hatch'); snd.tap(3);
+      setTimeout(() => { e._busy = false; W(['mons', id], { ...v, p, s, h: Date.now(), f: 0 }); news(s ? L().shinyHatch(name(p)) : L().hatched(name(p))); hearts(x, y, 8); }, 1300);
     }
     function feed(e, m, kind, x, y) {
       const key = take(kind, 1)[0];
@@ -335,12 +343,8 @@
       if (!hatched(m)) {
         const f = (m.f || 0) + 1;
         hearts(x, y, 2, BERRY[kind][1]); snd.coin();
-        if (f >= EGG_NEED) {
-          const have = new Set(mons().filter(hatched).map((z) => z.p));
-          const p = SET.valid(m.p) ? m.p : SET.hatch(m.egg, have), s = Math.random() < SET.shiny;
-          e._busy = true; e.classList.add('hatch');
-          setTimeout(() => { e._busy = false; W(['mons', id], { ...v, p, s, h: Date.now(), f: 0 }); news(s ? L().shinyHatch(name(p)) : L().hatched(name(p))); hearts(x, y, 8); }, 1300);
-        } else { W(['mons', id], { ...v, f }); bubble(x, y, L().eggInfo(EGG_NEED - f)); }
+        if (f >= EGG_NEED) hatchEgg(e, m, x, y);
+        else { W(['mons', id], { ...v, f }); bubble(x, y, L().eggInfo(EGG_NEED - f)); }
       } else {
         const fav = SET.fav(m.p) === kind, f = (m.f || 0) + (fav ? 2 : 1), nexts = SET.next(m.p), n = need(m), a0 = accOf(m), a1 = accOf({ ...m, f });
         hearts(x, y, fav ? 6 : 3, BERRY[kind][1]); snd.coin();
@@ -444,7 +448,7 @@
       coinEl.textContent = `🪙 ${count('coin')}`;
       btnShop.textContent = `🛒 ${L().shop}`; btnShop.setAttribute('aria-pressed', String(open === 'shop'));
       btnDex.textContent = `📖 ${new Set(mons().filter(hatched).map((m) => m.p)).size}/${SET.dex.length}`; btnDex.setAttribute('aria-pressed', String(open === 'dex'));
-      if (!msgUntil || Date.now() > msgUntil) msg.textContent = feeding ? L().feedHint(`${BERRY[feeding][1]} ${bName(feeding)}`) : isNight() ? L().sleep : mons().length ? L().pickBerry : '';
+      if (!msgUntil || Date.now() > msgUntil) msg.textContent = feeding ? L().feedHint(`${BERRY[feeding][1]} ${bName(feeding)}`) : isNight() ? L().sleep : mons().some((m) => m.q && !hatched(m)) ? L().tapEgg : mons().length ? L().pickBerry : '';
     }
     function buy(key, price, done) {
       const c = count('coin');

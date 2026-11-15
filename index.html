@@ -3336,12 +3336,12 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
   // 🗑 지우기: 그날 스티커 (그 주 황금 스티커도 — 이제 주가 안 찼으니) / 황금 스티커. 되돌리기 가능
   function delDay(k, x) {
-    const kd = kidOf(k), s = (kd.stickers || {})[x.id], wk = FS.weekKeys(x.key)[0], g = (kd.golds || {})[wk], it = ((kd.poke || {}).items || {})[x.id]; // 그날 받은 열매/코인도 (아직 안 썼으면)
-    if (it) kidsWrite([k, 'poke', 'items', x.id], null);
+    const kd = kidOf(k), s = (kd.stickers || {})[x.id], wk = FS.weekKeys(x.key)[0], g = (kd.golds || {})[wk], it = ((kd[FS.ROOM] || {}).items || {})[x.id]; // 그날 받은 열매/코인도 (아직 안 썼으면)
+    if (it) kidsWrite([k, FS.ROOM, 'items', x.id], null);
     kidsWrite([k, 'mdone', x.key, 'got'], null);
     kidsWrite([k, 'stickers', x.id], null);
     if (g) kidsWrite([k, 'golds', wk], null);
-    toast(L().delToast, () => { kidsWrite([k, 'mdone', x.key, 'got'], x.id); if (s) kidsWrite([k, 'stickers', x.id], s); if (g) kidsWrite([k, 'golds', wk], g); if (it) kidsWrite([k, 'poke', 'items', x.id], it); });
+    toast(L().delToast, () => { kidsWrite([k, 'mdone', x.key, 'got'], x.id); if (s) kidsWrite([k, 'stickers', x.id], s); if (g) kidsWrite([k, 'golds', wk], g); if (it) kidsWrite([k, FS.ROOM, 'items', x.id], it); });
   }
   function delGold(k, g) {
     const { week, ...v } = g;
@@ -3357,7 +3357,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     kidsWrite([k, 'mdone', day, 'got'], id);
     kidsWrite([k, 'stickers', id], { at: Date.now(), d, why: '@mission', by: myId() });
     const it = FS.rewardItem(d); // 🥚 포켓몬 방 가방에 열매/코인
-    if (it) kidsWrite([k, 'poke', 'items', id], it);
+    if (it) kidsWrite([k, FS.ROOM, 'items', id], it);
     SND.stick();
   }
 

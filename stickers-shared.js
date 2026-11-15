@@ -6,10 +6,10 @@
      lock = { on, pin }  (kids.lock: 엄마·아빠 비밀번호 2자리)
    다빈 = 동글동글 속성 몬스터, 아린 = 반짝이 하트 요정 (직접 그린 SVG — 예전 스티커).
    🥚 포켓몬 알 키우기 (다빈·아린·엄마·아빠): 오늘 미션을 다 하면 선물 상자에서 열매(5가지) 또는 🪙 코인이 나옴.
-     그날 스티커의 d = 2000 + 열매 번호 / 2100 = 코인 (스티커판에도 그 그림). 받은 것은 kids.{k}.poke.items.{스티커 id} = 'apple' | 'coin' …
-     kids.{k}.poke = { start, items: {id: 열매|'coin'}, mons: {id: { egg, p?(태어난 포켓몬), f(하트), s?(반짝이), at }}, deco: {가구: {x, y, off?}}, home?: [방에 나온 id], gp: {황금 주: 1} }
+     그날 스티커의 d = 2000 + 열매 번호 / 2100 = 코인 (스티커판에도 그 그림). 받은 것은 kids.{k}.room.items.{스티커 id} = 'apple' | 'coin' …
+     kids.{k}.room (예전 이름 poke) = { start, items: {id: 열매|'coin'}, mons: {id: { egg, p?(태어난 포켓몬), f(하트), s?(반짝이), at }}, deco: {가구: {x, y, off?}}, home?: [방에 나온 id], gp: {황금 주: 1} }
      그림은 PokeAPI에서 받아 poke/ (art = 도감, walk/walk-s = 방에서 걷는 그림). 방 화면은 poke-room.js
-   💖 아린 방만 티니핑 (charSet): 같은 kids.arin.poke 에 저장, poke.set = 'ping'. 처음엔 하츄핑이 와 있고 나머지는 하트 알에서 랜덤. 그림 ping/{id}.webp */
+   💖 아린 방만 티니핑 (charSet): 같은 kids.arin.room 에 저장. 처음엔 하츄핑이 하트 알 안에 있고 (톡 누르면 바로 깨어남) 나머지는 하트 알에서 랜덤. 그림 ping/{id}.webp */
 (() => {
   'use strict';
   const MONSTERS = [
@@ -198,6 +198,8 @@
       acc: (f) => (f >= 15 ? '👑✨' : f >= 10 ? '👑' : f >= 5 ? '🎀' : ''), accAt: [5, 10, 15], room: 'princess' },
   };
   const charSet = (kid) => SETS[kid === 'arin' ? 'ping' : 'poke'];
+  // 키우기 방 자료가 들어 있는 칸: kids.{k}.room (2026-11-15 밤 엄마 요청으로 모두 새로 시작 — 예전 kids.{k}.poke 는 안 씀)
+  const ROOM = 'room';
   // 오늘 미션 선물: 열매 2/3, 코인 1/3. d = 2000 + 열매 번호, 2100 = 코인
   const newRewardD = () => (Math.random() < 1 / 3 ? 2100 : 2000 + Math.floor(Math.random() * BERRIES.length));
   const rewardItem = (d) => (d === 2100 ? 'coin' : d >= 2000 && BERRIES[d - 2000] ? BERRIES[d - 2000][0] : '');
@@ -315,7 +317,8 @@
     const days = keys.map((key, i) => {
       // sick = 우리가족 '오늘 일정'에서 그 아이를 🤒 아파요로 넣은 날 (자동으로 쉬는 날처럼 셈)
       const got = md[key] && md[key].got, s = got && st[got], sick = !got && !!(md[key] && md[key].sick);
-      const it = got && !s && kidData.poke && kidData.poke.items ? kidData.poke.items[got] : ''; // 예전 엄마·아빠 방 선물 (스티커 없이 열매/코인만)
+      const bag = (x) => (kidData[x] && kidData[x].items ? kidData[x].items[got] : '');
+      const it = got && !s ? bag(ROOM) || bag('poke') : ''; // 예전 엄마·아빠 방 선물 (스티커 없이 열매/코인만)
       const itD = it === 'coin' ? 2100 : it ? 2000 + BERRIES.findIndex((b) => b[0] === it) : -1;
       const off = !got && (sick || !!(md[key] && md[key].off));
       return { key, i, got: !!got, off, sick, id: got || '', d: s && typeof s.d === 'number' ? s.d : itD >= 2000 ? itD : i,
@@ -360,6 +363,6 @@
   const ttOf = (kidData) => (kidData && kidData.timetable && typeof kidData.timetable === 'object') ? { ...TT_DEFAULT, ...kidData.timetable } : TT_DEFAULT;
 
   window.FamilyStickers = { TT_TIMES, TT_DEFAULT, SUBJECTS, ttOf, weekCompletesWithOff, monsterSVG, fairySVG, stickerSVG, STICKER_N, giftSVG, bigSVG, WHY, tone, SND, cfgOf, stickersOf, boardOf, progressOf,
-    BASE, PING, charSet, DEX, POKE_N, pokeName, pokeArt, pokeWalk, pokeStage, pokeNext, BERRIES, favBerry, EGGS, START_EGGS, EGG_PRICE, eggHTML, hatchPick, newRewardD, rewardItem, rewardIcon, rewardLabel, rewardSVG,
+    BASE, ROOM, PING, charSet, DEX, POKE_N, pokeName, pokeArt, pokeWalk, pokeStage, pokeNext, BERRIES, favBerry, EGGS, START_EGGS, EGG_PRICE, eggHTML, hatchPick, newRewardD, rewardItem, rewardIcon, rewardLabel, rewardSVG,
     MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionLabel, isWeekday, weekKeys, weekState, WEEK_LABEL, weekCompletesToday, goldState };
 })();
