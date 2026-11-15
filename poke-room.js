@@ -1,10 +1,10 @@
-/* 🥚 포켓몬 방 — 우리가족 앱과 우리집 한눈에(아이패드)가 같이 씀. 다빈 · 아린 · 엄마 각자 방이 하나씩.
-   다빈 · 아린은 주간 미션 스티커로, 엄마 · 아빠는 방 안의 오늘 미션으로 선물을 받음.
+/* 🥚 포켓몬 방 — 우리가족 앱과 우리집 한눈에(아이패드)가 같이 씀. 다빈 · 아린 · 엄마 · 아빠 각자 방이 하나씩.
+   네 명 모두 똑같이: 🎯 미션 탭에서 오늘 미션을 다 하면 선물 상자 → 스티커 + 열매/코인이 이 방 가방에 들어옴.
    처음엔 알 하나를 고름 (불꽃=파이리, 물=꼬부기, 풀=이상해씨, 번개=피카츄).
    오늘 미션을 다 하면 선물 상자에서 열매(5가지) 또는 🪙 코인. 열매를 먹이면 알이 깨고(5개) 포켓몬이 진화(하트 10개, 15개).
    좋아하는 열매는 하트 2개. 코인으로 새 알(10개)과 가구를 삼. 황금 스티커 = 🪙 3개, 황금 스티커 4개마다 🌟 황금 알(전설).
    자료: kids.{k}.poke (stickers-shared.js 맨 위 설명). 방 배경·가구·알은 직접 그린 것/이모지, 포켓몬 그림만 poke/ 폴더.
-   쓰는 법: const room = PokeRoom.mount(el, { kid, lang: () => 'ko', data: () => kids[k], write: (path, v) => …(kids.{k} 아래 경로), big?, snd?, missions?(엄마: 미션도 방 안에서) });
+   쓰는 법: const room = PokeRoom.mount(el, { kid, lang: () => 'ko', data: () => kids[k], write: (path, v) => …(kids.{k} 아래 경로), big?, snd? });
             room.update(); room.destroy(); */
 (() => {
   'use strict';
@@ -23,7 +23,6 @@
       eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
       homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, dexHead: (n) => `도감 ${n} / 151`,
       goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
-      msTitle: '🎯 오늘의 미션', msClaim: '🎁 선물 상자 열기', msGot: '✅ 오늘 선물을 받았어요', tapBox: '톡톡톡 3번 눌러요!', got: (x) => `${x} 받았어요!`,
     },
     de: {
       pickTitle: '🥚 Such dir ein Ei aus!', pickSub: 'Füttere es mit Beeren, dann schlüpft ein Pokémon', shop: 'Laden', close: 'Schließen',
@@ -34,7 +33,6 @@
       eggCame: (n) => `🥚 Ein ${n} ist da!`, decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
       homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, dexHead: (n) => `Pokédex ${n} / 151`,
       goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
-      msTitle: '🎯 Tagesmission', msClaim: '🎁 Geschenk öffnen', msGot: '✅ Heute schon bekommen', tapBox: '3-mal antippen!', got: (x) => `${x} bekommen!`,
     },
   };
   // 가구: [이모지, 기본 x, 기본 y, 벽(1), 크기, 값(코인)]
@@ -98,18 +96,6 @@
   display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 2px 0 rgba(0,0,0,.08); width: calc(62px * var(--pr-s)); }
 .pr-pick button .pk-egg { width: 56%; animation: pr-wob 2.6s ease-in-out infinite; }
 .pr-pick button:nth-child(2) .pk-egg { animation-delay: .4s; } .pr-pick button:nth-child(3) .pk-egg { animation-delay: .8s; } .pr-pick button:nth-child(4) .pk-egg { animation-delay: 1.2s; }
-.pr-gift { position: absolute; inset: 0; z-index: 1002; display: grid; place-content: center; justify-items: center; gap: 8px; background: rgba(40,20,0,.35); }
-.pr-gift button { border: 0; background: none; font-size: calc(90px * var(--pr-s)); line-height: 1; cursor: pointer; }
-.pr-gift button.shake { animation: pr-wob .5s; }
-.pr-gift span { background: #fff; border-radius: 14px; padding: .35em .9em; font-weight: 800; color: #6B3E12; font-size: calc(15px * var(--pr-s)); }
-.pr-ms { background: #FFF6E8; border-radius: 16px; padding: 10px; margin-bottom: 10px; }
-.pr-ms .h { display: flex; justify-content: space-between; font-weight: 800; color: #6B3E12; margin-bottom: 8px; font-size: calc(14px * var(--pr-s)); }
-.pr-ms .tiles { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 6px; }
-.pr-ms .tiles button { border: 0; border-radius: 12px; background: #fff; padding: 8px 4px; font: inherit; font-size: calc(12px * var(--pr-s)); color: #6B3E12; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
-.pr-ms .tiles button .e { font-size: calc(24px * var(--pr-s)); }
-.pr-ms .tiles button.done { background: #D9F5DD; box-shadow: inset 0 0 0 2px #4CBF5A; }
-.pr-ms .claim, .pr-ms .got { margin-top: 8px; width: 100%; border: 0; border-radius: 12px; padding: 10px; font: inherit; font-weight: 800; font-size: calc(15px * var(--pr-s)); text-align: center; }
-.pr-ms .claim { background: #FF8A3D; color: #fff; cursor: pointer; } .pr-ms .got { background: #EAF7EC; color: #2E7D3A; }
 .pr-berries { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
 .pr-berries button { border: 0; border-radius: 14px; padding: calc(6px * var(--pr-s)) 2px; font: inherit; font-weight: 800; font-size: calc(14px * var(--pr-s)); background: #FFF0D6; color: #6B3E12; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 3px; }
@@ -162,7 +148,6 @@
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const uid = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   const isNight = () => { const h = new Date().getHours(); return h >= 20 || h < 7; };
-  const keyOf = (x) => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
 
   function mount(root, o) {
     addCss();
@@ -173,7 +158,6 @@
     const bName = (k) => BERRY[k][lang() === 'de' ? 3 : 2];
     const eggName = (egg) => (FS.EGGS[egg] || FS.EGGS.mystery)[lang() === 'de' ? 3 : 2];
     const snd = { tap() {}, tada() {}, boing() {}, stick() {}, coin() {}, ...(o.snd || {}) };
-    const msBox = el('div', { class: 'pr-ms', hidden: '' });
     const roomEl = el('div', { class: 'pr-room' }, el('div', { class: 'pr-win', 'aria-hidden': 'true' }, el('i'), el('b')));
     const berryRow = el('div', { class: 'pr-berries' });
     const coinEl = el('span');
@@ -181,7 +165,7 @@
     const btnDex = el('button', { type: 'button', 'aria-pressed': 'false' });
     const msg = el('p', { class: 'pr-msg' });
     const panel = el('div', { class: 'pr-panel', hidden: '' });
-    const wrap = el('div', { class: 'pr' }, msBox, roomEl, berryRow, el('div', { class: 'pr-bar' }, coinEl, btnShop, btnDex), msg, panel);
+    const wrap = el('div', { class: 'pr' }, roomEl, berryRow, el('div', { class: 'pr-bar' }, coinEl, btnShop, btnDex), msg, panel);
     root.replaceChildren(wrap);
     let feeding = '', open = '', alive = true, scale = 1, armed = '', grantAt = 0, msgUntil = 0;
     const monEls = new Map(), decoEls = new Map();
@@ -361,41 +345,6 @@
       return e;
     }
 
-    // ── 엄마: 미션과 선물 상자도 방 안에서 ──
-    function renderMissions() {
-      msBox.hidden = !o.missions;
-      if (!o.missions) return;
-      const day = keyOf(new Date()), M = FS.missionState(o.data() || {}, o.kid, day);
-      msBox.replaceChildren(...[el('div', { class: 'h' }, el('span', { text: L().msTitle }), el('span', { text: `${M.done} / ${M.total}` })),
-        el('div', { class: 'tiles', style: `--n:${Math.max(1, M.total)}` }, ...M.list.map((x) => el('button', { type: 'button', class: M.day[x.id] ? 'done' : '', onclick: () => {
-          if (M.got) return;
-          const on = !M.day[x.id];
-          o.write(['mdone', day, x.id], on ? true : null); snd.tap(on ? 3 : 1);
-          if (on && M.done + 1 === M.total) setTimeout(openGift, 400);
-        } }, el('span', { class: 'e', text: FS.missionIcon(x) }), el('span', { text: FS.missionLabel(x, lang()) })))),
-        M.got ? el('div', { class: 'got', text: L().msGot }) : M.all ? el('button', { type: 'button', class: 'claim', text: L().msClaim, onclick: openGift }) : null].filter(Boolean));
-    }
-    function openGift() {
-      const day = keyOf(new Date()), M = FS.missionState(o.data() || {}, o.kid, day);
-      if (!M.all || M.got || roomEl.querySelector('.pr-gift')) return;
-      const d = FS.newRewardD();
-      let taps = 0;
-      const hint = el('span', { text: L().tapBox });
-      const box = el('button', { type: 'button', text: '🎁', onclick: () => {
-        if (taps >= 3) return;
-        taps++; snd.tap(taps);
-        box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
-        if (taps < 3) return;
-        box.textContent = FS.rewardIcon(d); hint.textContent = L().got(`${FS.rewardIcon(d)} ${FS.rewardLabel(d, lang())}`); snd.tada();
-        const id = uid('m');
-        W(['items', id], FS.rewardItem(d));
-        o.write(['mdone', day, 'got'], id);
-        setTimeout(() => ov.remove(), 1600);
-      } });
-      const ov = el('div', { class: 'pr-gift' }, box, hint);
-      roomEl.append(ov);
-    }
-
     function renderRoom() {
       wrap.classList.toggle('night', isNight());
       scale = Math.min(2.4, Math.max(1, roomEl.clientWidth / 300));
@@ -488,7 +437,7 @@
         panel.replaceChildren(el('h4', {}, el('span', { text: L().homeHead(home.length) }), closeB), grid, el('h4', {}, el('span', { text: L().dexHead(seen.size) })), dex);
       }
     }
-    function renderAll() { if (!alive) return; renderMissions(); renderRoom(); renderBar(); renderPanel(); }
+    function renderAll() { if (!alive) return; renderRoom(); renderBar(); renderPanel(); }
 
     btnShop.addEventListener('click', () => { open = open === 'shop' ? '' : 'shop'; armed = ''; feeding = ''; renderAll(); });
     btnDex.addEventListener('click', () => { open = open === 'dex' ? '' : 'dex'; armed = ''; feeding = ''; renderAll(); });

@@ -3062,15 +3062,13 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
 
   function renderKidScreen() {
     const k = kidName, P = progressOf(k), c = P.c;
-    const grown = k === 'mom' || k === 'dad';
-    if (grown) kidTab = 'room'; // 엄마·아빠는 포켓몬 방만 (미션도 방 안에)
-    else if (k !== 'davin' && kidTab === 'money') kidTab = 'stickers';
+    if (k !== 'davin' && kidTab === 'money') kidTab = 'stickers'; // 네 명 모두 같은 화면: 🎯 주간 미션 · 🥚 포켓몬 (다빈만 🐷 용돈)
     if (kidTab !== 'stickers') delMode = false;
     $('#kid').className = `screen k-${k}`;
     $('#kid-avatar').src = `avatar-${k}.png`;
     $('#kid-title').textContent = L().who[k];
     // 탭 (다빈만: 스티커 / 용돈)
-    $('#kid-tabs').hidden = grown;
+    $('#kid-tabs').hidden = false;
     document.querySelector('[data-kid-tab="money"]').hidden = k !== 'davin';
     for (const b of document.querySelectorAll('[data-kid-tab]')) b.setAttribute('aria-selected', String(b.dataset.kidTab === kidTab));
     $('#tab-stickers').hidden = kidTab !== 'stickers';
@@ -3079,7 +3077,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     // 🏠 포켓몬 방 (poke-room.js — 우리집 한눈에와 같이 씀)
     if (roomCtl && roomCtl.k !== k) { roomCtl.destroy(); roomCtl = null; }
     if (kidTab === 'room' && window.PokeRoom) {
-      if (!roomCtl) { roomCtl = window.PokeRoom.mount($('#kid-room'), { kid: k, lang: () => lang, data: () => kidOf(k), write: (path, v) => kidsWrite([k, ...path], v), snd: SND, missions: grown }); roomCtl.k = k; }
+      if (!roomCtl) { roomCtl = window.PokeRoom.mount($('#kid-room'), { kid: k, lang: () => lang, data: () => kidOf(k), write: (path, v) => kidsWrite([k, ...path], v), snd: SND }); roomCtl.k = k; }
       else roomCtl.update();
     } else if (roomCtl) { roomCtl.destroy(); roomCtl = null; }
     $('#kid-cfg-btn').hidden = kidTab !== 'stickers';
@@ -3296,12 +3294,14 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
           const on = !M.day[x.id];
           kidsWrite([k, 'mdone', day, x.id], on ? true : null);
           SND.tap(on ? 3 : 1);
-          if (on && M.done + 1 === M.total && !M.got) setTimeout(() => parentOnly(() => missionGift(k)), 350); // 마지막 미션 → (엄마·아빠 확인) → 선물 상자
+          if (on && M.done + 1 === M.total && !M.got) setTimeout(() => askGift(k), 350); // 마지막 미션 → (아이면 엄마·아빠 확인) → 선물 상자
         } }, h('span', { class: 'e', text: FS.missionIcon(x) }), h('span', { class: 't', text: FS.missionLabel(x, lang) })))),
       ...(M.got ? [h('div', { class: 'ms-got', text: L().msGot })]
-        : M.all ? [h('button', { type: 'button', class: 'ms-claim', text: (unlocked() ? '' : '🔒 ') + L().msClaim,
-          onclick: () => parentOnly(() => missionGift(k)) })] : []));
+        : M.all ? [h('button', { type: 'button', class: 'ms-claim', text: (unlocked() || GROWN(k) ? '' : '🔒 ') + L().msClaim,
+          onclick: () => askGift(k) })] : []));
   }
+  const GROWN = (k) => k === 'mom' || k === 'dad';
+  const askGift = (k) => (GROWN(k) ? missionGift(k) : parentOnly(() => missionGift(k)));
   // 🎁 미션 선물 상자: 화면 위에 떠서 톡톡톡 3번 → 스티커가 펑 → 저절로 그 요일 칸에 붙음 (+ 일주일 다 채우면 🏅 황금 스티커)
   // 쉬는 날 표시/해제 (아프거나 여행 간 날). 표시해서 이번 주가 다 차면 황금 스티커도
   function toggleOff(k, x) {

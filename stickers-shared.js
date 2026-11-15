@@ -248,8 +248,10 @@
     const days = keys.map((key, i) => {
       // sick = 우리가족 '오늘 일정'에서 그 아이를 🤒 아파요로 넣은 날 (자동으로 쉬는 날처럼 셈)
       const got = md[key] && md[key].got, s = got && st[got], sick = !got && !!(md[key] && md[key].sick);
+      const it = got && !s && kidData.poke && kidData.poke.items ? kidData.poke.items[got] : ''; // 예전 엄마·아빠 방 선물 (스티커 없이 열매/코인만)
+      const itD = it === 'coin' ? 2100 : it ? 2000 + BERRIES.findIndex((b) => b[0] === it) : -1;
       const off = !got && (sick || !!(md[key] && md[key].off));
-      return { key, i, got: !!got, off, sick, id: got || '', d: s && typeof s.d === 'number' ? s.d : i,
+      return { key, i, got: !!got, off, sick, id: got || '', d: s && typeof s.d === 'number' ? s.d : itD >= 2000 ? itD : i,
         status: got ? 'got' : off ? 'off' : key === today ? 'today' : key < today ? 'missed' : 'future' };
     });
     const count = days.filter((x) => x.got).length, offs = days.filter((x) => x.off).length;
