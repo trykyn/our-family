@@ -4,7 +4,10 @@
      stickers.{id} = { at, d(그림 번호), why('@brush' 또는 직접 쓴 글), src?, tr?, by }
      cfg = { small, big, reward, bigReward, start }   ← start 이후에 붙인 스티커가 지금 판
      lock = { on, pin }  (kids.lock: 엄마·아빠 비밀번호 2자리)
-   다빈 = 동글동글 속성 몬스터, 아린 = 반짝이 하트 요정 (직접 그린 SVG) */
+   다빈 = 포켓몬 1세대 151마리 (그림은 PokeAPI에서 받아 poke/ 폴더에 넣음: art = 스티커, walk = 방에서 걷는 그림, walk-s = 반짝이),
+   아린 = 반짝이 하트 요정 (직접 그린 SVG). 다빈 스티커의 d: 1000 + 포켓몬 번호 (예전 몬스터 0~7은 비슷한 속성 포켓몬으로 보임)
+   포켓몬 방: kids.{k}.room = { mons: { [스티커 id]: { p(지금 모습), b(처음 받은 포켓몬), at, f(먹은 열매), s?(반짝이), g?(전설) } },
+     used(쓴 열매), deco: { [가구]: { x, y, off? } }, home?: [방에 나와 있는 포켓몬 id], seeded? } — 그리는 건 poke-room.js */
 (() => {
   'use strict';
   const MONSTERS = [
@@ -63,8 +66,59 @@
       <path d="M84 20l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z" fill="#FFD23F"/>
     </svg>`;
   }
-  const stickerSVG = (kid, d) => (kid === 'arin' ? fairySVG(d) : monsterSVG(d));
   const STICKER_N = 8;
+
+  /* ── 포켓몬 (다빈) ── DEX[번호] = [한국어, 독일어, 진화 전 번호(0 = 첫 단계), 전설(1)] */
+  const BASE = (document.currentScript && document.currentScript.src) ? new URL('.', document.currentScript.src).href : './';
+  const DEX = {
+    1:["이상해씨","Bisasam",0,0],2:["이상해풀","Bisaknosp",1,0],3:["이상해꽃","Bisaflor",2,0],4:["파이리","Glumanda",0,0],5:["리자드","Glutexo",4,0],6:["리자몽","Glurak",5,0],
+    7:["꼬부기","Schiggy",0,0],8:["어니부기","Schillok",7,0],9:["거북왕","Turtok",8,0],10:["캐터피","Raupy",0,0],11:["단데기","Safcon",10,0],12:["버터플","Smettbo",11,0],
+    13:["뿔충이","Hornliu",0,0],14:["딱충이","Kokuna",13,0],15:["독침붕","Bibor",14,0],16:["구구","Taubsi",0,0],17:["피죤","Tauboga",16,0],18:["피죤투","Tauboss",17,0],
+    19:["꼬렛","Rattfratz",0,0],20:["레트라","Rattikarl",19,0],21:["깨비참","Habitak",0,0],22:["깨비드릴조","Ibitak",21,0],23:["아보","Rettan",0,0],24:["아보크","Arbok",23,0],
+    25:["피카츄","Pikachu",0,0],26:["라이츄","Raichu",25,0],27:["모래두지","Sandan",0,0],28:["고지","Sandamer",27,0],29:["니드런♀","Nidoran♀",0,0],30:["니드리나","Nidorina",29,0],
+    31:["니드퀸","Nidoqueen",30,0],32:["니드런♂","Nidoran♂",0,0],33:["니드리노","Nidorino",32,0],34:["니드킹","Nidoking",33,0],35:["삐삐","Piepi",0,0],36:["픽시","Pixi",35,0],
+    37:["식스테일","Vulpix",0,0],38:["나인테일","Vulnona",37,0],39:["푸린","Pummeluff",0,0],40:["푸크린","Knuddeluff",39,0],41:["주뱃","Zubat",0,0],42:["골뱃","Golbat",41,0],
+    43:["뚜벅쵸","Myrapla",0,0],44:["냄새꼬","Duflor",43,0],45:["라플레시아","Giflor",44,0],46:["파라스","Paras",0,0],47:["파라섹트","Parasek",46,0],48:["콘팡","Bluzuk",0,0],
+    49:["도나리","Omot",48,0],50:["디그다","Digda",0,0],51:["닥트리오","Digdri",50,0],52:["나옹","Mauzi",0,0],53:["페르시온","Snobilikat",52,0],54:["고라파덕","Enton",0,0],
+    55:["골덕","Entoron",54,0],56:["망키","Menki",0,0],57:["성원숭","Rasaff",56,0],58:["가디","Fukano",0,0],59:["윈디","Arkani",58,0],60:["발챙이","Quapsel",0,0],
+    61:["슈륙챙이","Quaputzi",60,0],62:["강챙이","Quappo",61,0],63:["캐이시","Abra",0,0],64:["윤겔라","Kadabra",63,0],65:["후딘","Simsala",64,0],66:["알통몬","Machollo",0,0],
+    67:["근육몬","Maschock",66,0],68:["괴력몬","Machomei",67,0],69:["모다피","Knofensa",0,0],70:["우츠동","Ultrigaria",69,0],71:["우츠보트","Sarzenia",70,0],72:["왕눈해","Tentacha",0,0],
+    73:["독파리","Tentoxa",72,0],74:["꼬마돌","Kleinstein",0,0],75:["데구리","Georok",74,0],76:["딱구리","Geowaz",75,0],77:["포니타","Ponita",0,0],78:["날쌩마","Gallopa",77,0],
+    79:["야돈","Flegmon",0,0],80:["야도란","Lahmus",79,0],81:["코일","Magnetilo",0,0],82:["레어코일","Magneton",81,0],83:["파오리","Porenta",0,0],84:["두두","Dodu",0,0],
+    85:["두트리오","Dodri",84,0],86:["쥬쥬","Jurob",0,0],87:["쥬레곤","Jugong",86,0],88:["질퍽이","Sleima",0,0],89:["질뻐기","Sleimok",88,0],90:["셀러","Muschas",0,0],
+    91:["파르셀","Austos",90,0],92:["고오스","Nebulak",0,0],93:["고우스트","Alpollo",92,0],94:["팬텀","Gengar",93,0],95:["롱스톤","Onix",0,0],96:["슬리프","Traumato",0,0],
+    97:["슬리퍼","Hypno",96,0],98:["크랩","Krabby",0,0],99:["킹크랩","Kingler",98,0],100:["찌리리공","Voltobal",0,0],101:["붐볼","Lektrobal",100,0],102:["아라리","Owei",0,0],
+    103:["나시","Kokowei",102,0],104:["탕구리","Tragosso",0,0],105:["텅구리","Knogga",104,0],106:["시라소몬","Kicklee",0,0],107:["홍수몬","Nockchan",0,0],108:["내루미","Schlurp",0,0],
+    109:["또가스","Smogon",0,0],110:["또도가스","Smogmog",109,0],111:["뿔카노","Rihorn",0,0],112:["코뿌리","Rizeros",111,0],113:["럭키","Chaneira",0,0],114:["덩쿠리","Tangela",0,0],
+    115:["캥카","Kangama",0,0],116:["쏘드라","Seeper",0,0],117:["시드라","Seemon",116,0],118:["콘치","Goldini",0,0],119:["왕콘치","Golking",118,0],120:["별가사리","Sterndu",0,0],
+    121:["아쿠스타","Starmie",120,0],122:["마임맨","Pantimos",0,0],123:["스라크","Sichlor",0,0],124:["루주라","Rossana",0,0],125:["에레브","Elektek",0,0],126:["마그마","Magmar",0,0],
+    127:["쁘사이저","Pinsir",0,0],128:["켄타로스","Tauros",0,0],129:["잉어킹","Karpador",0,0],130:["갸라도스","Garados",129,0],131:["라프라스","Lapras",0,0],132:["메타몽","Ditto",0,0],
+    133:["이브이","Evoli",0,0],134:["샤미드","Aquana",133,0],135:["쥬피썬더","Blitza",133,0],136:["부스터","Flamara",133,0],137:["폴리곤","Porygon",0,0],138:["암나이트","Amonitas",0,0],
+    139:["암스타","Amoroso",138,0],140:["투구","Kabuto",0,0],141:["투구푸스","Kabutops",140,0],142:["프테라","Aerodactyl",0,0],143:["잠만보","Relaxo",0,0],144:["프리져","Arktos",0,1],
+    145:["썬더","Zapdos",0,1],146:["파이어","Lavados",0,1],147:["미뇽","Dratini",0,0],148:["신뇽","Dragonir",147,0],149:["망나뇽","Dragoran",148,0],150:["뮤츠","Mewtu",0,1],
+    151:["뮤","Mew",0,1],
+  };
+  const POKE_N = 151;
+  const POKE_OF_MON = [4, 7, 1, 25, 92, 35, 131, 74]; // 예전 몬스터(불·물·풀·번개·뿔·별·거품·바위) → 비슷한 포켓몬
+  const pokeOf = (d) => (d >= 1000 && DEX[d - 1000] ? d - 1000 : POKE_OF_MON[((Math.floor(d) || 0) % 8 + 8) % 8]);
+  const pokeName = (id, lang) => (DEX[id] ? DEX[id][lang === 'de' ? 1 : 0] : '');
+  const pokeArt = (id) => `${BASE}poke/art/${id}.png`;
+  const pokeWalk = (id, shiny) => `${BASE}poke/${shiny ? 'walk-s' : 'walk'}/${id}.gif`;
+  const pokeSVG = (d) => `<svg viewBox="0 0 100 100" aria-hidden="true"><image href="${pokeArt(pokeOf(d))}" x="3" y="3" width="94" height="94"/></svg>`;
+  const pokeStage = (id) => { let n = 1; for (let x = id; DEX[x] && DEX[x][2]; x = DEX[x][2]) n++; return n; };
+  const pokeNext = (id) => Object.keys(DEX).map(Number).filter((x) => DEX[x][2] === id); // 이브이는 3가지
+  const BASE_IDS = Object.keys(DEX).map(Number).filter((x) => !DEX[x][2] && !DEX[x][3]);
+  const LEGEND_IDS = Object.keys(DEX).map(Number).filter((x) => DEX[x][3]);
+  const stickerSVG = (kid, d) => (kid === 'arin' ? fairySVG(d) : pokeSVG(d));
+  // 새 스티커 그림: 다빈 = 아직 없는 첫 단계 포켓몬 중에서 (다 모으면 아무거나), 아린 = 요정 8가지
+  function newStickerD(kidData, k) {
+    if (k === 'arin') return Math.floor(Math.random() * STICKER_N);
+    const have = new Set(Object.values((kidData && kidData.room && kidData.room.mons) || {}).map((m) => m && m.b));
+    const fresh = BASE_IDS.filter((x) => !have.has(x)), list = fresh.length ? fresh : BASE_IDS;
+    return 1000 + list[Math.floor(Math.random() * list.length)];
+  }
+  // 미션 스티커를 받으면 포켓몬 방에도 한 마리 (다빈만)
+  const roomMon = (k, d) => (k === 'arin' ? null : { p: pokeOf(d), b: pokeOf(d), at: Date.now(), f: 0 });
   // 선물 상자 (아이 색)
   const giftSVG = (kid) => {
     const [a, b] = kid === 'arin' ? ['#FF9ED2', '#C79BF2'] : ['#FFE45C', '#FF9F1C'];
@@ -213,5 +267,6 @@
   const ttOf = (kidData) => (kidData && kidData.timetable && typeof kidData.timetable === 'object') ? { ...TT_DEFAULT, ...kidData.timetable } : TT_DEFAULT;
 
   window.FamilyStickers = { TT_TIMES, TT_DEFAULT, SUBJECTS, ttOf, weekCompletesWithOff, monsterSVG, fairySVG, stickerSVG, STICKER_N, giftSVG, bigSVG, WHY, tone, SND, cfgOf, stickersOf, boardOf, progressOf,
+    BASE, DEX, POKE_N, pokeOf, pokeName, pokeArt, pokeWalk, pokeStage, pokeNext, BASE_IDS, LEGEND_IDS, newStickerD, roomMon,
     MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionLabel, isWeekday, weekKeys, weekState, WEEK_LABEL, weekCompletesToday, goldState };
 })();
