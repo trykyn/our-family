@@ -216,6 +216,9 @@
       return all.slice(-HOME_MAX).map((m) => m.id);
     };
     const need = (m) => (!hatched(m) ? EGG_NEED : SET.next(m.p).length ? SET.evoNeed(m.p) : 0);
+    // 도감: 한 번 만난 친구는 계속 남음 (진화 · 변신해도 전 모습이 안 꺼짐). room.dex.{id} = 1 + 지금 방 친구
+    const seenSet = () => new Set([...Object.keys(pk().dex || {}), ...mons().filter(hatched).map((m) => String(m.p))]);
+    const meet = (...ids) => { const d = pk().dex || {}; for (const p of ids) if (p != null && !d[String(p)]) W(['dex', String(p)], 1); };
     const accOf = (m) => (SET.acc && hatched(m) && !SET.next(m.p).length ? SET.acc(m.f || 0) : ''); // 💖 변신 없는 티니핑: 하트로 🎀 → 👑
     const say = (t) => { msg.textContent = t; msgUntil = Date.now() + 3000; };
     function addHome(id) { const h = pk().home; if (Array.isArray(h) && h.length < HOME_MAX) W(['home'], [...h, id]); }
@@ -333,7 +336,7 @@
       const have = new Set(mons().filter(hatched).map((z) => z.p));
       const p = SET.valid(m.p) ? m.p : SET.hatch(m.egg, have), s = Math.random() < SET.shiny;
       e._busy = true; e.classList.add('hatch'); snd.tap(3);
-      setTimeout(() => { e._busy = false; W(['mons', id], { ...v, p, s, h: Date.now(), f: 0 }); news(s ? L().shinyHatch(name(p)) : L().hatched(name(p))); hearts(x, y, 8); }, 1300);
+      setTimeout(() => { e._busy = false; W(['mons', id], { ...v, p, s, h: Date.now(), f: 0 }); meet(p); news(s ? L().shinyHatch(name(p)) : L().hatched(name(p))); hearts(x, y, 8); }, 1300);
     }
     function feed(e, m, kind, x, y) {
       const key = take(kind, 1)[0];
@@ -351,7 +354,7 @@
         if (nexts.length && f >= n) {
           const to = pick(nexts), from = m.p;
           e._busy = true; e.classList.add('evo');
-          setTimeout(() => { W(['mons', id], { ...v, p: to, f: 0 }); }, 700);
+          setTimeout(() => { W(['mons', id], { ...v, p: to, f: 0 }); meet(from, to); }, 700);
           setTimeout(() => { e._busy = false; e.classList.remove('evo'); news(SET.key === 'ping' ? L().changed(name(to)) : L().evolved(name(from), name(to))); }, 1400);
         } else { W(['mons', id], { ...v, f }); bubble(x, y, fav ? L().fav : L().ate(name(m.p))); if (a1 !== a0) setTimeout(() => news(L().accGot(a1)), 500); }
       }
@@ -447,7 +450,7 @@
       }));
       coinEl.textContent = `🪙 ${count('coin')}`;
       btnShop.textContent = `🛒 ${L().shop}`; btnShop.setAttribute('aria-pressed', String(open === 'shop'));
-      btnDex.textContent = `📖 ${new Set(mons().filter(hatched).map((m) => m.p)).size}/${SET.dex.length}`; btnDex.setAttribute('aria-pressed', String(open === 'dex'));
+      btnDex.textContent = `📖 ${SET.dex.filter((id) => seenSet().has(String(id))).length}/${SET.dex.length}`; btnDex.setAttribute('aria-pressed', String(open === 'dex'));
       if (!msgUntil || Date.now() > msgUntil) msg.textContent = feeding ? L().feedHint(`${BERRY[feeding][1]} ${bName(feeding)}`) : isNight() ? L().sleep : mons().some((m) => m.q && !hatched(m)) ? L().tapEgg : mons().length ? L().pickBerry : '';
     }
     function buy(key, price, done) {
@@ -479,7 +482,7 @@
         panel.replaceChildren(el('h4', {}, el('span', { text: L().shopHead(coins) }), closeB), el('h4', {}, el('span', { text: L().eggs })), eggs,
           el('h4', {}, el('span', { text: L().furn })), el('p', { text: L().decoTip }), furn);
       } else {
-        const all = mons(), home = homeIds(), seen = new Set(all.filter(hatched).map((m) => m.p));
+        const all = mons(), home = homeIds(), seenS = seenSet(), seen = { has: (id) => seenS.has(String(id)) }, nSeen = SET.dex.filter((id) => seen.has(id)).length;
         const grid = el('div', { class: 'pr-grid' }, ...[...all].reverse().map((m) => el('button', { type: 'button', class: home.includes(m.id) ? 'on' : '', onclick: () => {
           const h = homeIds(), i = h.indexOf(m.id);
           if (i >= 0) h.splice(i, 1); else if (h.length >= HOME_MAX) { say(L().homeFull); return; } else h.push(m.id);
@@ -488,7 +491,7 @@
           el('span', { class: 'n', text: hatched(m) ? name(m.p) : eggName(m.egg) }), m.s && hatched(m) ? el('span', { class: 'b', text: '✨' }) : null)));
         const dex = el('div', { class: 'pr-grid' }, ...SET.dex.map((id) => el('button', { type: 'button', class: seen.has(id) ? '' : 'unk', tabindex: '-1' },
           el('img', { src: SET.art(id), alt: '', loading: 'lazy' }), el('span', { class: 'n', text: seen.has(id) ? name(id) : typeof id === 'number' ? `#${id}` : '?' }))));
-        panel.replaceChildren(el('h4', {}, el('span', { text: L().homeHead(home.length) }), closeB), grid, el('h4', {}, el('span', { text: L().dexHead(seen.size, SET.dex.length) })), dex);
+        panel.replaceChildren(el('h4', {}, el('span', { text: L().homeHead(home.length) }), closeB), grid, el('h4', {}, el('span', { text: L().dexHead(nSeen, SET.dex.length) })), dex);
       }
     }
     function renderAll() { if (!alive) return; renderRoom(); renderBar(); renderPanel(); }
