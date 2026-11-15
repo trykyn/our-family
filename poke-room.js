@@ -93,12 +93,24 @@
 .pr-mon.egg.hatch > .pk-egg { animation: pr-hatch 1.3s ease-in-out forwards; }
 @keyframes pr-hatch { 0% { transform: rotate(0); } 10%, 30%, 50% { transform: rotate(-14deg); } 20%, 40%, 60% { transform: rotate(14deg); } 85% { transform: scale(1.3); filter: brightness(0) invert(1); } 100% { transform: scale(1.4); filter: brightness(0) invert(1); opacity: .6; } }
 .pr.smooth .pr-mon img { image-rendering: auto; filter: drop-shadow(0 2px 2px rgba(0,0,0,.12)); }
-.pr.smooth .pr-mon:not(.egg):not(.walk):not(.jump):not(.evo) > img { animation: pr-idle 2.6s ease-in-out infinite; animation-delay: var(--wd, 0s); }
-.pr.smooth.night .pr-mon:not(.egg):not(.walk):not(.jump):not(.evo) > img { animation-duration: 4.5s; }
+.pr-body { position: relative; display: block; transform-origin: 50% 100%; pointer-events: none; --h: 52px; }
+.pr.smooth .pr-mon.flip img { transform: none; }
+.pr.smooth .pr-mon.flip > .pr-body { transform: scaleX(-1); }
+.pr.smooth .pr-mon.jump > .pr-body { animation: pr-jump .5s ease-out; }
+.pr.smooth .pr-mon.flip.jump > .pr-body { animation-name: pr-jumpf; }
+.pr.smooth .pr-mon.evo > .pr-body { animation: pr-evo 1.4s ease-in-out; }
+.pr.smooth .pr-mon:not(.egg):not(.walk):not(.jump):not(.evo) > .pr-body { animation: pr-idle 2.6s ease-in-out infinite; animation-delay: var(--wd, 0s); }
+.pr.smooth.night .pr-mon:not(.egg):not(.walk):not(.jump):not(.evo) > .pr-body { animation-duration: 4.5s; }
 @keyframes pr-idle { 0%, 100% { scale: 1 1; rotate: 0deg; } 25% { rotate: -3deg; } 50% { scale: 1.04 .96; } 75% { rotate: 3deg; } }
-.pr.smooth .pr-mon.walk:not(.jump):not(.evo) > img { animation: pr-bob .42s ease-in-out infinite alternate; }
+.pr.smooth .pr-mon.walk:not(.jump):not(.evo) > .pr-body { animation: pr-bob .42s ease-in-out infinite alternate; }
 @keyframes pr-bob { from { translate: 0 0; rotate: -3deg; } to { translate: 0 -6%; rotate: 3deg; } }
-.pr-mon .acc { position: absolute; left: 50%; top: 0; transform: translate(-50%, -55%); font-size: calc(17px * var(--pr-s)); line-height: 1; white-space: nowrap; pointer-events: none; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+/* 장신구: 그림 크기(--h)에 맞춰 몸에 딱 붙임 — 왕관은 머리 꼭대기, 리본은 머리 옆, 구두는 발, 반짝이는 몸 둘레 */
+.pr-acc { position: absolute; line-height: 1; pointer-events: none; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+.pr-acc.cr { font-size: calc(var(--h) * .28); transform: translate(-50%, -70%) rotate(-6deg); }
+.pr-acc.rb { font-size: calc(var(--h) * .22); transform: translate(-62%, -55%) rotate(18deg); }
+.pr-acc.sh { bottom: 0; font-size: calc(var(--h) * .19); transform: translate(-50%, 28%); }
+.pr-acc.sp { left: 2%; top: 22%; font-size: calc(var(--h) * .18); animation: pr-tw 1.6s infinite; }
+.pr-acc.sp + .pr-acc.sp2 { left: auto; right: 0; top: 55%; animation-delay: .8s; }
 .pr.princess .pr-room { background: linear-gradient(#FFE6F3 0 52%, #F4A9CB 52% 53.2%, #FAD4E6 53.2%); box-shadow: inset 0 0 0 3px rgba(240,120,170,.25); }
 .pr.princess .pr-room::before { background: conic-gradient(#FFF7FB 25%, #F9C9DE 0 50%, #FFF7FB 0 75%, #F9C9DE 0) 0 0 / 12.5% 25%; opacity: .95; }
 .pr.princess .pr-room::after { background: repeating-linear-gradient(90deg, rgba(255,255,255,.55) 0 14px, transparent 14px 34px), radial-gradient(circle at 17px 14px, rgba(246,200,107,.8) 2px, transparent 2.6px) 0 0 / 34px 30px; }
@@ -222,7 +234,7 @@
     // 도감: 한 번 만난 친구는 계속 남음 (진화 · 변신해도 전 모습이 안 꺼짐). room.dex.{id} = 1 + 지금 방 친구
     const seenSet = () => new Set([...Object.keys(pk().dex || {}), ...mons().filter(hatched).map((m) => String(m.p))]);
     const meet = (...ids) => { const d = pk().dex || {}; for (const p of ids) if (p != null && !d[String(p)]) W(['dex', String(p)], 1); };
-    const accOf = (m) => (SET.acc && hatched(m) && !SET.next(m.p).length ? SET.acc(m.f || 0) : ''); // 💖 변신 없는 티니핑: 하트로 🎀 → 👑
+    const accOf = (m) => (SET.acc && hatched(m) && !SET.next(m.p).length ? SET.acc(m.f || 0) : ''); // 💖 변신 없는 티니핑: 하트로 🎀 → 🩰 → 👑 → ✨
     const say = (t) => { msg.textContent = t; msgUntil = Date.now() + 3000; };
     function addHome(id) { const h = pk().home; if (Array.isArray(h) && h.length < HOME_MAX) W(['home'], [...h, id]); }
 
@@ -289,7 +301,7 @@
     }
     function sizeImg(e) {
       if (e._egg) { const img = e.querySelector('.pk-egg'); if (img) img.style.width = `${(SET.room ? 46 : 34) * scale}px`; return; }
-      if (e._img && SET.room) { e._img.style.height = `${52 * scale}px`; return; } // 티니핑 그림은 크기가 제각각 → 키를 맞춤
+      if (e._img && SET.room) { e._img.style.height = `${52 * scale}px`; e._img.parentElement.style.setProperty('--h', `${52 * scale}px`); return; } // 티니핑 그림은 크기가 제각각 → 키를 맞춤
       if (e._img && e._img.naturalWidth) e._img.style.width = `${e._img.naturalWidth * scale}px`;
     }
     function monEl(id) {
@@ -312,10 +324,16 @@
       } else {
         const img = el('img', { alt: '', draggable: 'false', src: SET.walk(m.p, m.s) });
         img.onload = () => sizeImg(e);
-        e.replaceChildren(img); e._img = img;
-        e.style.setProperty('--wd', `-${rnd(0, 2.6).toFixed(2)}s`); // 친구마다 움직이는 박자가 다르게
+        e._img = img;
+        if (SET.room) { // 티니핑: 그림과 장신구를 한 몸으로 (같이 숨쉬고 · 걷고 · 폴짝)
+          const ACC = { '🎀': 'rb', '🩰': 'sh', '👑': 'cr', '✨': 'sp' }, wear = Array.from(acc).filter((x) => ACC[x]);
+          const [hx, ht, rx, ry, fx] = SET.anchor(m.p), POS = { cr: `left:${hx}%;top:${ht}%`, rb: `left:${rx}%;top:${ry}%`, sh: `left:${fx}%`, sp: '' };
+          e.replaceChildren(el('span', { class: 'pr-body' }, img, ...wear.map((x) => el('span', { class: `pr-acc ${ACC[x]}`, text: x, style: POS[ACC[x]] })),
+            ...(wear.includes('✨') ? [el('span', { class: 'pr-acc sp sp2', text: '✨' })] : [])));
+          e.style.setProperty('--wd', `-${rnd(0, 2.6).toFixed(2)}s`); // 친구마다 움직이는 박자가 다르게
+          sizeImg(e);
+        } else e.replaceChildren(img);
         if (m.s) e.append(el('span', { class: 'shine', text: '✨' }));
-        if (acc) e.append(el('span', { class: 'acc', text: acc }));
         e.setAttribute('aria-label', name(m.p));
       }
     }
@@ -331,7 +349,7 @@
       if (!hatched(m)) { bubble(x, y, eggName(m.egg)); say(L().eggInfo(Math.max(1, EGG_NEED - (m.f || 0)))); return; }
       const fav = BERRY[SET.fav(m.p)][1], n = need(m), accN = !n && SET.acc ? SET.accAt.find((t) => t > (m.f || 0)) : 0;
       bubble(x, y, `${m.s ? '✨ ' : ''}${name(m.p)} ${'💖'.repeat(Math.min(3, Math.ceil((m.f || 0) / 4)))}`);
-      say(`${name(m.p)} · ${L().likes(fav)}${n ? ' · ' + L().toEvo(Math.max(1, n - (m.f || 0))) : accN ? ' · ' + L().accNext(accN - (m.f || 0), SET.acc(accN)) : ''}`);
+      say(`${name(m.p)} · ${L().likes(fav)}${n ? ' · ' + L().toEvo(Math.max(1, n - (m.f || 0))) : accN ? ' · ' + L().accNext(accN - (m.f || 0), SET.accNew(accN)) : ''}`);
     }
     // 알이 깨어남: 정해진 포켓몬/티니핑(첫 알) 또는 랜덤
     function hatchEgg(e, m, x, y) {
@@ -360,7 +378,7 @@
           e._busy = true; e.classList.add('evo');
           setTimeout(() => { W(['mons', id], { ...v, p: to, f: 0 }); meet(from, to); }, 700);
           setTimeout(() => { e._busy = false; e.classList.remove('evo'); news(SET.key === 'ping' ? L().changed(name(to)) : L().evolved(name(from), name(to))); }, 1400);
-        } else { W(['mons', id], { ...v, f }); bubble(x, y, fav ? L().fav : L().ate(name(m.p))); if (a1 !== a0) setTimeout(() => news(L().accGot(a1)), 500); }
+        } else { W(['mons', id], { ...v, f }); bubble(x, y, fav ? L().fav : L().ate(name(m.p))); if (a1 !== a0) setTimeout(() => news(L().accGot(Array.from(a1).pop())), 500); }
       }
       setTimeout(renderBar, 60);
     }
