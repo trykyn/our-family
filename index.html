@@ -292,16 +292,18 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .ms-gift-card .taps i.on { background: var(--kc); }
 .ms-gift-card .box-hint { font-weight: 700; color: var(--muted); }
 .ms-got { margin-top: 8px; text-align: center; font-weight: 700; color: #2E9D5A; }
-.ms-cfg { display: grid; gap: 6px; margin-top: 6px; }
+.ms-cfg { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; margin-top: 6px; min-width: 0; } /* 휴대폰에서 창 밖으로 밀리지 않게 */
 .ms-cfg .row-m { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 12px; background: var(--sky-soft); }
 .ms-cfg .row-m .e { font-size: 22px; }
-.ms-cfg .row-m .t { flex: 1; min-width: 0; font-weight: 600; }
+.ms-cfg .row-m .t { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ms-cfg .row-m button { flex: none; }
 .ms-cfg .row-m button { border: 0; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 700; background: var(--surface); color: var(--muted); }
 .ms-cfg .row-m button.wd[aria-pressed="true"] { background: var(--deep); color: #fff; }
 .ms-cfg .add { display: flex; flex-wrap: wrap; gap: 6px; }
 .ms-cfg .add button { border: 1.5px dashed var(--line); background: none; border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 600; color: var(--deep); }
-.ms-cfg .own { display: flex; gap: 6px; }
-.ms-cfg .own .field { flex: 1; min-width: 0; }
+.ms-cfg .own { display: flex; gap: 6px; min-width: 0; }
+.ms-cfg .own .field { flex: 1; min-width: 0; width: 0; }
+.ms-cfg .own .btn { flex: none; padding: 0 14px; }
 .big-row { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
 .big { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; padding: 0; border: 3px dashed color-mix(in srgb, #E0A000 45%, transparent); background: none; color: color-mix(in srgb, #E0A000 55%, transparent); font-size: 22px; }
 .big.full { border: 0; cursor: pointer; }
@@ -542,7 +544,7 @@ input[type="date"].field::-webkit-date-and-time-value { text-align: left; margin
 @keyframes up { from { transform: translateY(30px); opacity: 0; } }
 .sheet h3 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 22px; }
 .sheet .orig { margin: 0; padding: 8px 12px; border-radius: 10px; background: var(--sky-soft); font-size: 13px; white-space: pre-line; overflow-wrap: anywhere; }
-.lbl { display: grid; gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.lbl { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
 .lbl > span, .lbl > legend { font-size: 13px; font-weight: 600; color: var(--muted); padding: 0; }
 textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: vertical; line-height: 1.5; font-family: inherit; }
 .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
