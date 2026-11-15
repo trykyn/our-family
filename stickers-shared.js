@@ -149,19 +149,21 @@
   const missionsOf = (kidData, k) => ((kidData && Array.isArray(kidData.missions)) ? kidData.missions : (MISSION_DEFAULT[k] || [])).filter((x) => x && x.id);
   const dowOf = (key) => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
   const isWeekday = (key) => { const w = dowOf(key); return w >= 1 && w <= 5; };
-  // 미션은 월~금만 (주말은 쉬는 날)
-  const missionsOn = (kidData, k, key) => (isWeekday(key) ? missionsOf(kidData, k) : []);
+  // 미션은 매일 (월~일). '평일만'(wd) 미션은 주말에 빠짐 — 예: 가방 챙기기
+  const missionsOn = (kidData, k, key) => missionsOf(kidData, k).filter((x) => !x.wd || isWeekday(key));
   function missionState(kidData, k, key) {
     const list = missionsOn(kidData, k, key), day = (kidData && kidData.mdone && kidData.mdone[key]) || {};
     const done = list.filter((x) => day[x.id]).length;
     return { list, day, done, total: list.length, all: list.length > 0 && done === list.length, got: !!day.got };
   }
-  /* ── 주간 스티커판: 월~금 5칸. 그날 미션을 다 하고 받은 스티커(mdone.{날짜}.got)가 그 요일 칸에 붙음. 5칸 다 차면 이번 주 선물(cfg.reward) ── */
-  const WEEK_LABEL = { ko: ['월', '화', '수', '목', '금'], de: ['Mo', 'Di', 'Mi', 'Do', 'Fr'] };
+  /* ── 주간 미션판: 월~일 7칸. 그날 미션을 다 하고 받은 스티커(mdone.{날짜}.got)가 그 요일 칸에 붙음.
+     7칸이 다 차면 그 주 🏅 황금 스티커 1개 (kids.{k}.golds.{그 주 월요일} = { at, d }). 황금 스티커 cfg.big(기본 4)개 = 선물(cfg.reward).
+     새 판은 cfg.start (그 뒤에 받은 황금 스티커만 셈) ── */
+  const WEEK_LABEL = { ko: ['월', '화', '수', '목', '금', '토', '일'], de: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'] };
   const keyOfDate = (x) => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
   function weekKeys(key) {
     const [y, m, d] = key.split('-').map(Number), dt = new Date(y, m - 1, d), off = (dt.getDay() + 6) % 7;
-    return [0, 1, 2, 3, 4].map((i) => keyOfDate(new Date(y, m - 1, d - off + i)));
+    return [0, 1, 2, 3, 4, 5, 6].map((i) => keyOfDate(new Date(y, m - 1, d - off + i)));
   }
   function weekState(kidData, k, today) {
     const keys = weekKeys(today), st = (kidData && kidData.stickers) || {}, md = (kidData && kidData.mdone) || {};
@@ -171,11 +173,24 @@
         status: got ? 'got' : key === today ? 'today' : key < today ? 'missed' : 'future' };
     });
     const count = days.filter((x) => x.got).length;
-    return { keys, days, count, all: count === 5, weekend: !isWeekday(today) };
+    const gold = !!((kidData && kidData.golds) || {})[keys[0]];
+    return { keys, days, count, all: count === 7, gold };
+  }
+  // 오늘 스티커를 붙이면 이번 주 7칸이 다 차는지 (차면 황금 스티커를 같이 줌)
+  function weekCompletesToday(kidData, k, today) {
+    const W = weekState(kidData, k, today);
+    return !W.gold && W.days.every((x) => x.got || x.key === today);
+  }
+  // 황금 스티커: 이번 판(cfg.start 이후)에 모은 것, 선물까지 몇 개
+  function goldState(kidData, k) {
+    const c = cfgOf(kidData, k);
+    const golds = Object.entries((kidData && kidData.golds) || {}).map(([week, g]) => ({ week, ...g }))
+      .filter((g) => (g.at || 0) >= (c.start || 0)).sort((a, b) => (a.at || 0) - (b.at || 0));
+    return { c, golds, need: c.big, count: Math.min(golds.length, c.big), gift: golds.length >= c.big };
   }
   const missionIcon = (x) => (MISSIONS[x.id] ? MISSIONS[x.id][0] : x.ic || '⭐');
   const missionLabel = (x, lang) => (MISSIONS[x.id] ? MISSIONS[x.id][lang === 'de' ? 2 : 1] : (x.text || ''));
 
   window.FamilyStickers = { monsterSVG, fairySVG, stickerSVG, STICKER_N, giftSVG, bigSVG, WHY, tone, SND, cfgOf, stickersOf, boardOf, progressOf,
-    MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionLabel, isWeekday, weekKeys, weekState, WEEK_LABEL };
+    MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionLabel, isWeekday, weekKeys, weekState, WEEK_LABEL, weekCompletesToday, goldState };
 })();

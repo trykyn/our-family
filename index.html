@@ -252,7 +252,7 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .board-head .cnt { flex: none; font-family: var(--font-display); font-size: 24px; color: var(--kc); }
 .board-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .slot.wk { margin-bottom: 20px; overflow: visible; }
-.slot.wk .day { position: absolute; left: 0; right: 0; bottom: -20px; text-align: center; font-family: var(--font-display); font-size: 15px; font-weight: 400; color: var(--kc); }
+.slot.wk .day { position: absolute; left: 0; right: 0; bottom: -20px; text-align: center; font-family: var(--font-display); font-size: 14px; font-weight: 400; color: var(--kc); }
 .slot.wk.today { border-style: solid; border-width: 3px; border-color: var(--kc); background: color-mix(in srgb, var(--k1) 22%, var(--surface)); }
 .slot.wk.missed { opacity: .45; font-size: 22px; }
 .week-rest { text-align: center; margin: 4px 0 0; }
@@ -720,7 +720,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     </button>
   </header>
   <div class="kid-tabs" id="kid-tabs" role="tablist" hidden>
-    <button type="button" role="tab" data-kid-tab="stickers" data-t="tabStickers">⭐ 칭찬 스티커</button>
+    <button type="button" role="tab" data-kid-tab="stickers" data-t="tabStickers">🎯 주간 미션</button>
     <button type="button" role="tab" data-kid-tab="money" data-t="tabMoney">🐷 용돈</button>
   </div>
   <section class="card" id="tab-stickers">
@@ -788,7 +788,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   <form class="sheet" id="cfg-form" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="cfg-title" novalidate>
     <h3 id="cfg-title"></h3>
     <label class="lbl" hidden><span data-t="cfgSmall">작은 스티커 몇 개 = 큰 스티커 1장?</span><input class="field" id="cfg-small" type="number" inputmode="numeric" min="3" max="30"></label>
-    <label class="lbl" hidden><span data-t="cfgBig">큰 스티커 몇 장 = 선물?</span><input class="field" id="cfg-big" type="number" inputmode="numeric" min="2" max="8"></label>
+    <label class="lbl"><span data-t="cfgBig">큰 스티커 몇 장 = 선물?</span><input class="field" id="cfg-big" type="number" inputmode="numeric" min="2" max="8"></label>
     <label class="lbl" hidden><span data-t="cfgBigReward">🏅 큰 스티커 받을 때마다 (선택)</span><input class="field" id="cfg-bigreward" type="text" maxlength="60" data-t-ph="cfgBigRewardPh"></label>
     <label class="lbl"><span data-t="cfgReward">보상</span><input class="field" id="cfg-reward" type="text" maxlength="60" data-t-ph="cfgRewardPh"></label>
     <div class="lbl"><span data-t="msCfg">🎯 오늘의 미션 (다 하면 스티커 1장)</span><div class="ms-cfg" id="cfg-missions"></div></div>
@@ -1019,11 +1019,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', amS: '오전', pmS: '오후', prevDay: '전날', nextDay: '다음 날', pickDay: '날짜 고르기', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
       lgPub: '공휴일', lgSch: '학교 방학',
       kidCfg: '목표·보상 설정', money: '💶 용돈', moneyIn: '+ 받았어요', moneyOut: '− 썼어요', stickerHist: '최근 칭찬',
-      giveWhy: '무엇을 잘했나요? (선택)', giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', delHint: '지울 스티커를 누르세요', delDone: '완료', delToast: '스티커를 지웠어요', tabStickers: '⭐ 칭찬 스티커', tabMoney: '🐷 저금통', coinHint: '동전을 저금통에 넣어 봐!', lockTitle: '아이 화면 잠금 (비밀번호 2자리)', lockOnNote: '켜져 있어요. 스티커 주기 · 동전 넣기 · 용돈 기록 · 스티커 설정은 비밀번호를 넣어야 해요. 한 번 풀면 3분 동안 열려 있어요.', lockOffNote: '켜면 스티커 주기 · 동전 넣기 · 용돈 기록 · 스티커 설정에 엄마·아빠 비밀번호(2자리)가 필요해요.', lockOn: '잠금 켜기', lockOff: '잠금 끄기', pinAsk: '🔒 엄마·아빠 비밀번호', pinNew: '🔒 새 비밀번호 2자리', pinAgain: '🔒 한 번 더 넣어 주세요', pinWrong: '비밀번호가 달라요', pinMismatch: '처음 넣은 번호와 달라요', lockedHint: '🔒 엄마·아빠한테 보여 줘!', adjTitle: '🔒 저금통 금액 맞추기', adjHint: '저금통에 실제로 들어 있는 돈을 넣으면 그 금액으로 맞춰져요.', adjAmt: '저금통에 있는 돈 (€)', tapBox: '상자를 톡톡톡 눌러 봐!', giveStick: '⭐ 붙이기', cfgSmall: '작은 스티커 몇 개 = 큰 스티커 1장?', cfgBig: '큰 스티커 몇 장 = 선물?', cfgBigReward: '🏅 큰 스티커 받을 때마다 (선택)', cfgBigRewardPh: '예: 아이스크림', bigEarned: '🏅 큰 스티커!', cfgReward: '🎁 이번 주 선물 (월~금 미션을 다 하면)', cfgRewardPh: '예: 아이스크림, 놀이터, 레고',
+      giveWhy: '무엇을 잘했나요? (선택)', giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', delHint: '지울 스티커를 누르세요', delDone: '완료', delToast: '스티커를 지웠어요', tabStickers: '🎯 주간 미션', tabMoney: '🐷 저금통', coinHint: '동전을 저금통에 넣어 봐!', lockTitle: '아이 화면 잠금 (비밀번호 2자리)', lockOnNote: '켜져 있어요. 스티커 주기 · 동전 넣기 · 용돈 기록 · 스티커 설정은 비밀번호를 넣어야 해요. 한 번 풀면 3분 동안 열려 있어요.', lockOffNote: '켜면 스티커 주기 · 동전 넣기 · 용돈 기록 · 스티커 설정에 엄마·아빠 비밀번호(2자리)가 필요해요.', lockOn: '잠금 켜기', lockOff: '잠금 끄기', pinAsk: '🔒 엄마·아빠 비밀번호', pinNew: '🔒 새 비밀번호 2자리', pinAgain: '🔒 한 번 더 넣어 주세요', pinWrong: '비밀번호가 달라요', pinMismatch: '처음 넣은 번호와 달라요', lockedHint: '🔒 엄마·아빠한테 보여 줘!', adjTitle: '🔒 저금통 금액 맞추기', adjHint: '저금통에 실제로 들어 있는 돈을 넣으면 그 금액으로 맞춰져요.', adjAmt: '저금통에 있는 돈 (€)', tapBox: '상자를 톡톡톡 눌러 봐!', giveStick: '⭐ 붙이기', cfgSmall: '작은 스티커 몇 개 = 큰 스티커 1장?', cfgBig: '🏅 황금 스티커 몇 개 = 선물?', cfgBigReward: '🏅 큰 스티커 받을 때마다 (선택)', cfgBigRewardPh: '예: 아이스크림', bigEarned: '🏅 큰 스티커!', cfgReward: '🎁 선물 (황금 스티커를 다 모으면)', cfgRewardPh: '예: 아이스크림, 놀이터, 레고',
       moneyAmt: '금액 (€)', moneyNote: '내용', moneyNotePh: '직접 쓰기 (선택)', noReward: '🎁 오른쪽 위 선물 버튼으로 보상을 정해요',
       doneAll: (n) => `🎉 큰 스티커 ${n}장 다 모았어요!`, newBoard: '새 판 시작', giveBtn: '⭐ 칭찬 스티커 주기', goodJob: '잘했어요',
       delSticker: '이 스티커를 지울까요?', noStickers: '아직 스티커가 없어요.', delMoney: '이 기록을 지울까요?', noMoney: '아직 기록이 없어요.',
-      weekRule: '월~금 미션을 다 하면 받아요', weekDone: '🎉 이번 주 미션 다 했어요!', weekRest: '🎈 주말엔 쉬어요. 월요일에 새 판이 시작돼요.',
+      weekRule: '매일 미션 → 그날 칸에 스티커, 일주일 다 채우면 🏅 황금 스티커', goldTitle: '🏅 황금 스티커', weekGold: '🏅 이번 주 완성! 황금 스티커를 받았어요', goldDone: (n) => `🎉 황금 스티커 ${n}개 다 모았어요!`,
       msTitle: '🎯 오늘의 미션', msClaim: '🎁 미션 스티커 받기!', msGot: '✅ 오늘 미션 스티커를 받았어요!', msCfg: '🎯 오늘의 미션 (다 하면 스티커 1장)', msWd: '평일만', msAdd: '+ 추가', msOwnPh: '직접 쓰기 (예: 피아노 연습)',
       giveTitle: (n) => `${n}, 잘했어요! ⭐`, cfgTitle: (n) => `${n} 목표·보상`, moneyInTitle: '💶 받은 돈', moneyOutTitle: '💸 쓴 돈', moneyBad: '금액을 넣어 주세요.',
       vacTitle: '휴가', vacSet: '✈️ 휴가 설정', vacHint: '휴가 기간에는 가족 일정의 기본 일정이 모두 비어요. 그날만 넣은 일정은 그대로 보여요.',
@@ -1082,11 +1082,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', amS: 'Vorm.', pmS: 'Nachm.', prevDay: 'Vortag', nextDay: 'Nächster Tag', pickDay: 'Datum wählen', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
       lgPub: 'Feiertag', lgSch: 'Schulferien',
       kidCfg: 'Ziel & Belohnung', money: '💶 Taschengeld', moneyIn: '+ Bekommen', moneyOut: '− Ausgegeben', stickerHist: 'Letzte Sticker',
-      giveWhy: 'Wofür? (optional)', giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', delHint: 'Tippe auf einen Sticker zum Löschen', delDone: 'Fertig', delToast: 'Sticker gelöscht', tabStickers: '⭐ Sticker', tabMoney: '🐷 Sparschwein', coinHint: 'Wirf die Münzen ins Sparschwein!', lockTitle: 'Kindersperre (2-stelliger Code)', lockOnNote: 'Aktiv. Sticker geben, Münzen einwerfen, Taschengeld und Sticker-Einstellungen brauchen den Code. Danach bleibt es 3 Minuten offen.', lockOffNote: 'Wenn aktiv, brauchen Sticker geben, Münzen einwerfen, Taschengeld und Sticker-Einstellungen einen 2-stelligen Eltern-Code.', lockOn: 'Sperre einschalten', lockOff: 'Sperre ausschalten', pinAsk: '🔒 Eltern-Code', pinNew: '🔒 Neuer 2-stelliger Code', pinAgain: '🔒 Bitte noch einmal', pinWrong: 'Falscher Code', pinMismatch: 'Stimmt nicht mit dem ersten Code überein', lockedHint: '🔒 Zeig es Mama oder Papa!', adjTitle: '🔒 Betrag im Sparschwein korrigieren', adjHint: 'Gib ein, wie viel wirklich im Sparschwein ist – der Betrag wird darauf gesetzt.', adjAmt: 'Betrag im Sparschwein (€)', tapBox: 'Tipp dreimal aufs Geschenk!', giveStick: '⭐ Aufkleben', cfgSmall: 'Kleine Sticker für 1 großen?', cfgBig: 'Große Sticker bis zum Geschenk?', cfgBigReward: '🏅 Bei jedem großen Sticker (optional)', cfgBigRewardPh: 'z. B. ein Eis', bigEarned: '🏅 Großer Sticker!', cfgReward: '🎁 Wochen-Geschenk (Mo–Fr alle Missionen)', cfgRewardPh: 'z. B. Eis, Spielplatz, Lego',
+      giveWhy: 'Wofür? (optional)', giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', delHint: 'Tippe auf einen Sticker zum Löschen', delDone: 'Fertig', delToast: 'Sticker gelöscht', tabStickers: '🎯 Wochenmission', tabMoney: '🐷 Sparschwein', coinHint: 'Wirf die Münzen ins Sparschwein!', lockTitle: 'Kindersperre (2-stelliger Code)', lockOnNote: 'Aktiv. Sticker geben, Münzen einwerfen, Taschengeld und Sticker-Einstellungen brauchen den Code. Danach bleibt es 3 Minuten offen.', lockOffNote: 'Wenn aktiv, brauchen Sticker geben, Münzen einwerfen, Taschengeld und Sticker-Einstellungen einen 2-stelligen Eltern-Code.', lockOn: 'Sperre einschalten', lockOff: 'Sperre ausschalten', pinAsk: '🔒 Eltern-Code', pinNew: '🔒 Neuer 2-stelliger Code', pinAgain: '🔒 Bitte noch einmal', pinWrong: 'Falscher Code', pinMismatch: 'Stimmt nicht mit dem ersten Code überein', lockedHint: '🔒 Zeig es Mama oder Papa!', adjTitle: '🔒 Betrag im Sparschwein korrigieren', adjHint: 'Gib ein, wie viel wirklich im Sparschwein ist – der Betrag wird darauf gesetzt.', adjAmt: 'Betrag im Sparschwein (€)', tapBox: 'Tipp dreimal aufs Geschenk!', giveStick: '⭐ Aufkleben', cfgSmall: 'Kleine Sticker für 1 großen?', cfgBig: '🏅 Goldsticker bis zum Geschenk?', cfgBigReward: '🏅 Bei jedem großen Sticker (optional)', cfgBigRewardPh: 'z. B. ein Eis', bigEarned: '🏅 Großer Sticker!', cfgReward: '🎁 Geschenk (alle Goldsticker gesammelt)', cfgRewardPh: 'z. B. Eis, Spielplatz, Lego',
       moneyAmt: 'Betrag (€)', moneyNote: 'Wofür', moneyNotePh: 'Selbst schreiben (optional)', noReward: '🎁 Belohnung oben rechts beim Geschenk festlegen',
       doneAll: (n) => `🎉 Alle ${n} großen Sticker!`, newBoard: 'Neue Runde starten', giveBtn: '⭐ Sticker geben', goodJob: 'Gut gemacht',
       delSticker: 'Diesen Sticker löschen?', noStickers: 'Noch keine Sticker.', delMoney: 'Diesen Eintrag löschen?', noMoney: 'Noch keine Einträge.',
-      weekRule: 'Wenn Mo–Fr alle Missionen geschafft sind', weekDone: '🎉 Diese Woche alles geschafft!', weekRest: '🎈 Am Wochenende ist Pause. Montag geht es neu los.',
+      weekRule: 'Jeden Tag Mission → Sticker, ganze Woche voll → 🏅 Goldsticker', goldTitle: '🏅 Goldsticker', weekGold: '🏅 Woche geschafft! Goldsticker bekommen', goldDone: (n) => `🎉 Alle ${n} Goldsticker gesammelt!`,
       msTitle: '🎯 Tagesmission', msClaim: '🎁 Missions-Sticker holen!', msGot: '✅ Heute schon einen Missions-Sticker bekommen!', msCfg: '🎯 Tagesmission (alles geschafft = 1 Sticker)', msWd: 'Nur Mo–Fr', msAdd: '+ Hinzufügen', msOwnPh: 'Selbst schreiben (z. B. Klavier üben)',
       giveTitle: (n) => `Super, ${n}! ⭐`, cfgTitle: (n) => `Ziel & Belohnung für ${n}`, moneyInTitle: '💶 Bekommen', moneyOutTitle: '💸 Ausgegeben', moneyBad: 'Bitte einen Betrag eingeben.',
       vacTitle: 'Urlaub', vacSet: '✈️ Urlaub eintragen', vacHint: 'Im Urlaub sind die Standard-Pläne im Familienplan leer. Für einzelne Tage Eingetragenes bleibt sichtbar.',
@@ -2920,14 +2920,26 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#tab-money').hidden = kidTab !== 'money';
     $('#kid-cfg-btn').hidden = kidTab !== 'stickers';
     renderMissions(k);
-    // 주간 스티커판: 월~금 5칸 — 그날 미션을 다 하고 받은 스티커가 그 요일 칸에. 5칸 다 차면 이번 주 선물
-    const today = keyOf(new Date()), W = FS.weekState(kidOf(k), k, today);
+    // 주간 미션판: 월~일 7칸 — 그날 미션을 다 하고 받은 스티커가 그 요일 칸에. 7칸 다 차면 🏅 황금 스티커 1개, 황금 스티커를 다 모으면 선물
+    const today = keyOf(new Date()), W = FS.weekState(kidOf(k), k, today), G = FS.goldState(kidOf(k), k);
     const reward = textOf(c.reward, c.rsrc, c.rtr, c.by, {});
-    $('#kid-big').replaceChildren(h('span', { class: 'big-gift' + (W.all ? ' ready' : ''), 'aria-hidden': 'true', text: '🎁' }));
+    const golds = [];
+    for (let i = 0; i < G.need; i++) {
+      const g = G.golds[i];
+      if (!g) { golds.push(h('div', { class: 'big', text: '★' })); continue; }
+      const el = h('button', { type: 'button', class: 'big full' + (g.week === popGold ? ' pop' : ''), 'aria-label': L().goldTitle, onclick: () => { wiggle(el); SND.stick(); } });
+      el.innerHTML = bigSVG(k, g.d || 0);
+      golds.push(el);
+    }
+    golds.push(h('span', { class: 'big-gift' + (G.gift ? ' ready' : ''), 'aria-hidden': 'true', text: '🎁' }));
+    $('#kid-big').replaceChildren(...golds);
+    popGold = '';
     $('#kid-reward').replaceChildren(reward ? `🎁 ${reward}` : L().noReward, h('span', { class: 'sub', text: L().weekRule }));
-    $('#kid-count').textContent = `⭐ ${W.count} / 5`;
+    $('#kid-count').textContent = `⭐ ${W.count} / 7`;
     const labels = FS.WEEK_LABEL[lang] || FS.WEEK_LABEL.ko;
-    $('#kid-board').replaceChildren(...W.days.map((x) => {
+    const board = $('#kid-board');
+    board.style.gridTemplateColumns = 'repeat(7, minmax(0, 1fr))';
+    board.replaceChildren(...W.days.map((x) => {
       if (!x.got) return h('div', { class: `slot wk ${x.status}` }, h('span', { class: 'day', text: labels[x.i] }), x.status === 'missed' ? '·' : '');
       const el = h('button', { type: 'button', class: 'slot wk full' + (x.id === popId ? ' pop' : ''), 'aria-label': `${labels[x.i]} ⭐`, onclick: () => { wiggle(el); SND.boing(); } });
       el.innerHTML = stickerSVG(k, x.d);
@@ -2936,9 +2948,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     }));
     popId = null;
     $('#kid-delbar').hidden = true;
-    $('#kid-done').replaceChildren(...(W.all ? [h('div', { class: 'done-banner' }, h('b', { text: L().weekDone }), reward ? h('div', { class: 'rw', text: `🎁 ${reward}` }) : null)]
-      : W.weekend ? [h('p', { class: 'hint week-rest', text: L().weekRest })] : []));
-    $('#kid-give').hidden = true; // 칭찬 스티커는 이제 미션으로만 (그날 미션을 다 하면 1장)
+    $('#kid-done').replaceChildren(...(G.gift ? [h('div', { class: 'done-banner' },
+      h('b', { text: L().goldDone(G.need) }), reward ? h('div', { class: 'rw', text: `🎁 ${reward}` }) : null,
+      h('button', { type: 'button', class: 'btn', text: L().newBoard, onclick: () => parentOnly(() => kidsWrite([k, 'cfg'], { ...c, start: Date.now() })) }))]
+      : W.all ? [h('p', { class: 'hint week-rest', text: L().weekGold })] : []));
+    $('#kid-give').hidden = true; // 스티커는 미션으로만 (그날 미션을 다 하면 1장)
     $('#coins').classList.toggle('locked', !unlocked());
     document.querySelector('.coin-hint').textContent = unlocked() ? L().coinHint : L().lockedHint;
     // 용돈 (다빈만)
@@ -3105,7 +3119,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const giveSheet = $('#give-sheet');
   let giveWhy = '', giveD = 0, giveTaps = 0;
   /* 🎯 오늘의 미션: 아이가 한 것을 눌러 ✓, 다 하면 엄마·아빠가 '미션 스티커' 1장 (우리집 한눈에와 같은 자료 kids.{k}.mdone) */
-  let giveMission = false;
+  let giveMission = false, popGold = '';
   function renderMissions(k) {
     const box = $('#kid-missions'), day = keyOf(new Date());
     const M = FS.missionState(kidOf(k), k, day);
@@ -3171,7 +3185,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const own = $('#give-text').value.trim();
     const id = newId(), k = kidName;
     const s = { at: Date.now(), d: giveD, why: own || (giveWhy ? `@${giveWhy}` : ''), by: myId() };
-    if (giveMission) { kidsWrite([kidName, 'mdone', keyOf(new Date()), 'got'], id); giveMission = false; popId = id; } // 오늘 미션 스티커 받음
+    if (giveMission) { // 오늘 미션 스티커 받음 (+ 이번 주를 다 채웠으면 🏅 황금 스티커)
+      const day = keyOf(new Date());
+      if (FS.weekCompletesToday(kidOf(kidName), kidName, day)) { const wk = FS.weekKeys(day)[0]; kidsWrite([kidName, 'golds', wk], { at: Date.now(), d: giveD }); popGold = wk; setTimeout(() => SND.tada(), 500); }
+      kidsWrite([kidName, 'mdone', day, 'got'], id); giveMission = false; popId = id;
+    }
     if (own) s.src = hasHangul(own) ? 'ko' : 'de';
     const P = progressOf(k);
     const makesBig = false; // 주간판(월~금)에서는 큰 스티커로 합치지 않음
