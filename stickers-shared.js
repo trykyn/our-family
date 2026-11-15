@@ -168,18 +168,23 @@
   function weekState(kidData, k, today) {
     const keys = weekKeys(today), st = (kidData && kidData.stickers) || {}, md = (kidData && kidData.mdone) || {};
     const days = keys.map((key, i) => {
-      const got = md[key] && md[key].got, s = got && st[got];
-      return { key, i, got: !!got, id: got || '', d: s && typeof s.d === 'number' ? s.d : i,
-        status: got ? 'got' : key === today ? 'today' : key < today ? 'missed' : 'future' };
+      const got = md[key] && md[key].got, s = got && st[got], off = !got && !!(md[key] && md[key].off);
+      return { key, i, got: !!got, off, id: got || '', d: s && typeof s.d === 'number' ? s.d : i,
+        status: got ? 'got' : off ? 'off' : key === today ? 'today' : key < today ? 'missed' : 'future' };
     });
-    const count = days.filter((x) => x.got).length;
+    const count = days.filter((x) => x.got).length, offs = days.filter((x) => x.off).length;
     const gold = !!((kidData && kidData.golds) || {})[keys[0]];
-    return { keys, days, count, all: count === 7, gold };
+    return { keys, days, count, offs, all: count + offs === 7, gold };
   }
   // 오늘 스티커를 붙이면 이번 주 7칸이 다 차는지 (차면 황금 스티커를 같이 줌)
   function weekCompletesToday(kidData, k, today) {
     const W = weekState(kidData, k, today);
-    return !W.gold && W.days.every((x) => x.got || x.key === today);
+    return !W.gold && W.days.every((x) => x.got || x.off || x.key === today);
+  }
+  // 쉬는 날 표시로 이번 주가 다 차는지 (그날 = 쉬는 날로 바꾸는 날)
+  function weekCompletesWithOff(kidData, k, today, offKey) {
+    const W = weekState(kidData, k, today);
+    return !W.gold && W.keys.includes(offKey) && W.days.every((x) => x.got || x.off || x.key === offKey);
   }
   // 황금 스티커: 이번 판(cfg.start 이후)에 모은 것, 선물까지 몇 개
   function goldState(kidData, k) {
@@ -189,8 +194,22 @@
     return { c, golds, need: c.big, count: Math.min(golds.length, c.big), gift: golds.length >= c.big };
   }
   const missionIcon = (x) => (MISSIONS[x.id] ? MISSIONS[x.id][0] : x.ic || '⭐');
-  const missionLabel = (x, lang) => (MISSIONS[x.id] ? MISSIONS[x.id][lang === 'de' ? 2 : 1] : (x.text || ''));
+  const missionLabel = (x, lang) => (MISSIONS[x.id] ? MISSIONS[x.id][lang === 'de' ? 2 : 1] : (x.src && x.src !== lang && x.tr ? x.tr : (x.text || '')));
 
-  window.FamilyStickers = { monsterSVG, fairySVG, stickerSVG, STICKER_N, giftSVG, bigSVG, WHY, tone, SND, cfgOf, stickersOf, boardOf, progressOf,
+  /* ── 📚 다빈 시간표 (1d 반). kids.davin.timetable = { mon: [6교시], … } — 우리가족 앱 설정에서 고침, 우리집 한눈에 오늘 일정 아래에 보임 ── */
+  const TT_TIMES = [['8:00', '8:45'], ['8:45', '9:30'], ['9:50', '10:35'], ['10:35', '11:20'], ['11:35', '12:20'], ['12:20', '13:05']];
+  const TT_DEFAULT = {
+    mon: ['GU', 'GU', 'Sport', 'FöD/GU', 'GU', ''], tue: ['GU', 'GU', 'WG', 'GU', 'GU', 'Sport'], wed: ['GU', 'GU', 'GU', 'GU', '', ''],
+    thu: ['GU', 'GU', 'GU', 'GU', '(D-Plus)', ''], fri: ['Rel', 'Rel', 'GU', 'GU', 'GU', ''],
+  };
+  // 과목: [그림, 한국어, 독일어]. 괄호로 시작하면 일부만 (흐리게, 끝나는 시간에 안 셈)
+  const SUBJECTS = {
+    GU: ['📖', '수업', 'GU'], Sport: ['🤸', '체육', 'Sport'], WG: ['✂️', '만들기', 'WG'], 'FöD/GU': ['🔤', '독일어', 'FöD/GU'],
+    '(D-Plus)': ['🔤', '독일어+', 'D-Plus'], Rel: ['🙏', '종교·윤리', 'Reli/Ethik'], Mu: ['🎵', '음악', 'Musik'], Ku: ['🎨', '미술', 'Kunst'],
+    Eng: ['🔠', '영어', 'Englisch'], Ma: ['🔢', '수학', 'Mathe'], De: ['📝', '독일어', 'Deutsch'], Schwimmen: ['🏊', '수영', 'Schwimmen'],
+  };
+  const ttOf = (kidData) => (kidData && kidData.timetable && typeof kidData.timetable === 'object') ? { ...TT_DEFAULT, ...kidData.timetable } : TT_DEFAULT;
+
+  window.FamilyStickers = { TT_TIMES, TT_DEFAULT, SUBJECTS, ttOf, weekCompletesWithOff, monsterSVG, fairySVG, stickerSVG, STICKER_N, giftSVG, bigSVG, WHY, tone, SND, cfgOf, stickersOf, boardOf, progressOf,
     MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionLabel, isWeekday, weekKeys, weekState, WEEK_LABEL, weekCompletesToday, goldState };
 })();

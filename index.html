@@ -256,6 +256,9 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .slot.wk .day { position: absolute; left: 0; right: 0; bottom: -20px; text-align: center; font-family: var(--font-display); font-size: 14px; font-weight: 400; color: var(--kc); }
 .slot.wk.today { border-style: solid; border-width: 3px; border-color: var(--kc); background: color-mix(in srgb, var(--k1) 22%, var(--surface)); }
 .slot.wk.missed { opacity: .45; font-size: 22px; }
+.slot.wk.off { border-style: solid; border-color: #9CCBEA; background: #E8F4FD; font-size: 22px; opacity: 1; }
+button.slot.wk { cursor: pointer; }
+.wk-hint { font-size: 12px; color: var(--muted); text-align: center; margin: 8px 0 0; }
 .week-rest { text-align: center; margin: 4px 0 0; }
 .slot { position: relative; aspect-ratio: 1 / 1; border-radius: 50%; display: grid; place-items: center; border: 2px dashed color-mix(in srgb, var(--kc) 35%, transparent); color: color-mix(in srgb, var(--kc) 45%, transparent); font-size: 13px; font-weight: 700; padding: 0; background: none; }
 /* 지우기 모드: 스티커마다 빨간 ✕ */
@@ -293,6 +296,11 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .ms-gift-card .taps i.on { background: var(--kc); }
 .ms-gift-card .box-hint { font-weight: 700; color: var(--muted); }
 .ms-got { margin-top: 8px; text-align: center; font-weight: 700; color: #2E9D5A; }
+.tt-cfg { display: grid; gap: 4px; }
+.tt-row { display: grid; grid-template-columns: 22px repeat(6, minmax(0, 1fr)); gap: 3px; align-items: center; }
+.tt-row .d { font-weight: 700; font-size: 13px; color: var(--muted); }
+.tt-head span { font-size: 11px; font-weight: 700; color: var(--muted); text-align: center; }
+.tt-sel { min-width: 0; width: 100%; height: 36px; padding: 0 1px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font-size: 11px; -webkit-appearance: none; appearance: none; text-align: center; text-align-last: center; } /* 화살표 없이 '📖 수업'이 보이게 */
 .ms-cfg { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; margin-top: 6px; min-width: 0; } /* 휴대폰에서 창 밖으로 밀리지 않게 */
 .ms-cfg .row-m { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 12px; background: var(--sky-soft); }
 .ms-cfg .row-m .e { font-size: 22px; }
@@ -805,6 +813,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <label class="lbl" hidden><span data-t="cfgBigReward">🏅 큰 스티커 받을 때마다 (선택)</span><input class="field" id="cfg-bigreward" type="text" maxlength="60" data-t-ph="cfgBigRewardPh"></label>
     <label class="lbl"><span data-t="cfgReward">보상</span><input class="field" id="cfg-reward" type="text" maxlength="60" data-t-ph="cfgRewardPh"></label>
     <div class="lbl"><span data-t="msCfg">🎯 오늘의 미션 (다 하면 스티커 1장)</span><div class="ms-cfg" id="cfg-missions"></div></div>
+    <div class="lbl" id="cfg-tt-box" hidden><span data-t="ttCfg">📚 다빈 시간표</span><div class="tt-cfg" id="cfg-tt"></div></div>
     <button type="button" class="btn ghost" id="cfg-del" data-t="delMode" hidden>🗑 스티커 지우기</button>
     <div class="sheet-actions">
       <span class="grow"></span>
@@ -1036,6 +1045,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       moneyAmt: '금액 (€)', moneyNote: '내용', moneyNotePh: '직접 쓰기 (선택)', noReward: '🎁 오른쪽 위 선물 버튼으로 보상을 정해요',
       doneAll: (n) => `🎉 큰 스티커 ${n}장 다 모았어요!`, newBoard: '새 판 시작', giveBtn: '⭐ 칭찬 스티커 주기', goodJob: '잘했어요',
       delSticker: '이 스티커를 지울까요?', noStickers: '아직 스티커가 없어요.', delMoney: '이 기록을 지울까요?', noMoney: '아직 기록이 없어요.',
+      offDay: '쉬는 날', offHint: '빈 칸을 누르면 엄마·아빠가 🏖️ 쉬는 날(아프거나 여행 간 날)로 표시할 수 있어요', offDone: '🏖️ 쉬는 날로 표시했어요', offUndone: '쉬는 날 표시를 지웠어요', ttCfg: '📚 다빈 시간표 (월~금, 1~6교시)',
       weekRule: '매일 미션 → 그날 칸에 스티커, 일주일 다 채우면 🏅 황금 스티커', goldTitle: '🏅 황금 스티커', weekGold: '🏅 이번 주 완성! 황금 스티커를 받았어요', goldDone: (n) => `🎉 황금 스티커 ${n}개 다 모았어요!`,
       msTitle: '🎯 오늘의 미션', msClaim: '🎁 선물 상자 열기!', msGiftTitle: '🎉 오늘 미션 다 했어요!', stkYay: '와! 스티커가 나왔어요!', msGot: '✅ 오늘 미션 스티커를 받았어요!', msCfg: '🎯 오늘의 미션 (다 하면 스티커 1장)', msWd: '평일만', msAdd: '+ 추가', msOwnPh: '직접 쓰기 (예: 피아노 연습)',
       giveTitle: (n) => `${n}, 잘했어요! ⭐`, cfgTitle: (n) => `${n} 목표·보상`, moneyInTitle: '💶 받은 돈', moneyOutTitle: '💸 쓴 돈', moneyBad: '금액을 넣어 주세요.',
@@ -1099,6 +1109,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       moneyAmt: 'Betrag (€)', moneyNote: 'Wofür', moneyNotePh: 'Selbst schreiben (optional)', noReward: '🎁 Belohnung oben rechts beim Geschenk festlegen',
       doneAll: (n) => `🎉 Alle ${n} großen Sticker!`, newBoard: 'Neue Runde starten', giveBtn: '⭐ Sticker geben', goodJob: 'Gut gemacht',
       delSticker: 'Diesen Sticker löschen?', noStickers: 'Noch keine Sticker.', delMoney: 'Diesen Eintrag löschen?', noMoney: 'Noch keine Einträge.',
+      offDay: 'Pausentag', offHint: 'Leeres Feld antippen: Eltern können einen 🏖️ Pausentag eintragen (krank, Urlaub)', offDone: '🏖️ Als Pausentag eingetragen', offUndone: 'Pausentag entfernt', ttCfg: '📚 Davins Stundenplan (Mo–Fr, 1.–6. Stunde)',
       weekRule: 'Jeden Tag Mission → Sticker, ganze Woche voll → 🏅 Goldsticker', goldTitle: '🏅 Goldsticker', weekGold: '🏅 Woche geschafft! Goldsticker bekommen', goldDone: (n) => `🎉 Alle ${n} Goldsticker gesammelt!`,
       msTitle: '🎯 Tagesmission', msClaim: '🎁 Geschenk öffnen!', msGiftTitle: '🎉 Heute alles geschafft!', stkYay: 'Juhu! Ein Sticker!', msGot: '✅ Heute schon einen Missions-Sticker bekommen!', msCfg: '🎯 Tagesmission (alles geschafft = 1 Sticker)', msWd: 'Nur Mo–Fr', msAdd: '+ Hinzufügen', msOwnPh: 'Selbst schreiben (z. B. Klavier üben)',
       giveTitle: (n) => `Super, ${n}! ⭐`, cfgTitle: (n) => `Ziel & Belohnung für ${n}`, moneyInTitle: '💶 Bekommen', moneyOutTitle: '💸 Ausgegeben', moneyBad: 'Bitte einen Betrag eingeben.',
@@ -3038,7 +3049,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const board = $('#kid-board');
     board.style.gridTemplateColumns = 'repeat(7, minmax(0, 1fr))';
     board.replaceChildren(...W.days.map((x) => {
-      if (!x.got) return h('div', { class: `slot wk ${x.status}` }, h('span', { class: 'day', text: labels[x.i] }), x.status === 'missed' ? '·' : '');
+      if (!x.got) return h('button', { type: 'button', class: `slot wk ${x.status}`, 'aria-label': `${labels[x.i]} ${L().offDay}`, onclick: () => parentOnly(() => toggleOff(k, x)) },
+        h('span', { class: 'day', text: labels[x.i] }), x.off ? '🏖️' : x.status === 'missed' ? '·' : '');
       const el = h('button', { type: 'button', class: 'slot wk full' + (x.id === popId ? ' pop' : ''), 'aria-label': `${labels[x.i]} ⭐`, onclick: () => { wiggle(el); SND.boing(); } });
       el.innerHTML = stickerSVG(k, x.d);
       el.append(h('span', { class: 'day', text: labels[x.i] }));
@@ -3049,7 +3061,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#kid-done').replaceChildren(...(G.gift ? [h('div', { class: 'done-banner' },
       h('b', { text: L().goldDone(G.need) }), reward ? h('div', { class: 'rw', text: `🎁 ${reward}` }) : null,
       h('button', { type: 'button', class: 'btn', text: L().newBoard, onclick: () => parentOnly(() => kidsWrite([k, 'cfg'], { ...c, start: Date.now() })) }))]
-      : W.all ? [h('p', { class: 'hint week-rest', text: L().weekGold })] : []));
+      : W.all ? [h('p', { class: 'hint week-rest', text: L().weekGold })] : [h('p', { class: 'wk-hint', text: L().offHint })]));
     $('#kid-give').hidden = true; // 스티커는 미션으로만 (그날 미션을 다 하면 1장)
     $('#coins').classList.toggle('locked', !unlocked());
     document.querySelector('.coin-hint').textContent = unlocked() ? L().coinHint : L().lockedHint;
@@ -3230,13 +3242,21 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
           const on = !M.day[x.id];
           kidsWrite([k, 'mdone', day, x.id], on ? true : null);
           SND.tap(on ? 3 : 1);
-          if (on && M.done + 1 === M.total && !M.got) setTimeout(() => missionGift(k), 350); // 마지막 미션을 누르면 바로 선물 상자
+          if (on && M.done + 1 === M.total && !M.got) setTimeout(() => parentOnly(() => missionGift(k)), 350); // 마지막 미션 → (엄마·아빠 확인) → 선물 상자
         } }, h('span', { class: 'e', text: FS.missionIcon(x) }), h('span', { class: 't', text: FS.missionLabel(x, lang) })))),
       ...(M.got ? [h('div', { class: 'ms-got', text: L().msGot })]
         : M.all ? [h('button', { type: 'button', class: 'ms-claim', text: (unlocked() ? '' : '🔒 ') + L().msClaim,
-          onclick: () => missionGift(k) })] : []));
+          onclick: () => parentOnly(() => missionGift(k)) })] : []));
   }
   // 🎁 미션 선물 상자: 화면 위에 떠서 톡톡톡 3번 → 스티커가 펑 → 저절로 그 요일 칸에 붙음 (+ 일주일 다 채우면 🏅 황금 스티커)
+  // 쉬는 날 표시/해제 (아프거나 여행 간 날). 표시해서 이번 주가 다 차면 황금 스티커도
+  function toggleOff(k, x) {
+    const today = keyOf(new Date());
+    if (x.off) { kidsWrite([k, 'mdone', x.key, 'off'], null); toast(L().offUndone); return; }
+    if (FS.weekCompletesWithOff(kidOf(k), k, today, x.key)) { const wk = FS.weekKeys(today)[0]; kidsWrite([k, 'golds', wk], { at: Date.now(), d: Math.floor(Math.random() * STICKER_N) }); popGold = wk; setTimeout(() => SND.tada(), 300); }
+    kidsWrite([k, 'mdone', x.key, 'off'], true);
+    toast(L().offDone, () => kidsWrite([k, 'mdone', x.key, 'off'], null));
+  }
   function missionGift(k) {
     const d = Math.floor(Math.random() * STICKER_N);
     let taps = 0;
@@ -3357,7 +3377,21 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
 
   /* 목표·보상 설정 창 (부모용) */
   const cfgSheet = $('#cfg-sheet');
-  let cfgMissions = [];
+  let cfgMissions = [], cfgTT = null;
+  function renderCfgTT() {
+    const days = [['mon', 1], ['tue', 2], ['wed', 3], ['thu', 4], ['fri', 5]];
+    const opts = [['', '–'], ...Object.entries(FS.SUBJECTS).map(([k, t]) => [k, `${t[0]} ${t[lang === 'de' ? 2 : 1]}`])];
+    $('#cfg-tt').replaceChildren(
+      h('div', { class: 'tt-row tt-head' }, h('span'), ...[1, 2, 3, 4, 5, 6].map((n) => h('span', { text: String(n) }))),
+      ...days.map(([dk, wd]) => h('div', { class: 'tt-row' }, h('span', { class: 'd', text: L().weekdays[wd] }),
+        ...[0, 1, 2, 3, 4, 5].map((i) => {
+          const cur = (cfgTT[dk] && cfgTT[dk][i]) || '';
+          const sel = h('select', { class: 'tt-sel', 'aria-label': `${L().weekdays[wd]} ${i + 1}`, onchange: (e) => { const row = (cfgTT[dk] = (cfgTT[dk] || ['', '', '', '', '', '']).slice()); row[i] = e.target.value; } },
+            ...opts.map(([v, label]) => h('option', { value: v, text: label })), ...(cur && !FS.SUBJECTS[cur] ? [h('option', { value: cur, text: cur })] : []));
+          sel.value = cur;
+          return sel;
+        }))));
+  }
   function renderCfgMissions() {
     const box = $('#cfg-missions');
     const has = new Set(cfgMissions.map((x) => x.id));
@@ -3375,6 +3409,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
   function openCfg() {
     cfgMissions = FS.missionsOf(kidOf(kidName), kidName).map((x) => ({ ...x }));
+    cfgTT = kidName === 'davin' ? JSON.parse(JSON.stringify(FS.ttOf(kidOf('davin')))) : null;
+    $('#cfg-tt-box').hidden = !cfgTT;
+    if (cfgTT) renderCfgTT();
     renderCfgMissions();
     const c = cfgOf(kidName);
     $('#cfg-form').className = `sheet k-${kidName}`;
@@ -3406,7 +3443,16 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     }
     const kid = kidName; // 번역이 끝나기 전에 다른 아이 화면으로 가도 그 아이 설정에 저장
     kidsWrite([kid, 'cfg'], next);
-    if (JSON.stringify(cfgMissions) !== JSON.stringify(FS.missionsOf(kidOf(kid), kid))) kidsWrite([kid, 'missions'], cfgMissions);
+    if (JSON.stringify(cfgMissions) !== JSON.stringify(FS.missionsOf(kidOf(kid), kid))) {
+      const list = cfgMissions.map((x) => ({ ...x }));
+      kidsWrite([kid, 'missions'], list);
+      const need = list.filter((x) => x.text && !x.tr);
+      if (need.length) (async () => { // 아빠 휴대폰은 독일어, 엄마 휴대폰은 한국어로
+        for (const x of need) { try { x.tr = await translateLine(x.text, x.src, x.src === 'ko' ? 'de' : 'ko'); } catch {} }
+        if (need.some((x) => x.tr)) kidsWrite([kid, 'missions'], list);
+      })();
+    }
+    if (kid === 'davin' && cfgTT && JSON.stringify(cfgTT) !== JSON.stringify(FS.ttOf(kidOf('davin')))) kidsWrite(['davin', 'timetable'], cfgTT);
     closeCfg();
     // 번역은 하나씩 차례로, 번역 칸만 저장 (그 사이 보상 글이 바뀌었으면 저장 안 함)
     (async () => {
