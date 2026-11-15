@@ -5,7 +5,7 @@
      cfg = { small, big, reward, bigReward, start }   ← start 이후에 붙인 스티커가 지금 판
      lock = { on, pin }  (kids.lock: 엄마·아빠 비밀번호 2자리)
    다빈 = 동글동글 속성 몬스터, 아린 = 반짝이 하트 요정 (직접 그린 SVG — 예전 스티커).
-   🥚 포켓몬 알 키우기 (다빈·아린·엄마): 오늘 미션을 다 하면 선물 상자에서 열매(5가지) 또는 🪙 코인이 나옴.
+   🥚 포켓몬 알 키우기 (다빈·아린·엄마·아빠): 오늘 미션을 다 하면 선물 상자에서 열매(5가지) 또는 🪙 코인이 나옴.
      그날 스티커의 d = 2000 + 열매 번호 / 2100 = 코인 (스티커판에도 그 그림). 받은 것은 kids.{k}.poke.items.{스티커 id} = 'apple' | 'coin' …
      kids.{k}.poke = { start, items: {id: 열매|'coin'}, mons: {id: { egg, p?(태어난 포켓몬), f(하트), s?(반짝이), at }}, deco: {가구: {x, y, off?}}, home?: [방에 나온 id], gp: {황금 주: 1} }
      그림은 PokeAPI에서 받아 poke/ (art = 도감, walk/walk-s = 방에서 걷는 그림). 방 화면은 poke-room.js */
@@ -115,17 +115,15 @@
   // 좋아하는 열매 (타입으로): 주면 하트 2개
   const FAV = { fire: 'pepper', water: 'blueberry', ice: 'blueberry', grass: 'apple', bug: 'apple', poison: 'apple', electric: 'banana' };
   const favBerry = (id) => FAV[DEX[id] && DEX[id][4]] || 'strawberry';
-  // 알: [그림 색, 무늬 색, 한국어, 독일어, 나오는 타입들]. start = 처음 고르는 알 (정해진 포켓몬)
+  // 알: [-, -, 한국어, 독일어, 나오는 타입들]. 그림은 포켓몬 알(PokeAPI) 무늬 색만 바꾼 poke/egg-{종류}.png. START_EGGS = 처음 고르는 알 (정해진 포켓몬)
   const EGGS = {
-    fire: ['#FF7A45', '#FFD23F', '불꽃 알', 'Feuer-Ei', ['fire']], water: ['#4DA8FF', '#DDF1FF', '물 알', 'Wasser-Ei', ['water', 'ice']],
-    grass: ['#5CC46A', '#E6F7A8', '풀 알', 'Pflanzen-Ei', ['grass', 'bug']], electric: ['#FFD93D', '#FF9F1C', '번개 알', 'Blitz-Ei', ['electric']],
-    mystery: ['#C79BF2', '#FFFFFF', '신비한 알', 'Geheimnis-Ei', null], gold: ['#FFC928', '#FFF6C2', '황금 알', 'Gold-Ei', 'legend'],
+    fire: ['hue-rotate(-115deg) saturate(2.2)', '', '불꽃 알', 'Feuer-Ei', ['fire']], water: ['hue-rotate(95deg) saturate(1.8)', '', '물 알', 'Wasser-Ei', ['water', 'ice']],
+    grass: ['none', '', '풀 알', 'Pflanzen-Ei', ['grass', 'bug']], electric: ['hue-rotate(-60deg) saturate(2.6) brightness(1.05)', '', '번개 알', 'Blitz-Ei', ['electric']],
+    mystery: ['hue-rotate(165deg) saturate(1.6)', '', '신비한 알', 'Geheimnis-Ei', null], gold: ['sepia(1) saturate(5) hue-rotate(-12deg) brightness(1.08)', '', '황금 알', 'Gold-Ei', 'legend'],
   };
   const START_EGGS = { fire: 4, water: 7, grass: 1, electric: 25 };
   const EGG_PRICE = 10;
-  const eggSVG = (egg) => { const [c, sp] = EGGS[egg] || EGGS.mystery; return `<svg viewBox="0 0 100 120" aria-hidden="true"><path d="M50 4C25 4 8 48 8 74c0 26 19 42 42 42s42-16 42-42C92 48 75 4 50 4z" fill="${c}" stroke="rgba(0,0,0,.18)" stroke-width="3"/>
-    <ellipse cx="33" cy="50" rx="9" ry="12" fill="${sp}" opacity=".9"/><ellipse cx="66" cy="72" rx="12" ry="9" fill="${sp}" opacity=".9"/><ellipse cx="40" cy="92" rx="7" ry="6" fill="${sp}" opacity=".9"/>
-    <path d="M28 30c4-8 9-13 15-15" stroke="#fff" stroke-width="5" opacity=".55" fill="none" stroke-linecap="round"/>${egg === 'gold' ? '<path d="m72 22 2.4 5 5.6.8-4 4 1 5.6-5-2.7-5 2.7 1-5.6-4-4 5.6-.8z" fill="#fff"/>' : ''}</svg>`; };
+  const eggHTML = (egg) => `<img class="pk-egg" src="${BASE}poke/egg-${EGGS[egg] ? egg : 'mystery'}.png" alt="" draggable="false">`;
   // 알에서 나올 포켓몬: 그 알 타입의 첫 단계 (전설 빼고), 아직 없는 것 먼저. 황금 알 = 전설
   function hatchPick(egg, have) {
     const types = (EGGS[egg] || EGGS.mystery)[4];
@@ -217,12 +215,14 @@
     toys: ['🧸', '장난감 정리', 'Spielzeug aufräumen'], clothes: ['🧺', '벗은 옷 정리', 'Kleidung wegräumen'],
     read: ['📖', '책 읽기', 'Lesen'], music: ['🎹', '악기 연습', 'Instrument üben'], bed: ['🛏️', '이불 정리', 'Bett machen'],
     table: ['🍽️', '식탁 정리 돕기', 'Tisch abräumen'], shoes: ['👟', '신발 정리', 'Schuhe aufräumen'],
-    water: ['💧', '물 마시기', 'Wasser trinken'], move: ['🚶', '산책·운동', 'Bewegung'], deutsch: ['📝', '독일어 공부', 'Deutsch lernen'],
+    sleep12: ['🌙', '어젯밤 12시 전에 잠', 'Gestern vor 0 Uhr geschlafen'], bedSleep: ['🛏️', '어젯밤 침대에서 잠', 'Gestern im Bett eingeschlafen'],
+    sport: ['🏃', '운동', 'Sport'], deutsch: ['📝', '독일어 공부', 'Deutsch lernen'], noBeer: ['🧃', '술 안 마시기', 'Kein Alkohol'],
   };
   const MISSION_DEFAULT = {
     davin: [{ id: 'brushAM' }, { id: 'bag', wd: true }, { id: 'study' }, { id: 'toys' }, { id: 'clothes' }],
     arin: [{ id: 'brushAM' }, { id: 'dress' }, { id: 'toys' }, { id: 'clothes' }],
-    mom: [{ id: 'water' }, { id: 'move' }, { id: 'deutsch' }],
+    mom: [{ id: 'sleep12' }, { id: 'sport' }, { id: 'deutsch' }],
+    dad: [{ id: 'bedSleep' }, { id: 'sport' }, { id: 'noBeer' }],
   };
   const missionsOf = (kidData, k) => ((kidData && Array.isArray(kidData.missions)) ? kidData.missions : (MISSION_DEFAULT[k] || [])).filter((x) => x && x.id);
   const dowOf = (key) => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d).getDay(); };
@@ -291,6 +291,6 @@
   const ttOf = (kidData) => (kidData && kidData.timetable && typeof kidData.timetable === 'object') ? { ...TT_DEFAULT, ...kidData.timetable } : TT_DEFAULT;
 
   window.FamilyStickers = { TT_TIMES, TT_DEFAULT, SUBJECTS, ttOf, weekCompletesWithOff, monsterSVG, fairySVG, stickerSVG, STICKER_N, giftSVG, bigSVG, WHY, tone, SND, cfgOf, stickersOf, boardOf, progressOf,
-    BASE, DEX, POKE_N, pokeName, pokeArt, pokeWalk, pokeStage, pokeNext, BERRIES, favBerry, EGGS, START_EGGS, EGG_PRICE, eggSVG, hatchPick, newRewardD, rewardItem, rewardIcon, rewardLabel, rewardSVG,
+    BASE, DEX, POKE_N, pokeName, pokeArt, pokeWalk, pokeStage, pokeNext, BERRIES, favBerry, EGGS, START_EGGS, EGG_PRICE, eggHTML, hatchPick, newRewardD, rewardItem, rewardIcon, rewardLabel, rewardSVG,
     MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionLabel, isWeekday, weekKeys, weekState, WEEK_LABEL, weekCompletesToday, goldState };
 })();

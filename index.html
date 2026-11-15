@@ -238,8 +238,10 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .k-davin { --k1: #FFF27A; --k2: #FFD21F; --kc: #A88400; }
 .k-arin { --k1: #FFC2E2; --k2: #D7B4FF; --kc: #B0408F; }
 .k-mom { --k1: #C8F0D8; --k2: #8FD9B0; --kc: #2E7D57; }
-.tiles.kids { margin-top: 22px; gap: clamp(12px, 5vw, 36px); }
-.tiles.kids .tile .ico { width: clamp(92px, 27vw, 112px); height: clamp(92px, 27vw, 112px); }
+.k-dad { --k1: #C6E2FF; --k2: #8EC2F5; --kc: #22609E; }
+.tiles.kids { margin-top: 22px; gap: clamp(8px, 3vw, 28px); }
+.tiles.kids .tile .ico { width: clamp(70px, 20vw, 104px); height: clamp(70px, 20vw, 104px); border-radius: 26px; }
+.tiles.kids .tile .name { font-size: clamp(17px, 4.6vw, 22px); }
 .tile.kid .ico img { width: 78%; height: 78%; }
 .tile.kid .ico { background: linear-gradient(140deg, var(--k1), var(--k2)); }
 .tile.kid .ico img { border-radius: 50%; box-shadow: 0 0 0 4px rgba(255, 255, 255, .85); }
@@ -717,7 +719,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       <span class="name" data-t="calendar">캘린더</span>
     </button>
   </nav>
-  <nav class="tiles kids" aria-label="Davin · Arin · Mama">
+  <nav class="tiles kids" aria-label="Davin · Arin · Mama · Papa">
     <button class="tile kid k-davin" type="button" data-go="davin">
       <span class="ico" aria-hidden="true"><img src="avatar-davin.png" alt=""></span>
       <span class="name" data-who-name="davin">다빈</span>
@@ -729,6 +731,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <button class="tile kid k-mom" type="button" data-go="mom">
       <span class="ico" aria-hidden="true"><img src="avatar-mom.png" alt=""></span>
       <span class="name" data-who-name="mom">엄마</span>
+    </button>
+    <button class="tile kid k-dad" type="button" data-go="dad">
+      <span class="ico" aria-hidden="true"><img src="avatar-dad.png" alt=""></span>
+      <span class="name" data-who-name="dad">아빠</span>
     </button>
   </nav>
   <section class="card account" id="account" hidden></section>
@@ -1202,7 +1208,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   function show() {
     if (typeof flushCoins === 'function') flushCoins();
     const name = location.hash.slice(1);
-    if (name === 'davin' || name === 'arin' || name === 'mom') { if (kidName !== name || current !== 'kid') delMode = false; kidName = name; current = 'kid'; }
+    if (name === 'davin' || name === 'arin' || name === 'mom' || name === 'dad') { if (kidName !== name || current !== 'kid') delMode = false; kidName = name; current = 'kid'; }
     else current = screens.includes(name) && name !== 'kid' ? name : 'home';
     if (current !== 'kid') unlockedUntil = 0;
     for (const s of screens) document.getElementById(s).hidden = s !== current;
@@ -1464,7 +1470,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     for (const [id, v] of Object.entries(d.vacations || {})) if (!v || !v.s || !v.e || v.e < cutKey) ops.push([['vacations', id], null]);
     for (const [k, v] of Object.entries(d.routine || {})) if (k < cutKey || !v) ops.push([['routine', k], null]);
     const mCut = keyOf(addDays(new Date(), -14)); // 오늘의 미션 ✓ 기록은 2주만
-    for (const k of ['davin', 'arin', 'mom']) for (const day of Object.keys((d.kids && d.kids[k] && d.kids[k].mdone) || {})) if (day < mCut) ops.push([['kids', k, 'mdone', day], null]);
+    for (const k of ['davin', 'arin', 'mom', 'dad']) for (const day of Object.keys((d.kids && d.kids[k] && d.kids[k].mdone) || {})) if (day < mCut) ops.push([['kids', k, 'mdone', day], null]);
     for (const [id, v] of Object.entries(d.pack || {})) if (!v || !v.text || (v.date && v.date < cutKey)) ops.push([['pack', id], null]);
     ops.push(...famOps(d));
     return ops;
@@ -3056,14 +3062,15 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
 
   function renderKidScreen() {
     const k = kidName, P = progressOf(k), c = P.c;
-    if (k === 'mom') kidTab = 'room'; // 엄마는 포켓몬 방만 (미션도 방 안에)
+    const grown = k === 'mom' || k === 'dad';
+    if (grown) kidTab = 'room'; // 엄마·아빠는 포켓몬 방만 (미션도 방 안에)
     else if (k !== 'davin' && kidTab === 'money') kidTab = 'stickers';
     if (kidTab !== 'stickers') delMode = false;
     $('#kid').className = `screen k-${k}`;
     $('#kid-avatar').src = `avatar-${k}.png`;
     $('#kid-title').textContent = L().who[k];
     // 탭 (다빈만: 스티커 / 용돈)
-    $('#kid-tabs').hidden = k === 'mom';
+    $('#kid-tabs').hidden = grown;
     document.querySelector('[data-kid-tab="money"]').hidden = k !== 'davin';
     for (const b of document.querySelectorAll('[data-kid-tab]')) b.setAttribute('aria-selected', String(b.dataset.kidTab === kidTab));
     $('#tab-stickers').hidden = kidTab !== 'stickers';
@@ -3072,7 +3079,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     // 🏠 포켓몬 방 (poke-room.js — 우리집 한눈에와 같이 씀)
     if (roomCtl && roomCtl.k !== k) { roomCtl.destroy(); roomCtl = null; }
     if (kidTab === 'room' && window.PokeRoom) {
-      if (!roomCtl) { roomCtl = window.PokeRoom.mount($('#kid-room'), { kid: k, lang: () => lang, data: () => kidOf(k), write: (path, v) => kidsWrite([k, ...path], v), snd: SND, missions: k === 'mom' }); roomCtl.k = k; }
+      if (!roomCtl) { roomCtl = window.PokeRoom.mount($('#kid-room'), { kid: k, lang: () => lang, data: () => kidOf(k), write: (path, v) => kidsWrite([k, ...path], v), snd: SND, missions: grown }); roomCtl.k = k; }
       else roomCtl.update();
     } else if (roomCtl) { roomCtl.destroy(); roomCtl = null; }
     $('#kid-cfg-btn').hidden = kidTab !== 'stickers';

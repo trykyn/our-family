@@ -1,4 +1,5 @@
 /* 🥚 포켓몬 방 — 우리가족 앱과 우리집 한눈에(아이패드)가 같이 씀. 다빈 · 아린 · 엄마 각자 방이 하나씩.
+   다빈 · 아린은 주간 미션 스티커로, 엄마 · 아빠는 방 안의 오늘 미션으로 선물을 받음.
    처음엔 알 하나를 고름 (불꽃=파이리, 물=꼬부기, 풀=이상해씨, 번개=피카츄).
    오늘 미션을 다 하면 선물 상자에서 열매(5가지) 또는 🪙 코인. 열매를 먹이면 알이 깨고(5개) 포켓몬이 진화(하트 10개, 15개).
    좋아하는 열매는 하트 2개. 코인으로 새 알(10개)과 가구를 삼. 황금 스티커 = 🪙 3개, 황금 스티커 4개마다 🌟 황금 알(전설).
@@ -64,9 +65,10 @@
 .pr-mon img, .pr-mon svg { display: block; image-rendering: pixelated; pointer-events: none; transform-origin: 50% 100%; }
 .pr-mon.flip img { transform: scaleX(-1); }
 .pr-mon::after { content: ''; position: absolute; left: 15%; right: 15%; bottom: -3px; height: 8px; border-radius: 50%; background: rgba(0,0,0,.16); z-index: -1; }
-.pr-mon.egg > svg { animation: pr-wob 3.2s ease-in-out infinite; animation-delay: var(--wd, 0s); }
-.pr-mon.egg.crack > svg { animation-duration: 1.4s; }
-.pr-mon.egg .ck { position: absolute; left: 22%; top: 38%; width: 56%; pointer-events: none; }
+.pk-egg { image-rendering: pixelated; }
+.pr-mon.egg > .pk-egg { animation: pr-wob 3.2s ease-in-out infinite; animation-delay: var(--wd, 0s); }
+.pr-mon.egg.crack > .pk-egg { animation-duration: 1.4s; }
+.pr-mon.egg .ck { position: absolute; left: 18%; top: 34%; width: 64%; pointer-events: none; }
 @keyframes pr-wob { 0%, 70%, 100% { transform: rotate(0); } 76% { transform: rotate(-9deg); } 84% { transform: rotate(8deg); } 92% { transform: rotate(-4deg); } }
 .pr-mon.jump > img { animation: pr-jump .5s ease-out; }
 .pr-mon.flip.jump > img { animation-name: pr-jumpf; }
@@ -74,7 +76,7 @@
 @keyframes pr-jumpf { 40% { transform: scaleX(-1) translateY(-28%) scaleY(1.05); } 70% { transform: scaleX(-1) translateY(0) scaleY(.9); } }
 .pr-mon.evo > img { animation: pr-evo 1.4s ease-in-out; }
 @keyframes pr-evo { 0%, 100% { filter: none; } 20%, 60% { filter: brightness(0) invert(1); transform: scale(1.15); } 40%, 80% { filter: none; } }
-.pr-mon.egg.hatch > svg { animation: pr-hatch 1.3s ease-in-out forwards; }
+.pr-mon.egg.hatch > .pk-egg { animation: pr-hatch 1.3s ease-in-out forwards; }
 @keyframes pr-hatch { 0% { transform: rotate(0); } 10%, 30%, 50% { transform: rotate(-14deg); } 20%, 40%, 60% { transform: rotate(14deg); } 85% { transform: scale(1.3); filter: brightness(0) invert(1); } 100% { transform: scale(1.4); filter: brightness(0) invert(1); opacity: .6; } }
 .pr-mon .zz { position: absolute; right: -6px; top: -10px; font-size: calc(14px * var(--pr-s)); animation: pr-zz 2.4s infinite; pointer-events: none; }
 @keyframes pr-zz { 0% { opacity: 0; transform: translateY(6px); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateY(-12px); } }
@@ -91,11 +93,11 @@
 .pr-pick { position: absolute; inset: 0; z-index: 1001; display: grid; place-content: center; gap: 10px; text-align: center; background: rgba(255,248,232,.92); padding: 10px; }
 .pr-pick b { font-size: calc(19px * var(--pr-s)); color: #6B3E12; }
 .pr-pick p { margin: 0; font-size: calc(13px * var(--pr-s)); color: #9A7A5A; }
-.pr-pick .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.pr-pick .row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
 .pr-pick button { border: 0; background: #fff; border-radius: 16px; padding: 8px 8px 6px; font: inherit; font-weight: 700; color: #6B3E12; font-size: calc(12px * var(--pr-s)); cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 2px 0 rgba(0,0,0,.08); width: calc(70px * var(--pr-s)); }
-.pr-pick button svg { width: 70%; animation: pr-wob 2.6s ease-in-out infinite; }
-.pr-pick button:nth-child(2) svg { animation-delay: .4s; } .pr-pick button:nth-child(3) svg { animation-delay: .8s; } .pr-pick button:nth-child(4) svg { animation-delay: 1.2s; }
+  display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 2px 0 rgba(0,0,0,.08); width: calc(62px * var(--pr-s)); }
+.pr-pick button .pk-egg { width: 56%; animation: pr-wob 2.6s ease-in-out infinite; }
+.pr-pick button:nth-child(2) .pk-egg { animation-delay: .4s; } .pr-pick button:nth-child(3) .pk-egg { animation-delay: .8s; } .pr-pick button:nth-child(4) .pk-egg { animation-delay: 1.2s; }
 .pr-gift { position: absolute; inset: 0; z-index: 1002; display: grid; place-content: center; justify-items: center; gap: 8px; background: rgba(40,20,0,.35); }
 .pr-gift button { border: 0; background: none; font-size: calc(90px * var(--pr-s)); line-height: 1; cursor: pointer; }
 .pr-gift button.shake { animation: pr-wob .5s; }
@@ -131,7 +133,7 @@
 .pr-grid button { position: relative; border: 0; border-radius: 12px; background: #fff; padding: 4px 2px; font: inherit; font-size: calc(10.5px * var(--pr-s)); color: #6B3E12; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
 .pr-grid button img { width: 80%; aspect-ratio: 1; object-fit: contain; }
-.pr-grid button .eg { width: 46%; margin: 6px 0 2px; } .pr-grid button .eg svg { display: block; width: 100%; }
+.pr-grid button .eg { width: 42%; margin: 6px 0 2px; } .pr-grid button .eg .pk-egg { display: block; width: 100%; }
 .pr-grid button .e { font-size: calc(30px * var(--pr-s)); line-height: 1.3; }
 .pr-grid button.on { background: #FFE2C4; box-shadow: 0 0 0 2px #FF8A3D; }
 .pr-grid button.armed { background: #FFF3B0; box-shadow: 0 0 0 2px #F0B400; }
@@ -251,7 +253,7 @@
       e.style.left = `${x}%`; e.style.top = `${y}%`; e.style.zIndex = String(10 + Math.round(y));
     }
     function sizeImg(e) {
-      if (e._egg) { const svg = e.querySelector('svg'); if (svg) svg.style.width = `${38 * scale}px`; return; }
+      if (e._egg) { const img = e.querySelector('.pk-egg'); if (img) img.style.width = `${34 * scale}px`; return; }
       if (e._img && e._img.naturalWidth) e._img.style.width = `${e._img.naturalWidth * scale}px`;
     }
     function monEl(id) {
@@ -267,7 +269,7 @@
       e._key = key; e._egg = egg;
       e.classList.toggle('egg', egg); e.classList.toggle('crack', cracked); e.classList.remove('hatch');
       if (egg) {
-        e.innerHTML = FS.eggSVG(m.egg) + (cracked ? CRACK : '');
+        e.innerHTML = FS.eggHTML(m.egg) + (cracked ? CRACK : '');
         e.style.setProperty('--wd', `${rnd(0, 3).toFixed(1)}s`);
         e.setAttribute('aria-label', eggName(m.egg));
         e._img = null;
@@ -364,14 +366,14 @@
       msBox.hidden = !o.missions;
       if (!o.missions) return;
       const day = keyOf(new Date()), M = FS.missionState(o.data() || {}, o.kid, day);
-      msBox.replaceChildren(el('div', { class: 'h' }, el('span', { text: L().msTitle }), el('span', { text: `${M.done} / ${M.total}` })),
+      msBox.replaceChildren(...[el('div', { class: 'h' }, el('span', { text: L().msTitle }), el('span', { text: `${M.done} / ${M.total}` })),
         el('div', { class: 'tiles', style: `--n:${Math.max(1, M.total)}` }, ...M.list.map((x) => el('button', { type: 'button', class: M.day[x.id] ? 'done' : '', onclick: () => {
           if (M.got) return;
           const on = !M.day[x.id];
           o.write(['mdone', day, x.id], on ? true : null); snd.tap(on ? 3 : 1);
           if (on && M.done + 1 === M.total) setTimeout(openGift, 400);
         } }, el('span', { class: 'e', text: FS.missionIcon(x) }), el('span', { text: FS.missionLabel(x, lang()) })))),
-        M.got ? el('div', { class: 'got', text: L().msGot }) : M.all ? el('button', { type: 'button', class: 'claim', text: L().msClaim, onclick: openGift }) : null);
+        M.got ? el('div', { class: 'got', text: L().msGot }) : M.all ? el('button', { type: 'button', class: 'claim', text: L().msClaim, onclick: openGift }) : null].filter(Boolean));
     }
     function openGift() {
       const day = keyOf(new Date()), M = FS.missionState(o.data() || {}, o.kid, day);
@@ -403,7 +405,7 @@
       if (!mons().length) {
         if (!pickEl) {
           pickEl = el('div', { class: 'pr-pick' }, el('b', { text: L().pickTitle }), el('p', { text: L().pickSub }),
-            el('div', { class: 'row' }, ...Object.keys(FS.START_EGGS).map((egg) => el('button', { type: 'button', onclick: () => pickEgg(egg), html: FS.eggSVG(egg) }, eggName(egg)))));
+            el('div', { class: 'row' }, ...Object.keys(FS.START_EGGS).map((egg) => el('button', { type: 'button', onclick: () => pickEgg(egg), html: FS.eggHTML(egg) }, eggName(egg)))));
           roomEl.append(pickEl);
         }
       } else if (pickEl) pickEl.remove();
@@ -462,7 +464,7 @@
         const deco = pk().deco || {};
         const eggs = el('div', { class: 'pr-grid' }, ...['fire', 'water', 'grass', 'electric', 'mystery'].map((egg) => el('button', { type: 'button', class: armed === `egg:${egg}` ? 'armed' : coins < FS.EGG_PRICE ? 'poor' : '',
           onclick: () => buy(`egg:${egg}`, FS.EGG_PRICE, () => { const id = uid('e'); W(['mons', id], { egg, f: 0, at: Date.now() }); addHome(id); news(L().eggCame(eggName(egg))); }) },
-          el('span', { class: 'eg', html: FS.eggSVG(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', { text: `🪙 ${FS.EGG_PRICE}` }))));
+          el('span', { class: 'eg', html: FS.eggHTML(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', { text: `🪙 ${FS.EGG_PRICE}` }))));
         const furn = el('div', { class: 'pr-grid' }, ...Object.keys(DECO).map((key) => {
           const v = deco[key], has = !!v, on = has && !v.off, price = DECO[key][5];
           const ic = key === 'rug' ? el('span', { class: 'rug-ic' }) : el('span', { class: 'e', text: DECO[key][0] });
@@ -479,7 +481,7 @@
           const h = homeIds(), i = h.indexOf(m.id);
           if (i >= 0) h.splice(i, 1); else if (h.length >= HOME_MAX) { say(L().homeFull); return; } else h.push(m.id);
           W(['home'], h); snd.tap(i >= 0 ? 1 : 3);
-        } }, hatched(m) ? el('img', { src: FS.pokeArt(m.p), alt: '', loading: 'lazy' }) : el('span', { class: 'eg', html: FS.eggSVG(m.egg) }),
+        } }, hatched(m) ? el('img', { src: FS.pokeArt(m.p), alt: '', loading: 'lazy' }) : el('span', { class: 'eg', html: FS.eggHTML(m.egg) }),
           el('span', { class: 'n', text: hatched(m) ? name(m.p) : eggName(m.egg) }), m.s && hatched(m) ? el('span', { class: 'b', text: '✨' }) : null)));
         const dex = el('div', { class: 'pr-grid' }, ...Array.from({ length: FS.POKE_N }, (_, i) => i + 1).map((id) => el('button', { type: 'button', class: seen.has(id) ? '' : 'unk', tabindex: '-1' },
           el('img', { src: FS.pokeArt(id), alt: '', loading: 'lazy' }), el('span', { class: 'n', text: seen.has(id) ? name(id) : `#${id}` }))));
