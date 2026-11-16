@@ -422,6 +422,56 @@
     return { c, golds, need: c.big, count: Math.min(golds.length, c.big), gift: golds.length >= c.big };
   }
   const missionIcon = (x) => (MISSIONS[x.id] ? MISSIONS[x.id][0] : x.ic || '⭐');
+  /* ── 🎯 미션 아이콘: 직접 그린 귀여운 그림 (이모지 대신). 직접 쓴 미션은 고른 이모지 그대로 ── */
+  const MO = '#5A4434', ST = `stroke="${MO}" stroke-width="3"`;
+  const mFace = (x, y, s = 1) => `<circle cx="${x - 5 * s}" cy="${y}" r="${2.1 * s}" fill="${MO}"/><circle cx="${x + 5 * s}" cy="${y}" r="${2.1 * s}" fill="${MO}"/>`
+    + `<path d="M${x - 2.4 * s} ${y + 3 * s}q${2.4 * s} ${2.6 * s} ${4.8 * s} 0" stroke="${MO}" stroke-width="${1.8 * s}" fill="none"/>`
+    + `<ellipse cx="${x - 8.5 * s}" cy="${y + 3 * s}" rx="${2.6 * s}" ry="${1.6 * s}" fill="#FF8FA8" opacity=".7"/><ellipse cx="${x + 8.5 * s}" cy="${y + 3 * s}" rx="${2.6 * s}" ry="${1.6 * s}" fill="#FF8FA8" opacity=".7"/>`;
+  const mSleep = (x, y, s = 1) => `<path d="M${x - 7.5 * s} ${y}q${2.4 * s} ${2.4 * s} ${4.8 * s} 0M${x + 2.7 * s} ${y}q${2.4 * s} ${2.4 * s} ${4.8 * s} 0" stroke="${MO}" stroke-width="${1.9 * s}" fill="none"/>`
+    + `<ellipse cx="${x - 8.5 * s}" cy="${y + 4 * s}" rx="${2.6 * s}" ry="${1.6 * s}" fill="#FF8FA8" opacity=".7"/><ellipse cx="${x + 8.5 * s}" cy="${y + 4 * s}" rx="${2.6 * s}" ry="${1.6 * s}" fill="#FF8FA8" opacity=".7"/>`;
+  const mZz = (x, y) => `<text x="${x}" y="${y}" font-size="11" font-weight="800" font-family="system-ui,sans-serif" fill="#8E7CFF">z</text><text x="${x + 6}" y="${y - 7}" font-size="8" font-weight="800" font-family="system-ui,sans-serif" fill="#8E7CFF">z</text>`;
+  const mStar = (x, y, r, c = '#FFD45C') => `<path d="M${x} ${y - r}l${r * .3} ${r * .7} ${r * .7} ${r * .3}-${r * .7} ${r * .3}-${r * .3} ${r * .7}-${r * .3}-${r * .7}-${r * .7}-${r * .3} ${r * .7}-${r * .3}z" fill="${c}"/>`;
+  const mBrush = `<g transform="rotate(-32 32 36)"><rect x="6" y="34" width="38" height="9" rx="4.5" fill="#7FD8C8" ${ST}/><rect x="40" y="27" width="16" height="16" rx="5" fill="#fff" ${ST}/>`
+    + `<path d="M44 27v-5M48 27v-6M52 27v-5" stroke="#6FB8FF" stroke-width="3.2"/></g><circle cx="47" cy="11" r="5" fill="#E9F7FF" stroke="#9FD3F5" stroke-width="2"/><circle cx="56" cy="17" r="3.5" fill="#E9F7FF" stroke="#9FD3F5" stroke-width="2"/>`;
+  const MISSION_SVG = {
+    brushAM: mBrush + `<path d="M14 2v3M14 23v3M2 14h3M23 14h3M5.5 5.5l2 2M22.5 5.5l-2 2M5.5 22.5l2-2" stroke="#FFB800" stroke-width="2.6"/><circle cx="14" cy="14" r="6.5" fill="#FFD45C" ${ST}/>`,
+    brushPM: mBrush + `<path d="M17 4a10 10 0 1 0 6 17a8 8 0 1 1-6-17z" fill="#FFE27A" ${ST}/>` + mStar(27, 7, 4, '#FFE27A'),
+    bag: `<path d="M22 20q0-10 10-10t10 10" fill="none" ${ST}/><rect x="12" y="18" width="40" height="40" rx="13" fill="#FF7A6B" ${ST}/>`
+      + `<path d="M12 31q20 7 40 0" fill="none" ${ST}/><rect x="21" y="40" width="22" height="13" rx="5" fill="#FFB15C" ${ST}/>` + mFace(32, 26, .75),
+    study: `<rect x="10" y="44" width="44" height="11" rx="3" fill="#6EC6FF" ${ST}/><rect x="14" y="33" width="38" height="11" rx="3" fill="#FFD45C" ${ST}/><rect x="9" y="22" width="40" height="11" rx="3" fill="#FF8FB1" ${ST}/>`
+      + `<path d="M46 47v5M48 36v5M42 25v5" stroke="#fff" stroke-width="2.5"/>` + mFace(26, 38, .6) + `<g transform="rotate(35 50 14)"><rect x="46" y="2" width="8" height="22" rx="2" fill="#FFD45C" ${ST}/><path d="M46 24l4 7 4-7z" fill="#F7D9B5" ${ST}/></g>`,
+    dress: `<path d="M24 8h16l3 11-5 4 14 31H12l14-31-5-4z" fill="#FFA6C9" ${ST}/><path d="M26 23h12" ${ST}/><path d="M32 31c-3-4-8-1-5 3l5 5 5-5c3-4-2-7-5-3z" fill="#FF5F9E"/>`
+      + `<path d="M14 50q9 4 18 0t18 0" fill="none" stroke="#fff" stroke-width="2.5"/>`,
+    toys: `<circle cx="16" cy="17" r="8" fill="#D9A066" ${ST}/><circle cx="48" cy="17" r="8" fill="#D9A066" ${ST}/><circle cx="16" cy="17" r="3.5" fill="#F3D2A8"/><circle cx="48" cy="17" r="3.5" fill="#F3D2A8"/>`
+      + `<circle cx="32" cy="34" r="21" fill="#D9A066" ${ST}/><ellipse cx="32" cy="42" rx="9" ry="7" fill="#F3D2A8"/><ellipse cx="32" cy="39" rx="3.5" ry="2.5" fill="${MO}"/>`
+      + `<circle cx="24" cy="31" r="2.4" fill="${MO}"/><circle cx="40" cy="31" r="2.4" fill="${MO}"/><path d="M29 45q3 2.5 6 0" stroke="${MO}" stroke-width="2" fill="none"/>`
+      + `<ellipse cx="18" cy="38" rx="3" ry="2" fill="#FF8FA8" opacity=".7"/><ellipse cx="46" cy="38" rx="3" ry="2" fill="#FF8FA8" opacity=".7"/>`,
+    clothes: `<path d="M17 30q-2-14 11-14l5 4 6-4q12 0 10 14z" fill="#8EC5FF" ${ST}/><path d="M44 30q4-12 10-8l-3 8z" fill="#FF8FB1" ${ST}/>`
+      + `<path d="M8 29h48l-6 26H14z" fill="#F2C27B" ${ST}/><path d="M12 38h40M14 46h36M24 30l-2 24M40 30l2 24" stroke="#C98F45" stroke-width="2.4"/>`,
+    read: `<path d="M6 16v38q14-3 26 3q12-6 26-3V16" fill="#8FD18F" ${ST}/><path d="M32 18q-10-6-23-4v35q13-2 23 4z" fill="#fff" ${ST}/><path d="M32 18q10-6 23-4v35q-13-2-23 4z" fill="#fff" ${ST}/>`
+      + `<path d="M14 24q7-1 13 2M14 31q7-1 13 2M37 26q6-3 13-2M37 33q6-3 13-2" stroke="#C9C1B8" stroke-width="2.4" fill="none"/>` + mStar(52, 8, 5) + mStar(12, 7, 3.5, '#FF8FB1'),
+    music: `<path d="M24 46V16l26-6v30" fill="none" ${ST}/><path d="M24 16l26-6v8l-26 6z" fill="#A88BFF" ${ST}/>`
+      + `<ellipse cx="18" cy="47" rx="8" ry="6.5" fill="#A88BFF" ${ST}/><ellipse cx="44" cy="41" rx="8" ry="6.5" fill="#FF8FB1" ${ST}/>` + mStar(55, 52, 4) + mStar(8, 18, 3.5, '#6EC6FF'),
+    bed: `<rect x="6" y="16" width="10" height="38" rx="4" fill="#C99A6B" ${ST}/><rect x="12" y="32" width="46" height="14" rx="4" fill="#fff" ${ST}/>`
+      + `<ellipse cx="22" cy="30" rx="8" ry="5" fill="#FFF2B3" ${ST}/><rect x="28" y="28" width="30" height="18" rx="5" fill="#8EC5FF" ${ST}/><path d="M28 35h30" stroke="#fff" stroke-width="2.5"/>`
+      + `<path d="M12 46v8M56 46v8" ${ST}/>` + mStar(50, 14, 5) + mStar(40, 9, 3, '#FF8FB1'),
+    table: `<path d="M8 15v12q0 5 4.5 5v22M17 15v12q0 5-4.5 5M12.5 15v12" fill="none" ${ST}/><ellipse cx="54" cy="23" rx="5" ry="7.5" fill="#E6E6EA" ${ST}/><path d="M54 31v23" ${ST}/>`
+      + `<circle cx="33" cy="37" r="15" fill="#fff" ${ST}/><circle cx="33" cy="37" r="10" fill="#FFE7A3"/>` + mFace(33, 35, .62),
+    shoes: `<path d="M26 44q0-12 9-12l5 0q3 5 10 5l4 1q8 2 8 9v3H26z" fill="#7FB8FF" ${ST}/>`
+      + `<path d="M4 46q0-13 10-13l6 0q3 6 11 6l5 1q8 2 8 10v4H4z" fill="#FF8FB1" ${ST}/><path d="M4 50h40" stroke="#fff" stroke-width="3"/><path d="M15 38l5 3M18 35l5 3" stroke="#fff" stroke-width="2.2"/>`,
+    sleep12: `<path d="M38 8a25 25 0 1 0 18 40a21 21 0 1 1-18-40z" fill="#FFE27A" ${ST}/>` + mSleep(26, 36, .85) + mZz(44, 18),
+    bedSleep: `<rect x="4" y="18" width="10" height="36" rx="4" fill="#C99A6B" ${ST}/><rect x="10" y="34" width="50" height="14" rx="4" fill="#fff" ${ST}/>`
+      + `<ellipse cx="20" cy="33" rx="9" ry="5.5" fill="#FFF2B3" ${ST}/><circle cx="21" cy="27" r="8" fill="#FFD9B8" ${ST}/>` + mSleep(21, 27, .5)
+      + `<rect x="26" y="30" width="34" height="18" rx="5" fill="#A88BFF" ${ST}/><path d="M10 48v6M58 48v6" ${ST}/>` + mZz(38, 20),
+    sport: `<rect x="20" y="29" width="24" height="6" rx="3" fill="#B7C0CB" ${ST}/><rect x="7" y="18" width="12" height="28" rx="5" fill="#FF8FB1" ${ST}/><rect x="45" y="18" width="12" height="28" rx="5" fill="#FF8FB1" ${ST}/>`
+      + `<rect x="2" y="24" width="6" height="16" rx="3" fill="#FFB8CF" ${ST}/><rect x="56" y="24" width="6" height="16" rx="3" fill="#FFB8CF" ${ST}/>` + mStar(32, 14, 6) + mStar(14, 56, 3.5, '#6EC6FF') + mStar(52, 55, 3.5, '#6EC6FF'),
+    deutsch: `<rect x="14" y="6" width="38" height="50" rx="6" fill="#fff" ${ST}/><path d="M17 12h32" stroke="#2B2B2B" stroke-width="3"/><path d="M17 16h32" stroke="#E5484D" stroke-width="3"/><path d="M17 20h32" stroke="#F6C343" stroke-width="3"/>`
+      + `<path d="M10 22h8M10 32h8M10 42h8" ${ST}/><text x="33" y="42" text-anchor="middle" font-size="17" font-weight="800" font-family="system-ui,sans-serif" fill="${MO}">Aa</text>`
+      + `<g transform="rotate(40 50 46)"><rect x="46" y="32" width="8" height="22" rx="2" fill="#FFD45C" ${ST}/><path d="M46 54l4 7 4-7z" fill="#F7D9B5" ${ST}/></g>`,
+    noBeer: `<path d="M40 20V6h8" fill="none" stroke="#FF6F91" stroke-width="4"/><rect x="16" y="18" width="32" height="40" rx="6" fill="#FFB15C" ${ST}/>`
+      + `<path d="M16 26h32" ${ST}/><circle cx="32" cy="46" r="7" fill="#FF7A45"/><path d="M32 39q2-4 5-4" stroke="#5FBF6A" stroke-width="2.5" fill="none"/>` + mFace(32, 33, .62),
+  };
+  const missionIconHTML = (x) => (MISSION_SVG[x.id] ? `<svg class="mi" viewBox="0 0 64 64" aria-hidden="true" stroke-linejoin="round" stroke-linecap="round">${MISSION_SVG[x.id]}</svg>` : `<span class="mi-e">${String(missionIcon(x)).replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`)}</span>`); // 직접 쓴 미션 이모지는 글자로만
   const missionLabel = (x, lang) => (MISSIONS[x.id] ? MISSIONS[x.id][lang === 'de' ? 2 : 1] : (x.src && x.src !== lang && x.tr ? x.tr : (x.text || '')));
 
   /* ── 📚 다빈 시간표 (1d 반). kids.davin.timetable = { mon: [6교시], … } — 우리가족 앱 설정에서 고침, 우리집 한눈에 오늘 일정 아래에 보임 ── */
@@ -440,5 +490,5 @@
 
   window.FamilyStickers = { TT_TIMES, TT_DEFAULT, SUBJECTS, ttOf, weekCompletesWithOff, monsterSVG, fairySVG, stickerSVG, STICKER_N, giftSVG, bigSVG, WHY, tone, SND, cfgOf, stickersOf, boardOf, progressOf,
     BASE, ROOM, PING, charSet, DEX, POKE_N, pokeName, pokeArt, pokeWalk, pokeStage, pokeNext, BERRIES, favBerry, EGGS, START_EGGS, EGG_PRICE, eggHTML, hatchPick, newRewardD, rewardText, rewardItem, rewardIcon, rewardLabel, rewardSVG,
-    MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionLabel, isWeekday, weekKeys, weekState, WEEK_LABEL, weekCompletesToday, goldState };
+    MISSIONS, MISSION_DEFAULT, missionsOf, missionsOn, missionState, missionIcon, missionIconHTML, missionLabel, isWeekday, weekKeys, weekState, WEEK_LABEL, weekCompletesToday, goldState };
 })();

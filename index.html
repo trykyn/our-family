@@ -285,6 +285,9 @@ button.slot.wk { cursor: pointer; }
 .ms-tiles { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 6px; }
 .ms-tile { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px 6px; border-radius: 14px; border: 2.5px solid var(--line); background: var(--surface); color: inherit; }
 .ms-tile .e { font-size: 30px; line-height: 1.1; }
+/* 미션 아이콘 (직접 그린 그림): 글자 크기만큼 */
+.mi { width: 1.15em; height: 1.15em; display: inline-block; vertical-align: middle; }
+.mi-e { line-height: 1; }
 .ms-tile .t { font-size: 11px; font-weight: 700; line-height: 1.2; text-align: center; overflow-wrap: anywhere; }
 .ms-tile.done { border-color: #4CBE8C; background: #EAF8F0; }
 .ms-tile.done::after { content: '✓'; position: absolute; top: 3px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: #4CBE8C; color: #fff; font-size: 13px; font-weight: 700; line-height: 20px; text-align: center; }
@@ -1178,6 +1181,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       if (k === 'class') el.className = v;
       else if (k === 'style') el.style.cssText = v;
       else if (k === 'text') el.textContent = v;
+      else if (k === 'html') el.innerHTML = v; // 우리 코드에서 만든 그림(SVG)만 넣음
       else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
       else el.setAttribute(k, v === true ? '' : v);
     }
@@ -3296,7 +3300,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
           kidsWrite([k, 'mdone', day, x.id], on ? true : null);
           SND.tap(on ? 3 : 1);
           if (on && M.done + 1 === M.total && !M.got) setTimeout(() => askGift(k), 350); // 마지막 미션 → (아이면 엄마·아빠 확인) → 선물 상자
-        } }, h('span', { class: 'e', text: FS.missionIcon(x) }), h('span', { class: 't', text: FS.missionLabel(x, lang) })))),
+        } }, h('span', { class: 'e', html: FS.missionIconHTML(x) }), h('span', { class: 't', text: FS.missionLabel(x, lang) })))),
       ...(M.got ? [h('div', { class: 'ms-got', text: L().msGot })]
         : M.all ? [h('button', { type: 'button', class: 'ms-claim', text: (unlocked() || GROWN(k) ? '' : '🔒 ') + L().msClaim,
           onclick: () => askGift(k) })] : []));
@@ -3384,7 +3388,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const has = new Set(cfgMissions.map((x) => x.id));
     const own = h('input', { class: 'field', type: 'text', maxlength: '30', placeholder: L().msOwnPh });
     box.replaceChildren(
-      ...cfgMissions.map((x, i) => h('div', { class: 'row-m' }, h('span', { class: 'e', text: FS.missionIcon(x) }), h('span', { class: 't', text: FS.missionLabel(x, lang) }),
+      ...cfgMissions.map((x, i) => h('div', { class: 'row-m' }, h('span', { class: 'e', html: FS.missionIconHTML(x) }), h('span', { class: 't', text: FS.missionLabel(x, lang) }),
         h('button', { type: 'button', class: 'wd', 'aria-pressed': String(!!x.wd), text: L().msWd, onclick: () => { cfgMissions[i] = { ...x, wd: !x.wd }; if (!cfgMissions[i].wd) delete cfgMissions[i].wd; renderCfgMissions(); } }),
         h('button', { type: 'button', 'aria-label': L().delete, text: '✕', onclick: () => { cfgMissions.splice(i, 1); renderCfgMissions(); } }))),
       h('div', { class: 'add' }, ...Object.entries(FS.MISSIONS).filter(([id]) => !has.has(id)).map(([id, t]) => h('button', { type: 'button', text: `${t[0]} ${t[lang === 'de' ? 2 : 1]}`,
