@@ -17,6 +17,7 @@
 (() => {
   'use strict';
   const FS = window.FamilyStickers;
+  // ❓ 도움말 · 🃏 상태 카드 (2026-11-16): 방 왼쪽 위 ❓ → 아래 칸에 키우는 법 · 좋아하는 열매 · 머리 위 그림 뜻. 친구를 누르면 게임 같은 상태 카드.
   const BASE = (document.currentScript && document.currentScript.src) ? new URL('.', document.currentScript.src).href : './'; // 가구 그림: poke/deco/*.svg
   // 🎨 돌보기 아이콘: 이모지 대신 직접 그린 귀여운 그림 (원본 · 미리보기: Eunjin/_handoff/deco-tools/icons.js · _handoff/icon-test.html)
   const ICON = (() => {
@@ -89,6 +90,10 @@
 <ellipse cx="13.5" cy="36" rx="6.2" ry="4.8" fill="#FF7EB6" ${sw}/><ellipse cx="33.5" cy="30" rx="6.2" ry="4.8" fill="#8FA8FF" ${sw}/>${hl(11.5, 34.5, 1.6, 1, -20)}${hl(31.5, 28.5, 1.6, 1, -20)}`),
     sound: S(`<path d="M7 19h7l11-9v28l-11-9H7z" fill="#FFD23F" ${sw}/><path d="M31 18c3 3 3 9 0 12M36 13c6 5 6 17 0 22" stroke="${K}" stroke-width="2.6" fill="none" stroke-linecap="round"/>${hl(11, 22, 1.4, 2.4, 0)}`),
     mute: S(`<path d="M7 19h7l11-9v28l-11-9H7z" fill="#D7DEE6" ${sw}/><path d="M31 19l10 10M41 19L31 29" stroke="#FF6B6B" stroke-width="3.4" stroke-linecap="round"/>`),
+    help: S(`<path d="M24 5c11 0 19 7 19 16s-8 16-19 16c-2 0-4 0-6-1l-8 6 2-8c-4-3-7-8-7-13 0-9 8-16 19-16z" fill="#8FD3F4" ${sw}/>
+<path d="M19 17c0-4 3-6 6-6s6 2 6 5c0 4-6 4-6 8" stroke="#fff" stroke-width="3.6" fill="none" stroke-linecap="round"/><circle cx="25" cy="29.5" r="2.3" fill="#fff"/>`),
+    pokeball: S(`<circle cx="24" cy="24" r="19" fill="#fff" ${sw}/><path d="M5 24a19 19 0 0 1 38 0z" fill="#FF5A5A" ${sw}/><path d="M5 24h38" stroke="${K}" stroke-width="3.4"/>
+<circle cx="24" cy="24" r="6.2" fill="#fff" ${sw}/><circle cx="24" cy="24" r="2.6" fill="#F1EDE6" stroke="${K}" stroke-width="1.2"/>${hl(15, 13, 3, 5.5, 40)}`),
     strawberry: S(`<path d="M24 44C10 38 6 26 9 19c3-6 10-5 15-3 5-2 12-3 15 3 3 7-1 19-15 25z" fill="#FF5A6E" ${sw}/>
     ${[[16, 24], [24, 22], [32, 24], [20, 31], [28, 31], [24, 38]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="1" ry="1.5" fill="#FFE27A"/>`).join('')}
     <path d="M24 17l-7-6 5 1-1-6 3 5 3-5-1 6 5-1z" fill="#5CBF6E" stroke="#2E8A44" stroke-width="1.6" stroke-linejoin="round"/>${hl(14, 25, 2, 4, 20)}`),
@@ -350,6 +355,39 @@
 .pr-mute { position: absolute; right: 2%; top: 3%; z-index: 1002; width: calc(34px * var(--pr-s)); height: calc(34px * var(--pr-s)); padding: 0; border: 0; border-radius: 50%;
   background: rgba(255,255,255,.8); box-shadow: 0 2px 6px rgba(0,0,0,.15); font-size: calc(22px * var(--pr-s)); display: grid; place-items: center; cursor: pointer; }
 .pr-mute .pi { display: block; }
+.pr-help { position: absolute; left: 2%; top: 3%; z-index: 1002; width: calc(34px * var(--pr-s)); height: calc(34px * var(--pr-s)); padding: 0; border: 0; border-radius: 50%;
+  background: rgba(255,255,255,.8); box-shadow: 0 2px 6px rgba(0,0,0,.15); font-size: calc(24px * var(--pr-s)); display: grid; place-items: center; cursor: pointer; }
+.pr-help .pi { display: block; }
+.pr-hrow { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 10px; font-size: calc(13px * var(--pr-s)); color: #6B3E12; line-height: 1.45; }
+.pr-hrow > .pi-w { font-size: calc(28px * var(--pr-s)); flex: none; } .pr-hrow b { display: block; font-size: 1.08em; margin-bottom: 1px; }
+.pr-legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.pr-legend span { display: inline-flex; gap: 4px; align-items: center; font-size: calc(12px * var(--pr-s)); background: #fff; border-radius: 99px; padding: 2px 9px 2px 4px; color: #6B3E12; }
+.pr-legend .pi-w { font-size: 1.6em; }
+.pr-fav { display: flex; flex-direction: column; align-items: center; gap: 2px; background: #fff; border-radius: 12px; padding: 4px 2px; font-size: calc(10.5px * var(--pr-s)); color: #6B3E12; }
+.pr-fav img { width: 76%; aspect-ratio: 1; object-fit: contain; } .pr-fav .pi-w { font-size: calc(22px * var(--pr-s)); }
+.pr-fav .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+/* 🃏 상태 카드 */
+.pr-card { position: absolute; left: 50%; bottom: 3%; transform: translateX(-50%); z-index: 1003; width: min(94%, calc(340px * var(--pr-s))); display: flex; gap: 10px; align-items: stretch;
+  padding: 10px 12px 10px 10px; border-radius: 18px; background: #FFFDF8; border: 3px solid var(--c1); box-shadow: 0 10px 24px rgba(0,0,0,.25), inset 0 0 0 2px #fff;
+  font-size: calc(12.5px * var(--pr-s)); color: #5A3A22; animation: pr-card .35s cubic-bezier(.2, 1.5, .4, 1); }
+@keyframes pr-card { from { transform: translate(-50%, 25%) scale(.9); opacity: 0; } to { transform: translateX(-50%); opacity: 1; } }
+.pr-card .pic { position: relative; flex: none; width: calc(78px * var(--pr-s)); border-radius: 14px; background: radial-gradient(circle at 50% 42%, #fff 0 30%, var(--c2)); display: grid; place-items: center; overflow: hidden; }
+.pr-card .pic img { width: 94%; aspect-ratio: 1; object-fit: contain; } .pr-card .pic .pk-egg { width: 58%; }
+.pr-card .pic .shiny { position: absolute; right: 3px; top: 3px; font-size: 1.4em; }
+.pr-card .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.pr-card .nm { display: flex; align-items: center; gap: 6px; font-size: 1.28em; font-weight: 800; padding-right: 18px; }
+.pr-card .tag { flex: none; font-size: .62em; padding: 1px 8px; border-radius: 99px; background: var(--c1); color: #fff; font-weight: 800; }
+.pr-card .sub { display: flex; align-items: center; gap: 4px 10px; color: #9A7A5A; flex-wrap: wrap; } .pr-card .sub .pi-w { font-size: 1.35em; }
+.pr-card .lb { display: flex; justify-content: space-between; align-items: center; font-weight: 800; } .pr-card .lb .pi-w { font-size: 1.2em; }
+.pr-card .bar { position: relative; height: calc(15px * var(--pr-s)); border-radius: 99px; background: #F1E4D2; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,.12); }
+.pr-card .bar i { position: absolute; inset: 0 auto 0 0; width: var(--p); border-radius: 99px; background: linear-gradient(90deg, #FFA3C6, #FF5F9E); box-shadow: inset 0 -3px 0 rgba(0,0,0,.08), inset 0 3px 0 rgba(255,255,255,.35); transition: width .6s; }
+.pr-card .bar b { position: absolute; inset: 0; display: grid; place-items: center; font-size: .78em; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,.4); }
+.pr-card .nx { display: flex; align-items: center; gap: 2px; } .pr-card .nx img { width: calc(28px * var(--pr-s)); height: calc(28px * var(--pr-s)); object-fit: contain; filter: brightness(0); opacity: .28; }
+.pr-card .nx img.seen { filter: none; opacity: 1; }
+.pr-card .st { display: flex; gap: 4px; flex-wrap: wrap; }
+.pr-card .st span { display: inline-flex; align-items: center; gap: 2px; padding: 1px 8px 1px 2px; border-radius: 99px; background: #EAF8F0; color: #2E7D3A; font-size: .86em; font-weight: 700; }
+.pr-card .st span.no { background: #FFE8EC; color: #C0392B; } .pr-card .st .pi-w { font-size: 1.35em; }
+.pr-card .x { position: absolute; right: 6px; top: 3px; border: 0; background: none; font-size: 1.25em; color: #B07040; cursor: pointer; padding: 2px 4px; }
 .pr-hand.ghost { opacity: 0; animation: pr-rub .32s ease-in-out infinite alternate, pr-ghost 2.4s ease-in-out forwards; }
 @keyframes pr-ghost { 0% { opacity: 0; } 15%, 80% { opacity: .9; } 100% { opacity: 0; } }
 .pr-poo { padding: .28em; }
@@ -441,6 +479,47 @@
   const CARE_START = new Date(2026, 10, 17).getTime(); // 목욕은 이날부터 셈 (전부 한꺼번에 꼬질꼬질해지지 않게)
   const MILE = [[7, 1], [30, 3], [100, 5], [365, 10]]; // 🎂 [태어난 지 며칠, 🪙 선물]
   const TOOLS = ['rice', 'soap', 'ball', 'pill'];
+  // ❓ 도움말 (방 왼쪽 위): [아이콘, 제목, 설명] — 글 속 이모지는 rich() 로 그림이 됨. P = 티니핑 방
+  const HELP = {
+    ko: (P) => [
+      ['star', '매일 미션', '🎯 오늘의 미션을 다 하면 🎁 선물 상자에서 열매 1개 + 🪙 코인 1개를 받아요.'],
+      ['strawberry', '열매 주기', `아래 열매를 고르고 친구를 눌러요. ${P ? '하트 알' : '알'}은 열매 5개를 먹으면 깨어나요. 친구는 하트 1개, 좋아하는 열매면 하트 2개!`],
+      ['heart', '하트가 모이면', P ? '💗 하트 5개마다 더 친해져요. 💗3이면 단짝이 돼서 반짝반짝 춤을 춰요. 변신하는 티니핑은 하트 10개에 변신해요.' : '진화해요! 첫 진화는 하트 10개, 다음 진화는 하트 15개.'],
+      ['rice', '밥', '아침 · 점심 · 저녁마다 배고픈 친구 머리 위에 🍚 가 떠요. 🍚 밥을 누르고 그 친구를 눌러요.'],
+      ['hand', '쓰다듬기', '친구를 꾹 누른 채 손가락으로 문질러요. 🤚 가 뜬 친구가 기다려요.'],
+      ['soap', '목욕', '🛁 가 뜨면 🧼 목욕을 누르고 친구를 톡톡톡 세 번! 🚿 샤워로 깨끗해져요.'],
+      ['poop', '똥 치우기', '하루 두 번 💩 가 생겨요. 톡 누르면 치워져요.'],
+      ['heart', '열매 보너스', '오늘 밥 · 쓰다듬기 · 목욕을 받은 친구가 미션 열매를 먹으면 하트 +1 (하루 한 번).'],
+      ['ball', '소원', '하루에 한 친구가 💭 소원을 말해요 (⚽ 공놀이 또는 좋아하는 열매). 들어주면 하트 +1! 공놀이는 ⚽ 를 누르고 바닥을 눌러요.'],
+      ['sick', '감기', '오래 못 오거나 목욕을 너무 오래 안 하면 가끔 걸려요. 그때만 💊 약 버튼이 나와요 (🪙 1개). 이틀 지나면 저절로 나아요.'],
+      ['moon', '밤', '밤 8시 ~ 아침 7시는 자는 시간. 🌙 불 끄기를 누르면 침대에서 쿨쿨 자요.'],
+      ['coin', '코인', `미션마다 🪙 1개, 황금 스티커마다 🪙 3개, 🎂 태어난 지 7 · 30 · 100 · 365일에도 받아요. 🛒 가게에서 새 ${P ? '하트 알' : '알'} (🪙 10)과 가구를 사요.`],
+      ['star', P ? '황금 하트' : '황금 알', P ? '황금 스티커 4개마다 👑 황금 하트가 와요. 특별한 티니핑이 들어 있대요!' : '황금 스티커 4개마다 🌟 황금 알이 와요. 전설의 포켓몬이 들어 있대요!'],
+      ['sound', '소리', '방 오른쪽 위 버튼으로 소리를 끄고 켜요. 친구를 누르면 상태 카드가 나와요.'],
+    ],
+    de: (P) => [
+      ['star', 'Tagesmission', '🎯 Alle Missionen geschafft → im 🎁 Geschenk gibt es 1 Beere + 🪙 1 Münze.'],
+      ['strawberry', 'Beeren geben', `Beere unten wählen, dann einen Freund antippen. ${P ? 'Herz-Eier' : 'Eier'} schlüpfen nach 5 Beeren. Sonst 1 Herz, Lieblingsbeere 2 Herzen!`],
+      ['heart', 'Viele Herzen', P ? '💗 Alle 5 Herzen werdet ihr engere Freunde. Ab 💗3 beste Freunde: Glitzer und Tanz. Verwandelnde Teenieping verwandeln sich bei 10 Herzen.' : 'Entwicklung! Die erste bei 10 Herzen, die nächste bei 15.'],
+      ['rice', 'Futter', 'Morgens, mittags und abends zeigt ein hungriger Freund 🍚. 🍚 Futter wählen und ihn antippen.'],
+      ['hand', 'Streicheln', 'Gedrückt halten und mit dem Finger reiben. Wer 🤚 zeigt, wartet darauf.'],
+      ['soap', 'Baden', 'Bei 🛁: 🧼 Baden wählen und 3× antippen. Dann 🚿 Dusche – sauber!'],
+      ['poop', 'Aufräumen', 'Zweimal am Tag gibt es 💩. Antippen = weg.'],
+      ['heart', 'Pflege-Bonus', 'Wer heute Futter, Streicheln oder Baden bekam, kriegt bei der Missions-Beere +1 Herz (1× am Tag).'],
+      ['ball', 'Wunsch', 'Jeden Tag hat ein Freund einen 💭 Wunsch (⚽ Ball oder Lieblingsbeere). Erfüllen = +1 Herz! Für den Ball ⚽ wählen und auf den Boden tippen.'],
+      ['sick', 'Erkältung', 'Wenn lange keiner kommt oder lange nicht gebadet wird. Nur dann gibt es den 💊-Knopf (🪙 1). Nach 2 Tagen auch von selbst gesund.'],
+      ['moon', 'Nacht', '20–7 Uhr ist Schlafenszeit. 🌙 Licht aus → alle schlafen im Bett.'],
+      ['coin', 'Münzen', `Pro Mission 🪙 1, pro Goldsticker 🪙 3, und zum 🎂 7./30./100./365. Tag. Im 🛒 Laden: neue ${P ? 'Herz-Eier' : 'Eier'} (🪙 10) und Möbel.`],
+      ['star', P ? 'Goldherz' : 'Gold-Ei', P ? 'Alle 4 Goldsticker kommt ein 👑 Goldherz mit einem besonderen Teenieping!' : 'Alle 4 Goldsticker kommt ein 🌟 Gold-Ei mit einem legendären Pokémon!'],
+      ['sound', 'Ton', 'Oben rechts im Zimmer Ton an/aus. Freund antippen = Steckbrief.'],
+    ],
+  };
+  const LEGEND = { ko: [['rice', '배고파요'], ['hand', '쓰다듬어 줘요'], ['bath', '씻고 싶어요'], ['sick', '아파요'], ['ball', '소원'], ['yawn', '졸려요 (불 꺼 줘요)'], ['zz', '자요']],
+    de: [['rice', 'Hunger'], ['hand', 'Streicheln'], ['bath', 'Baden'], ['sick', 'Krank'], ['ball', 'Wunsch'], ['yawn', 'Müde (Licht aus)'], ['zz', 'Schläft']] };
+  // 🃏 상태 카드: 포켓몬은 타입 색, 티니핑은 분홍
+  const TYPE_COL = { fire: ['#FF8A3D', '#FFD9B8'], water: ['#3DA5FF', '#C8E8FF'], grass: ['#4CBF5A', '#CFF2C9'], electric: ['#F5B700', '#FFF2BF'], bug: ['#8DB32A', '#E6F2C2'],
+    poison: ['#A85FD6', '#EBD7F7'], normal: ['#B09A78', '#EFE8DA'], fighting: ['#D8553A', '#F6D2C8'], psychic: ['#FF6B9A', '#FFD6E3'], rock: ['#B39A55', '#EEE5C8'], ground: ['#D39A4F', '#F5E5C6'],
+    ghost: ['#7B6BC4', '#E1DCF5'], ice: ['#4FC3D6', '#D5F5F8'], dragon: ['#6F5BE6', '#DCD6FB'], fairy: ['#FF8FC0', '#FFE1EE'], flying: ['#7F98F0', '#E0E7FF'], steel: ['#8A949E', '#E6EAEE'], dark: ['#6B5A4A', '#E0D9D2'] };
   const NEW_UNTIL = new Date(2026, 10, 30).getTime(); // 가게 'NEW' 표시 (새로 그린 가구)
   // 친구들이 가구를 써요: [떠오르는 아이콘, x 차이, y 차이 (%, 방 300px 기준 — 방 크기에 맞춰 늘림), 가구 앞에 올라앉기(1)]
   const USE = {
@@ -482,6 +561,7 @@
     const btnDex = el('button', { type: 'button', 'aria-pressed': 'false' });
     const btnLight = el('button', { type: 'button', hidden: '' });
     const btnMute = el('button', { type: 'button', class: 'pr-mute' });
+    const btnHelp = el('button', { type: 'button', class: 'pr-help', html: ICON.help });
     const msg = el('p', { class: 'pr-msg' });
     const panel = el('div', { class: 'pr-panel', hidden: '' });
     if (SET.room === 'princess') roomEl.append(el('div', { class: 'pr-cur l' }), el('div', { class: 'pr-cur r' }));
@@ -768,6 +848,56 @@
       if (t) bubble(x, y, L().cheer(FS.missionIcon(t), FS.missionLabel(t, lang())));
     }
 
+    // ── 🃏 친구 상태 카드 (누르면): 나이 · 하트 게이지(진화/변신/친해지기) · 좋아하는 열매 · 다음 모습 · 배부름/기분/깨끗함/건강 ──
+    let cardT = 0;
+    const closeCard = () => { clearTimeout(cardT); for (const c of roomEl.querySelectorAll('.pr-card')) c.remove(); };
+    function bar(cur, max, ic, label, right) {
+      const p = Math.max(0, Math.min(1, max ? cur / max : 1));
+      return [el('div', { class: 'lb' }, el('span', {}, ...rich(label)), el('span', {}, ...(right ? rich(right) : [icon(ic), ` ${cur} / ${max}`]))),
+        el('div', { class: 'bar', style: `--p:${(p * 100).toFixed(0)}%` }, el('i'), el('b', { text: p >= 1 ? 'MAX' : '' }))];
+    }
+    function showCard(m) {
+      closeCard();
+      const de = lang() === 'de', egg = !hatched(m), f = m.f || 0, P = SET.key === 'ping';
+      const col = P ? ['#FF7EB6', '#FFD6E8'] : TYPE_COL[((FS.DEX || {})[m.p] || [])[4]] || ['#FFB46B', '#FFE6C8'];
+      const pic = el('div', { class: 'pic' }, egg ? el('span', { html: SET.eggHTML(m.egg) }) : el('img', { src: SET.art(m.p), alt: '' }), m.s && !egg ? el('span', { class: 'shiny', html: ICON.sparkle }) : null);
+      const rows = [];
+      if (egg) rows.push(...bar(f, EGG_NEED, 'strawberry', de ? 'Bis zum Schlüpfen' : '태어나기까지'));
+      else {
+        const nexts = SET.next(m.p), n = need(m), lv = lvOf(m), age = m.h > 1e12 ? Math.floor((Date.now() - m.h) / 864e5) : -1;
+        rows.push(el('div', { class: 'sub' }, age >= 0 ? el('span', {}, ...rich(L().age(age))) : null, el('span', {}, de ? 'Liebt ' : '좋아하는 열매 ', icon(SET.fav(m.p)))));
+        if (nexts.length) {
+          const seen = seenSet();
+          rows.push(...bar(f, n, 'heart', P ? (de ? 'Bis zur Verwandlung' : '변신까지') : (de ? 'Bis zur Entwicklung' : '진화까지')));
+          rows.push(el('div', { class: 'nx' }, el('span', { text: de ? 'Nächste Form ' : '다음 모습 ' }), ...nexts.slice(0, 3).map((q) => el('img', { src: SET.art(q), alt: '', class: seen.has(String(q)) ? 'seen' : '' }))));
+        } else if (SET.friend) rows.push(...bar(f % FRIEND, FRIEND, 'heart', lv >= 3 ? (de ? `💗${lv} Beste Freunde` : `💗${lv} 단짝`) : `💗${lv} → 💗${lv + 1}`));
+        else rows.push(...bar(1, 1, 'star', de ? '⭐ Letzte Entwicklung!' : '⭐ 최종 진화!', `💖 ${f}`));
+        if (!isNight()) {
+          const nd = needOf(m), sk = sickOf(m), w = wishOf(), chip = (ic, ok, a, b) => el('span', { class: ok ? '' : 'no' }, icon(ic), ok ? a : b);
+          rows.push(el('div', { class: 'st' }, chip('rice', nd !== 'eat', de ? 'Satt' : '배불러요', de ? 'Hunger' : '배고파요'), chip('heart', nd !== 'pet', de ? 'Fröhlich' : '기분 좋아요', de ? 'Streicheln!' : '쓰다듬어 줘요'),
+            chip('bath', !dirtyOf(m), de ? 'Sauber' : '깨끗해요', de ? 'Baden!' : '씻고 싶어요'), sk ? chip('sick', false, '', de ? 'Krank' : '아파요') : null,
+            w && w.id === m.id ? el('span', { class: 'no' }, icon(w.kind === 'play' ? 'ball' : w.berry), de ? 'Wunsch' : '소원') : null));
+        }
+      }
+      const tag = egg ? '' : P ? (SET.next(m.p).length ? '' : `💗${lvOf(m)}`) : ['', 'Lv.1', 'Lv.2', 'Lv.3'][(FS.pokeStage && FS.pokeStage(m.p)) || 0] || '';
+      const c = el('div', { class: 'pr-card', style: `--c1:${col[0]};--c2:${col[1]}` }, pic,
+        el('div', { class: 'info' }, el('div', { class: 'nm' }, el('span', { text: egg ? eggName(m.egg) : name(m.p) }), tag ? el('span', { class: 'tag' }, ...rich(tag)) : null), ...rows),
+        el('button', { type: 'button', class: 'x', 'aria-label': L().close, text: '✕', onclick: closeCard }));
+      c.addEventListener('pointerdown', (ev) => ev.stopPropagation());
+      roomEl.append(c);
+      cardT = setTimeout(closeCard, 9000);
+    }
+    // ── ❓ 도움말 ──
+    function helpView(closeB) {
+      const de = lang() === 'de', rows = (de ? HELP.de : HELP.ko)(SET.key === 'ping');
+      const row = ([ic, t, d]) => el('div', { class: 'pr-hrow' }, icon(ic), el('div', {}, el('b', {}, ...rich(t)), el('span', {}, ...rich(d))));
+      const hm = homeMons().filter((m) => hatched(m));
+      return [el('h4', {}, el('span', {}, icon('help'), de ? ' So geht’s' : ' 이렇게 키워요'), closeB), ...rows.slice(0, 3).map(row),
+        hm.length ? el('h4', {}, el('span', { text: de ? 'Lieblingsbeeren im Zimmer' : '우리 방 친구들이 좋아하는 열매' })) : null,
+        hm.length ? el('div', { class: 'pr-grid' }, ...hm.map((m) => el('span', { class: 'pr-fav' }, el('img', { src: SET.art(m.p), alt: '', loading: 'lazy' }), el('span', { class: 'n', text: name(m.p) }), icon(SET.fav(m.p))))) : null,
+        el('h4', {}, el('span', { text: de ? 'Was die Bilder über dem Kopf bedeuten' : '머리 위 그림 뜻' })),
+        el('div', { class: 'pr-legend' }, ...(de ? LEGEND.de : LEGEND.ko).map(([k, t]) => el('span', {}, icon(k), t))), ...rows.slice(3).map(row)];
+    }
     // ── 친구들이 가구를 써요 (소파에 앉기 · 피아노 · 분수 · 밤엔 침대에서 쿨쿨) ──
     const UK = USE[SET.room ? 'pp' : 'pk'], BK = BED[SET.room ? 'pp' : 'pk'];
     const fac = () => (scale * 300) / Math.max(1, roomEl.clientWidth); // 가구 크기 비율 (방이 커도 가구는 2.4배까지)
@@ -966,16 +1096,10 @@
       if (feeding === 'ball') return throwBall(x + rnd(-22, 22), y + 14 + rnd(-3, 6), e);
       if (feeding && count(feeding) > 0) return feed(e, m, feeding, x, y);
       if (hatched(m)) { if (Date.now() - (e._vAt || 0) > 1200) { e._vAt = Date.now(); voice(m); } } else snd.boing(); // 누르면 울음소리 / 핑♪
-      if (!hatched(m)) { bubble(x, y, eggName(m.egg)); say(L().eggInfo(Math.max(1, EGG_NEED - (m.f || 0)))); return; }
-      const fav = BERRY[SET.fav(m.p)][1], n = need(m);
-      const lv = lvOf(m), fr = SET.friend && !n;
-      const nd = needOf(m), sk = sickOf(m), st = isNight() ? null : el('span', { class: 'st' }, sk ? el('i', { html: ICON.sick }) : null,
-        el('i', { class: nd === 'eat' ? 'off' : '', html: ICON.rice }), el('i', { class: nd === 'pet' ? 'off' : '', html: ICON.heart }), el('i', { class: dirtyOf(m) ? 'off' : '', html: ICON.bath }));
-      const hs = fr ? (lv ? [icon('heart'), `${lv}`] : []) : Array.from({ length: Math.min(3, Math.ceil((m.f || 0) / 4)) }, () => icon('heart'));
-      bubble(x, y, `${name(m.p)} `, el('span', {}, m.s ? icon('sparkle') : null, ...hs, st));
-      const w = wishOf(), age = m.h > 1e12 ? Math.floor((Date.now() - m.h) / 864e5) : -1;
-      say(sk ? L().sickSay(name(m.p)) : w && w.id === m.id && !nd && !isNight() ? (w.kind === 'play' ? L().wishPlay(name(m.p)) : L().wishBerry(name(m.p), `${BERRY[w.berry][1]} ${bName(w.berry)}`))
-        : `${name(m.p)} · ${L().likes(fav)}${n ? ' · ' + L().toEvo(Math.max(1, n - (m.f || 0))) : fr ? ' · ' + L().toGift(FRIEND - ((m.f || 0) % FRIEND)) : ''}${age >= 0 ? ' · ' + L().age(age) : ''}`);
+      showCard(m); // 🃏 상태 카드
+      const w = wishOf();
+      if (sickOf(m)) say(L().sickSay(name(m.p)));
+      else if (w && w.id === m.id && !isNight() && !needOf(m)) say(w.kind === 'play' ? L().wishPlay(name(m.p)) : L().wishBerry(name(m.p), `${BERRY[w.berry][1]} ${bName(w.berry)}`));
     }
     // 알이 깨어남: 정해진 포켓몬/티니핑(첫 알) 또는 랜덤
     function hatchEgg(e, m, x, y) {
@@ -1221,6 +1345,8 @@
         }));
         panel.replaceChildren(el('h4', {}, el('span', {}, icon('coin'), L().shopHead(coins)), closeB), el('h4', {}, el('span', { text: L().eggs })), eggs,
           el('h4', {}, el('span', { text: L().furn })), el('p', { text: L().decoTip }), furn);
+      } else if (open === 'help') {
+        panel.replaceChildren(...helpView(closeB));
       } else {
         const all = mons(), home = homeIds(), seenS = seenSet(), seen = { has: (id) => seenS.has(String(id)) }, nSeen = SET.dex.filter((id) => seen.has(id)).length;
         const grid = el('div', { class: 'pr-grid' }, ...[...all].reverse().map((m) => el('button', { type: 'button', class: home.includes(m.id) ? 'on' : '', onclick: () => {
@@ -1254,8 +1380,12 @@
       if (!muted) beep(SFX.pill);
     });
     if (o.snd) { muteLook(); roomEl.append(btnMute); }
+    btnHelp.setAttribute('aria-label', lang() === 'de' ? 'Hilfe' : '도움말');
+    btnHelp.addEventListener('click', () => { open = open === 'help' ? '' : 'help'; armed = ''; feeding = ''; snd.tap(2); renderAll(); if (open) setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50); });
+    roomEl.append(btnHelp);
+    roomEl.addEventListener('pointerdown', (ev) => { if (ev.target === roomEl || ev.target.classList.contains('pr-dim')) closeCard(); }); // 빈 곳을 누르면 카드 닫기
     roomEl.addEventListener('pointerdown', (ev) => { // ⚽ 바닥을 누르면 공 던지기
-      if (feeding !== 'ball' || ev.target.closest('.pr-mon, .pr-poo, .pr-pick, .pr-deco, .pr-mute')) return;
+      if (feeding !== 'ball' || ev.target.closest('.pr-mon, .pr-poo, .pr-pick, .pr-deco, .pr-mute, .pr-help, .pr-card')) return;
       const r = roomEl.getBoundingClientRect();
       throwBall(((ev.clientX - r.left) / r.width) * 100, ((ev.clientY - r.top) / r.height) * 100 + 4);
     });
@@ -1275,5 +1405,12 @@
     root._pr = { update: () => { renderAll(); grants(); }, destroy };
     return root._pr;
   }
-  window.PokeRoom = { mount, DECO, DECO_P, ICON, rich };
+  // 방으로 가는 버튼 그림 (각 앱 탭 · 버튼에서 씀): 포켓몬 = 몬스터볼, 티니핑 = 하츄핑 얼굴
+  function tabIcon(kid) {
+    addCss();
+    const S = FS.charSet(kid);
+    return S && S.key === 'ping' ? `<img class="pi" src="${BASE}ping/heartsping1.webp" alt="" style="width:1.5em;height:1.5em;object-fit:contain;vertical-align:-.4em">`
+      : ICON.pokeball.replace('class="pi"', 'class="pi" style="width:1.25em;height:1.25em;vertical-align:-.24em"');
+  }
+  window.PokeRoom = { mount, DECO, DECO_P, ICON, rich, tabIcon };
 })();

@@ -3002,7 +3002,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     // 탭 (다빈만: 스티커 / 용돈)
     $('#kid-tabs').hidden = false;
     document.querySelector('[data-kid-tab="money"]').hidden = k !== 'davin';
-    document.querySelector('[data-kid-tab="room"]').textContent = k === 'arin' ? L().tabRoomPing : L().tabRoom; // 아린 = 💖 티니핑 공주방
+    { const b = document.querySelector('[data-kid-tab="room"]'), t = k === 'arin' ? L().tabRoomPing : L().tabRoom; // 아린 = 💖 티니핑 공주방
+      if (window.PokeRoom && window.PokeRoom.tabIcon) { b.innerHTML = window.PokeRoom.tabIcon(k); b.append(' ' + t.replace(/^\S+\s*/, '')); } else b.textContent = t; } // 몬스터볼 · 하츄핑 그림 (poke-room.js)
     for (const b of document.querySelectorAll('[data-kid-tab]')) b.setAttribute('aria-selected', String(b.dataset.kidTab === kidTab));
     $('#tab-stickers').hidden = kidTab !== 'stickers';
     $('#tab-money').hidden = kidTab !== 'money';
