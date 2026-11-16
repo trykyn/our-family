@@ -10,6 +10,7 @@
      3단계: 🎂 태어난 지 7 · 30 · 100 · 365일 파티 (🪙 선물) · 오늘 미션 응원 ("양치 했어?"), 미션 다 하면 같이 춤
      상태는 시간으로 계산하고 누를 때만 저장: room.care.{id} = { e: 마지막 밥, p: 쓰다듬기, b: 목욕, s: 감기 걸린 때, m: 약 먹은 때 }, pc.{날짜-0|1} = 치운 똥, lo = 불 끈 밤,
        wk = 인사한 날, care.{id}.k = 열매 보너스 받은 날(20261116 꼴), wish = 소원 들어준 날, bd.{id} = 축하한 날수, items.{id} = 'pill' (💊)
+   🔊 목소리 (2026-11-16): 포켓몬 = 게임 울음소리 poke/cry/{번호}.m4a (PokeAPI cries) · 티니핑 = 친구마다 다른 '핑♪' + 기기 목소리로 이름 (높고 빠르게). 방 오른쪽 위 🔇 (이 기기에 저장)
    자료: kids.{k}.room (FS.ROOM, stickers-shared.js 맨 위 설명). 방 배경·가구·알은 직접 그린 것/이모지, 포켓몬 그림만 poke/ 폴더.
    쓰는 법: const room = PokeRoom.mount(el, { kid, lang: () => 'ko', data: () => kids[k], write: (path, v) => …(kids.{k} 아래 경로), big?, snd? });
             room.update(); room.destroy(); */
@@ -86,6 +87,8 @@
 <circle cx="24" cy="24" r="12.5" fill="#FFD23F" ${sw}/>${eyes(19.5, 28.5, 22.5, 1.5)}${blush(15.5, 32.5, 27)}${smile(24, 26.5, 2)}`),
     note: S(`<path d="M18 36V13l20-6v23" stroke="${K}" stroke-width="2.6" fill="none" stroke-linejoin="round"/><path d="M18 17l20-6" stroke="${K}" stroke-width="4.4"/>
 <ellipse cx="13.5" cy="36" rx="6.2" ry="4.8" fill="#FF7EB6" ${sw}/><ellipse cx="33.5" cy="30" rx="6.2" ry="4.8" fill="#8FA8FF" ${sw}/>${hl(11.5, 34.5, 1.6, 1, -20)}${hl(31.5, 28.5, 1.6, 1, -20)}`),
+    sound: S(`<path d="M7 19h7l11-9v28l-11-9H7z" fill="#FFD23F" ${sw}/><path d="M31 18c3 3 3 9 0 12M36 13c6 5 6 17 0 22" stroke="${K}" stroke-width="2.6" fill="none" stroke-linecap="round"/>${hl(11, 22, 1.4, 2.4, 0)}`),
+    mute: S(`<path d="M7 19h7l11-9v28l-11-9H7z" fill="#D7DEE6" ${sw}/><path d="M31 19l10 10M41 19L31 29" stroke="#FF6B6B" stroke-width="3.4" stroke-linecap="round"/>`),
     strawberry: S(`<path d="M24 44C10 38 6 26 9 19c3-6 10-5 15-3 5-2 12-3 15 3 3 7-1 19-15 25z" fill="#FF5A6E" ${sw}/>
     ${[[16, 24], [24, 22], [32, 24], [20, 31], [28, 31], [24, 38]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="1" ry="1.5" fill="#FFE27A"/>`).join('')}
     <path d="M24 17l-7-6 5 1-1-6 3 5 3-5-1 6 5-1z" fill="#5CBF6E" stroke="#2E8A44" stroke-width="1.6" stroke-linejoin="round"/>${hl(14, 25, 2, 4, 20)}`),
@@ -344,6 +347,9 @@
 .pr-mon .need.wish::before, .pr-mon .need.wish::after { content: ''; position: absolute; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
 .pr-mon .need.wish::before { width: 7px; height: 7px; left: 18%; bottom: -6px; } .pr-mon .need.wish::after { width: 4px; height: 4px; left: 8%; bottom: -11px; }
 .pr-bar button .pi-w, .pr-bar span .pi-w, .pr-panel .pi-w { margin-right: 2px; }
+.pr-mute { position: absolute; right: 2%; top: 3%; z-index: 1002; width: calc(34px * var(--pr-s)); height: calc(34px * var(--pr-s)); padding: 0; border: 0; border-radius: 50%;
+  background: rgba(255,255,255,.8); box-shadow: 0 2px 6px rgba(0,0,0,.15); font-size: calc(22px * var(--pr-s)); display: grid; place-items: center; cursor: pointer; }
+.pr-mute .pi { display: block; }
 .pr-hand.ghost { opacity: 0; animation: pr-rub .32s ease-in-out infinite alternate, pr-ghost 2.4s ease-in-out forwards; }
 @keyframes pr-ghost { 0% { opacity: 0; } 15%, 80% { opacity: .9; } 100% { opacity: 0; } }
 .pr-poo { padding: .28em; }
@@ -398,6 +404,32 @@
     pop: [[400, 0, 0.09, 'square', 1400]], kick: [[180, 0, 0.14, 'triangle', 70]],
     achoo: [[900, 0, 0.1, 'sawtooth', 600], [700, 0.14, 0.28, 'sawtooth', 160]], pill: [[784, 0, 0.1], [988, 0.1, 0.1], [1319, 0.2, 0.26]], pet: [[440, 0, 0.14, 'sine', 520]],
   };
+  // 🔊 포켓몬 울음소리: 한 번 받으면 기억 (오디오는 탭할 때 깨워 둔 같은 소리 상자로)
+  const cryBuf = {};
+  function playCry(id) {
+    try {
+      ax = ax || new (window.AudioContext || window.webkitAudioContext)();
+      if (ax.state === 'suspended') ax.resume();
+      const go = (b) => { const src = ax.createBufferSource(), g = ax.createGain(); g.gain.value = 0.5; src.buffer = b; src.connect(g).connect(ax.destination); src.start(); };
+      if (cryBuf[id]) return go(cryBuf[id]);
+      fetch(`${BASE}poke/cry/${id}.m4a`).then((r) => (r.ok ? r.arrayBuffer() : null)).then((ab) => { if (ab) ax.decodeAudioData(ab, (b) => { cryBuf[id] = b; go(b); }, () => {}); }).catch(() => {});
+    } catch {}
+  }
+  // 💖 티니핑: 친구마다 음높이가 다른 '핑♪' + 기기 목소리로 이름 (높은 목소리)
+  const pingTone = (id) => { const f = [523, 587, 659, 784, 880, 988][Math.floor(hash(String(id)) * 6)]; beep([[f, 0, 0.09, 'triangle'], [f * 1.5, 0.08, 0.09, 'triangle'], [f * 2, 0.16, 0.24, 'sine', f * 2.25]]); };
+  function sayName(text, lang) {
+    try {
+      const sp = window.speechSynthesis;
+      if (!sp) return;
+      const want = lang === 'de' ? 'de' : 'ko', v = sp.getVoices().find((x) => (x.lang || '').toLowerCase().startsWith(want));
+      if (!v) return; // 그 말 목소리가 없는 기기면 '핑♪' 만
+      sp.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.voice = v; u.lang = v.lang; u.pitch = 1.9; u.rate = 1.1; u.volume = 0.9;
+      sp.speak(u);
+    } catch {}
+  }
+  try { if (window.speechSynthesis) window.speechSynthesis.getVoices(); } catch {} // 목소리 목록 미리 불러 두기
   const isNight = () => { const h = new Date().getHours(); return h >= 20 || h < 7; };
   const pad = (n) => String(n).padStart(2, '0');
   const dayKey = (t) => { const x = new Date(t); return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}`; };
@@ -428,8 +460,20 @@
     const name = (id) => SET.name(id, lang());
     const bName = (k) => BERRY[k][lang() === 'de' ? 3 : 2];
     const eggName = (egg) => SET.eggName(egg, lang());
-    const snd = { tap() {}, tada() {}, boing() {}, stick() {}, coin() {}, ...(o.snd || {}) };
-    const sfx = (k) => { if (o.snd) beep(SFX[k]); }; // 소리를 넘긴 앱에서만
+    // 🔇 소리 끄기 (이 기기에 저장, 방 오른쪽 위 버튼)
+    let muted = false;
+    try { muted = localStorage.getItem('poke-room:mute') === '1'; } catch {}
+    const snd = Object.fromEntries(Object.entries({ tap() {}, tada() {}, boing() {}, stick() {}, coin() {}, ...(o.snd || {}) }).map(([k, f]) => [k, (...a) => { if (!muted) f(...a); }]));
+    const sfx = (k) => { if (o.snd && !muted) beep(SFX[k]); }; // 소리를 넘긴 앱에서만
+    let sayAt = 0;
+    function voice(m, big) { // 🔊 포켓몬 울음소리 / 티니핑 '핑♪' + 이름 (이름은 8초에 한 번, 태어날 때 · 친해질 때는 꼭)
+      if (muted || !o.snd || !m || !hatched(m)) return;
+      if (SET.key !== 'ping') { playCry(m.p); return; }
+      pingTone(m.p);
+      if (!big && Date.now() - sayAt < 8000) return;
+      sayAt = Date.now();
+      setTimeout(() => sayName(`${name(m.p).replace(/\s*\d+\s*(기)?$/, '')}!`, lang()), 300);
+    }
     const roomEl = el('div', { class: 'pr-room' }, el('div', { class: 'pr-win', 'aria-hidden': 'true' }, el('i'), el('b')));
     const toolRow = el('div', { class: 'pr-tools' });
     const berryRow = el('div', { class: 'pr-berries' });
@@ -437,6 +481,7 @@
     const btnShop = el('button', { type: 'button', 'aria-pressed': 'false' });
     const btnDex = el('button', { type: 'button', 'aria-pressed': 'false' });
     const btnLight = el('button', { type: 'button', hidden: '' });
+    const btnMute = el('button', { type: 'button', class: 'pr-mute' });
     const msg = el('p', { class: 'pr-msg' });
     const panel = el('div', { class: 'pr-panel', hidden: '' });
     if (SET.room === 'princess') roomEl.append(el('div', { class: 'pr-cur l' }), el('div', { class: 'pr-cur r' }));
@@ -577,6 +622,7 @@
       local.wk = t; W(['wk'], t);
       news(wk && wk < dayKey(Date.now() - 864e5) ? L().missed : new Date().getHours() < 11 ? L().morning : L().hello);
       for (const e of monEls.values()) if (!e._egg) happy(e);
+      const hi = homeMons().find((x) => hatched(x)); if (hi) setTimeout(() => voice(hi, true), 700); // 인사 목소리
       // 🤧 감기: 사흘 넘게 못 왔으면 (반반) 또는 목욕을 아주 오래 못 했으면 — 하루에 한 마리만
       const now = Date.now(), all = pk().mons || {}, ids = homeIds().filter((id) => all[id] && hatched(all[id]) && !sickOf({ id, ...all[id] }));
       const away = wk && wk < dayKey(now - 3 * 864e5) && hash(t + o.kid) < 0.5;
@@ -606,6 +652,7 @@
       const raw = (pk().mons || {})[id];
       if (!raw) return;
       setTimeout(() => news(L().wishDone(name(raw.p))), 400);
+      voice(raw, true);
       if (given) return; // 열매 소원: 하트는 먹을 때 같이
       const x = parseFloat(e.style.left), y = parseFloat(e.style.top) - 14;
       hearts(x, y, 5, 'star', true);
@@ -918,7 +965,7 @@
       if (feeding === 'pill') return givePill(e, m, x, y);
       if (feeding === 'ball') return throwBall(x + rnd(-22, 22), y + 14 + rnd(-3, 6), e);
       if (feeding && count(feeding) > 0) return feed(e, m, feeding, x, y);
-      snd.boing();
+      if (hatched(m)) { if (Date.now() - (e._vAt || 0) > 1200) { e._vAt = Date.now(); voice(m); } } else snd.boing(); // 누르면 울음소리 / 핑♪
       if (!hatched(m)) { bubble(x, y, eggName(m.egg)); say(L().eggInfo(Math.max(1, EGG_NEED - (m.f || 0)))); return; }
       const fav = BERRY[SET.fav(m.p)][1], n = need(m);
       const lv = lvOf(m), fr = SET.friend && !n;
@@ -937,7 +984,7 @@
       const have = new Set(mons().filter(hatched).map((z) => z.p));
       const p = SET.valid(m.p) ? m.p : SET.hatch(m.egg, have), s = Math.random() < SET.shiny;
       e._busy = true; e.classList.add('hatch'); snd.tap(3);
-      setTimeout(() => { e._busy = false; W(['mons', id], { ...v, p, s, h: Date.now(), f: 0 }); meet(p); news(s ? L().shinyHatch(name(p)) : L().hatched(name(p))); hearts(x, y, 8); }, 1300);
+      setTimeout(() => { e._busy = false; W(['mons', id], { ...v, p, s, h: Date.now(), f: 0 }); meet(p); news(s ? L().shinyHatch(name(p)) : L().hatched(name(p))); hearts(x, y, 8); voice({ p, h: Date.now() }, true); }, 1300);
     }
     function feed(e, m, kind, x, y) {
       const key = take(kind, 1)[0];
@@ -965,7 +1012,7 @@
         const to = pick(nexts), from = m.p;
         e._busy = true; e.classList.add('evo');
         setTimeout(() => { W(['mons', id], { ...v, p: to, f: 0 }); meet(from, to); }, 700);
-        setTimeout(() => { e._busy = false; e.classList.remove('evo'); news(SET.key === 'ping' ? L().changed(name(to)) : L().evolved(name(from), name(to))); }, 1400);
+        setTimeout(() => { e._busy = false; e.classList.remove('evo'); news(SET.key === 'ping' ? L().changed(name(to)) : L().evolved(name(from), name(to))); voice({ p: to, h: v.h || 1 }, true); }, 1400);
         return;
       }
       W(['mons', id], { ...v, f }); bubble(x, y, text);
@@ -973,6 +1020,7 @@
       if (lv1 > lv0) { // 한 단계 친해짐 → 축하 (코인 없음)
         setTimeout(() => news(lv0 < 3 && lv1 >= 3 ? L().bff(name(m.p)) : L().closer(name(m.p), lv1)), 600);
         setTimeout(() => hearts(x, y, 6, 'heart'), 600);
+        setTimeout(() => voice(m, true), 700);
       }
     }
     // 끌어서 옮기기 (조금만 움직이면 '누르기'). onHold: 꾹 누르고 있으면 'start' → 문지르면 'rub' → 떼면 'end' (쓰다듬기)
@@ -1198,8 +1246,16 @@
       renderRoom(); renderBar();
     });
     roomEl.addEventListener('pointerdown', greet);
+    const muteLook = () => { btnMute.innerHTML = ICON[muted ? 'mute' : 'sound']; btnMute.setAttribute('aria-label', muted ? '소리 켜기' : '소리 끄기'); btnMute.setAttribute('aria-pressed', String(muted)); };
+    btnMute.addEventListener('click', () => {
+      muted = !muted; muteLook();
+      try { localStorage.setItem('poke-room:mute', muted ? '1' : '0'); } catch {}
+      try { if (muted && window.speechSynthesis) window.speechSynthesis.cancel(); } catch {}
+      if (!muted) beep(SFX.pill);
+    });
+    if (o.snd) { muteLook(); roomEl.append(btnMute); }
     roomEl.addEventListener('pointerdown', (ev) => { // ⚽ 바닥을 누르면 공 던지기
-      if (feeding !== 'ball' || ev.target.closest('.pr-mon, .pr-poo, .pr-pick, .pr-deco')) return;
+      if (feeding !== 'ball' || ev.target.closest('.pr-mon, .pr-poo, .pr-pick, .pr-deco, .pr-mute')) return;
       const r = roomEl.getBoundingClientRect();
       throwBall(((ev.clientX - r.left) / r.width) * 100, ((ev.clientY - r.top) / r.height) * 100 + 4);
     });
