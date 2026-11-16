@@ -5,13 +5,18 @@
    좋아하는 열매는 하트 2개. 코인으로 새 알(10개)과 가구를 삼. 황금 스티커 = 🪙 3개, 황금 스티커 4개마다 🌟 황금 알(전설).
    🍚 돌보기 (다마고치, 2026-11-16): 밥 때(아침 7–12 · 점심 12–17 · 저녁 17–20)마다 방 친구 1~2마리가 배고파함 → 🍚 밥(공짜) → 🤚 쓰다듬기(꾹 누른 채 문지르기)
      → 다 하면 폴짝 + 하트 1개 (하루 방 전체 2개까지). 하루 두 번 💩 (톡 눌러 치움). 밤엔 🌙 불 끄기 → 쿨쿨. 아침 첫 인사. 안 돌봐도 아프거나 떠나지 않음.
-     상태는 시간으로 계산하고 누를 때만 저장: room.care.{id} = { e: 마지막 밥, p: 쓰다듬기 }, pc.{날짜-0|1} = 치운 똥, lo = 불 끈 밤, wk = 인사한 날, ch = { d, n } 오늘 돌봄 하트
+     2단계: 🧼 목욕 (톡톡 3번 → 🚿, 3~5일마다 꼬질꼬질 🛁) · 🤒 감기 (사흘 넘게 못 왔거나 목욕을 아주 오래 못 하면, 💊 약 = 가게 🪙1, 이틀 지나면 저절로 나음)
+       · ⚽ 공놀이 (바닥을 누르면 공 → 친구가 쫓아가 뻥) · 💭 하루 소원 하나 (⚽ 또는 좋아하는 열매 → 들어주면 하트 +1)
+     3단계: 🎂 태어난 지 7 · 30 · 100 · 365일 파티 (🪙 선물) · 오늘 미션 응원 ("양치 했어?"), 미션 다 하면 같이 춤
+     상태는 시간으로 계산하고 누를 때만 저장: room.care.{id} = { e: 마지막 밥, p: 쓰다듬기, b: 목욕, s: 감기 걸린 때, m: 약 먹은 때 }, pc.{날짜-0|1} = 치운 똥, lo = 불 끈 밤,
+       wk = 인사한 날, ch = { d, n } 오늘 돌봄 하트, wish = 소원 들어준 날, bd.{id} = 축하한 날수, items.{id} = 'pill' (💊)
    자료: kids.{k}.room (FS.ROOM, stickers-shared.js 맨 위 설명). 방 배경·가구·알은 직접 그린 것/이모지, 포켓몬 그림만 poke/ 폴더.
    쓰는 법: const room = PokeRoom.mount(el, { kid, lang: () => 'ko', data: () => kids[k], write: (path, v) => …(kids.{k} 아래 경로), big?, snd? });
             room.update(); room.destroy(); */
 (() => {
   'use strict';
   const FS = window.FamilyStickers;
+  const BASE = (document.currentScript && document.currentScript.src) ? new URL('.', document.currentScript.src).href : './'; // 가구 그림: poke/deco/*.svg
   const HOME_MAX = 6, EGG_NEED = 5;
   const BERRY = Object.fromEntries(FS.BERRIES.map((b) => [b[0], b]));
   const jong = (w) => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c < 11172 ? c % 28 : 0; };
@@ -30,6 +35,13 @@
       rice: '밥', riceHint: '🍚 밥 줄 친구를 눌러요', full: (n) => `${n}: 배불러요 😋`, yum: '냠냠! 맛있어요 😋', eggRice: '알은 열매만 먹어요',
       lightOff: '🌙 불 끄기', lightOn: '💡 불 켜기', sleepy: '하암… 졸려요. 🌙 불을 꺼 주세요', night: '잘 자! 💤', morning: '☀️ 좋은 아침! 잘 잤어요?', hello: '👋 반가워요! 같이 놀아요', missed: '🥹 보고 싶었어요!',
       hungry: '🍚 배고픈 친구가 있어요. 밥을 줘요', petMe: '🤚 친구를 꾹 누른 채 문지르면 쓰다듬어요', poo: '💩 똥을 톡 눌러서 치워 줘요', cleaned: '✨ 깨끗해졌어요!', cared: (n) => `💖 ${iga(n)} 기분 최고! 하트 +1`, petted: (n) => `${n} 💕`,
+      soap: '목욕', ball: '공놀이', pill: '약', scrub: '뽀글뽀글 🫧', bathed: '뽀득뽀득! 깨끗해졌어요 ✨', eggClean: '알은 반짝반짝 깨끗해요',
+      soapHint: '🧼 씻길 친구를 톡톡톡 눌러요', ballHint: '⚽ 방바닥을 누르면 공을 던져요', pillHint: '💊 아픈 친구를 눌러요', noPill: '💊 약이 없어요. 🛒 가게에서 🪙 1개에 사요',
+      notSick: '안 아파요! 약은 아껴 둬요', cured: (n) => `💊 ${iga(n)} 다 나았어요! 고마워요`, sick: '🤒 아픈 친구가 있어요. 💊 약을 줘요', sickSay: (n) => `🤒 ${iga(n)} 감기에 걸렸어요… 💊 약을 주세요`,
+      caught: (n) => `🤧 ${iga(n)} 감기에 걸렸어요! 💊 약을 주세요`, achoo: '에취! 🤧', dirty: '🛁 목욕할 친구가 있어요. 🧼 비누로 씻겨 줘요',
+      wishPlay: (n) => `💭 ${iga(n)} ⚽ 공놀이 하고 싶대요!`, wishBerry: (n, b) => `💭 ${iga(n)} ${b} 먹고 싶대요!`, wishHint: '💭 소원이 있는 친구가 있어요. 눌러 봐요', wishDone: (n) => `🌟 ${n}의 소원을 들어줬어요! 하트 +1`,
+      age: (d) => (d ? `🎂 태어난 지 ${d}일` : '🎂 오늘 태어났어요'), party: (n, d, c) => `🎂 ${iga(n)} 태어난 지 ${d}일! 축하 선물 🪙 ${c}`, cheer: (ic, t) => `${ic} ${t} 했어?`,
+      yay: '미션 다 했어! 최고! 🎉', allDone: '🎉 오늘 미션 다 했어요! 친구들이 신났어요', pills: '💊 약', pillTip: '아픈 친구에게 주면 바로 나아요', bought: '💊 약을 샀어요',
     },
     de: {
       pickTitle: '🥚 Such dir ein Ei aus!', pickSub: 'Füttere es mit Beeren, dann schlüpft ein Pokémon', shop: 'Laden', close: 'Schließen',
@@ -43,6 +55,13 @@
       rice: 'Futter', riceHint: '🍚 Tippe an, wen du füttern willst', full: (n) => `${n}: Satt 😋`, yum: 'Mampf! Lecker 😋', eggRice: 'Eier fressen nur Beeren',
       lightOff: '🌙 Licht aus', lightOn: '💡 Licht an', sleepy: 'Gähn… müde. 🌙 Mach das Licht aus', night: 'Gute Nacht! 💤', morning: '☀️ Guten Morgen! Gut geschlafen?', hello: '👋 Hallo! Spiel mit mir', missed: '🥹 Ich hab dich vermisst!',
       hungry: '🍚 Jemand hat Hunger. Gib Futter', petMe: '🤚 Gedrückt halten und reiben = streicheln', poo: '💩 Tippe auf den Haufen zum Saubermachen', cleaned: '✨ Alles sauber!', cared: (n) => `💖 ${n} ist super glücklich! +1 Herz`, petted: (n) => `${n} 💕`,
+      soap: 'Baden', ball: 'Ball', pill: 'Medizin', scrub: 'Schrubb 🫧', bathed: 'Blitzsauber! ✨', eggClean: 'Eier sind schon sauber',
+      soapHint: '🧼 Tippe 3× auf wen du baden willst', ballHint: '⚽ Tippe auf den Boden zum Werfen', pillHint: '💊 Tippe auf wen, der krank ist', noPill: '💊 Keine Medizin. Im 🛒 Laden für 🪙 1',
+      notSick: 'Nicht krank! Heb die Medizin auf', cured: (n) => `💊 ${n} ist wieder gesund! Danke`, sick: '🤒 Jemand ist krank. Gib 💊 Medizin', sickSay: (n) => `🤒 ${n} ist erkältet… gib 💊 Medizin`,
+      caught: (n) => `🤧 ${n} hat sich erkältet! Gib 💊 Medizin`, achoo: 'Hatschi! 🤧', dirty: '🛁 Jemand muss baden. Nimm die 🧼 Seife',
+      wishPlay: (n) => `💭 ${n} will ⚽ Ball spielen!`, wishBerry: (n, b) => `💭 ${n} möchte ${b}!`, wishHint: '💭 Jemand hat einen Wunsch. Tipp es an', wishDone: (n) => `🌟 Wunsch von ${n} erfüllt! +1 Herz`,
+      age: (d) => (d ? `🎂 ${d} Tage alt` : '🎂 Heute geschlüpft'), party: (n, d, c) => `🎂 ${n} ist ${d} Tage alt! Geschenk 🪙 ${c}`, cheer: (ic, t) => `${ic} ${t} schon gemacht?`,
+      yay: 'Mission geschafft! Super! 🎉', allDone: '🎉 Heute alle Missionen geschafft! Alle freuen sich', pills: '💊 Medizin', pillTip: 'Macht Kranke sofort gesund', bought: '💊 Medizin gekauft',
     },
   };
   // 💖 티니핑 방(아린)에서 바뀌는 글
@@ -56,19 +75,32 @@
       tapEgg: '💖 Tippe das Herz an – es schlüpft sofort!', dexHead: (n, N) => `Sammlung ${n} / ${N}`, toGift: (n) => `Noch ${n} Herzen bis zum Geschenk`,
       refund: (c) => `🪑 Neue Möbel – 🪙 ${c} Münzen zurück`, thanks: (n, c) => `🎁 ${n} sagt Danke und schenkt dir 🪙 ${c} Münzen!`, bff: (n) => `✨ ${n} ist jetzt deine beste Freundin! Glitzer!` },
   };
-  // 가구: [이모지, 기본 x, 기본 y, 벽(1), 크기, 값(코인)]
+  // 가구 (2026-11-16 이모지 → 직접 그린 그림 poke/deco/{그림}.svg, 캐릭터 키에 맞춘 크기)
+  //   [그림, 기본 x, 기본 y(밑동, %), 벽(1), 너비(방 300px 기준), 값(코인), 이름, 독일어 이름]
+  //   포켓몬 방: 나무 · 몬스터볼 무늬 + PokeAPI 도구 그림 (몬스터볼 · 나무열매 · 상처약)
   const DECO = {
-    rug: ['', 50, 80, 0, 1, 3], plant: ['🪴', 7, 58, 0, 1.1, 3], teddy: ['🧸', 30, 90, 0, .9, 3], ball: ['⚽', 62, 92, 0, .7, 2], cake: ['🍰', 52, 72, 0, .8, 2],
-    balloon: ['🎈', 92, 30, 1, 1, 2], frame: ['🖼️', 70, 22, 1, 1, 3], books: ['📚', 92, 88, 0, .9, 3], clock: ['🕰️', 50, 12, 1, .9, 4], kite: ['🪁', 36, 26, 1, 1, 4],
-    rainbow: ['🌈', 22, 18, 1, 1.2, 5], bed: ['🛏️', 16, 70, 0, 1.5, 6], sofa: ['🛋️', 82, 66, 0, 1.4, 6], piano: ['🎹', 66, 60, 0, 1.2, 8], tent: ['⛺', 40, 64, 0, 1.4, 8], slide: ['🛝', 24, 62, 0, 1.4, 8],
+    rug: ['pk-rug', 50, 80, 0, 110, 3, '몬스터볼 러그', 'Pokéball-Teppich'], plant: ['pk-plant', 6, 64, 0, 32, 3, '화분', 'Topfpflanze'],
+    teddy: ['pk-pikadoll', 30, 93, 0, 32, 3, '피카츄 인형', 'Pikachu-Puppe'], ball: ['pk-ballstand', 56, 95, 0, 42, 2, '몬스터볼 받침대', 'Ball-Regal'],
+    cake: ['pk-basket', 50, 75, 0, 38, 2, '나무열매 바구니', 'Beerenkorb'], balloon: ['pk-balloon', 95, 50, 1, 20, 2, '몬스터볼 풍선', 'Pokéball-Ballon'],
+    frame: ['pk-poster', 72, 40, 1, 34, 3, '피카츄 포스터', 'Pikachu-Poster'], books: ['pk-shelf', 91, 64, 0, 50, 3, '책장', 'Bücherregal'],
+    clock: ['pk-clock', 30, 22, 1, 28, 4, '몬스터볼 시계', 'Pokéball-Uhr'], kite: ['pk-badges', 85, 27, 1, 46, 4, '배지 액자', 'Orden-Rahmen'],
+    rainbow: ['pk-map', 16, 40, 1, 54, 5, '타운맵', 'Stadtplan'], bed: ['pk-bed', 16, 74, 0, 96, 6, '몬스터볼 침대', 'Pokéball-Bett'],
+    sofa: ['pk-snorlax', 80, 74, 0, 66, 6, '잠만보 쿠션', 'Relaxo-Kissen'], piano: ['pk-pc', 64, 63, 0, 60, 8, '포켓몬 PC', 'Pokémon-PC'],
+    tent: ['pk-heal', 37, 63, 0, 58, 8, '회복 머신', 'Heilmaschine'], slide: ['pk-bike', 78, 96, 0, 56, 8, '자전거', 'Fahrrad'],
   };
   // 👑 공주방 가구 (아린)
   // (티니핑이 몸에 하는 것처럼 보이는 리본 · 왕관 · 드레스 · 발레 슈즈 · 요술봉 · 보석은 2026-11-15 뺌 — 진짜 방 가구만)
-  const DECO_P = {
-    rug: ['', 50, 80, 0, 1, 3], flowers: ['💐', 7, 58, 0, 1, 3], tulip: ['🌷', 94, 60, 0, .9, 2], mirror: ['🪞', 82, 30, 1, 1.1, 4], frame: ['🖼️', 20, 24, 1, 1, 3],
-    clock: ['🕰️', 66, 18, 1, .9, 4], disco: ['🪩', 50, 6, 1, .8, 5], rainbow: ['🌈', 22, 14, 1, 1.1, 5], cupcake: ['🧁', 44, 78, 0, .7, 2], teapot: ['🫖', 56, 76, 0, .8, 3],
-    cake: ['🎂', 38, 74, 0, .8, 3], books: ['📚', 92, 88, 0, .9, 3], teddy: ['🧸', 28, 90, 0, .9, 3], unicorn: ['🦄', 74, 88, 0, 1.1, 5],
-    sofa: ['🛋️', 84, 68, 0, 1.4, 6], bed: ['🛏️', 16, 70, 0, 1.5, 6], piano: ['🎹', 66, 60, 0, 1.2, 8], fountain: ['⛲', 50, 64, 0, 1.3, 8], carousel: ['🎠', 86, 66, 0, 1.4, 8], castle: ['🏰', 30, 62, 0, 1.4, 8],
+  const DECO_P = { // 💖 이모션 왕국 공주방: 파스텔 · 금색 테두리 · 하트 (몸에 하는 것처럼 보이는 물건은 넣지 않음)
+    rug: ['pp-rug', 50, 80, 0, 110, 3, '하트 러그', 'Herzteppich'], flowers: ['pp-roses', 6, 64, 0, 28, 3, '장미 꽃병', 'Rosenvase'],
+    tulip: ['pp-topiary', 95, 64, 0, 30, 2, '하트 나무 화분', 'Herzbäumchen'], mirror: ['pp-vanity', 82, 62, 0, 52, 4, '하트 화장대', 'Herz-Frisiertisch'],
+    frame: ['pp-portrait', 18, 43, 1, 36, 3, '하츄핑 초상화', 'Heartsping-Bild'], clock: ['pp-clock', 82, 22, 1, 30, 4, '별 시계', 'Sternuhr'],
+    disco: ['pp-chandelier', 50, 24, 1, 54, 5, '샹들리에', 'Kronleuchter'], rainbow: ['pp-rainbow', 18, 21, 1, 60, 5, '무지개 구름', 'Regenbogen'],
+    cupcake: ['pp-cupcakes', 44, 79, 0, 30, 2, '컵케이크 탑', 'Cupcake-Turm'], teapot: ['pp-teatable', 57, 77, 0, 54, 3, '티 테이블', 'Teetisch'],
+    cake: ['pp-cake', 36, 76, 0, 32, 3, '3단 케이크', 'Torte'], books: ['pp-bookshelf', 68, 62, 0, 52, 3, '하트 책장', 'Herz-Bücherregal'],
+    teddy: ['pp-teddy', 26, 93, 0, 32, 3, '곰 인형', 'Teddybär'], unicorn: ['pp-unicorn', 74, 94, 0, 56, 5, '유니콘 흔들 목마', 'Schaukel-Einhorn'],
+    sofa: ['pp-sofa', 84, 76, 0, 80, 6, '하트 소파', 'Herzsofa'], bed: ['pp-bed', 16, 76, 0, 96, 6, '캐노피 침대', 'Himmelbett'],
+    piano: ['pp-piano', 62, 66, 0, 80, 8, '하얀 피아노', 'Weißer Flügel'], fountain: ['pp-fountain', 50, 68, 0, 66, 8, '하트 분수', 'Herzbrunnen'],
+    carousel: ['pp-carousel', 86, 72, 0, 66, 8, '회전목마', 'Karussell'], castle: ['pp-castle', 30, 66, 0, 72, 8, '이모션 왕국 성', 'Gefühle-Schloss'],
   };
   const DECO_GONE = { ribbon: 2, crown: 4, dress: 4, ballet: 3, wand: 2, gem: 3 }; // 뺀 가구: 이미 샀으면 코인 돌려줌
   const css = `
@@ -143,9 +175,9 @@
 @keyframes pr-bub { 0% { opacity: 0; margin-top: 6px; } 12%, 80% { opacity: 1; margin-top: 0; } 100% { opacity: 0; margin-top: -8px; } }
 .pr-heart { position: absolute; pointer-events: none; z-index: 998; font-size: calc(18px * var(--pr-s)); animation: pr-heart 1s ease-out forwards; }
 @keyframes pr-heart { to { opacity: 0; transform: translate(var(--hx), -60px) scale(1.4); } }
-.pr-deco { font-size: calc(48px * var(--pr-s) * var(--z, 1)); line-height: 1; filter: drop-shadow(0 3px 0 rgba(0,0,0,.12)); }
-.pr-deco.rug { width: calc(150px * var(--pr-s)); height: calc(52px * var(--pr-s)); transform: translate(-50%, -50%); border-radius: 50%;
-  background: repeating-radial-gradient(ellipse, #FF9EB5 0 10%, #FFD3DE 10% 20%); filter: none; opacity: .9; }
+.pr-deco { width: calc(var(--w) * var(--pr-k, 1) * 1px); line-height: 0; }
+.pr-deco img { display: block; width: 100%; height: auto; pointer-events: none; -webkit-user-drag: none; }
+.pr-deco.rug { transform: translate(-50%, -50%); }
 .pr-pick { position: absolute; inset: 0; z-index: 1001; display: grid; place-content: center; gap: 10px; text-align: center; background: rgba(255,248,232,.92); padding: 10px; }
 .pr-pick b { font-size: calc(19px * var(--pr-s)); color: #6B3E12; }
 .pr-pick p { margin: 0; font-size: calc(13px * var(--pr-s)); color: #9A7A5A; }
@@ -154,12 +186,18 @@
   display: flex; flex-direction: column; align-items: center; gap: 4px; box-shadow: 0 2px 0 rgba(0,0,0,.08); width: calc(62px * var(--pr-s)); }
 .pr-pick button .pk-egg { width: 56%; animation: pr-wob 2.6s ease-in-out infinite; }
 .pr-pick button:nth-child(2) .pk-egg { animation-delay: .4s; } .pr-pick button:nth-child(3) .pk-egg { animation-delay: .8s; } .pr-pick button:nth-child(4) .pk-egg { animation-delay: 1.2s; }
-.pr-berries { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+.pr-berries { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
 .pr-berries button { border: 0; border-radius: 14px; padding: calc(6px * var(--pr-s)) 2px; font: inherit; font-weight: 800; font-size: calc(14px * var(--pr-s)); background: #FFF0D6; color: #6B3E12; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 3px; }
 .pr-berries button .e { font-size: calc(22px * var(--pr-s)); }
 .pr-berries button.zero { opacity: .45; }
-.pr-berries button.rice { background: #E6F3FF; color: #2A5A8A; }
+.pr-tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+.pr-tools[hidden] { display: none; }
+.pr-tools button { border: 0; border-radius: 14px; padding: calc(6px * var(--pr-s)) 2px; font: inherit; font-weight: 800; font-size: calc(13px * var(--pr-s)); background: #E6F3FF; color: #2A5A8A; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }
+.pr-tools button .e { font-size: calc(20px * var(--pr-s)); }
+.pr-tools button.zero { opacity: .5; }
+.pr-tools button[aria-pressed="true"] { background: #3D8BFF; color: #fff; box-shadow: 0 0 0 3px #BFD8FF; }
 .pr-berries button[aria-pressed="true"] { background: #FF8A3D; color: #fff; box-shadow: 0 0 0 3px #FFD2B0; }
 .pr-bar { display: flex; gap: 8px; margin-top: 8px; }
 .pr-bar button, .pr-bar span { flex: 1; min-width: 0; border: 0; border-radius: 14px; padding: calc(10px * var(--pr-s)) 8px; font: inherit; font-weight: 800; font-size: calc(15px * var(--pr-s));
@@ -186,7 +224,8 @@
 .pr-grid button.unk img { filter: brightness(0); opacity: .18; }
 .pr-grid button .b { position: absolute; right: 3px; top: 2px; font-size: calc(10px * var(--pr-s)); }
 .pr-grid button .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
-.pr-grid button .rug-ic { width: 70%; height: calc(22px * var(--pr-s)); margin: calc(8px * var(--pr-s)) 0; border-radius: 50%; background: repeating-radial-gradient(ellipse, #FF9EB5 0 18%, #FFD3DE 18% 36%); }
+.pr-grid button .dk { width: calc(var(--iw) * var(--pr-s) * 1px); max-width: 92%; height: calc(46px * var(--pr-s)); margin: 4px 0 2px; display: flex; align-items: flex-end; justify-content: center; }
+.pr-grid button .dk img { max-width: 100%; max-height: 100%; }
 .pr-bar button[hidden] { display: none; }
 /* 🍚 💩 🤚 🌙 돌보기 */
 .pr-mon .need { position: absolute; left: 50%; bottom: 100%; margin-bottom: 4px; transform: translateX(-50%); background: #fff; border-radius: 999px; padding: .15em .35em; line-height: 1.1;
@@ -204,6 +243,17 @@
 .pr-poo.gone { animation: pr-gone .5s ease-in forwards; pointer-events: none; }
 @keyframes pr-gone { to { scale: 0; rotate: 90deg; opacity: 0; } }
 .pr-dim { position: absolute; inset: 0; z-index: 900; pointer-events: none; background: radial-gradient(circle at 50% 24%, rgba(40,40,90,.25), rgba(8,8,30,.62)); }
+.pr-mon .foam { position: absolute; pointer-events: none; font-size: calc(15px * var(--pr-s)); animation: pr-foam .9s ease-in-out infinite alternate; z-index: 3; }
+@keyframes pr-foam { from { scale: .8; } to { scale: 1.15; } }
+.pr-shower { position: absolute; z-index: 996; pointer-events: none; transform: translate(-50%, -100%); font-size: calc(30px * var(--pr-s)); animation: pr-shower 1s ease-in-out; }
+@keyframes pr-shower { 0% { opacity: 0; translate: 0 -10px; } 20%, 80% { opacity: 1; translate: 0 0; } 100% { opacity: 0; } }
+.pr-ball { position: absolute; pointer-events: none; transform: translate(-50%, -100%); font-size: calc(22px * var(--pr-s)); line-height: 1;
+  transition: left .65s cubic-bezier(.2, .8, .3, 1), top .65s cubic-bezier(.2, .8, .3, 1), rotate .65s, opacity .5s; animation: pr-plop .4s cubic-bezier(.2, 1.6, .4, 1); }
+.pr-mon.sick img { filter: saturate(.45) brightness(.97); }
+.pr.smooth .pr-mon.sick img { animation: none; }
+.pr-mon.dirty img { filter: sepia(.4) brightness(.93); }
+.pr-mon.dirty::before { content: '〰'; position: absolute; left: 50%; top: 20%; translate: -50% 0; color: #8BAA5A; font-size: calc(12px * var(--pr-s)); pointer-events: none; animation: pr-stink 1.8s ease-in-out infinite; z-index: 2; }
+.pr-cake { position: absolute; z-index: 996; pointer-events: none; transform: translate(-50%, -100%); font-size: calc(30px * var(--pr-s)); animation: pr-plop .5s cubic-bezier(.2, 1.6, .4, 1); }
 .pr-bub .st { margin-left: .4em; } .pr-bub .st i { font-style: normal; } .pr-bub .st i.off { opacity: .25; filter: grayscale(1); }
 `;
   const CRACK = '<svg class="ck" viewBox="0 0 60 20" aria-hidden="true"><path d="M2 10l8-6 7 9 8-8 8 9 8-7 8 8 9-6" stroke="#5a3a1a" stroke-width="3" fill="none" stroke-linejoin="round"/></svg>';
@@ -232,6 +282,9 @@
   // 🍚 밥 때: 아침 7–12 · 점심 12–17 · 저녁 17–20 (밤엔 잠)
   function slotOf(t) { const d = new Date(t), h = d.getHours(); if (h < 7 || h >= 20) return null; const i = h < 12 ? 0 : h < 17 ? 1 : 2; d.setHours([7, 12, 17][i], 0, 0, 0); return { key: `${dayKey(t)}-${i}`, start: +d }; }
   const nightKey = () => dayKey(Date.now() - 7 * 3600e3); // 밤 20시~아침 7시 = 그 저녁 날짜
+  const CARE_START = new Date(2026, 10, 17).getTime(); // 목욕은 이날부터 셈 (전부 한꺼번에 꼬질꼬질해지지 않게)
+  const MILE = [[7, 1], [30, 3], [100, 5], [365, 10]]; // 🎂 [태어난 지 며칠, 🪙 선물]
+  const TOOLS = [['rice', '🍚'], ['soap', '🧼'], ['ball', '⚽'], ['pill', '💊']];
 
   function mount(root, o) {
     addCss();
@@ -244,6 +297,7 @@
     const eggName = (egg) => SET.eggName(egg, lang());
     const snd = { tap() {}, tada() {}, boing() {}, stick() {}, coin() {}, ...(o.snd || {}) };
     const roomEl = el('div', { class: 'pr-room' }, el('div', { class: 'pr-win', 'aria-hidden': 'true' }, el('i'), el('b')));
+    const toolRow = el('div', { class: 'pr-tools' });
     const berryRow = el('div', { class: 'pr-berries' });
     const coinEl = el('span');
     const btnShop = el('button', { type: 'button', 'aria-pressed': 'false' });
@@ -252,7 +306,7 @@
     const msg = el('p', { class: 'pr-msg' });
     const panel = el('div', { class: 'pr-panel', hidden: '' });
     if (SET.room === 'princess') roomEl.append(el('div', { class: 'pr-cur l' }), el('div', { class: 'pr-cur r' }));
-    const wrap = el('div', { class: 'pr' + (SET.room ? ` ${SET.room} smooth` : '') }, roomEl, berryRow, el('div', { class: 'pr-bar' }, btnLight, coinEl, btnShop, btnDex), msg, panel);
+    const wrap = el('div', { class: 'pr' + (SET.room ? ` ${SET.room} smooth` : '') }, roomEl, toolRow, berryRow, el('div', { class: 'pr-bar' }, btnLight, coinEl, btnShop, btnDex), msg, panel);
     root.replaceChildren(wrap);
     let feeding = '', open = '', alive = true, scale = 1, armed = '', grantAt = 0, msgUntil = 0;
     const monEls = new Map(), decoEls = new Map(), pooEls = new Map();
@@ -281,9 +335,9 @@
 
     // ── 🍚 💩 🤚 🌙 돌보기 (맨 위 설명) ──
     const CARE_MAX = 2; // 돌봄 하트: 하루에 방 전체 2개까지 (미션 열매보다 커지지 않게)
-    const local = { care: {}, pc: {}, wk: '', ch: null, lo: null, loAt: 0 }; // 방금 쓴 것 (가족 문서가 돌아오기 전에도 바로 보이게)
-    const care = (id) => { const s = (pk().care || {})[id] || {}, l = local.care[id] || {}; return { e: Math.max(s.e || 0, l.e || 0), p: Math.max(s.p || 0, l.p || 0) }; };
-    function setCare(id, patch) { const v = { ...care(id), ...patch }; local.care[id] = v; W(['care', id], v); }
+    const local = { care: {}, pc: {}, wk: '', ch: null, lo: null, loAt: 0, bd: {}, wish: '' }; // 방금 쓴 것 (가족 문서가 돌아오기 전에도 바로 보이게)
+    const care = (id) => { const s = (pk().care || {})[id] || {}, l = local.care[id] || {}, c = {}; for (const f of ['e', 'p', 'b', 's', 'm']) c[f] = Math.max(s[f] || 0, l[f] || 0); return c; };
+    function setCare(id, patch) { const v = Object.fromEntries(Object.entries({ ...care(id), ...patch }).filter(([, t]) => t)); local.care[id] = v; W(['care', id], v); }
     const lightsOff = () => isNight() && (Date.now() - local.loAt < 8000 ? local.lo : pk().lo) === nightKey();
     const awake = () => mons().some((m) => hatched(m));
     // 이번 밥 때 원하는 게 있는 친구: 방에 나온 친구 중 1마리 (3마리 이상이면 2마리)
@@ -359,14 +413,16 @@
     function pet(e, phase) {
       const x = parseFloat(e.style.left), y = parseFloat(e.style.top);
       if (phase === 'start') {
-        const hand = el('span', { class: 'pr-hand', text: '🤚', style: `left:${x}%;top:${y - 8}%` });
+        const hand = el('span', { class: 'pr-hand', text: feeding === 'soap' ? '🧼' : '🤚', style: `left:${x}%;top:${y - 8}%` });
         roomEl.append(hand); e.classList.add('pet'); e._pet = { hand, rubs: 0, done: false };
         hearts(x, y - 14, 1); snd.tap(1); return;
       }
       const p = e._pet;
       if (!p) return;
       if (phase === 'end') { p.hand.remove(); e.classList.remove('pet'); e._pet = null; e._rest = Date.now() + 2500; return; }
-      p.rubs++; hearts(x, y - 14, 1);
+      p.rubs++;
+      if (feeding === 'soap') { const raw = (pk().mons || {})[e._id]; if (raw && p.rubs % 2 === 0) scrub(e, { id: e._id, ...raw }, x, y - 14); return; } // 비누 들고 문지르기 = 씻기
+      hearts(x, y - 14, 1);
       if (p.rubs % 2) snd.tap(2);
       if (p.rubs < 4 || p.done) return;
       p.done = true;
@@ -386,6 +442,147 @@
       local.wk = t; W(['wk'], t);
       news(wk && wk < dayKey(Date.now() - 864e5) ? L().missed : new Date().getHours() < 11 ? L().morning : L().hello);
       for (const e of monEls.values()) if (!e._egg) happy(e);
+      // 🤧 감기: 사흘 넘게 못 왔으면 (반반) 또는 목욕을 아주 오래 못 했으면 — 하루에 한 마리만
+      const now = Date.now(), all = pk().mons || {}, ids = homeIds().filter((id) => all[id] && hatched(all[id]) && !sickOf({ id, ...all[id] }));
+      const away = wk && wk < dayKey(now - 3 * 864e5) && hash(t + o.kid) < 0.5;
+      const who = ids.find((id) => now > bathDue({ id, ...all[id] }) + 3 * 864e5) || (away ? [...ids].sort((a, b) => hash(a + t) - hash(b + t))[0] : '');
+      if (who) { setCare(who, { s: now }); news(L().caught(name(all[who].p))); }
+      setTimeout(party, 1500);
+    }
+
+    // ── 2단계: 🧼 목욕 · 🤒 감기 · 💊 약 · ⚽ 공놀이 · 💭 소원 ──
+    const bathDue = (m) => Math.max(care(m.id).b, m.h || 0, CARE_START) + (3 + hash(m.id + 'b') * 2) * 864e5; // 3~5일마다 (친구마다 다르게)
+    const dirtyOf = (m) => !!m && hatched(m) && Date.now() > bathDue(m);
+    const sickOf = (m) => { if (!m || !hatched(m)) return false; const c = care(m.id); return !!c.s && c.m < c.s && Date.now() - c.s < 2 * 864e5; }; // 이틀 지나면 저절로 나음
+    const homeMons = () => { const h = new Set(homeIds()); return mons().filter((m) => h.has(m.id)); };
+    // 💭 오늘의 소원: 방 친구 한 마리, ⚽ 공놀이 또는 좋아하는 열매 (그 열매가 있을 때만)
+    function wishOf() {
+      if (isNight()) return null;
+      const d = dayKey(Date.now());
+      if (pk().wish === d || local.wish === d) return null;
+      const ms = homeMons().filter((m) => hatched(m) && !sickOf(m)).sort((a, b) => hash(a.id + d + 'w') - hash(b.id + d + 'w'));
+      if (!ms.length) return null;
+      const m = ms[0], berry = SET.fav(m.p);
+      return hash(d + 'k' + o.kid) < 0.5 && count(berry) ? { id: m.id, kind: 'berry', berry } : { id: m.id, kind: 'play' };
+    }
+    function wishDone(e, id, given) {
+      const d = dayKey(Date.now());
+      local.wish = d; W(['wish'], d);
+      const raw = (pk().mons || {})[id];
+      if (!raw) return;
+      setTimeout(() => news(L().wishDone(name(raw.p))), 400);
+      if (given) return; // 열매 소원: 하트는 먹을 때 같이
+      const x = parseFloat(e.style.left), y = parseFloat(e.style.top) - 14;
+      hearts(x, y, 5, '🌟', true);
+      grow(e, { id, ...raw }, 1, x, y, '💖 +1');
+    }
+    // 머리 위 말풍선: 🤒 > 🍚 > 🤚 > 💭 소원 > 🛁
+    function wantOf(m, set, w) {
+      if (!m || !hatched(m)) return '';
+      if (sickOf(m)) return '🤒';
+      const nd = needOf(m, set);
+      if (nd) return nd === 'eat' ? '🍚' : '🤚';
+      if (w && w.id === m.id) return `💭${w.kind === 'play' ? '⚽' : BERRY[w.berry][1]}`;
+      return dirtyOf(m) ? '🛁' : '';
+    }
+    function scrub(e, m, x, y) {
+      if (!hatched(m)) { bubble(x, y, L().eggClean); snd.boing(); return; }
+      if (e._shower) return;
+      e._scrub = (e._scrub || 0) + 1; snd.tap(e._scrub);
+      e.append(el('span', { class: 'foam', text: '🫧', style: `left:${rnd(0, 70).toFixed(0)}%;top:${rnd(5, 65).toFixed(0)}%` }));
+      if (e._scrub < 3) { bubble(x, y, L().scrub); return; }
+      e._scrub = 0; e._shower = true;
+      const sh = el('span', { class: 'pr-shower', text: '🚿', style: `left:${x}%;top:${y - 4}%` });
+      roomEl.append(sh); hearts(x, y + 4, 6, '💧', true);
+      const was = dirtyOf(m);
+      setTimeout(() => {
+        sh.remove(); for (const f of e.querySelectorAll('.foam')) f.remove(); e._shower = false;
+        if (!alive) return;
+        setCare(m.id, { b: Date.now() }); hearts(x, y, 4, '✨', true); snd.stick(); happy(e); bubble(x, y, L().bathed);
+        if (was) setTimeout(() => { const raw = (pk().mons || {})[m.id]; if (raw && !careHeart(e, { id: m.id, ...raw }, x, y)) hearts(x, y, 3); }, 700);
+        renderRoom(); renderBar();
+      }, 1100);
+    }
+    function givePill(e, m, x, y) {
+      if (!count('pill')) { say(L().noPill); snd.boing(); return; }
+      if (!sickOf(m)) { bubble(x, y, L().notSick); snd.boing(); return; }
+      W(['items', take('pill', 1)[0]], null);
+      setCare(m.id, { m: Date.now() }); hearts(x, y, 4, '💊', true); snd.tada(); happy(e);
+      setTimeout(() => news(L().cured(name(m.p))), 300);
+      setTimeout(() => { renderRoom(); renderBar(); }, 60);
+    }
+    // ⚽ 공놀이: 공이 떨어진 곳으로 가까운 친구가 쫓아가서 세 번 뻥
+    let ball = null;
+    function throwBall(x, y, who) {
+      if (isNight()) return;
+      if (ball) ball.el.remove();
+      x = Math.min(92, Math.max(8, x)); y = Math.min(95, Math.max(62, y));
+      const b = el('span', { class: 'pr-ball', text: '⚽', style: `left:${x}%;top:${y}%;z-index:${10 + Math.round(y)}` });
+      roomEl.append(b); snd.boing();
+      const me = ball = { el: b, x, y, kicks: 0 }, all = pk().mons || {};
+      const ok = [...monEls.values()].filter((e) => !e._egg && !e._busy && !e._play && !e._pet && !e.classList.contains('drag') && all[e._id] && !sickOf({ id: e._id, ...all[e._id] }));
+      const far = (e) => Math.hypot(parseFloat(e.style.left) - x, parseFloat(e.style.top) - y);
+      const e = who && ok.includes(who) ? who : ok.sort((a, c) => far(a) - far(c))[0];
+      if (!e) { setTimeout(() => { if (ball === me) endBall(); }, 2500); return; }
+      chase(e, me);
+    }
+    function chase(e, me) {
+      if (!alive || ball !== me) { e._play = false; return; }
+      e._play = true;
+      const ox = parseFloat(e.style.left), oy = parseFloat(e.style.top), d = Math.max(0.5, Math.hypot(me.x - ox, (me.y - oy) * 0.75) / 16);
+      placeMon(e, me.x + (ox < me.x ? -4 : 4), me.y + 1, d.toFixed(2));
+      setTimeout(() => kick(e, me), d * 1000 + 50);
+    }
+    function kick(e, me) {
+      if (!alive || ball !== me) { e._play = false; return; }
+      e.classList.remove('jump'); void e.offsetWidth; e.classList.add('jump');
+      snd.boing(); hearts(me.x, me.y - 14, 2);
+      if (++me.kicks >= 3) {
+        e._play = false; e._rest = Date.now() + 2500; endBall();
+        const w = wishOf();
+        if (w && w.kind === 'play' && w.id === e._id) wishDone(e, e._id);
+        return;
+      }
+      me.x = Math.min(92, Math.max(8, me.x + rnd(-35, 35))); me.y = Math.min(95, Math.max(62, me.y + rnd(-14, 14)));
+      Object.assign(me.el.style, { left: `${me.x}%`, top: `${me.y}%`, rotate: `${me.kicks * 400}deg`, zIndex: String(10 + Math.round(me.y)) });
+      setTimeout(() => chase(e, me), 650);
+    }
+    function endBall() { const b = ball; ball = null; if (!b) return; b.el.style.opacity = '0'; setTimeout(() => b.el.remove(), 600); }
+
+    // ── 3단계: 🎂 태어난 날 세기 · 오늘 미션 응원 ──
+    function party() {
+      if (!alive || isNight() || !root.offsetParent) return;
+      const all = pk().mons || {}, bd = pk().bd || {}, now = Date.now();
+      for (const id of homeIds()) {
+        const m = all[id];
+        if (!m || !hatched(m) || !m.h) continue;
+        const age = Math.floor((now - m.h) / 864e5), ms = MILE.filter(([d]) => age >= d).pop();
+        if (!ms || Math.max(bd[id] || 0, local.bd[id] || 0) >= ms[0]) continue;
+        local.bd[id] = ms[0]; W(['bd', id], ms[0]);
+        for (let i = 0; i < ms[1]; i++) W(['items', uid('b')], 'coin');
+        const e = monEls.get(id);
+        if (e) {
+          const x = parseFloat(e.style.left), y = parseFloat(e.style.top);
+          const c = el('span', { class: 'pr-cake', text: '🎂', style: `left:${Math.min(94, x + 9)}%;top:${y}%` });
+          roomEl.append(c); setTimeout(() => c.remove(), 6000); hearts(x, y - 14, 8, '🎉'); happy(e);
+        }
+        news(L().party(name(m.p), ms[0], ms[1]));
+        setTimeout(party, 4500); // 한 마리씩 차례로
+        return;
+      }
+    }
+    const missionNow = () => { try { return FS.missionState(o.data() || {}, o.kid, dayKey(Date.now())); } catch { return null; } };
+    let cheerAt = Date.now() + 9000;
+    function cheer() {
+      cheerAt = Date.now() + rnd(40e3, 75e3);
+      const M = missionNow();
+      if (!M || !M.total || lightsOff()) return;
+      const es = [...monEls.values()].filter((e) => !e._egg && !e._busy && !e._play && !e._pet && !e._shower);
+      if (!es.length) return;
+      const e = pick(es), x = parseFloat(e.style.left), y = parseFloat(e.style.top) - 14;
+      if (M.all) { happy(e); bubble(x, y, L().yay); return; }
+      const t = M.list.find((q) => !M.day[q.id]);
+      if (t) bubble(x, y, L().cheer(FS.missionIcon(t), FS.missionLabel(t, lang())));
     }
 
     // 처음 고르는 알 (정해진 포켓몬) + 딸기 3개
@@ -434,18 +631,25 @@
         news(L().goldEgg); return;
       }
     }
-    function news(t) {
-      const n = el('div', { class: 'pr-news', text: t });
-      roomEl.append(n); setTimeout(() => n.remove(), 4600);
-      snd.tada();
+    let newsAt = 0;
+    function news(t) { // 여러 개면 차례로 (겹치지 않게)
+      const wait = Math.max(0, newsAt - Date.now());
+      newsAt = Date.now() + wait + 2600;
+      setTimeout(() => {
+        if (!alive) return;
+        for (const old of roomEl.querySelectorAll('.pr-news')) old.remove();
+        const n = el('div', { class: 'pr-news', text: t });
+        roomEl.append(n); setTimeout(() => n.remove(), 4600);
+        snd.tada();
+      }, wait);
     }
     function bubble(x, y, t, extra) {
       const b = el('div', { class: 'pr-bub', style: `left:${x}%;top:${y}%` }, t, extra);
       roomEl.append(b); setTimeout(() => b.remove(), 2100);
     }
-    function hearts(x, y, n, icon) {
+    function hearts(x, y, n, icon, all) {
       for (let i = 0; i < n; i++) {
-        const hh = el('span', { class: 'pr-heart', text: i === 0 && icon ? icon : '💖', style: `left:${x}%;top:${y}%;--hx:${rnd(-30, 30)}px;animation-delay:${i * 0.08}s` });
+        const hh = el('span', { class: 'pr-heart', text: (i === 0 || all) && icon ? icon : '💖', style: `left:${x}%;top:${y}%;--hx:${rnd(-30, 30)}px;animation-delay:${i * 0.08}s` });
         roomEl.append(hh); setTimeout(() => hh.remove(), 1400);
       }
     }
@@ -502,14 +706,20 @@
       e.classList.remove('jump'); void e.offsetWidth; e.classList.add('jump');
       if (!hatched(m) && m.q) return hatchEgg(e, m, x, y); // 첫 알: 바로 깨어남
       if (feeding === 'rice') return eatRice(e, m, x, y);
+      if (feeding === 'soap') return scrub(e, m, x, y);
+      if (feeding === 'pill') return givePill(e, m, x, y);
+      if (feeding === 'ball') return throwBall(x + rnd(-22, 22), y + 14 + rnd(-3, 6), e);
       if (feeding && count(feeding) > 0) return feed(e, m, feeding, x, y);
       snd.boing();
       if (!hatched(m)) { bubble(x, y, eggName(m.egg)); say(L().eggInfo(Math.max(1, EGG_NEED - (m.f || 0)))); return; }
       const fav = BERRY[SET.fav(m.p)][1], n = need(m);
       const lv = lvOf(m), fr = SET.friend && !n;
-      const nd = needOf(m), st = isNight() ? null : el('span', { class: 'st' }, el('i', { class: nd === 'eat' ? 'off' : '', text: '🍚' }), el('i', { class: nd === 'pet' ? 'off' : '', text: '💕' }), el('i', { class: poops().length ? 'off' : '', text: '✨' }));
+      const nd = needOf(m), sk = sickOf(m), st = isNight() ? null : el('span', { class: 'st' }, sk ? el('i', { text: '🤒' }) : null,
+        el('i', { class: nd === 'eat' ? 'off' : '', text: '🍚' }), el('i', { class: nd === 'pet' ? 'off' : '', text: '💕' }), el('i', { class: dirtyOf(m) ? 'off' : '', text: '🛁' }));
       bubble(x, y, fr ? `${name(m.p)}${lv ? ` 💗${lv}` : ''}` : `${m.s ? '✨ ' : ''}${name(m.p)} ${'💖'.repeat(Math.min(3, Math.ceil((m.f || 0) / 4)))}`, st);
-      say(`${name(m.p)} · ${L().likes(fav)}${n ? ' · ' + L().toEvo(Math.max(1, n - (m.f || 0))) : fr ? ' · ' + L().toGift(FRIEND - ((m.f || 0) % FRIEND)) : ''}`);
+      const w = wishOf(), age = m.h > 1e12 ? Math.floor((Date.now() - m.h) / 864e5) : -1;
+      say(sk ? L().sickSay(name(m.p)) : w && w.id === m.id && !nd && !isNight() ? (w.kind === 'play' ? L().wishPlay(name(m.p)) : L().wishBerry(name(m.p), `${BERRY[w.berry][1]} ${bName(w.berry)}`))
+        : `${name(m.p)} · ${L().likes(fav)}${n ? ' · ' + L().toEvo(Math.max(1, n - (m.f || 0))) : fr ? ' · ' + L().toGift(FRIEND - ((m.f || 0) % FRIEND)) : ''}${age >= 0 ? ' · ' + L().age(age) : ''}`);
     }
     // 알이 깨어남: 정해진 포켓몬/티니핑(첫 알) 또는 랜덤
     function hatchEgg(e, m, x, y) {
@@ -523,7 +733,7 @@
     function feed(e, m, kind, x, y) {
       const key = take(kind, 1)[0];
       if (!key || e._busy) return;
-      const { id, ...v } = m;
+      const { id, ...v } = m, w = wishOf();
       W(['items', key], null);
       if (!hatched(m)) {
         const f = (m.f || 0) + 1;
@@ -531,9 +741,10 @@
         if (f >= EGG_NEED) hatchEgg(e, m, x, y);
         else { W(['mons', id], { ...v, f }); bubble(x, y, L().eggInfo(EGG_NEED - f)); }
       } else {
-        const fav = SET.fav(m.p) === kind;
+        const fav = SET.fav(m.p) === kind, wish = !!w && w.kind === 'berry' && w.id === id && w.berry === kind;
         hearts(x, y, fav ? 6 : 3, BERRY[kind][1]); snd.coin();
-        grow(e, m, fav ? 2 : 1, x, y, fav ? L().fav : L().ate(name(m.p)));
+        grow(e, m, (fav ? 2 : 1) + (wish ? 1 : 0), x, y, fav ? L().fav : L().ate(name(m.p)));
+        if (wish) wishDone(e, id, true);
       }
       setTimeout(renderBar, 60);
     }
@@ -589,8 +800,14 @@
       if (!root.offsetParent) return;
       if (msgUntil && Date.now() > msgUntil) { msgUntil = 0; renderBar(); }
       if (isNight()) return;
+      if (Date.now() > cheerAt) cheer();
+      const allM = pk().mons || {};
       for (const e of monEls.values()) {
-        if (e._egg || e._busy || e._pet || e.classList.contains('drag') || (e._rest && Date.now() < e._rest) || Math.random() > 0.3) continue;
+        if (e._egg || e._busy || e._pet || e._play || e._shower || e.classList.contains('drag') || (e._rest && Date.now() < e._rest) || Math.random() > 0.3) continue;
+        if (allM[e._id] && sickOf({ id: e._id, ...allM[e._id] })) { // 🤒 아프면 제자리에서 가끔 에취
+          if (Math.random() < 0.25) bubble(parseFloat(e.style.left), parseFloat(e.style.top) - 14, L().achoo);
+          e._rest = Date.now() + rnd(3000, 7000); continue;
+        }
         if (e.classList.contains('glow') && Math.random() < 0.3) { // 💗3 단짝: 춤추며 하트 퐁퐁
           e.classList.remove('dance'); void e.offsetWidth; e.classList.add('dance'); setTimeout(() => e.classList.remove('dance'), 1450);
           hearts(parseFloat(e.style.left), parseFloat(e.style.top) - 16, 3); e._rest = Date.now() + rnd(3000, 6000); continue;
@@ -610,8 +827,7 @@
 
     // ── 가구 ──
     function decoEl(key) {
-      const [em, , , , z] = DK[key];
-      const e = el('div', { class: 'pr-deco' + (key === 'rug' ? ' rug' : ''), text: em, style: `--z:${z}` });
+      const e = el('div', { class: 'pr-deco' + (key === 'rug' ? ' rug' : ''), style: `--w:${DK[key][4]}` }, el('img', { src: `${BASE}poke/deco/${DK[key][0]}.svg`, alt: '', draggable: 'false' }));
       dragable(e, () => {}, (x, y) => { e.style.left = `${x}%`; e.style.top = `${y}%`; e.style.zIndex = key === 'rug' ? '3' : String(10 + Math.round(y)); },
         () => W(['deco', key], { ...((pk().deco || {})[key] || {}), x: Math.round(parseFloat(e.style.left)), y: Math.round(parseFloat(e.style.top)) }));
       return e;
@@ -620,6 +836,7 @@
     function renderRoom() {
       wrap.classList.toggle('night', isNight());
       scale = Math.min(2.4, Math.max(1, roomEl.clientWidth / 300));
+      wrap.style.setProperty('--pr-k', scale.toFixed(3)); // 가구도 캐릭터와 같은 비율로
       wrap.style.setProperty('--pr-s', o.big ? Math.min(1.8, Math.max(1, roomEl.clientWidth / 520)).toFixed(2) : '1');
       // 처음: 알 고르기
       if (SET.start && !booted) setTimeout(boot, 0); // 쓰기는 mount 가 끝난 다음에 (앱이 쓰자마자 방을 다시 만들지 않게)
@@ -644,7 +861,7 @@
         }
       }
       // 포켓몬 · 알
-      const all = Object.fromEntries(mons().map((m) => [m.id, m])), home = homeIds(), dark = lightsOff(), set = needy();
+      const all = Object.fromEntries(mons().map((m) => [m.id, m])), home = homeIds(), dark = lightsOff(), set = needy(), w = wishOf();
       for (const [id, e] of monEls) if (!home.includes(id)) { e.remove(); monEls.delete(id); }
       for (const id of home) {
         let e = monEls.get(id);
@@ -652,7 +869,8 @@
         if (!e._busy) setLook(e, all[id]);
         for (const z of e.querySelectorAll('.zz, .need')) z.remove();
         if (isNight()) { if (!e._egg) e.append(dark ? el('span', { class: 'zz', text: '💤' }) : el('span', { class: 'need', text: '🥱' })); } // 불 켜 두면 하품
-        else { const nd = needOf(all[id], set); if (nd) e.append(el('span', { class: 'need', text: nd === 'eat' ? '🍚' : '🤚' })); }
+        else { const ic = wantOf(all[id], set, w); if (ic) e.append(el('span', { class: 'need', text: ic })); }
+        e.classList.toggle('sick', sickOf(all[id])); e.classList.toggle('dirty', !isNight() && dirtyOf(all[id]) && !sickOf(all[id]));
         sizeImg(e);
       }
       // 💩
@@ -671,17 +889,28 @@
     }
     function hint() {
       if (poops().length) return L().poo;
-      const set = needy(), nds = mons().map((m) => needOf(m, set));
-      return nds.includes('eat') ? L().hungry : nds.includes('pet') ? L().petMe : mons().length ? L().pickBerry : '';
+      const hm = homeMons();
+      if (hm.some(sickOf)) return L().sick;
+      const set = needy(), nds = hm.map((m) => needOf(m, set));
+      if (nds.includes('eat')) return L().hungry;
+      if (nds.includes('pet')) return L().petMe;
+      if (wishOf()) return L().wishHint;
+      if (hm.some(dirtyOf)) return L().dirty;
+      const M = missionNow();
+      return M && M.got ? L().allDone : mons().length ? L().pickBerry : '';
     }
     function renderBar() {
-      if (feeding && (feeding === 'rice' ? isNight() : !count(feeding))) feeding = ''; // 밤에는 밥 안 먹음
-      const rice = el('button', { type: 'button', class: 'rice', 'aria-pressed': String(feeding === 'rice'), 'aria-label': L().rice, onclick: () => {
-        feeding = feeding === 'rice' ? '' : 'rice'; snd.tap(2); msgUntil = 0; renderBar();
-      } }, el('span', { class: 'e', text: '🍚' }), L().rice);
+      const tool = TOOLS.some(([t]) => t === feeding);
+      if (feeding && (tool ? isNight() || (feeding === 'pill' && !count('pill')) : !count(feeding))) feeding = ''; // 밤에는 돌보기 쉼
+      toolRow.hidden = !awake();
+      toolRow.replaceChildren(...TOOLS.map(([t, ic]) => el('button', { type: 'button', class: t === 'pill' && !count('pill') ? 'zero' : '', 'aria-pressed': String(feeding === t), 'aria-label': L()[t], onclick: () => {
+        if (isNight()) { say(lightsOff() ? L().sleep : L().sleepy); return; }
+        if (t === 'pill' && !count('pill')) { say(L().noPill); snd.boing(); return; }
+        feeding = feeding === t ? '' : t; snd.tap(2); msgUntil = 0; renderBar();
+      } }, el('span', { class: 'e', text: ic }), t === 'pill' ? `${L().pill} ${count('pill')}` : L()[t])));
       btnLight.hidden = !isNight() || !awake();
       btnLight.textContent = lightsOff() ? L().lightOn : L().lightOff;
-      berryRow.replaceChildren(rice, ...FS.BERRIES.map(([k, ic]) => {
+      berryRow.replaceChildren(...FS.BERRIES.map(([k, ic]) => {
         const n = count(k);
         return el('button', { type: 'button', class: n ? '' : 'zero', 'aria-pressed': String(feeding === k), 'aria-label': bName(k), onclick: () => {
           if (!n) { say(L().noBerry(bName(k))); return; }
@@ -691,7 +920,7 @@
       coinEl.textContent = `🪙 ${count('coin')}`;
       btnShop.textContent = `🛒 ${L().shop}`; btnShop.setAttribute('aria-pressed', String(open === 'shop'));
       btnDex.textContent = `📖 ${SET.dex.filter((id) => seenSet().has(String(id))).length}/${SET.dex.length}`; btnDex.setAttribute('aria-pressed', String(open === 'dex'));
-      if (!msgUntil || Date.now() > msgUntil) msg.textContent = feeding === 'rice' ? L().riceHint : feeding ? L().feedHint(`${BERRY[feeding][1]} ${bName(feeding)}`)
+      if (!msgUntil || Date.now() > msgUntil) msg.textContent = feeding === 'rice' ? L().riceHint : feeding === 'soap' ? L().soapHint : feeding === 'ball' ? L().ballHint : feeding === 'pill' ? L().pillHint : feeding ? L().feedHint(`${BERRY[feeding][1]} ${bName(feeding)}`)
         : isNight() ? (lightsOff() || !awake() ? L().sleep : L().sleepy) : mons().some((m) => m.q && !hatched(m)) ? L().tapEgg : hint();
     }
     function buy(key, price, done) {
@@ -709,18 +938,21 @@
       const coins = count('coin');
       if (open === 'shop') {
         const deco = pk().deco || {};
+        const pills = el('div', { class: 'pr-grid' }, el('button', { type: 'button', class: armed === 'pill' ? 'armed' : coins < 1 ? 'poor' : '',
+          onclick: () => buy('pill', 1, () => { W(['items', uid('m')], 'pill'); say(L().bought); }) },
+          el('span', { class: 'e', text: '💊' }), el('span', { class: 'n', text: `${L().pill} ×${count('pill')}` }), el('span', { text: '🪙 1' })));
         const eggs = el('div', { class: 'pr-grid' }, ...SET.eggs.map((egg) => el('button', { type: 'button', class: armed === `egg:${egg}` ? 'armed' : coins < FS.EGG_PRICE ? 'poor' : '',
           onclick: () => buy(`egg:${egg}`, FS.EGG_PRICE, () => { const id = uid('e'); W(['mons', id], { egg, f: 0, at: Date.now() }); addHome(id); news(L().eggCame(eggName(egg))); }) },
           el('span', { class: 'eg', html: SET.eggHTML(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', { text: `🪙 ${FS.EGG_PRICE}` }))));
         const furn = el('div', { class: 'pr-grid' }, ...Object.keys(DK).map((key) => {
           const v = deco[key], has = !!v, on = has && !v.off, price = DK[key][5];
-          const ic = key === 'rug' ? el('span', { class: 'rug-ic' }) : el('span', { class: 'e', text: DK[key][0] });
+          const ic = el('span', { class: 'dk', style: `--iw:${Math.min(64, Math.max(34, DK[key][4] * 0.8)).toFixed(0)}` }, el('img', { src: `${BASE}poke/deco/${DK[key][0]}.svg`, alt: '', loading: 'lazy' }));
           return el('button', { type: 'button', class: on ? 'on' : armed === `deco:${key}` ? 'armed' : !has && coins < price ? 'poor' : '', onclick: () => {
             if (has) { W(['deco', key], { ...v, off: on ? true : null }); snd.stick(); return; }
             buy(`deco:${key}`, price, () => W(['deco', key], { x: DK[key][1], y: DK[key][2] }));
-          } }, ic, has ? null : el('span', { text: `🪙 ${price}` }));
+          } }, ic, el('span', { class: 'n', text: DK[key][lang() === 'de' ? 7 : 6] }), has ? null : el('span', { text: `🪙 ${price}` }));
         }));
-        panel.replaceChildren(el('h4', {}, el('span', { text: L().shopHead(coins) }), closeB), el('h4', {}, el('span', { text: L().eggs })), eggs,
+        panel.replaceChildren(el('h4', {}, el('span', { text: L().shopHead(coins) }), closeB), el('h4', {}, el('span', { text: L().pills })), el('p', { text: L().pillTip }), pills, el('h4', {}, el('span', { text: L().eggs })), eggs,
           el('h4', {}, el('span', { text: L().furn })), el('p', { text: L().decoTip }), furn);
       } else {
         const all = mons(), home = homeIds(), seenS = seenSet(), seen = { has: (id) => seenS.has(String(id)) }, nSeen = SET.dex.filter((id) => seen.has(id)).length;
@@ -747,6 +979,11 @@
       renderRoom(); renderBar();
     });
     roomEl.addEventListener('pointerdown', greet);
+    roomEl.addEventListener('pointerdown', (ev) => { // ⚽ 바닥을 누르면 공 던지기
+      if (feeding !== 'ball' || ev.target.closest('.pr-mon, .pr-poo, .pr-pick, .pr-deco')) return;
+      const r = roomEl.getBoundingClientRect();
+      throwBall(((ev.clientX - r.left) / r.width) * 100, ((ev.clientY - r.top) / r.height) * 100 + 4);
+    });
     const timer = setInterval(wander, 1200);
     const nightTimer = setInterval(() => { if (alive && root.offsetParent) { renderRoom(); renderBar(); } }, 60e3); // 밤낮 · 밥 때 · 💩 (시간으로 바뀌는 것)
     const ro = window.ResizeObserver ? new ResizeObserver(() => { if (alive) renderRoom(); }) : null;
@@ -757,6 +994,8 @@
     setTimeout(grants, 900);
     setTimeout(refundGone, 1200);
     setTimeout(greet, 1600);
+    setTimeout(party, 4000);
+    setTimeout(() => { const M = missionNow(); if (alive && M && M.got && !isNight()) for (const e of monEls.values()) if (!e._egg) happy(e); }, 2200); // 오늘 미션 다 했으면 다 같이 춤
     root._pr = { update: () => { renderAll(); grants(); }, destroy };
     return root._pr;
   }
