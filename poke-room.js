@@ -17,7 +17,7 @@
 (() => {
   'use strict';
   const FS = window.FamilyStickers;
-  // ✨ 진화 · 변신은 게임처럼 화면 전체 장면 (evoScene). ❓ 도움말 · 🃏 상태 카드 (2026-11-16): 방 왼쪽 위 ❓ → 아래 칸에 키우는 법 · 좋아하는 열매 · 머리 위 그림 뜻. 친구를 누르면 게임 같은 상태 카드.
+  // 🖼️ 장소 (포켓몬: 센터 앞 · 체육관 · 바닷가 / 티니핑: 하트로즈 베이커리 · 이모션 왕국 성 정원, 가게 🪙 12) — 장소마다 어울리는 가구 따로 (room.pdeco). ✨ 진화 · 변신은 게임처럼 화면 전체 장면 (evoScene). ❓ 도움말 · 🃏 상태 카드 (2026-11-16): 방 왼쪽 위 ❓ → 아래 칸에 키우는 법 · 좋아하는 열매 · 머리 위 그림 뜻. 친구를 누르면 게임 같은 상태 카드.
   const BASE = (document.currentScript && document.currentScript.src) ? new URL('.', document.currentScript.src).href : './'; // 가구 그림: poke/deco/*.svg
   // 🎨 돌보기 아이콘: 이모지 대신 직접 그린 귀여운 그림 (원본 · 미리보기: Eunjin/_handoff/deco-tools/icons.js · _handoff/icon-test.html)
   const ICON = (() => {
@@ -118,7 +118,7 @@
       noBerry: (b) => `${iga(b)} 없어요. 오늘 미션을 하면 받아요`, feedHint: (b) => `${b} 줄 친구를 눌러요`, pickBerry: '열매를 고르고 친구를 눌러서 먹여요',
       ate: (n) => `냠냠! ${n}`, fav: '좋아해요! 💖💖', hatched: (n) => `펑! ${iga(n)} 태어났어요!`, shinyHatch: (n) => `✨ 반짝이 ${iga(n)} 태어났어요!!`,
       evolved: (a, b) => `${iga(a)} ${euro(b)} 진화했어요!`, eggInfo: (n) => `🥚 열매 ${n}개 더 먹으면 태어나요`, toEvo: (n) => `진화까지 하트 ${n}개`, likes: (b) => `좋아하는 열매 ${b}`,
-      shopHead: (c) => `코인 ${c}개`, eggs: '🥚 알', furn: '🪑 가구', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
+      shopHead: (c) => `코인 ${c}개`, eggs: '🥚 알', furn: '🪑 가구', bgHead: '🖼️ 장소 바꾸기', bgTip: '산 장소는 눌러서 언제든 바꿔요', bgOn: '사용 중', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
       eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
       homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, dexHead: (n, N) => `도감 ${n} / ${N}`,
       tapEgg: '🥚 알을 톡 눌러 봐요! 바로 깨어나요', goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
@@ -140,7 +140,7 @@
       noBerry: (b) => `Keine ${b}. Schaffe deine Tagesmission!`, feedHint: (b) => `Tippe ein Pokémon an, um ${b} zu geben`, pickBerry: 'Beere wählen, dann Pokémon antippen',
       ate: (n) => `Mampf! ${n}`, fav: 'Lecker! 💖💖', hatched: (n) => `Plopp! ${n} ist geschlüpft!`, shinyHatch: (n) => `✨ Ein schillerndes ${n} ist geschlüpft!!`,
       evolved: (a, b) => `${a} hat sich zu ${b} entwickelt!`, eggInfo: (n) => `🥚 Noch ${n} Beeren bis zum Schlüpfen`, toEvo: (n) => `Noch ${n} Herzen bis zur Entwicklung`, likes: (b) => `Lieblingsbeere ${b}`,
-      shopHead: (c) => `${c} Münzen`, eggs: '🥚 Eier', furn: '🪑 Möbel', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
+      shopHead: (c) => `${c} Münzen`, eggs: '🥚 Eier', furn: '🪑 Möbel', bgHead: '🖼️ Ort wechseln', bgTip: 'Gekaufte Orte jederzeit antippen zum Wechseln', bgOn: 'Aktiv', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
       eggCame: (n) => `🥚 Ein ${n} ist da!`, decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
       homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, dexHead: (n, N) => `Pokédex ${n} / ${N}`,
       tapEgg: '🥚 Tippe das Ei an – es schlüpft sofort!', goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
@@ -209,7 +209,7 @@
 .pr-win::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; background: #fff; }
 .pr-win i { position: absolute; left: 14%; top: 16%; width: 26%; aspect-ratio: 1; border-radius: 50%; background: #FFE066; box-shadow: 0 0 12px #FFE066; }
 .pr-win b { position: absolute; right: 8%; top: 52%; width: 40%; height: 18%; border-radius: 20px; background: #fff; opacity: .9; }
-.pr.night .pr-room { background: linear-gradient(#4B4E7A 0 52%, #3A3550 52% 53.2%, #5C4A63 53.2%); }
+.pr.night > .pr-room { background: linear-gradient(#4B4E7A 0 52%, #3A3550 52% 53.2%, #5C4A63 53.2%); }
 .pr.night .pr-win { background: linear-gradient(#1D2457, #3B3F7C); }
 .pr.night .pr-win i { background: #FFF3B0; box-shadow: -6px 0 0 0 #1D2457 inset, 0 0 10px #FFF3B0; }
 .pr.night .pr-win b { opacity: .15; }
@@ -257,8 +257,8 @@
 .pr-cur { position: absolute; top: 6%; width: 9%; height: 40%; z-index: 2; pointer-events: none; background: repeating-linear-gradient(90deg, #FF8FC0 0 6px, #FFB3D5 6px 12px); box-shadow: 0 2px 0 rgba(0,0,0,.08); }
 .pr-cur.l { left: 32%; border-radius: 0 0 90% 30%; } .pr-cur.r { right: 32%; border-radius: 0 0 30% 90%; }
 .pr-cur::before { content: ''; position: absolute; left: -12%; right: -12%; top: -6px; height: 10px; border-radius: 6px; background: #F6C86B; }
-.pr.princess.night .pr-room { background: linear-gradient(#5A3E7A 0 52%, #46305E 52% 53.2%, #6A4C82 53.2%); }
-.pr.princess.night .pr-room::before { opacity: .3; }
+.pr.princess.night > .pr-room { background: linear-gradient(#5A3E7A 0 52%, #46305E 52% 53.2%, #6A4C82 53.2%); }
+.pr.princess.night > .pr-room::before { opacity: .3; }
 .pr.princess.night .pr-win { background: linear-gradient(#1D2457, #3B3F7C); }
 .pr-mon .zz { position: absolute; right: -6px; top: -10px; font-size: calc(14px * var(--pr-s)); animation: pr-zz 2.4s infinite; pointer-events: none; }
 @keyframes pr-zz { 0% { opacity: 0; transform: translateY(6px); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateY(-12px); } }
@@ -392,6 +392,21 @@
 .pr-card .pc-st span { display: inline-flex; align-items: center; gap: 2px; padding: 1px 8px 1px 2px; border-radius: 99px; background: #EAF8F0; color: #2E7D3A; font-size: .86em; font-weight: 700; }
 .pr-card .pc-st span.pc-no { background: #FFE8EC; color: #C0392B; } .pr-card .pc-st .pi-w { font-size: 1.35em; }
 .pr-card .pc-x { position: absolute; right: 6px; top: 3px; border: 0; background: none; font-size: 1.25em; color: #B07040; cursor: pointer; padding: 2px 4px; }
+/* 🖼️ 장소 배경: 방 전체가 그 장소 그림 (창문 · 커튼 · 벽지 무늬는 숨김), 밤엔 어둡게 */
+.pr.th-pkcenter > .pr-room { background: url(${BASE}poke/deco/scene-pkcenter.svg) center / 100% 100% no-repeat; }
+.pr.th-bakery > .pr-room { background: url(${BASE}poke/deco/scene-bakery.svg) center / 100% 100% no-repeat; }
+.pr.th-gym > .pr-room { background: url(${BASE}poke/deco/scene-gym.svg) center / 100% 100% no-repeat; }
+.pr.th-beach > .pr-room { background: url(${BASE}poke/deco/scene-beach.svg) center / 100% 100% no-repeat; }
+.pr.th-garden > .pr-room { background: url(${BASE}poke/deco/scene-garden.svg) center / 100% 100% no-repeat; }
+.pr.night.th-gym > .pr-room { background: linear-gradient(rgba(10,14,46,.45), rgba(10,14,46,.45)), url(${BASE}poke/deco/scene-gym.svg) center / 100% 100% no-repeat; }
+.pr.night.th-beach > .pr-room { background: linear-gradient(rgba(10,20,60,.55), rgba(10,20,60,.55)), url(${BASE}poke/deco/scene-beach.svg) center / 100% 100% no-repeat; }
+.pr.night.th-garden > .pr-room { background: linear-gradient(rgba(40,14,60,.5), rgba(40,14,60,.5)), url(${BASE}poke/deco/scene-garden.svg) center / 100% 100% no-repeat; }
+.pr.night.th-pkcenter > .pr-room { background: linear-gradient(rgba(14,18,56,.5), rgba(14,18,56,.5)), url(${BASE}poke/deco/scene-pkcenter.svg) center / 100% 100% no-repeat; }
+.pr.night.th-bakery > .pr-room { background: linear-gradient(rgba(44,12,40,.45), rgba(44,12,40,.45)), url(${BASE}poke/deco/scene-bakery.svg) center / 100% 100% no-repeat; }
+.pr[class*=" th-"] > .pr-room::before, .pr[class*=" th-"] > .pr-room::after { display: none; }
+.pr[class*=" th-"] > .pr-room > .pr-win, .pr[class*=" th-"] > .pr-room > .pr-cur { display: none; }
+.pr-grid button .bgpv { display: block; width: 92%; margin: 3px 0 2px; pointer-events: none; }
+.pr-grid button .bgpv .pr-room { display: block; border-radius: 8px; box-shadow: inset 0 0 0 2px rgba(0,0,0,.06); }
 /* ✨ 진화 · 변신 장면 (화면 전체) */
 .pr-evo { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
   background: radial-gradient(circle at 50% 42%, #3B2F78, #0E0A24 72%); animation: pr-evo-in .5s ease-out; transition: opacity .35s; }
@@ -517,6 +532,24 @@
   const CARE_START = new Date(2026, 10, 17).getTime(); // 목욕은 이날부터 셈 (전부 한꺼번에 꼬질꼬질해지지 않게)
   const MILE = [[7, 1], [30, 3], [100, 5], [365, 10]]; // 🎂 [태어난 지 며칠, 🪙 선물]
   const TOOLS = ['rice', 'soap', 'ball', 'pill'];
+  // 🖼️ 장소 배경 (가게에서 사서 바꿈 — 방이 그 장소로 바뀜, 그림 poke/deco/scene-*.svg): [값(코인), 이름, 독일어]. 그림은 CSS .pr.th-{이름} (낮 · 밤). room.bgs.{이름} = 1 (산 것), room.bg = 쓰는 것 (없으면 기본)
+  const BGS = {
+    pk: { base: [0, '내 방', 'Mein Zimmer'], pkcenter: [12, '포켓몬 센터 앞', 'Vor dem Pokémon-Center'], gym: [12, '포켓몬 체육관', 'Pokémon-Arena'], beach: [12, '바닷가', 'Strand'] },
+    pp: { base: [0, '공주방', 'Prinzessinnenzimmer'], bakery: [12, '하트로즈 베이커리', 'Herzrosen-Bäckerei'], garden: [12, '이모션 왕국 성 정원', 'Schlossgarten'] },
+  };
+  // 🪑 장소마다 어울리는 가구 (그 장소에서만 보이고 · 가게에도 그 장소 것만): DECO 와 같은 꼴. 자료 room.pdeco.{장소}.{가구}
+  const PDECO = {
+    pkcenter: { c_heal: ['pk-heal', 22, 74, 0, 58, 8, '회복 머신', 'Heilmaschine'], c_vend: ['pc-vending', 88, 74, 0, 40, 6, '자판기', 'Getränkeautomat'], c_bench: ['pc-bench', 68, 90, 0, 52, 4, '벤치', 'Bank'],
+      c_potion: ['pc-potions', 10, 94, 0, 44, 5, '상처약 진열대', 'Trank-Regal'], c_pball: ['pk-ballstand', 40, 96, 0, 42, 2, '몬스터볼 받침대', 'Ball-Regal'], c_plant: ['pk-plant', 94, 94, 0, 32, 3, '화분', 'Topfpflanze'] },
+    gym: { g_board: ['gy-board', 84, 64, 0, 48, 6, '점수판', 'Anzeigetafel'], g_badges: ['pk-badges', 18, 41, 1, 40, 4, '배지 액자', 'Orden-Rahmen'], g_trophy: ['gy-trophy', 88, 74, 0, 30, 5, '트로피', 'Pokal'],
+      g_podium: ['gy-podium', 24, 76, 0, 72, 6, '시상대', 'Siegertreppchen'], g_flag: ['gy-flag', 94, 96, 0, 26, 3, '응원 깃발', 'Fahne'], g_bag: ['gy-sandbag', 6, 96, 0, 32, 4, '샌드백', 'Sandsack'] },
+    beach: { b_umbrella: ['bc-umbrella', 20, 82, 0, 62, 6, '파라솔', 'Sonnenschirm'], b_chair: ['bc-chair', 24, 94, 0, 48, 5, '비치 의자', 'Liegestuhl'], b_castle: ['bc-sandcastle', 70, 90, 0, 44, 4, '모래성', 'Sandburg'],
+      b_float: ['bc-float', 50, 72, 0, 40, 3, '몬스터볼 튜브', 'Pokéball-Ring'], b_surf: ['bc-surf', 93, 82, 0, 22, 4, '서핑보드', 'Surfbrett'], b_shell: ['bc-shells', 84, 97, 0, 30, 2, '조개 · 불가사리', 'Muscheln'] },
+    bakery: { k_oven: ['bk-oven', 8, 72, 0, 46, 6, '오븐', 'Ofen'], k_table: ['pp-teatable', 52, 86, 0, 54, 4, '티 테이블', 'Teetisch'], k_chair: ['bk-chair', 34, 88, 0, 28, 3, '카페 의자', 'Café-Stuhl'],
+      k_cakes: ['pp-cupcakes', 92, 76, 0, 30, 3, '컵케이크 탑', 'Cupcake-Turm'], k_cake: ['pp-cake', 72, 94, 0, 32, 3, '3단 케이크', 'Torte'], k_basket: ['bk-breadbasket', 14, 96, 0, 36, 2, '빵 바구니', 'Brotkorb'] },
+    garden: { r_arch: ['gd-rosearch', 50, 74, 0, 70, 7, '장미 아치', 'Rosenbogen'], r_fountain: ['pp-fountain', 50, 96, 0, 64, 8, '하트 분수', 'Herzbrunnen'], r_bench: ['gd-bench', 18, 88, 0, 56, 5, '정원 벤치', 'Gartenbank'],
+      r_swing: ['gd-swing', 84, 82, 0, 50, 6, '꽃 그네', 'Blumenschaukel'], r_topiary: ['pp-topiary', 6, 76, 0, 30, 2, '하트 나무', 'Herzbäumchen'], r_lamp: ['gd-lamp', 96, 76, 0, 18, 3, '정원 등', 'Gartenlaterne'] },
+  };
   // ❓ 도움말 (방 왼쪽 위): [아이콘, 제목, 설명] — 글 속 이모지는 rich() 로 그림이 됨. P = 티니핑 방
   const HELP = {
     ko: (P) => [
@@ -531,7 +564,7 @@
       ['ball', '소원', '하루에 한 친구가 💭 소원을 말해요 (⚽ 공놀이 또는 좋아하는 열매). 들어주면 하트 +1! 공놀이는 ⚽ 를 누르고 바닥을 눌러요.'],
       ['sick', '감기', '오래 못 오거나 목욕을 너무 오래 안 하면 가끔 걸려요. 그때만 💊 약 버튼이 나와요 (🪙 1개). 이틀 지나면 저절로 나아요.'],
       ['moon', '밤', '밤 8시 ~ 아침 7시는 자는 시간. 🌙 불 끄기를 누르면 침대에서 쿨쿨 자요.'],
-      ['coin', '코인', `미션마다 🪙 1개, 황금 스티커마다 🪙 3개, 🎂 태어난 지 7 · 30 · 100 · 365일에도 받아요. 🛒 가게에서 새 ${P ? '하트 알' : '알'} (🪙 10)과 가구를 사요.`],
+      ['coin', '코인', `미션마다 🪙 1개, 황금 스티커마다 🪙 3개, 🎂 태어난 지 7 · 30 · 100 · 365일에도 받아요. 🛒 가게에서 새 ${P ? '하트 알' : '알'} (🪙 10), 가구, 🖼️ 장소(${P ? '하트로즈 베이커리 · 이모션 왕국 성 정원' : '포켓몬 센터 앞 · 체육관 · 바닷가'})를 사요. 장소마다 어울리는 가구가 따로 있어요.`],
       ['star', P ? '황금 하트' : '황금 알', P ? '황금 스티커 4개마다 👑 황금 하트가 와요. 특별한 티니핑이 들어 있대요!' : '황금 스티커 4개마다 🌟 황금 알이 와요. 전설의 포켓몬이 들어 있대요!'],
       ['sound', '소리', '방 오른쪽 위 버튼으로 소리를 끄고 켜요. 친구를 누르면 상태 카드가 나와요.'],
     ],
@@ -547,7 +580,7 @@
       ['ball', 'Wunsch', 'Jeden Tag hat ein Freund einen 💭 Wunsch (⚽ Ball oder Lieblingsbeere). Erfüllen = +1 Herz! Für den Ball ⚽ wählen und auf den Boden tippen.'],
       ['sick', 'Erkältung', 'Wenn lange keiner kommt oder lange nicht gebadet wird. Nur dann gibt es den 💊-Knopf (🪙 1). Nach 2 Tagen auch von selbst gesund.'],
       ['moon', 'Nacht', '20–7 Uhr ist Schlafenszeit. 🌙 Licht aus → alle schlafen im Bett.'],
-      ['coin', 'Münzen', `Pro Mission 🪙 1, pro Goldsticker 🪙 3, und zum 🎂 7./30./100./365. Tag. Im 🛒 Laden: neue ${P ? 'Herz-Eier' : 'Eier'} (🪙 10) und Möbel.`],
+      ['coin', 'Münzen', `Pro Mission 🪙 1, pro Goldsticker 🪙 3, und zum 🎂 7./30./100./365. Tag. Im 🛒 Laden: neue ${P ? 'Herz-Eier' : 'Eier'} (🪙 10), Möbel und 🖼️ Orte – jeder Ort hat eigene Möbel.`],
       ['star', P ? 'Goldherz' : 'Gold-Ei', P ? 'Alle 4 Goldsticker kommt ein 👑 Goldherz mit einem besonderen Teenieping!' : 'Alle 4 Goldsticker kommt ein 🌟 Gold-Ei mit einem legendären Pokémon!'],
       ['sound', 'Ton', 'Oben rechts im Zimmer Ton an/aus. Freund antippen = Steckbrief.'],
     ],
@@ -562,9 +595,13 @@
   // 친구들이 가구를 써요: [떠오르는 아이콘, x 차이, y 차이 (%, 방 300px 기준 — 방 크기에 맞춰 늘림), 가구 앞에 올라앉기(1)]
   const USE = {
     pk: { sofa: ['heart', 0, -5, 1], rug: ['sparkle', 6, 4, 0], piano: ['star', 0, 2, 0], tent: ['heart', 0, 2, 0], books: ['book', 0, 2, 0], teddy: ['heart', 7, 1, 0],
-      ball: ['ball', 0, 2, 0], cake: ['strawberry', 6, 1, 0], slide: ['star', 2, -2, 1] },
+      ball: ['ball', 0, 2, 0], cake: ['strawberry', 6, 1, 0], slide: ['star', 2, -2, 1],
+      c_bench: ['heart', 0, -4, 1], c_vend: ['star', 0, 2, 0], c_heal: ['heart', 0, 2, 0], g_podium: ['star', 0, -9, 1], g_trophy: ['star', 5, 1, 0], g_bag: ['ball', 7, 1, 0], g_flag: ['star', 5, 1, 0],
+      b_umbrella: ['sun', 0, 2, 0], b_chair: ['heart', 0, -3, 1], b_castle: ['star', 7, 1, 0], b_float: ['drop', 0, -2, 1], b_surf: ['drop', 6, 1, 0] },
     pp: { sofa: ['heart', 0, -5, 1], rug: ['heart', 6, 4, 0], piano: ['note', -16, 2, 0], fountain: ['drop', 0, 3, 0], carousel: ['sparkle', 0, -3, 1], teapot: ['cake', 8, 1, 0],
-      cake: ['cake', 6, 1, 0], cupcake: ['cake', 5, 1, 0], books: ['book', 0, 2, 0], castle: ['star', 0, 2, 0], unicorn: ['heart', 0, -6, 1], mirror: ['sparkle', 0, 2, 0], teddy: ['heart', 6, 1, 0] },
+      cake: ['cake', 6, 1, 0], cupcake: ['cake', 5, 1, 0], books: ['book', 0, 2, 0], castle: ['star', 0, 2, 0], unicorn: ['heart', 0, -6, 1], mirror: ['sparkle', 0, 2, 0], teddy: ['heart', 6, 1, 0],
+      k_oven: ['cake', 7, 2, 0], k_table: ['cake', 8, 1, 0], k_chair: ['heart', 0, -3, 1], k_cakes: ['cake', 5, 1, 0], k_cake: ['cake', 6, 1, 0],
+      r_arch: ['heart', 0, 1, 0], r_fountain: ['drop', 0, 3, 0], r_bench: ['heart', 0, -4, 1], r_swing: ['sparkle', 0, -7, 1], r_topiary: ['heart', 5, 1, 0] },
   };
   const BED = { pk: [[-3, -11], [10, -11]], pp: [[-5, -9], [8, -9]] }; // 🌙 불 끄면 침대 위 두 자리
 
@@ -572,7 +609,8 @@
     addCss();
     if (root._pr) root._pr.destroy(); // 같은 자리에 방이 이미 있으면 먼저 정리
     const lang = () => (o.lang() === 'de' ? 'de' : 'ko');
-    const SET = FS.charSet(o.kid), DK = SET.room === 'princess' ? DECO_P : DECO; // 아린 = 💖 티니핑 공주방, 나머지 = 🥚 포켓몬
+    const SET = FS.charSet(o.kid), DK0 = SET.room === 'princess' ? DECO_P : DECO; // 아린 = 💖 티니핑 공주방, 나머지 = 🥚 포켓몬
+    let curPlace = 'base', DK = DK0; // 지금 장소의 가구 표 (장소를 바꾸면 renderRoom 에서 바뀜)
     const L = () => (SET.key === 'ping' ? { ...T[lang()], ...TP.ko, ...(lang() === 'de' ? TP.de : {}) } : T[lang()]);
     const name = (id) => SET.name(id, lang());
     const bName = (k) => BERRY[k][lang() === 'de' ? 3 : 2];
@@ -631,6 +669,11 @@
     function addHome(id) { const h = pk().home; if (Array.isArray(h) && h.length < HOME_MAX) W(['home'], [...h, id]); }
 
     // ── 🍚 💩 🤚 🌙 돌보기 (맨 위 설명) ──
+    // 🖼️ 지금 장소 (산 장소만) · 그 장소의 가구 자료와 저장 위치
+    const BGP = BGS[SET.room ? 'pp' : 'pk'];
+    const placeNow = () => { const b = pk().bg; return b && BGP[b] && (pk().bgs || {})[b] ? b : 'base'; };
+    const decoData = () => (curPlace === 'base' ? pk().deco : (pk().pdeco || {})[curPlace]) || {};
+    const decoPath = (key) => (curPlace === 'base' ? ['deco', key] : ['pdeco', curPlace, key]);
     const local = { care: {}, pc: {}, wk: '', ch: null, lo: null, loAt: 0, bd: {}, wish: '' }; // 방금 쓴 것 (가족 문서가 돌아오기 전에도 바로 보이게)
     const care = (id) => { const s = (pk().care || {})[id] || {}, l = local.care[id] || {}, c = {}; for (const f of ['e', 'p', 'b', 's', 'm', 'k', 'j']) c[f] = Math.max(s[f] || 0, l[f] || 0); return c; };
     function setCare(id, patch) { const v = Object.fromEntries(Object.entries({ ...care(id), ...patch }).filter(([, t]) => t)); local.care[id] = v; W(['care', id], v); }
@@ -1060,7 +1103,7 @@
     // 가게에서 빠진 가구를 이미 샀으면 치우고 코인을 돌려줌 (한 번만 — 치운 뒤엔 다시 안 함)
     function refundGone() {
       if (!alive || SET.room !== 'princess') return;
-      const deco = pk().deco || {}, gone = Object.keys(deco).filter((k) => DECO_GONE[k] && !DK[k]);
+      const deco = pk().deco || {}, gone = Object.keys(deco).filter((k) => DECO_GONE[k] && !DK0[k]); // 내 방 가구만
       if (!gone.length) return;
       let c = 0;
       for (const k of gone) { W(['deco', k], null); for (let i = 0; i < DECO_GONE[k]; i++) W(['items', uid('r')], 'coin'); c += DECO_GONE[k]; }
@@ -1286,12 +1329,15 @@
     function decoEl(key) {
       const e = el('div', { class: 'pr-deco' + (key === 'rug' ? ' rug' : ''), style: `--w:${DK[key][4]}` }, el('img', { src: `${BASE}poke/deco/${DK[key][0]}.svg`, alt: '', draggable: 'false' }));
       dragable(e, () => {}, (x, y) => { e.style.left = `${x}%`; e.style.top = `${y}%`; e.style.zIndex = key === 'rug' ? '3' : String(10 + Math.round(y)); },
-        () => W(['deco', key], { ...((pk().deco || {})[key] || {}), x: Math.round(parseFloat(e.style.left)), y: Math.round(parseFloat(e.style.top)) }));
+        () => W(decoPath(key), { ...(decoData()[key] || {}), x: Math.round(parseFloat(e.style.left)), y: Math.round(parseFloat(e.style.top)) }));
       return e;
     }
 
     function renderRoom() {
       wrap.classList.toggle('night', isNight());
+      const th = pk().bg, BG = BGS[SET.room ? 'pp' : 'pk']; // 🖼️ 산 배경
+      for (const c of [...wrap.classList]) if (c.startsWith('th-') && c !== `th-${th}`) wrap.classList.remove(c);
+      if (th && BG[th] && (pk().bgs || {})[th]) wrap.classList.add(`th-${th}`);
       scale = Math.min(2.4, Math.max(1, roomEl.clientWidth / 300));
       wrap.style.setProperty('--pr-k', scale.toFixed(3)); // 가구도 캐릭터와 같은 비율로
       wrap.style.setProperty('--pr-s', o.big ? Math.min(1.8, Math.max(1, roomEl.clientWidth / 520)).toFixed(2) : '1');
@@ -1305,8 +1351,10 @@
           roomEl.append(pickEl);
         }
       } else if (pickEl) pickEl.remove();
-      // 가구
-      const deco = pk().deco || {};
+      // 가구 (장소가 바뀌면 그 장소 가구로)
+      const pl = placeNow();
+      if (pl !== curPlace) { for (const e of decoEls.values()) e.remove(); decoEls.clear(); curPlace = pl; DK = pl === 'base' ? DK0 : PDECO[pl] || {}; }
+      const deco = decoData();
       for (const [key, e] of decoEls) if (!deco[key] || deco[key].off || !DK[key]) { e.remove(); decoEls.delete(key); }
       for (const [key, v] of Object.entries(deco)) {
         if (!DK[key] || !v || v.off) continue;
@@ -1403,21 +1451,32 @@
       const closeB = el('button', { type: 'button', text: `✕ ${L().close}`, onclick: () => { open = ''; armed = ''; renderAll(); } });
       const coins = count('coin');
       if (open === 'shop') {
-        const deco = pk().deco || {};
+        const deco = decoData();
         const eggs = el('div', { class: 'pr-grid' }, ...SET.eggs.map((egg) => el('button', { type: 'button', class: armed === `egg:${egg}` ? 'armed' : coins < FS.EGG_PRICE ? 'poor' : '',
           onclick: () => buy(`egg:${egg}`, FS.EGG_PRICE, () => { const id = uid('e'); W(['mons', id], { egg, f: 0, at: Date.now() }); addHome(id); news(L().eggCame(eggName(egg))); }) },
           el('span', { class: 'eg', html: SET.eggHTML(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', {}, icon('coin'), `${FS.EGG_PRICE}`))));
+        const BG = BGS[SET.room ? 'pp' : 'pk'], bgs = pk().bgs || {}, cur = (pk().bg && bgs[pk().bg]) ? pk().bg : 'base';
+        const bgGrid = el('div', { class: 'pr-grid' }, ...Object.keys(BG).map((k) => {
+          const [price, ko, de] = BG[k], has = k === 'base' || !!bgs[k], on = cur === k;
+          const pv = el('span', { class: `bgpv pr${SET.room ? ` ${SET.room}` : ''}${k === 'base' ? '' : ` th-${k}`}` }, el('span', { class: 'pr-room' }));
+          return el('button', { type: 'button', class: on ? 'on' : armed === `bg:${k}` ? 'armed' : !has && coins < price ? 'poor' : '', onclick: () => {
+            if (has) { if (!on) { W(['bg'], k === 'base' ? null : k); snd.stick(); } return; }
+            buy(`bg:${k}`, price, () => { W(['bgs', k], 1); W(['bg'], k); });
+          } }, !has && Date.now() < NEW_UNTIL ? el('span', { class: 'new', text: 'NEW' }) : null, pv, el('span', { class: 'n', text: lang() === 'de' ? de : ko }),
+            has ? el('span', { text: on ? L().bgOn : '' }) : el('span', {}, icon('coin'), `${price}`));
+        }));
         const rank = (k) => (deco[k] ? 2000 : coins >= DK[k][5] ? 0 : 1000) + DK[k][5]; // 살 수 있는 것 → 아직 못 사는 것 → 산 것
         const furn = el('div', { class: 'pr-grid' }, ...Object.keys(DK).sort((a, b) => rank(a) - rank(b)).map((key) => {
           const v = deco[key], has = !!v, on = has && !v.off, price = DK[key][5];
           const ic = el('span', { class: 'dk', style: `--iw:${Math.min(64, Math.max(34, DK[key][4] * 0.8)).toFixed(0)}` }, el('img', { src: `${BASE}poke/deco/${DK[key][0]}.svg`, alt: '', loading: 'lazy' }));
-          return el('button', { type: 'button', class: on ? 'on' : armed === `deco:${key}` ? 'armed' : !has && coins < price ? 'poor' : '', onclick: () => {
-            if (has) { W(['deco', key], { ...v, off: on ? true : null }); snd.stick(); return; }
-            buy(`deco:${key}`, price, () => W(['deco', key], spotFor(key)));
+          return el('button', { type: 'button', class: on ? 'on' : armed === `deco:${curPlace}:${key}` ? 'armed' : !has && coins < price ? 'poor' : '', onclick: () => {
+            if (has) { W(decoPath(key), { ...v, off: on ? true : null }); snd.stick(); return; }
+            buy(`deco:${curPlace}:${key}`, price, () => W(decoPath(key), spotFor(key)));
           } }, !has && Date.now() < NEW_UNTIL ? el('span', { class: 'new', text: 'NEW' }) : null, ic, el('span', { class: 'n', text: DK[key][lang() === 'de' ? 7 : 6] }), has ? null : el('span', {}, icon('coin'), `${price}`));
         }));
         panel.replaceChildren(el('h4', {}, el('span', {}, icon('coin'), L().shopHead(coins)), closeB), el('h4', {}, el('span', { text: L().eggs })), eggs,
-          el('h4', {}, el('span', { text: L().furn })), el('p', { text: L().decoTip }), furn);
+          el('h4', {}, el('span', {}, ...rich(L().bgHead))), el('p', { text: L().bgTip }), bgGrid,
+          el('h4', {}, el('span', { text: curPlace === 'base' ? L().furn : `${L().furn} · ${BGP[curPlace][lang() === 'de' ? 2 : 1]}` })), el('p', { text: L().decoTip }), furn);
       } else if (open === 'help') {
         panel.replaceChildren(...helpView(closeB));
       } else {
@@ -1473,7 +1532,7 @@
     setTimeout(refundGone, 1200);
     setTimeout(greet, 1600);
     setTimeout(party, 4000);
-    setTimeout(() => { if (alive) for (const k of Object.keys(DK)) new Image().src = `${BASE}poke/deco/${DK[k][0]}.svg`; }, 5000); // 가구 그림 미리 받아 두기 (처음 살 때 '?' 안 보이게)
+    setTimeout(() => { if (alive) for (const t of [DK0, ...Object.keys(BGP).map((b) => PDECO[b] || {})]) for (const k of Object.keys(t)) new Image().src = `${BASE}poke/deco/${t[k][0]}.svg`; for (const n of Object.keys(BGP)) if (n !== 'base') new Image().src = `${BASE}poke/deco/scene-${n}.svg`; }, 5000); // 가구 그림 미리 받아 두기 (처음 살 때 '?' 안 보이게)
     setTimeout(() => { const M = missionNow(); if (alive && M && M.got && !isNight()) for (const e of monEls.values()) if (!e._egg) happy(e); }, 2200); // 오늘 미션 다 했으면 다 같이 춤
     root._pr = { update: () => { renderAll(); grants(); }, destroy };
     return root._pr;
@@ -1485,5 +1544,5 @@
     return S && S.key === 'ping' ? `<img class="pi" src="${BASE}ping/heartsping1.webp" alt="" style="width:1.5em;height:1.5em;object-fit:contain;vertical-align:-.4em">`
       : ICON.pokeball.replace('class="pi"', 'class="pi" style="width:1.25em;height:1.25em;vertical-align:-.24em"');
   }
-  window.PokeRoom = { mount, DECO, DECO_P, ICON, rich, tabIcon };
+  window.PokeRoom = { mount, DECO, DECO_P, PDECO, ICON, rich, tabIcon };
 })();
