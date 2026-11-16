@@ -17,7 +17,7 @@
 (() => {
   'use strict';
   const FS = window.FamilyStickers;
-  // ❓ 도움말 · 🃏 상태 카드 (2026-11-16): 방 왼쪽 위 ❓ → 아래 칸에 키우는 법 · 좋아하는 열매 · 머리 위 그림 뜻. 친구를 누르면 게임 같은 상태 카드.
+  // ✨ 진화 · 변신은 게임처럼 화면 전체 장면 (evoScene). ❓ 도움말 · 🃏 상태 카드 (2026-11-16): 방 왼쪽 위 ❓ → 아래 칸에 키우는 법 · 좋아하는 열매 · 머리 위 그림 뜻. 친구를 누르면 게임 같은 상태 카드.
   const BASE = (document.currentScript && document.currentScript.src) ? new URL('.', document.currentScript.src).href : './'; // 가구 그림: poke/deco/*.svg
   // 🎨 돌보기 아이콘: 이모지 대신 직접 그린 귀여운 그림 (원본 · 미리보기: Eunjin/_handoff/deco-tools/icons.js · _handoff/icon-test.html)
   const ICON = (() => {
@@ -124,7 +124,9 @@
       tapEgg: '🥚 알을 톡 눌러 봐요! 바로 깨어나요', goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
       rice: '밥', riceHint: '🍚 밥 줄 친구를 눌러요', full: (n) => `${n}: 배불러요 😋`, yum: '냠냠! 맛있어요 😋', eggRice: '알은 열매만 먹어요',
       lightOff: '불 끄기', lightOn: '불 켜기', sleepy: '하암… 졸려요. 🌙 불을 꺼 주세요', night: '잘 자! 💤', morning: '☀️ 좋은 아침! 잘 잤어요?', hello: '👋 반가워요! 같이 놀아요', missed: '🥹 보고 싶었어요!',
-      hungry: '🍚 배고픈 친구가 있어요. 밥을 줘요', petMe: '🤚 친구를 꾹 누른 채 문지르면 쓰다듬어요', poo: '💩 똥을 톡 눌러서 치워 줘요', cleaned: '✨ 깨끗해졌어요!', careBonus: (n) => `💕 잘 돌봐 줘서 ${iga(n)} 하트를 1개 더 받았어요!`, oneBerry: (n, b) => `${n}: 오늘 열매는 벌써 먹었어요. 좋아하는 ${b} 는 또 먹을 수 있어요!`, petted: (n) => `${n} 💕`,
+      hungry: '🍚 배고픈 친구가 있어요. 밥을 줘요', petMe: '🤚 친구를 꾹 누른 채 문지르면 쓰다듬어요', poo: '💩 똥을 톡 눌러서 치워 줘요', cleaned: '✨ 깨끗해졌어요!', careBonus: (n) => `💕 잘 돌봐 줘서 ${iga(n)} 하트를 1개 더 받았어요!`, oneBerry: (n, b) => `${n}: 오늘 열매는 벌써 먹었어요. 좋아하는 ${b} 는 또 먹을 수 있어요!`,
+      evoStart: (n) => `어라…? ${n}의 모습이…!`, evoStartP: (n) => `어머…? ${iga(n)} 반짝반짝 빛나요…!`, evoDone: (a, b) => `🎉 축하해요! ${iga(a)} ${euro(b)} 진화했어요!`,
+      evoDoneP: (a, b) => `✨ 짜잔! ${iga(a)} ${euro(b)} 변신했어요!`, evoOk: '와! 좋아요', petted: (n) => `${n} 💕`,
       soap: '목욕', ball: '공놀이', pill: '약', scrub: '뽀글뽀글 🫧', bathed: '뽀득뽀득! 깨끗해졌어요 ✨', eggClean: '알은 반짝반짝 깨끗해요',
       soapHint: '🧼 씻길 친구를 톡톡톡 눌러요', ballHint: '⚽ 방바닥을 누르면 공을 던져요', pillHint: '💊 아픈 친구를 누르면 약을 줘요 (🪙 1개)', noPill: '💊 약이 없어요', noCoinPill: '🪙 코인이 1개 있어야 약을 줄 수 있어요. 푹 쉬면 이틀 뒤에 나아요',
       notSick: '안 아파요! 약은 아껴 둬요', cured: (n) => `💊 ${iga(n)} 다 나았어요! 고마워요`, sick: '🤒 아픈 친구가 있어요. 💊 약을 줘요', sickSay: (n) => `🤒 ${iga(n)} 감기에 걸렸어요… 💊 약을 주세요`,
@@ -144,7 +146,9 @@
       tapEgg: '🥚 Tippe das Ei an – es schlüpft sofort!', goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
       rice: 'Futter', riceHint: '🍚 Tippe an, wen du füttern willst', full: (n) => `${n}: Satt 😋`, yum: 'Mampf! Lecker 😋', eggRice: 'Eier fressen nur Beeren',
       lightOff: 'Licht aus', lightOn: 'Licht an', sleepy: 'Gähn… müde. 🌙 Mach das Licht aus', night: 'Gute Nacht! 💤', morning: '☀️ Guten Morgen! Gut geschlafen?', hello: '👋 Hallo! Spiel mit mir', missed: '🥹 Ich hab dich vermisst!',
-      hungry: '🍚 Jemand hat Hunger. Gib Futter', petMe: '🤚 Gedrückt halten und reiben = streicheln', poo: '💩 Tippe auf den Haufen zum Saubermachen', cleaned: '✨ Alles sauber!', careBonus: (n) => `💕 Gut gepflegt – ${n} bekommt 1 Herz extra!`, oneBerry: (n, b) => `${n} hatte heute schon eine Beere. Die Lieblingsbeere ${b} geht immer!`, petted: (n) => `${n} 💕`,
+      hungry: '🍚 Jemand hat Hunger. Gib Futter', petMe: '🤚 Gedrückt halten und reiben = streicheln', poo: '💩 Tippe auf den Haufen zum Saubermachen', cleaned: '✨ Alles sauber!', careBonus: (n) => `💕 Gut gepflegt – ${n} bekommt 1 Herz extra!`, oneBerry: (n, b) => `${n} hatte heute schon eine Beere. Die Lieblingsbeere ${b} geht immer!`,
+      evoStart: (n) => `Nanu…? ${n} verändert sich…!`, evoStartP: (n) => `Oh…? ${n} glitzert…!`, evoDone: (a, b) => `🎉 Glückwunsch! ${a} hat sich zu ${b} entwickelt!`,
+      evoDoneP: (a, b) => `✨ Tadaa! ${a} hat sich in ${b} verwandelt!`, evoOk: 'Juhu!', petted: (n) => `${n} 💕`,
       soap: 'Baden', ball: 'Ball', pill: 'Medizin', scrub: 'Schrubb 🫧', bathed: 'Blitzsauber! ✨', eggClean: 'Eier sind schon sauber',
       soapHint: '🧼 Tippe 3× auf wen du baden willst', ballHint: '⚽ Tippe auf den Boden zum Werfen', pillHint: '💊 Tippe auf den Kranken (kostet 🪙 1)', noPill: '💊 Keine Medizin', noCoinPill: '🪙 Medizin kostet 1 Münze. Nach 2 Tagen Ruhe wird es auch so gesund',
       notSick: 'Nicht krank! Heb die Medizin auf', cured: (n) => `💊 ${n} ist wieder gesund! Danke`, sick: '🤒 Jemand ist krank. Gib 💊 Medizin', sickSay: (n) => `🤒 ${n} ist erkältet… gib 💊 Medizin`,
@@ -388,6 +392,40 @@
 .pr-card .pc-st span { display: inline-flex; align-items: center; gap: 2px; padding: 1px 8px 1px 2px; border-radius: 99px; background: #EAF8F0; color: #2E7D3A; font-size: .86em; font-weight: 700; }
 .pr-card .pc-st span.pc-no { background: #FFE8EC; color: #C0392B; } .pr-card .pc-st .pi-w { font-size: 1.35em; }
 .pr-card .pc-x { position: absolute; right: 6px; top: 3px; border: 0; background: none; font-size: 1.25em; color: #B07040; cursor: pointer; padding: 2px 4px; }
+/* ✨ 진화 · 변신 장면 (화면 전체) */
+.pr-evo { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
+  background: radial-gradient(circle at 50% 42%, #3B2F78, #0E0A24 72%); animation: pr-evo-in .5s ease-out; transition: opacity .35s; }
+.pr-evo.ping { background: radial-gradient(circle at 50% 42%, #8A3A78, #26081F 72%); }
+.pr-evo.out { opacity: 0; }
+@keyframes pr-evo-in { from { opacity: 0; } }
+.pr-evo .ev-rays { position: absolute; left: 50%; top: 42%; width: 200vmax; height: 200vmax; translate: -50% -50%; opacity: 0; transition: opacity .8s;
+  background: repeating-conic-gradient(rgba(255,255,255,.13) 0 7deg, transparent 7deg 18deg); animation: pr-spin 16s linear infinite; }
+.pr-evo.done .ev-rays { opacity: 1; }
+@keyframes pr-spin { to { rotate: 360deg; } }
+.pr-evo .ev-stage { position: relative; width: min(60vw, 46vh, 360px); aspect-ratio: 1; margin-bottom: 22vh; }
+.pr-evo .ev-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.pr-evo .ev-stage img.ev-b { opacity: 0; }
+.pr-evo.white .ev-stage img { filter: brightness(0) invert(1) drop-shadow(0 0 14px #fff) drop-shadow(0 0 36px #8FD3FF); }
+.pr-evo.ping.white .ev-stage img { filter: brightness(0) invert(1) drop-shadow(0 0 14px #fff) drop-shadow(0 0 36px #FF9EC7); }
+.pr-evo.show-b .ev-stage img.ev-a { opacity: 0; } .pr-evo.show-b .ev-stage img.ev-b { opacity: 1; }
+.pr-evo .ev-stage.glow::before { content: ''; position: absolute; inset: -18%; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.55), transparent 62%); animation: pr-pulse .5s ease-in-out infinite alternate; }
+@keyframes pr-pulse { from { scale: .8; opacity: .45; } to { scale: 1.1; opacity: 1; } }
+.pr-evo.done .ev-stage img.ev-b { animation: pr-evopop .9s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes pr-evopop { 0% { scale: .5; } 60% { scale: 1.15; } 100% { scale: 1; } }
+.pr-evo .ev-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.pr-evo.flashing .ev-flash { animation: pr-flash 1s ease-out; }
+@keyframes pr-flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+.pr-evo .ev-txt { position: absolute; left: 50%; bottom: max(6vh, 24px); translate: -50% 0; width: min(92vw, 560px); padding: 14px 18px 16px; border-radius: 18px; background: #fff; color: #3B2716;
+  font-size: clamp(18px, 4.8vw, 28px); font-weight: 800; line-height: 1.35; text-align: center; border: 5px solid #FFD23F; box-shadow: 0 0 0 4px #3B2716, 0 12px 34px rgba(0,0,0,.45); }
+.pr-evo.ping .ev-txt { border-color: #FF9EC7; }
+.pr-evo .ev-txt .pi { width: 1.1em; height: 1.1em; }
+.pr-evo .ev-res { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
+.pr-evo .ev-res img { width: clamp(52px, 14vw, 84px); height: clamp(52px, 14vw, 84px); object-fit: contain; }
+.pr-evo .ev-res span { font-size: 1.5em; color: #FF8A3D; }
+.pr-evo .ev-ok { margin-top: 8px; border: 0; border-radius: 14px; padding: 10px 26px; font: inherit; font-size: .8em; font-weight: 800; background: linear-gradient(140deg, #FFE08A, #FFB46B); color: #3B2716; cursor: pointer; animation: pr-wob 1.6s infinite; }
+.pr-evo .ev-sp { position: absolute; left: 50%; top: 40%; width: clamp(18px, 5vw, 34px); height: clamp(18px, 5vw, 34px); pointer-events: none; animation: pr-sp 1.7s ease-out forwards; }
+.pr-evo .ev-sp .pi { width: 100%; height: 100%; display: block; }
+@keyframes pr-sp { 0% { translate: -50% -50%; scale: .2; opacity: 1; } 100% { translate: calc(-50% + var(--dx)) calc(-50% + var(--dy)); scale: 1.2; rotate: var(--r); opacity: 0; } }
 .pr-hand.ghost { opacity: 0; animation: pr-rub .32s ease-in-out infinite alternate, pr-ghost 2.4s ease-in-out forwards; }
 @keyframes pr-ghost { 0% { opacity: 0; } 15%, 80% { opacity: .9; } 100% { opacity: 0; } }
 .pr-poo { padding: .28em; }
@@ -898,6 +936,36 @@
         el('h4', {}, el('span', { text: de ? 'Was die Bilder über dem Kopf bedeuten' : '머리 위 그림 뜻' })),
         el('div', { class: 'pr-legend' }, ...(de ? LEGEND.de : LEGEND.ko).map(([k, t]) => el('span', {}, icon(k), t))), ...rows.slice(3).map(row)];
     }
+    // ── ✨ 진화 · 변신 장면: 화면이 어두워지고 → 하얀 그림자가 두 모습을 오가다 점점 빨라짐 → 번쩍! → 새 모습 + "피카츄 ➜ 라이츄" ──
+    function evoScene(from, to) {
+      const P = SET.key === 'ping', T = [], at = (ms, f) => T.push(setTimeout(f, ms));
+      const tone = (f, d) => { if (o.snd && !muted) beep([[f, 0, d, 'triangle']]); };
+      const st = el('div', { class: 'ev-stage' }, el('img', { class: 'ev-a', src: SET.art(from), alt: '' }), el('img', { class: 'ev-b', src: SET.art(to), alt: '' }));
+      const txt = el('div', { class: 'ev-txt' }, ...rich(P ? L().evoStartP(name(from)) : L().evoStart(name(from))));
+      const ov = el('div', { class: 'pr-evo' + (P ? ' ping' : '') }, el('div', { class: 'ev-rays' }), st, el('div', { class: 'ev-flash' }), txt);
+      document.body.append(ov);
+      let doneAt = 0, closed = false;
+      const close = () => { if (closed) return; closed = true; T.forEach(clearTimeout); ov.classList.add('out'); setTimeout(() => ov.remove(), 400); };
+      ov.addEventListener('click', () => { if (doneAt && Date.now() - doneAt > 900) close(); });
+      const burst = () => { for (let i = 0; i < 26; i++) { const a = Math.random() * Math.PI * 2, d = 18 + Math.random() * 30;
+        const sp = el('span', { class: 'ev-sp', html: ICON[pick(P ? ['heart', 'sparkle', 'star'] : ['sparkle', 'star', 'sparkle'])], style: `--dx:${(Math.cos(a) * d).toFixed(1)}vmin;--dy:${(Math.sin(a) * d).toFixed(1)}vmin;--r:${Math.round(rnd(-200, 200))}deg;animation-delay:${(i * 0.02).toFixed(2)}s` });
+        ov.append(sp); setTimeout(() => sp.remove(), 2200); } };
+      if (o.snd && !muted) voice({ p: from, h: 1 }, true);
+      at(1300, () => { ov.classList.add('white'); st.classList.add('glow'); tone(262, 0.5); });
+      let t = 2100, gap = 440, n = 0, f = 330;
+      while (gap > 55) { const b = n % 2 === 0, ff = f; at(t, () => { ov.classList.toggle('show-b', b); tone(ff, 0.08); }); t += gap; gap *= 0.85; n++; f *= 1.045; }
+      at(t, () => ov.classList.add('show-b'));
+      at(t + 200, () => {
+        doneAt = Date.now();
+        ov.classList.remove('white'); st.classList.remove('glow'); ov.classList.add('flashing', 'done');
+        snd.tada(); burst(); setTimeout(() => voice({ p: to, h: 1 }, true), 500);
+        txt.replaceChildren(el('div', {}, ...rich(P ? L().evoDoneP(name(from), name(to)) : L().evoDone(name(from), name(to)))),
+          el('div', { class: 'ev-res' }, el('img', { src: SET.art(from), alt: '' }), el('span', { text: '➜' }), el('img', { src: SET.art(to), alt: '' })),
+          el('button', { type: 'button', class: 'ev-ok', text: L().evoOk, onclick: (ev) => { ev.stopPropagation(); close(); } }));
+      });
+      at(t + 900, burst);
+      at(t + 16000, close);
+    }
     // ── 친구들이 가구를 써요 (소파에 앉기 · 피아노 · 분수 · 밤엔 침대에서 쿨쿨) ──
     const UK = USE[SET.room ? 'pp' : 'pk'], BK = BED[SET.room ? 'pp' : 'pk'];
     const fac = () => (scale * 300) / Math.max(1, roomEl.clientWidth); // 가구 크기 비율 (방이 커도 가구는 2.4배까지)
@@ -1139,8 +1207,9 @@
       if (nexts.length && f >= n) {
         const to = pick(nexts), from = m.p;
         e._busy = true; e.classList.add('evo');
+        evoScene(from, to); // ✨ 화면 전체 진화 장면
         setTimeout(() => { W(['mons', id], { ...v, p: to, f: 0 }); meet(from, to); }, 700);
-        setTimeout(() => { e._busy = false; e.classList.remove('evo'); news(SET.key === 'ping' ? L().changed(name(to)) : L().evolved(name(from), name(to))); voice({ p: to, h: v.h || 1 }, true); }, 1400);
+        setTimeout(() => { e._busy = false; e.classList.remove('evo'); }, 1400);
         return;
       }
       W(['mons', id], { ...v, f }); bubble(x, y, text);
