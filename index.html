@@ -2120,8 +2120,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       } catch (e) {
         console.warn('events', e);
         const known = e.code === 'not_configured' || e.code === 'no_house';
-        if (!known && retries < 1) { retries++; setTimeout(() => refresh(true), 3000); }
-        S.error = e.code === 'not_configured' ? L().errSetup : e.code === 'no_house' ? L().needHouse : `${L().errNet} (${errDetail(e)})`;
+        // 앱을 막 켰을 때 · 다시 돌아왔을 때는 인터넷이 잠깐 안 잡힐 수 있음 → 몇 번 더 (3초 · 10초 · 30초), 그동안은 저장된 일정을 조용히 보여 줌
+        const wait = [3000, 10000, 30000][retries];
+        if (!known && wait) { retries++; setTimeout(() => refresh(true), wait); }
+        S.error = e.code === 'not_configured' ? L().errSetup : e.code === 'no_house' ? L().needHouse
+          : (wait && c) ? '' : `${L().errNet} (${errDetail(e)})`;
       } finally {
         S.busy = false; inflight = null;
         renderAll();
@@ -2160,6 +2163,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     loadWeather();
   });
   setInterval(() => { if (!document.hidden) { refresh(false); loadWeather(); } }, 5 * 60 * 1000);
+  window.addEventListener('online', () => { if (S.error) { retries = 0; refresh(true); } }); // 인터넷이 다시 잡히면 바로
 
   // 여러 달에 걸쳐 저장된 일정 중 [k0, k1] 기간과 겹치는 것 (숨긴 캘린더 제외, 중복 제거)
   function eventsBetween(k0, k1) {
@@ -2919,18 +2923,28 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
   function wiggle(el) { el.classList.remove('wiggle'); void el.offsetWidth; el.classList.add('wiggle'); }
 
+  // 같은 순간에 쓴 것은 한 번에 (방에서 가구를 사면 동전 20개가 한꺼번에 빠짐 → 서버에 한 번, 화면도 한 번)
+  let kq = null, kLocal = false;
   function kidsWrite(path, value) {
     if (isShared()) {
-      const F = fb.F;
-      F.updateDoc(houseRef(), new F.FieldPath('kids', ...path), value == null ? F.deleteField() : value).catch((e) => console.warn('kids', e));
+      if (!kq) { kq = { ref: houseRef(), m: new Map() }; queueMicrotask(flushKids); }
+      const key = JSON.stringify(path);
+      kq.m.delete(key); kq.m.set(key, [path, value]); // 같은 자리는 마지막 것만, 순서는 마지막에 쓴 때로
     } else {
       let o = kidsData;
       for (const k of path.slice(0, -1)) o = o[k] = o[k] || {};
       const last = path[path.length - 1];
       if (value == null) delete o[last]; else o[last] = value;
-      store(KIDS_KEY, kidsData);
-      renderKids();
+      if (!kLocal) { kLocal = true; queueMicrotask(() => { kLocal = false; store(KIDS_KEY, kidsData); renderKids(); }); }
     }
+  }
+  function flushKids() {
+    const F = fb.F, { ref, m } = kq, q = [...m.values()]; kq = null;
+    const send = (list) => F.updateDoc(ref, ...list.flatMap(([p, v]) => [new F.FieldPath('kids', ...p), v == null ? F.deleteField() : v])).catch((e) => console.warn('kids', e));
+    // 윗자리와 그 안의 자리를 같이 보내면 Firestore 가 거절 → 그럴 땐 하나씩 (쓴 순서대로)
+    const keys = q.map(([p]) => p.join('\u0001'));
+    const clash = keys.some((a, i) => keys.some((b, j) => i !== j && b.startsWith(a + '\u0001')));
+    if (clash) q.forEach((x) => send([x])); else send(q);
   }
   // 직접 쓴 글은 다른 언어로도 번역해서 같은 자리에 저장
   function translateInto(path, obj, field, trField) {
