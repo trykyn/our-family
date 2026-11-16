@@ -5,7 +5,7 @@
    좋아하는 열매는 하트 2개. 코인으로 새 알(10개)과 가구를 삼. 황금 스티커 = 🪙 3개, 황금 스티커 4개마다 🌟 황금 알(전설).
    🍚 돌보기 (다마고치, 2026-11-16): 밥 때(아침 7–12 · 점심 12–17 · 저녁 17–20)마다 방 친구 1~2마리가 배고파함 → 🍚 밥(공짜) → 🤚 쓰다듬기(꾹 누른 채 문지르기)
      → 다 하면 폴짝 + 하트 1개 (하루 방 전체 2개까지). 하루 두 번 💩 (톡 눌러 치움). 밤엔 🌙 불 끄기 → 쿨쿨. 아침 첫 인사. 안 돌봐도 아프거나 떠나지 않음.
-     2단계: 🧼 목욕 (톡톡 3번 → 🚿, 3~5일마다 꼬질꼬질 🛁) · 🤒 감기 (사흘 넘게 못 왔거나 목욕을 아주 오래 못 하면, 💊 약 = 가게 🪙1, 이틀 지나면 저절로 나음)
+     2단계: 🧼 목욕 (톡톡 3번 → 🚿, 3~5일마다 꼬질꼬질 🛁) · 🤒 감기 (사흘 넘게 못 왔거나 목욕을 아주 오래 못 하면, 아플 때만 💊 버튼이 나옴 — 약값 🪙1, 이틀 지나면 저절로 나음)
        · ⚽ 공놀이 (바닥을 누르면 공 → 친구가 쫓아가 뻥) · 💭 하루 소원 하나 (⚽ 또는 좋아하는 열매 → 들어주면 하트 +1)
      3단계: 🎂 태어난 지 7 · 30 · 100 · 365일 파티 (🪙 선물) · 오늘 미션 응원 ("양치 했어?"), 미션 다 하면 같이 춤
      상태는 시간으로 계산하고 누를 때만 저장: room.care.{id} = { e: 마지막 밥, p: 쓰다듬기, b: 목욕, s: 감기 걸린 때, m: 약 먹은 때 }, pc.{날짜-0|1} = 치운 똥, lo = 불 끈 밤,
@@ -17,6 +17,84 @@
   'use strict';
   const FS = window.FamilyStickers;
   const BASE = (document.currentScript && document.currentScript.src) ? new URL('.', document.currentScript.src).href : './'; // 가구 그림: poke/deco/*.svg
+  // 🎨 돌보기 아이콘: 이모지 대신 직접 그린 귀여운 그림 (원본 · 미리보기: Eunjin/_handoff/deco-tools/icons.js · _handoff/icon-test.html)
+  const ICON = (() => {
+    const K = '#6B3E26';
+    const S = (b) => `<svg class="pi" viewBox="0 0 48 48" aria-hidden="true">${b}</svg>`;
+    const eyes = (x1, x2, y, r = 1.9) => `<ellipse cx="${x1}" cy="${y}" rx="${r}" ry="${r * 1.2}" fill="#3B2316"/><ellipse cx="${x2}" cy="${y}" rx="${r}" ry="${r * 1.2}" fill="#3B2316"/><circle cx="${x1 + .6}" cy="${y - .8}" r=".7" fill="#fff"/><circle cx="${x2 + .6}" cy="${y - .8}" r=".7" fill="#fff"/>`;
+    const blush = (x1, x2, y) => `<ellipse cx="${x1}" cy="${y}" rx="2.6" ry="1.5" fill="#FF8FA8" opacity=".75"/><ellipse cx="${x2}" cy="${y}" rx="2.6" ry="1.5" fill="#FF8FA8" opacity=".75"/>`;
+    const smile = (x, y, w = 2.6) => `<path d="M${x - w} ${y}q${w} ${w * 1.1} ${w * 2} 0" stroke="#3B2316" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+    const hl = (x, y, rx, ry, rot = -25) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="#fff" opacity=".6" transform="rotate(${rot} ${x} ${y})"/>`;
+    const sw = `stroke="${K}" stroke-width="2.2" stroke-linejoin="round"`;
+    return {
+      rice: S(`<path d="M17 11c-2-3 2-4 0-7M24 10c-2-3 2-4 0-7M31 11c-2-3 2-4 0-7" stroke="#B9CBD8" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M8 25c-1-6 4-9 8-8 1-4 6-6 9-4 3-3 9-1 9 4 4-1 7 3 6 8z" fill="#fff" ${sw}/>
+    <path d="M15 21l2 1M22 18l2 .5M29 20l1.5 1.5M20 23l2 .4M33 23l1 1" stroke="#E6DCCB" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M18 41h12l-1 4H19z" fill="#5FAEDB" ${sw}/><path d="M6 25h36c0 10-8 17-18 17S6 35 6 25z" fill="#8FD3F4" ${sw}/>
+    ${eyes(19, 29, 31)}${blush(15, 33, 34)}${smile(24, 34)}${hl(12, 29, 2, 4, 20)}`),
+      soap: S(`<rect x="5" y="21" width="32" height="20" rx="9" fill="#FF9EC7" ${sw}/><path d="M10 25c4-2 14-2 22 0" stroke="#fff" stroke-width="2.4" opacity=".6" fill="none" stroke-linecap="round"/>
+    ${eyes(16, 26, 31)}${blush(12, 30, 34)}${smile(21, 34)}
+    <circle cx="37" cy="14" r="6.5" fill="#DFF3FF" stroke="#7FBFE6" stroke-width="1.8"/><circle cx="43" cy="26" r="4" fill="#DFF3FF" stroke="#7FBFE6" stroke-width="1.6"/><circle cx="27" cy="10" r="3.4" fill="#DFF3FF" stroke="#7FBFE6" stroke-width="1.5"/>
+    <circle cx="35" cy="12" r="1.8" fill="#fff"/><circle cx="42" cy="25" r="1.1" fill="#fff"/>`),
+      ball: S(`<circle cx="24" cy="25" r="18" fill="#fff"/><path d="M24 7c-10 6-12 30 0 36-16-2-22-30 0-36z" fill="#FF6B6B"/><path d="M24 7c10 6 12 30 0 36 16-2 22-30 0-36z" fill="#5BC0EB"/>
+    <path d="M24 7c-5 8-5 28 0 36 5-8 5-28 0-36z" fill="#FFD23F"/><circle cx="24" cy="25" r="18" fill="none" ${sw}/><circle cx="24" cy="8.5" r="3" fill="#fff" stroke="${K}" stroke-width="1.6"/>${hl(15, 16, 3, 5.5, 30)}`),
+      pill: S(`<g transform="rotate(-35 24 26)"><path d="M15 18h9v16h-9a8 8 0 0 1 0-16z" fill="#FF7EB6"/><path d="M24 18h9a8 8 0 0 1 0 16h-9z" fill="#fff"/>
+    <rect x="7" y="18" width="34" height="16" rx="8" fill="none" ${sw}/><path d="M24 18v16" stroke="${K}" stroke-width="1.6"/><path d="M11 22c3-1.5 7-1.5 10-.5" stroke="#fff" stroke-width="2" opacity=".7" fill="none" stroke-linecap="round"/>
+    ${eyes(29, 35, 25, 1.4)}${smile(32, 28.5, 1.8)}</g><path d="M40 6l1.4 3.2 3.2 1.4-3.2 1.4L40 15.2l-1.4-3.2-3.2-1.4 3.2-1.4z" fill="#FFD23F"/>`),
+      hand: S(`<rect x="13.5" y="11" width="5.6" height="18" rx="2.8" fill="#FFDCC0" ${sw}/><rect x="19.4" y="7" width="5.6" height="20" rx="2.8" fill="#FFDCC0" ${sw}/><rect x="25.3" y="8" width="5.6" height="20" rx="2.8" fill="#FFDCC0" ${sw}/><rect x="31.2" y="12" width="5.4" height="17" rx="2.7" fill="#FFDCC0" ${sw}/>
+    <ellipse cx="11" cy="30" rx="4" ry="7" transform="rotate(-35 11 30)" fill="#FFDCC0" ${sw}/><path d="M12 26c0 12 6 18 13 18s12-6 12-14v-6H12z" fill="#FFDCC0" ${sw}/>
+    <path d="M14 25h22" stroke="#FFDCC0" stroke-width="3"/>${blush(19, 31, 35)}<path d="M41 4c-3-2-6 0-5 3 0 2 3 4 5 5 2-1 5-3 5-5 1-3-2-5-5-3z" fill="#FF6FA8"/>`),
+      bath: S(`<circle cx="15" cy="16" r="5" fill="#DFF3FF" stroke="#7FBFE6" stroke-width="1.6"/><circle cx="23" cy="13" r="6" fill="#DFF3FF" stroke="#7FBFE6" stroke-width="1.6"/><circle cx="31" cy="17" r="4.4" fill="#DFF3FF" stroke="#7FBFE6" stroke-width="1.6"/>
+    <circle cx="21.5" cy="11" r="1.6" fill="#fff"/><circle cx="38" cy="15" r="3" fill="#FFD23F" stroke="${K}" stroke-width="1.4"/><path d="M40.5 15.5l3 .5-3 1" fill="#FF9F1C"/><circle cx="38.6" cy="14.2" r=".7" fill="#3B2316"/>
+    <path d="M4 21h40v4H4z" fill="#fff" ${sw}/><path d="M6 25h36v4c0 7-5 11-12 11H18c-7 0-12-4-12-11z" fill="#fff" ${sw}/><path d="M9 27h30" stroke="#8FD3F4" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="14" cy="43" r="2.4" fill="#F6CF6A" stroke="${K}" stroke-width="1.4"/><circle cx="34" cy="43" r="2.4" fill="#F6CF6A" stroke="${K}" stroke-width="1.4"/>${hl(12, 31, 1.6, 3, 10)}`),
+      sick: S(`<circle cx="22" cy="26" r="16" fill="#FFE7A8" ${sw}/><path d="M13 22l4 2-4 2M31 22l-4 2 4 2" stroke="#3B2316" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    ${blush(13, 31, 30)}<path d="M17 33q2.5-2 5 0t5 0" stroke="#3B2316" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    <path d="M28 31l14-10" stroke="${K}" stroke-width="5.6" stroke-linecap="round"/><path d="M28 31l14-10" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><path d="M33 27.5l7-5" stroke="#FF6B6B" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="27.5" cy="31.5" r="2.6" fill="#FF6B6B" stroke="${K}" stroke-width="1.2"/><path d="M38 6c2 3 3 5 3 6.5a3 3 0 0 1-6 0C35 11 36 9 38 6z" fill="#8FD3F4" stroke="#5FAEDB" stroke-width="1.2"/>`),
+      poop: S(`<path d="M28 6c4 0 5 4 3 7" stroke="#5A3A22" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="24" cy="38" rx="18" ry="7.5" fill="#A8754A" stroke="#5A3A22" stroke-width="2.2"/><ellipse cx="24" cy="28.5" rx="13.5" ry="6.5" fill="#B9834F" stroke="#5A3A22" stroke-width="2.2"/>
+    <ellipse cx="24" cy="19.5" rx="8.5" ry="5.5" fill="#C7915B" stroke="#5A3A22" stroke-width="2.2"/><path d="M24 14c2-2 5-3 5-7" stroke="#5A3A22" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    ${hl(19, 17, 2, 1, -10)}${hl(15, 26, 3, 1.2, -10)}${eyes(19, 29, 35.5)}${blush(14.5, 33.5, 39)}${smile(24, 38.5, 2.4)}`),
+      shower: S(`<path d="M36 4v7H26" stroke="#9AA3AD" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M11 21a13 10 0 0 1 26 0z" fill="#D7DEE6" ${sw}/><rect x="9" y="20" width="30" height="4.6" rx="2.3" fill="#B7C0CC" ${sw}/>
+    ${[[14, 31], [22, 34], [30, 31], [18, 41], [27, 43], [36, 39]].map(([x, y]) => `<path d="M${x} ${y - 4}c2 3 3 4.5 3 6a3 3 0 0 1-6 0c0-1.5 1-3 3-6z" fill="#8FD3F4" stroke="#5FAEDB" stroke-width="1"/>`).join('')}`),
+      bubbles: S(`<circle cx="18" cy="28" r="12" fill="#E8F7FF" stroke="#8EC9EA" stroke-width="2"/><circle cx="34" cy="20" r="8" fill="#F3E8FF" stroke="#C3A8F0" stroke-width="2"/><circle cx="35" cy="37" r="6" fill="#FFE8F3" stroke="#F0A8CB" stroke-width="2"/>
+    <circle cx="13" cy="23" r="3" fill="#fff"/><circle cx="31" cy="17" r="2" fill="#fff"/><circle cx="33" cy="35" r="1.5" fill="#fff"/>`),
+      drop: S(`<path d="M24 5c8 11 13 18 13 24a13 13 0 0 1-26 0c0-6 5-13 13-24z" fill="#8FD3F4" stroke="#4E9CCB" stroke-width="2.2"/>${hl(18, 28, 2.4, 5, 15)}`),
+      sparkle: S(`<path d="M24 3l4.5 16.5L45 24l-16.5 4.5L24 45l-4.5-16.5L3 24l16.5-4.5z" fill="#FFE27A" stroke="#E0A92A" stroke-width="1.8" stroke-linejoin="round"/><circle cx="24" cy="24" r="4" fill="#fff"/>`),
+      star: S(`<path d="M24 4l6 12.6 13.6 1.8-10 9.4 2.6 13.6L24 34.8l-12.2 6.6 2.6-13.6-10-9.4L18 16.6z" fill="#FFD23F" ${sw}/>${eyes(19.5, 28.5, 25, 1.5)}${smile(24, 28.5, 2)}`),
+      heart: S(`<path d="M24 42C8 31 3 21 7 13c4-7 13-7 17 1 4-8 13-8 17-1 4 8-1 18-17 29z" fill="#FF6FA8" stroke="#D93A7E" stroke-width="2.2" stroke-linejoin="round"/>${hl(15, 16, 3, 5, 35)}`),
+      party: S(`<path d="M8 42l8-26 18 18z" fill="#FFD23F" ${sw}/><path d="M11 33l5 5M13 26l9 9" stroke="#FF6B6B" stroke-width="2.4"/>
+    <circle cx="32" cy="10" r="2.6" fill="#FF6FA8"/><circle cx="40" cy="20" r="2.4" fill="#5BC0EB"/><path d="M24 6l3 4M38 30l4 2M42 8l-3 3" stroke="#9BE564" stroke-width="2.6" stroke-linecap="round"/><circle cx="44" cy="30" r="1.8" fill="#C79BF2"/>`),
+      cake: S(`<path d="M24 5c2 3 3 4.5 3 6a3 3 0 0 1-6 0c0-1.5 1-3 3-6z" fill="#FFB020"/><rect x="22.5" y="11" width="3" height="9" rx="1" fill="#FF8FC0" stroke="${K}" stroke-width="1.2"/>
+    <rect x="8" y="20" width="32" height="20" rx="4" fill="#FFF2E2" ${sw}/><path d="M8 25c4 5 6 0 9 3s5-2 8 1 5-2 8 0 5-3 7-3v-6H8z" fill="#FF9EC7" stroke="${K}" stroke-width="1.6"/>
+    <path d="M5 40h38" stroke="${K}" stroke-width="2.4" stroke-linecap="round"/>${eyes(19, 29, 33, 1.6)}${smile(24, 36, 2)}`),
+      moon: S(`<path d="M30 6a18 18 0 1 0 12 30A15 15 0 0 1 30 6z" fill="#FFE27A" ${sw}/><path d="M17 26q2 2 4 0M26 30q2 2 4 0" stroke="#3B2316" stroke-width="1.6" fill="none" stroke-linecap="round"/>${blush(16, 32, 31)}
+    <path d="M40 8l1 2.4 2.4 1-2.4 1-1 2.4-1-2.4-2.4-1 2.4-1z" fill="#FFF3B0"/>`),
+      bulb: S(`<path d="M24 5a13 13 0 0 0-8 23c2 2 3 4 3 7h10c0-3 1-5 3-7a13 13 0 0 0-8-23z" fill="#FFE27A" ${sw}/><rect x="18" y="35" width="12" height="7" rx="2" fill="#B7C0CC" ${sw}/>
+    ${eyes(19.5, 28.5, 18, 1.6)}${smile(24, 21.5, 2)}${hl(17, 11, 1.8, 3.6, 20)}<path d="M5 18h-3M43 18h3M9 6l-2-2M39 6l2-2" stroke="#FFC928" stroke-width="2" stroke-linecap="round"/>`),
+      coin: S(`<circle cx="24" cy="24" r="19" fill="#FFC928" ${sw}/><circle cx="24" cy="24" r="14" fill="#FFDD55" stroke="#E0A92A" stroke-width="1.8"/>
+    <path d="M24 14l2.8 6 6.4.6-4.8 4.3 1.4 6.4-5.8-3.3-5.8 3.3 1.4-6.4-4.8-4.3 6.4-.6z" fill="#FFF3B0" stroke="#E0A92A" stroke-width="1.2" stroke-linejoin="round"/>${hl(15, 14, 2, 4, 40)}`),
+      shop: S(`<path d="M14 18c0-10 20-10 20 0" stroke="${K}" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M5 18h38l-4 22c-1 3-3 4-6 4H15c-3 0-5-1-6-4z" fill="#FFB46B" ${sw}/>
+    <path d="M8 25h32M10 32h28" stroke="#E0883E" stroke-width="1.6"/><path d="M17 18v24M24 18v26M31 18v24" stroke="#E0883E" stroke-width="1.6"/><path d="M24 30c-4-3-5-6-3-7.4 1.4-1 2.6 0 3 1 .4-1 1.6-2 3-1 2 1.4 1 4.4-3 7.4z" fill="#FF6FA8"/>`),
+      book: S(`<path d="M6 10c6-3 12-3 18 1v31c-6-4-12-4-18-1z" fill="#8FD3F4" ${sw}/><path d="M42 10c-6-3-12-3-18 1v31c6-4 12-4 18-1z" fill="#C3E9FB" ${sw}/>
+    <path d="M10 17c3-1 7-1 10 1M10 23c3-1 7-1 10 1M28 18c3-2 7-2 10-1M28 24c3-2 7-2 10-1" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M33 30l1.6 3.4 3.6.4-2.7 2.4.8 3.6-3.3-1.9-3.3 1.9.8-3.6-2.7-2.4 3.6-.4z" fill="#FFD23F"/>`),
+      zz: S(`<path d="M10 22h12L10 36h12" stroke="#8E7CE6" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M28 10h9l-9 10h9" stroke="#B3A6F2" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`),
+      yawn: S(`<circle cx="24" cy="25" r="17" fill="#FFE7A8" ${sw}/><path d="M14 22q3 2 6 0M28 22q3 2 6 0" stroke="#3B2316" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="24" cy="32" rx="4" ry="5" fill="#B5485F" stroke="#3B2316" stroke-width="1.4"/>${blush(13, 35, 28)}<path d="M38 18c1.6 2 2.4 3.4 2.4 4.4a2.4 2.4 0 0 1-4.8 0c0-1 .8-2.4 2.4-4.4z" fill="#8FD3F4"/>`),
+      strawberry: S(`<path d="M24 44C10 38 6 26 9 19c3-6 10-5 15-3 5-2 12-3 15 3 3 7-1 19-15 25z" fill="#FF5A6E" ${sw}/>
+    ${[[16, 24], [24, 22], [32, 24], [20, 31], [28, 31], [24, 38]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="1" ry="1.5" fill="#FFE27A"/>`).join('')}
+    <path d="M24 17l-7-6 5 1-1-6 3 5 3-5-1 6 5-1z" fill="#5CBF6E" stroke="#2E8A44" stroke-width="1.6" stroke-linejoin="round"/>${hl(14, 25, 2, 4, 20)}`),
+      apple: S(`<path d="M24 15c-4-3-14-4-16 6-2 11 6 23 12 22 2 0 3-1 4-1s2 1 4 1c6 1 14-11 12-22-2-10-12-9-16-6z" fill="#FF5A5A" ${sw}/>
+    <path d="M24 15c0-4 1-7 3-9" stroke="${K}" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M26 10c3-5 9-5 12-3-2 4-8 6-12 3z" fill="#5CBF6E" stroke="#2E8A44" stroke-width="1.6"/>${hl(14, 24, 2.4, 5, 15)}`),
+      blueberry: S(`<circle cx="16" cy="30" r="10" fill="#6F7FE8" ${sw}/><circle cx="32" cy="30" r="10" fill="#5B6BD6" ${sw}/><circle cx="24" cy="18" r="10" fill="#7F8EF0" ${sw}/>
+    <path d="M21 16l3-3 3 3M13 28l3-3 3 3M29 28l3-3 3 3" stroke="#3B3F8F" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>${hl(20, 14, 1.6, 3, 30)}${hl(12, 27, 1.4, 2.6, 30)}<path d="M28 9c2-4 6-5 9-4-1 3-5 5-9 4z" fill="#5CBF6E" stroke="#2E8A44" stroke-width="1.4"/>`),
+      banana: S(`<path d="M8 14c0 18 10 28 28 26 4 0 6-3 4-5-14 2-24-6-26-20-1-3-6-4-6-1z" fill="#FFE04D" ${sw}/><path d="M12 17c2 12 10 19 22 19" stroke="#F0B90B" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M8 14l-1-5 4 1z" fill="#8A6A3A" stroke="${K}" stroke-width="1.6" stroke-linejoin="round"/><path d="M39 37l3 1" stroke="#5A3A22" stroke-width="2.4" stroke-linecap="round"/>${hl(13, 22, 1.4, 4, -25)}`),
+      pepper: S(`<path d="M20 14c-8 2-10 12-6 20 4 9 16 12 24 10 2-1 2-3 0-4-8-1-12-6-11-16 0-6-3-11-7-10z" fill="#FF4D3D" ${sw}/>
+    <path d="M20 14c-1-4 1-8 5-9" stroke="#2E8A44" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M15 15c3-3 9-3 11 0-3 2-8 2-11 0z" fill="#5CBF6E" stroke="#2E8A44" stroke-width="1.6"/>${hl(15, 24, 1.6, 4.4, 10)}`),
+    };
+  })();
   const HOME_MAX = 6, EGG_NEED = 5;
   const BERRY = Object.fromEntries(FS.BERRIES.map((b) => [b[0], b]));
   const jong = (w) => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c < 11172 ? c % 28 : 0; };
@@ -28,15 +106,15 @@
       noBerry: (b) => `${iga(b)} 없어요. 오늘 미션을 하면 받아요`, feedHint: (b) => `${b} 줄 친구를 눌러요`, pickBerry: '열매를 고르고 친구를 눌러서 먹여요',
       ate: (n) => `냠냠! ${n}`, fav: '좋아해요! 💖💖', hatched: (n) => `펑! ${iga(n)} 태어났어요!`, shinyHatch: (n) => `✨ 반짝이 ${iga(n)} 태어났어요!!`,
       evolved: (a, b) => `${iga(a)} ${euro(b)} 진화했어요!`, eggInfo: (n) => `🥚 열매 ${n}개 더 먹으면 태어나요`, toEvo: (n) => `진화까지 하트 ${n}개`, likes: (b) => `좋아하는 열매 ${b}`,
-      shopHead: (c) => `🪙 코인 ${c}개`, eggs: '🥚 알', furn: '🪑 가구', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
+      shopHead: (c) => `코인 ${c}개`, eggs: '🥚 알', furn: '🪑 가구', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
       eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
       homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, dexHead: (n, N) => `도감 ${n} / ${N}`,
       tapEgg: '🥚 알을 톡 눌러 봐요! 바로 깨어나요', goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
       rice: '밥', riceHint: '🍚 밥 줄 친구를 눌러요', full: (n) => `${n}: 배불러요 😋`, yum: '냠냠! 맛있어요 😋', eggRice: '알은 열매만 먹어요',
-      lightOff: '🌙 불 끄기', lightOn: '💡 불 켜기', sleepy: '하암… 졸려요. 🌙 불을 꺼 주세요', night: '잘 자! 💤', morning: '☀️ 좋은 아침! 잘 잤어요?', hello: '👋 반가워요! 같이 놀아요', missed: '🥹 보고 싶었어요!',
+      lightOff: '불 끄기', lightOn: '불 켜기', sleepy: '하암… 졸려요. 🌙 불을 꺼 주세요', night: '잘 자! 💤', morning: '☀️ 좋은 아침! 잘 잤어요?', hello: '👋 반가워요! 같이 놀아요', missed: '🥹 보고 싶었어요!',
       hungry: '🍚 배고픈 친구가 있어요. 밥을 줘요', petMe: '🤚 친구를 꾹 누른 채 문지르면 쓰다듬어요', poo: '💩 똥을 톡 눌러서 치워 줘요', cleaned: '✨ 깨끗해졌어요!', cared: (n) => `💖 ${iga(n)} 기분 최고! 하트 +1`, petted: (n) => `${n} 💕`,
       soap: '목욕', ball: '공놀이', pill: '약', scrub: '뽀글뽀글 🫧', bathed: '뽀득뽀득! 깨끗해졌어요 ✨', eggClean: '알은 반짝반짝 깨끗해요',
-      soapHint: '🧼 씻길 친구를 톡톡톡 눌러요', ballHint: '⚽ 방바닥을 누르면 공을 던져요', pillHint: '💊 아픈 친구를 눌러요', noPill: '💊 약이 없어요. 🛒 가게에서 🪙 1개에 사요',
+      soapHint: '🧼 씻길 친구를 톡톡톡 눌러요', ballHint: '⚽ 방바닥을 누르면 공을 던져요', pillHint: '💊 아픈 친구를 누르면 약을 줘요 (🪙 1개)', noPill: '💊 약이 없어요', noCoinPill: '🪙 코인이 1개 있어야 약을 줄 수 있어요. 푹 쉬면 이틀 뒤에 나아요',
       notSick: '안 아파요! 약은 아껴 둬요', cured: (n) => `💊 ${iga(n)} 다 나았어요! 고마워요`, sick: '🤒 아픈 친구가 있어요. 💊 약을 줘요', sickSay: (n) => `🤒 ${iga(n)} 감기에 걸렸어요… 💊 약을 주세요`,
       caught: (n) => `🤧 ${iga(n)} 감기에 걸렸어요! 💊 약을 주세요`, achoo: '에취! 🤧', dirty: '🛁 목욕할 친구가 있어요. 🧼 비누로 씻겨 줘요',
       wishPlay: (n) => `💭 ${iga(n)} ⚽ 공놀이 하고 싶대요!`, wishBerry: (n, b) => `💭 ${iga(n)} ${b} 먹고 싶대요!`, wishHint: '💭 소원이 있는 친구가 있어요. 눌러 봐요', wishDone: (n) => `🌟 ${n}의 소원을 들어줬어요! 하트 +1`,
@@ -48,15 +126,15 @@
       noBerry: (b) => `Keine ${b}. Schaffe deine Tagesmission!`, feedHint: (b) => `Tippe ein Pokémon an, um ${b} zu geben`, pickBerry: 'Beere wählen, dann Pokémon antippen',
       ate: (n) => `Mampf! ${n}`, fav: 'Lecker! 💖💖', hatched: (n) => `Plopp! ${n} ist geschlüpft!`, shinyHatch: (n) => `✨ Ein schillerndes ${n} ist geschlüpft!!`,
       evolved: (a, b) => `${a} hat sich zu ${b} entwickelt!`, eggInfo: (n) => `🥚 Noch ${n} Beeren bis zum Schlüpfen`, toEvo: (n) => `Noch ${n} Herzen bis zur Entwicklung`, likes: (b) => `Lieblingsbeere ${b}`,
-      shopHead: (c) => `🪙 ${c} Münzen`, eggs: '🥚 Eier', furn: '🪑 Möbel', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
+      shopHead: (c) => `${c} Münzen`, eggs: '🥚 Eier', furn: '🪑 Möbel', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
       eggCame: (n) => `🥚 Ein ${n} ist da!`, decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
       homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, dexHead: (n, N) => `Pokédex ${n} / ${N}`,
       tapEgg: '🥚 Tippe das Ei an – es schlüpft sofort!', goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
       rice: 'Futter', riceHint: '🍚 Tippe an, wen du füttern willst', full: (n) => `${n}: Satt 😋`, yum: 'Mampf! Lecker 😋', eggRice: 'Eier fressen nur Beeren',
-      lightOff: '🌙 Licht aus', lightOn: '💡 Licht an', sleepy: 'Gähn… müde. 🌙 Mach das Licht aus', night: 'Gute Nacht! 💤', morning: '☀️ Guten Morgen! Gut geschlafen?', hello: '👋 Hallo! Spiel mit mir', missed: '🥹 Ich hab dich vermisst!',
+      lightOff: 'Licht aus', lightOn: 'Licht an', sleepy: 'Gähn… müde. 🌙 Mach das Licht aus', night: 'Gute Nacht! 💤', morning: '☀️ Guten Morgen! Gut geschlafen?', hello: '👋 Hallo! Spiel mit mir', missed: '🥹 Ich hab dich vermisst!',
       hungry: '🍚 Jemand hat Hunger. Gib Futter', petMe: '🤚 Gedrückt halten und reiben = streicheln', poo: '💩 Tippe auf den Haufen zum Saubermachen', cleaned: '✨ Alles sauber!', cared: (n) => `💖 ${n} ist super glücklich! +1 Herz`, petted: (n) => `${n} 💕`,
       soap: 'Baden', ball: 'Ball', pill: 'Medizin', scrub: 'Schrubb 🫧', bathed: 'Blitzsauber! ✨', eggClean: 'Eier sind schon sauber',
-      soapHint: '🧼 Tippe 3× auf wen du baden willst', ballHint: '⚽ Tippe auf den Boden zum Werfen', pillHint: '💊 Tippe auf wen, der krank ist', noPill: '💊 Keine Medizin. Im 🛒 Laden für 🪙 1',
+      soapHint: '🧼 Tippe 3× auf wen du baden willst', ballHint: '⚽ Tippe auf den Boden zum Werfen', pillHint: '💊 Tippe auf den Kranken (kostet 🪙 1)', noPill: '💊 Keine Medizin', noCoinPill: '🪙 Medizin kostet 1 Münze. Nach 2 Tagen Ruhe wird es auch so gesund',
       notSick: 'Nicht krank! Heb die Medizin auf', cured: (n) => `💊 ${n} ist wieder gesund! Danke`, sick: '🤒 Jemand ist krank. Gib 💊 Medizin', sickSay: (n) => `🤒 ${n} ist erkältet… gib 💊 Medizin`,
       caught: (n) => `🤧 ${n} hat sich erkältet! Gib 💊 Medizin`, achoo: 'Hatschi! 🤧', dirty: '🛁 Jemand muss baden. Nimm die 🧼 Seife',
       wishPlay: (n) => `💭 ${n} will ⚽ Ball spielen!`, wishBerry: (n, b) => `💭 ${n} möchte ${b}!`, wishHint: '💭 Jemand hat einen Wunsch. Tipp es an', wishDone: (n) => `🌟 Wunsch von ${n} erfüllt! +1 Herz`,
@@ -189,14 +267,15 @@
 .pr-berries { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
 .pr-berries button { border: 0; border-radius: 14px; padding: calc(6px * var(--pr-s)) 2px; font: inherit; font-weight: 800; font-size: calc(14px * var(--pr-s)); background: #FFF0D6; color: #6B3E12; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 3px; }
-.pr-berries button .e { font-size: calc(22px * var(--pr-s)); }
+.pr-berries button .e { font-size: calc(25px * var(--pr-s)); }
 .pr-berries button.zero { opacity: .45; }
-.pr-tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+.pr-tools { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
 .pr-tools[hidden] { display: none; }
 .pr-tools button { border: 0; border-radius: 14px; padding: calc(6px * var(--pr-s)) 2px; font: inherit; font-weight: 800; font-size: calc(13px * var(--pr-s)); background: #E6F3FF; color: #2A5A8A; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; }
-.pr-tools button .e { font-size: calc(20px * var(--pr-s)); }
-.pr-tools button.zero { opacity: .5; }
+.pr-tools button .e { font-size: calc(26px * var(--pr-s)); }
+.pr-tools button.pill { background: #FFE3EE; color: #B4285E; animation: pr-wob 2.4s ease-in-out infinite; }
+.pr-tools button small { display: inline-flex; align-items: center; gap: 1px; font-size: .82em; opacity: .85; }
 .pr-tools button[aria-pressed="true"] { background: #3D8BFF; color: #fff; box-shadow: 0 0 0 3px #BFD8FF; }
 .pr-berries button[aria-pressed="true"] { background: #FF8A3D; color: #fff; box-shadow: 0 0 0 3px #FFD2B0; }
 .pr-bar { display: flex; gap: 8px; margin-top: 8px; }
@@ -254,6 +333,13 @@
 .pr-mon.dirty img { filter: sepia(.4) brightness(.93); }
 .pr-mon.dirty::before { content: '〰'; position: absolute; left: 50%; top: 20%; translate: -50% 0; color: #8BAA5A; font-size: calc(12px * var(--pr-s)); pointer-events: none; animation: pr-stink 1.8s ease-in-out infinite; z-index: 2; }
 .pr-cake { position: absolute; z-index: 996; pointer-events: none; transform: translate(-50%, -100%); font-size: calc(30px * var(--pr-s)); animation: pr-plop .5s cubic-bezier(.2, 1.6, .4, 1); }
+.pi { width: 1em; height: 1em; display: inline-block; vertical-align: -.16em; overflow: visible; }
+.pi-w { display: inline-flex; vertical-align: middle; }
+.pr-heart .pi, .pr-poo .pi, .pr-shower .pi, .pr-ball .pi, .pr-hand .pi, .pr-cake .pi, .pr-mon .foam .pi, .pr-mon .zz .pi { display: block; }
+.pr-mon .need { padding: .2em .3em; } .pr-mon .need .pi { width: 1.3em; height: 1.3em; display: block; }
+.pr-mon .need.wish::before, .pr-mon .need.wish::after { content: ''; position: absolute; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+.pr-mon .need.wish::before { width: 7px; height: 7px; left: 18%; bottom: -6px; } .pr-mon .need.wish::after { width: 4px; height: 4px; left: 8%; bottom: -11px; }
+.pr-bar button .pi-w, .pr-bar span .pi-w, .pr-panel .pi-w { margin-right: 2px; }
 .pr-bub .st { margin-left: .4em; } .pr-bub .st i { font-style: normal; } .pr-bub .st i.off { opacity: .25; filter: grayscale(1); }
 `;
   const CRACK = '<svg class="ck" viewBox="0 0 60 20" aria-hidden="true"><path d="M2 10l8-6 7 9 8-8 8 9 8-7 8 8 9-6" stroke="#5a3a1a" stroke-width="3" fill="none" stroke-linejoin="round"/></svg>';
@@ -274,6 +360,7 @@
   const rnd = (a, b) => a + Math.random() * (b - a);
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const uid = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  const icon = (k) => { const s = el('span', { class: 'pi-w' }); if (ICON[k]) s.innerHTML = ICON[k]; else s.textContent = k; return s; };
   const isNight = () => { const h = new Date().getHours(); return h >= 20 || h < 7; };
   const pad = (n) => String(n).padStart(2, '0');
   const dayKey = (t) => { const x = new Date(t); return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}`; };
@@ -284,7 +371,7 @@
   const nightKey = () => dayKey(Date.now() - 7 * 3600e3); // 밤 20시~아침 7시 = 그 저녁 날짜
   const CARE_START = new Date(2026, 10, 17).getTime(); // 목욕은 이날부터 셈 (전부 한꺼번에 꼬질꼬질해지지 않게)
   const MILE = [[7, 1], [30, 3], [100, 5], [365, 10]]; // 🎂 [태어난 지 며칠, 🪙 선물]
-  const TOOLS = [['rice', '🍚'], ['soap', '🧼'], ['ball', '⚽'], ['pill', '💊']];
+  const TOOLS = ['rice', 'soap', 'ball', 'pill'];
 
   function mount(root, o) {
     addCss();
@@ -373,7 +460,7 @@
     function cleanPoo(p, e) {
       if (e._gone) return;
       e._gone = true; e.classList.add('gone'); pooEls.delete(p.key); setTimeout(() => e.remove(), 520);
-      local.pc[p.key] = 1; snd.stick(); hearts(p.x, p.y - 6, 2, '✨');
+      local.pc[p.key] = 1; snd.stick(); hearts(p.x, p.y - 6, 2, 'sparkle');
       W(['pc', p.key], 1);
       const old = dayKey(Date.now() - 3 * 864e5);
       for (const k of Object.keys(pk().pc || {})) if (k < old) W(['pc', k], null);
@@ -405,7 +492,7 @@
       const set = needy();
       if (needOf(m, set) !== 'eat') { bubble(x, y, L().full(name(m.p))); snd.boing(); return; }
       setCare(m.id, { e: Date.now() });
-      hearts(x, y, 3, '🍚'); snd.coin(); bubble(x, y, L().yum);
+      hearts(x, y, 3, 'rice'); snd.coin(); bubble(x, y, L().yum);
       afterCare(e, m.id, set);
       setTimeout(() => { renderRoom(); renderBar(); }, 60);
     }
@@ -413,7 +500,7 @@
     function pet(e, phase) {
       const x = parseFloat(e.style.left), y = parseFloat(e.style.top);
       if (phase === 'start') {
-        const hand = el('span', { class: 'pr-hand', text: feeding === 'soap' ? '🧼' : '🤚', style: `left:${x}%;top:${y - 8}%` });
+        const hand = el('span', { class: 'pr-hand', html: ICON[feeding === 'soap' ? 'soap' : 'hand'], style: `left:${x}%;top:${y - 8}%` });
         roomEl.append(hand); e.classList.add('pet'); e._pet = { hand, rubs: 0, done: false };
         hearts(x, y - 14, 1); snd.tap(1); return;
       }
@@ -473,41 +560,42 @@
       setTimeout(() => news(L().wishDone(name(raw.p))), 400);
       if (given) return; // 열매 소원: 하트는 먹을 때 같이
       const x = parseFloat(e.style.left), y = parseFloat(e.style.top) - 14;
-      hearts(x, y, 5, '🌟', true);
+      hearts(x, y, 5, 'star', true);
       grow(e, { id, ...raw }, 1, x, y, '💖 +1');
     }
     // 머리 위 말풍선: 🤒 > 🍚 > 🤚 > 💭 소원 > 🛁
     function wantOf(m, set, w) {
       if (!m || !hatched(m)) return '';
-      if (sickOf(m)) return '🤒';
+      if (sickOf(m)) return 'sick';
       const nd = needOf(m, set);
-      if (nd) return nd === 'eat' ? '🍚' : '🤚';
-      if (w && w.id === m.id) return `💭${w.kind === 'play' ? '⚽' : BERRY[w.berry][1]}`;
-      return dirtyOf(m) ? '🛁' : '';
+      if (nd) return nd === 'eat' ? 'rice' : 'hand';
+      if (w && w.id === m.id) return `w:${w.kind === 'play' ? 'ball' : w.berry}`; // 💭 소원
+      return dirtyOf(m) ? 'bath' : '';
     }
     function scrub(e, m, x, y) {
       if (!hatched(m)) { bubble(x, y, L().eggClean); snd.boing(); return; }
       if (e._shower) return;
       e._scrub = (e._scrub || 0) + 1; snd.tap(e._scrub);
-      e.append(el('span', { class: 'foam', text: '🫧', style: `left:${rnd(0, 70).toFixed(0)}%;top:${rnd(5, 65).toFixed(0)}%` }));
+      e.append(el('span', { class: 'foam', html: ICON.bubbles, style: `left:${rnd(0, 70).toFixed(0)}%;top:${rnd(5, 65).toFixed(0)}%` }));
       if (e._scrub < 3) { bubble(x, y, L().scrub); return; }
       e._scrub = 0; e._shower = true;
-      const sh = el('span', { class: 'pr-shower', text: '🚿', style: `left:${x}%;top:${y - 4}%` });
-      roomEl.append(sh); hearts(x, y + 4, 6, '💧', true);
+      const sh = el('span', { class: 'pr-shower', html: ICON.shower, style: `left:${x}%;top:${y - 4}%` });
+      roomEl.append(sh); hearts(x, y + 4, 6, 'drop', true);
       const was = dirtyOf(m);
       setTimeout(() => {
         sh.remove(); for (const f of e.querySelectorAll('.foam')) f.remove(); e._shower = false;
         if (!alive) return;
-        setCare(m.id, { b: Date.now() }); hearts(x, y, 4, '✨', true); snd.stick(); happy(e); bubble(x, y, L().bathed);
+        setCare(m.id, { b: Date.now() }); hearts(x, y, 4, 'sparkle', true); snd.stick(); happy(e); bubble(x, y, L().bathed);
         if (was) setTimeout(() => { const raw = (pk().mons || {})[m.id]; if (raw && !careHeart(e, { id: m.id, ...raw }, x, y)) hearts(x, y, 3); }, 700);
         renderRoom(); renderBar();
       }, 1100);
     }
     function givePill(e, m, x, y) {
-      if (!count('pill')) { say(L().noPill); snd.boing(); return; }
       if (!sickOf(m)) { bubble(x, y, L().notSick); snd.boing(); return; }
-      W(['items', take('pill', 1)[0]], null);
-      setCare(m.id, { m: Date.now() }); hearts(x, y, 4, '💊', true); snd.tada(); happy(e);
+      const own = take('pill', 1)[0], pay = own ? '' : take('coin', 1)[0]; // 사 둔 약이 있으면 그것부터, 없으면 🪙 1개
+      if (!own && !pay) { say(L().noCoinPill); snd.boing(); return; }
+      W(['items', own || pay], null);
+      setCare(m.id, { m: Date.now() }); hearts(x, y, 4, 'pill', true); snd.tada(); happy(e);
       setTimeout(() => news(L().cured(name(m.p))), 300);
       setTimeout(() => { renderRoom(); renderBar(); }, 60);
     }
@@ -517,7 +605,7 @@
       if (isNight()) return;
       if (ball) ball.el.remove();
       x = Math.min(92, Math.max(8, x)); y = Math.min(95, Math.max(62, y));
-      const b = el('span', { class: 'pr-ball', text: '⚽', style: `left:${x}%;top:${y}%;z-index:${10 + Math.round(y)}` });
+      const b = el('span', { class: 'pr-ball', html: ICON.ball, style: `left:${x}%;top:${y}%;z-index:${10 + Math.round(y)}` });
       roomEl.append(b); snd.boing();
       const me = ball = { el: b, x, y, kicks: 0 }, all = pk().mons || {};
       const ok = [...monEls.values()].filter((e) => !e._egg && !e._busy && !e._play && !e._pet && !e.classList.contains('drag') && all[e._id] && !sickOf({ id: e._id, ...all[e._id] }));
@@ -563,8 +651,8 @@
         const e = monEls.get(id);
         if (e) {
           const x = parseFloat(e.style.left), y = parseFloat(e.style.top);
-          const c = el('span', { class: 'pr-cake', text: '🎂', style: `left:${Math.min(94, x + 9)}%;top:${y}%` });
-          roomEl.append(c); setTimeout(() => c.remove(), 6000); hearts(x, y - 14, 8, '🎉'); happy(e);
+          const c = el('span', { class: 'pr-cake', html: ICON.cake, style: `left:${Math.min(94, x + 9)}%;top:${y}%` });
+          roomEl.append(c); setTimeout(() => c.remove(), 6000); hearts(x, y - 14, 8, 'party'); happy(e);
         }
         news(L().party(name(m.p), ms[0], ms[1]));
         setTimeout(party, 4500); // 한 마리씩 차례로
@@ -649,7 +737,7 @@
     }
     function hearts(x, y, n, icon, all) {
       for (let i = 0; i < n; i++) {
-        const hh = el('span', { class: 'pr-heart', text: (i === 0 || all) && icon ? icon : '💖', style: `left:${x}%;top:${y}%;--hx:${rnd(-30, 30)}px;animation-delay:${i * 0.08}s` });
+        const k = (i === 0 || all) && icon ? icon : 'heart', hh = el('span', { class: 'pr-heart', html: ICON[k] || k, style: `left:${x}%;top:${y}%;--hx:${rnd(-30, 30)}px;animation-delay:${i * 0.08}s` });
         roomEl.append(hh); setTimeout(() => hh.remove(), 1400);
       }
     }
@@ -694,7 +782,7 @@
           e.style.setProperty('--wd', `-${rnd(0, 2.6).toFixed(2)}s`); // 친구마다 움직이는 박자가 다르게
           sizeImg(e);
         } else e.replaceChildren(img);
-        if (m.s) e.append(el('span', { class: 'shine', text: '✨' }));
+        if (m.s) e.append(el('span', { class: 'shine', html: ICON.sparkle }));
         e.setAttribute('aria-label', name(m.p));
       }
     }
@@ -714,9 +802,10 @@
       if (!hatched(m)) { bubble(x, y, eggName(m.egg)); say(L().eggInfo(Math.max(1, EGG_NEED - (m.f || 0)))); return; }
       const fav = BERRY[SET.fav(m.p)][1], n = need(m);
       const lv = lvOf(m), fr = SET.friend && !n;
-      const nd = needOf(m), sk = sickOf(m), st = isNight() ? null : el('span', { class: 'st' }, sk ? el('i', { text: '🤒' }) : null,
-        el('i', { class: nd === 'eat' ? 'off' : '', text: '🍚' }), el('i', { class: nd === 'pet' ? 'off' : '', text: '💕' }), el('i', { class: dirtyOf(m) ? 'off' : '', text: '🛁' }));
-      bubble(x, y, fr ? `${name(m.p)}${lv ? ` 💗${lv}` : ''}` : `${m.s ? '✨ ' : ''}${name(m.p)} ${'💖'.repeat(Math.min(3, Math.ceil((m.f || 0) / 4)))}`, st);
+      const nd = needOf(m), sk = sickOf(m), st = isNight() ? null : el('span', { class: 'st' }, sk ? el('i', { html: ICON.sick }) : null,
+        el('i', { class: nd === 'eat' ? 'off' : '', html: ICON.rice }), el('i', { class: nd === 'pet' ? 'off' : '', html: ICON.heart }), el('i', { class: dirtyOf(m) ? 'off' : '', html: ICON.bath }));
+      const hs = fr ? (lv ? [icon('heart'), `${lv}`] : []) : Array.from({ length: Math.min(3, Math.ceil((m.f || 0) / 4)) }, () => icon('heart'));
+      bubble(x, y, `${name(m.p)} `, el('span', {}, m.s ? icon('sparkle') : null, ...hs, st));
       const w = wishOf(), age = m.h > 1e12 ? Math.floor((Date.now() - m.h) / 864e5) : -1;
       say(sk ? L().sickSay(name(m.p)) : w && w.id === m.id && !nd && !isNight() ? (w.kind === 'play' ? L().wishPlay(name(m.p)) : L().wishBerry(name(m.p), `${BERRY[w.berry][1]} ${bName(w.berry)}`))
         : `${name(m.p)} · ${L().likes(fav)}${n ? ' · ' + L().toEvo(Math.max(1, n - (m.f || 0))) : fr ? ' · ' + L().toGift(FRIEND - ((m.f || 0) % FRIEND)) : ''}${age >= 0 ? ' · ' + L().age(age) : ''}`);
@@ -737,12 +826,12 @@
       W(['items', key], null);
       if (!hatched(m)) {
         const f = (m.f || 0) + 1;
-        hearts(x, y, 2, BERRY[kind][1]); snd.coin();
+        hearts(x, y, 2, kind); snd.coin();
         if (f >= EGG_NEED) hatchEgg(e, m, x, y);
         else { W(['mons', id], { ...v, f }); bubble(x, y, L().eggInfo(EGG_NEED - f)); }
       } else {
         const fav = SET.fav(m.p) === kind, wish = !!w && w.kind === 'berry' && w.id === id && w.berry === kind;
-        hearts(x, y, fav ? 6 : 3, BERRY[kind][1]); snd.coin();
+        hearts(x, y, fav ? 6 : 3, kind); snd.coin();
         grow(e, m, (fav ? 2 : 1) + (wish ? 1 : 0), x, y, fav ? L().fav : L().ate(name(m.p)));
         if (wish) wishDone(e, id, true);
       }
@@ -763,7 +852,7 @@
       if (lv1 > lv0) { // 한 단계 친해짐 → 고맙다고 코인 (2단계 이상 한 번에 오르면 그만큼)
         for (let i = 0; i < THANKS * (lv1 - lv0); i++) W(['items', uid('t')], 'coin');
         setTimeout(() => news(lv0 < 3 && lv1 >= 3 ? L().bff(name(m.p)) : L().thanks(name(m.p), THANKS * (lv1 - lv0))), 600);
-        setTimeout(() => hearts(x, y, 6, '🪙'), 600);
+        setTimeout(() => hearts(x, y, 6, 'coin'), 600);
       }
     }
     // 끌어서 옮기기 (조금만 움직이면 '누르기'). onHold: 꾹 누르고 있으면 'start' → 문지르면 'rub' → 떼면 'end' (쓰다듬기)
@@ -868,8 +957,8 @@
         if (!e) { e = monEl(id); monEls.set(id, e); roomEl.append(e); }
         if (!e._busy) setLook(e, all[id]);
         for (const z of e.querySelectorAll('.zz, .need')) z.remove();
-        if (isNight()) { if (!e._egg) e.append(dark ? el('span', { class: 'zz', text: '💤' }) : el('span', { class: 'need', text: '🥱' })); } // 불 켜 두면 하품
-        else { const ic = wantOf(all[id], set, w); if (ic) e.append(el('span', { class: 'need', text: ic })); }
+        if (isNight()) { if (!e._egg) e.append(dark ? el('span', { class: 'zz', html: ICON.zz }) : el('span', { class: 'need', html: ICON.yawn })); } // 불 켜 두면 하품
+        else { const ic = wantOf(all[id], set, w); if (ic) e.append(el('span', { class: 'need' + (ic.startsWith('w:') ? ' wish' : ''), html: ICON[ic.replace('w:', '')] })); }
         e.classList.toggle('sick', sickOf(all[id])); e.classList.toggle('dirty', !isNight() && dirtyOf(all[id]) && !sickOf(all[id]));
         sizeImg(e);
       }
@@ -878,7 +967,7 @@
       for (const [key, pe] of pooEls) if (!keep.has(key)) { pe.remove(); pooEls.delete(key); }
       for (const p of pp) {
         if (pooEls.has(p.key)) continue;
-        const pe = el('button', { type: 'button', class: 'pr-poo', 'aria-label': '💩', text: '💩', style: `left:${p.x}%;top:${p.y}%;z-index:${10 + Math.round(p.y)}` });
+        const pe = el('button', { type: 'button', class: 'pr-poo', 'aria-label': '💩', html: ICON.poop, style: `left:${p.x}%;top:${p.y}%;z-index:${10 + Math.round(p.y)}` });
         pe.addEventListener('click', () => cleanPoo(p, pe));
         pooEls.set(p.key, pe); roomEl.append(pe);
       }
@@ -900,26 +989,27 @@
       return M && M.got ? L().allDone : mons().length ? L().pickBerry : '';
     }
     function renderBar() {
-      const tool = TOOLS.some(([t]) => t === feeding);
-      if (feeding && (tool ? isNight() || (feeding === 'pill' && !count('pill')) : !count(feeding))) feeding = ''; // 밤에는 돌보기 쉼
+      const sickNow = homeMons().some(sickOf); // 💊 약 버튼은 아픈 친구가 있을 때만
+      if (feeding && (TOOLS.includes(feeding) ? isNight() || (feeding === 'pill' && !sickNow) : !count(feeding))) feeding = ''; // 밤에는 돌보기 쉼
+      const tools = TOOLS.filter((t) => t !== 'pill' || sickNow);
       toolRow.hidden = !awake();
-      toolRow.replaceChildren(...TOOLS.map(([t, ic]) => el('button', { type: 'button', class: t === 'pill' && !count('pill') ? 'zero' : '', 'aria-pressed': String(feeding === t), 'aria-label': L()[t], onclick: () => {
+      toolRow.style.setProperty('--n', tools.length);
+      toolRow.replaceChildren(...tools.map((t) => el('button', { type: 'button', class: t === 'pill' ? 'pill' : '', 'aria-pressed': String(feeding === t), 'aria-label': L()[t], onclick: () => {
         if (isNight()) { say(lightsOff() ? L().sleep : L().sleepy); return; }
-        if (t === 'pill' && !count('pill')) { say(L().noPill); snd.boing(); return; }
         feeding = feeding === t ? '' : t; snd.tap(2); msgUntil = 0; renderBar();
-      } }, el('span', { class: 'e', text: ic }), t === 'pill' ? `${L().pill} ${count('pill')}` : L()[t])));
+      } }, el('span', { class: 'e', html: ICON[t] }), L()[t], t !== 'pill' ? null : count('pill') ? el('small', { text: `×${count('pill')}` }) : el('small', {}, icon('coin'), '1'))));
       btnLight.hidden = !isNight() || !awake();
-      btnLight.textContent = lightsOff() ? L().lightOn : L().lightOff;
+      btnLight.replaceChildren(icon(lightsOff() ? 'bulb' : 'moon'), lightsOff() ? L().lightOn : L().lightOff);
       berryRow.replaceChildren(...FS.BERRIES.map(([k, ic]) => {
         const n = count(k);
         return el('button', { type: 'button', class: n ? '' : 'zero', 'aria-pressed': String(feeding === k), 'aria-label': bName(k), onclick: () => {
           if (!n) { say(L().noBerry(bName(k))); return; }
           feeding = feeding === k ? '' : k; snd.tap(2); msgUntil = 0; renderBar();
-        } }, el('span', { class: 'e', text: ic }), String(n));
+        } }, el('span', { class: 'e', html: ICON[k] || ic }), String(n));
       }));
-      coinEl.textContent = `🪙 ${count('coin')}`;
-      btnShop.textContent = `🛒 ${L().shop}`; btnShop.setAttribute('aria-pressed', String(open === 'shop'));
-      btnDex.textContent = `📖 ${SET.dex.filter((id) => seenSet().has(String(id))).length}/${SET.dex.length}`; btnDex.setAttribute('aria-pressed', String(open === 'dex'));
+      coinEl.replaceChildren(icon('coin'), `${count('coin')}`);
+      btnShop.replaceChildren(icon('shop'), L().shop); btnShop.setAttribute('aria-pressed', String(open === 'shop'));
+      btnDex.replaceChildren(icon('book'), `${SET.dex.filter((id) => seenSet().has(String(id))).length}/${SET.dex.length}`); btnDex.setAttribute('aria-pressed', String(open === 'dex'));
       if (!msgUntil || Date.now() > msgUntil) msg.textContent = feeding === 'rice' ? L().riceHint : feeding === 'soap' ? L().soapHint : feeding === 'ball' ? L().ballHint : feeding === 'pill' ? L().pillHint : feeding ? L().feedHint(`${BERRY[feeding][1]} ${bName(feeding)}`)
         : isNight() ? (lightsOff() || !awake() ? L().sleep : L().sleepy) : mons().some((m) => m.q && !hatched(m)) ? L().tapEgg : hint();
     }
@@ -938,21 +1028,18 @@
       const coins = count('coin');
       if (open === 'shop') {
         const deco = pk().deco || {};
-        const pills = el('div', { class: 'pr-grid' }, el('button', { type: 'button', class: armed === 'pill' ? 'armed' : coins < 1 ? 'poor' : '',
-          onclick: () => buy('pill', 1, () => { W(['items', uid('m')], 'pill'); say(L().bought); }) },
-          el('span', { class: 'e', text: '💊' }), el('span', { class: 'n', text: `${L().pill} ×${count('pill')}` }), el('span', { text: '🪙 1' })));
         const eggs = el('div', { class: 'pr-grid' }, ...SET.eggs.map((egg) => el('button', { type: 'button', class: armed === `egg:${egg}` ? 'armed' : coins < FS.EGG_PRICE ? 'poor' : '',
           onclick: () => buy(`egg:${egg}`, FS.EGG_PRICE, () => { const id = uid('e'); W(['mons', id], { egg, f: 0, at: Date.now() }); addHome(id); news(L().eggCame(eggName(egg))); }) },
-          el('span', { class: 'eg', html: SET.eggHTML(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', { text: `🪙 ${FS.EGG_PRICE}` }))));
+          el('span', { class: 'eg', html: SET.eggHTML(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', {}, icon('coin'), `${FS.EGG_PRICE}`))));
         const furn = el('div', { class: 'pr-grid' }, ...Object.keys(DK).map((key) => {
           const v = deco[key], has = !!v, on = has && !v.off, price = DK[key][5];
           const ic = el('span', { class: 'dk', style: `--iw:${Math.min(64, Math.max(34, DK[key][4] * 0.8)).toFixed(0)}` }, el('img', { src: `${BASE}poke/deco/${DK[key][0]}.svg`, alt: '', loading: 'lazy' }));
           return el('button', { type: 'button', class: on ? 'on' : armed === `deco:${key}` ? 'armed' : !has && coins < price ? 'poor' : '', onclick: () => {
             if (has) { W(['deco', key], { ...v, off: on ? true : null }); snd.stick(); return; }
             buy(`deco:${key}`, price, () => W(['deco', key], { x: DK[key][1], y: DK[key][2] }));
-          } }, ic, el('span', { class: 'n', text: DK[key][lang() === 'de' ? 7 : 6] }), has ? null : el('span', { text: `🪙 ${price}` }));
+          } }, ic, el('span', { class: 'n', text: DK[key][lang() === 'de' ? 7 : 6] }), has ? null : el('span', {}, icon('coin'), `${price}`));
         }));
-        panel.replaceChildren(el('h4', {}, el('span', { text: L().shopHead(coins) }), closeB), el('h4', {}, el('span', { text: L().pills })), el('p', { text: L().pillTip }), pills, el('h4', {}, el('span', { text: L().eggs })), eggs,
+        panel.replaceChildren(el('h4', {}, el('span', {}, icon('coin'), L().shopHead(coins)), closeB), el('h4', {}, el('span', { text: L().eggs })), eggs,
           el('h4', {}, el('span', { text: L().furn })), el('p', { text: L().decoTip }), furn);
       } else {
         const all = mons(), home = homeIds(), seenS = seenSet(), seen = { has: (id) => seenS.has(String(id)) }, nSeen = SET.dex.filter((id) => seen.has(id)).length;
@@ -961,7 +1048,7 @@
           if (i >= 0) h.splice(i, 1); else if (h.length >= HOME_MAX) { say(L().homeFull); return; } else h.push(m.id);
           W(['home'], h); snd.tap(i >= 0 ? 1 : 3);
         } }, hatched(m) ? el('img', { src: SET.art(m.p), alt: '', loading: 'lazy' }) : el('span', { class: 'eg', html: SET.eggHTML(m.egg) }),
-          el('span', { class: 'n', text: hatched(m) ? name(m.p) : eggName(m.egg) }), m.s && hatched(m) ? el('span', { class: 'b', text: '✨' }) : null)));
+          el('span', { class: 'n', text: hatched(m) ? name(m.p) : eggName(m.egg) }), m.s && hatched(m) ? el('span', { class: 'b', html: ICON.sparkle }) : null)));
         const dex = el('div', { class: 'pr-grid' }, ...SET.dex.map((id) => el('button', { type: 'button', class: seen.has(id) ? '' : 'unk', tabindex: '-1' },
           el('img', { src: SET.art(id), alt: '', loading: 'lazy' }), el('span', { class: 'n', text: seen.has(id) ? name(id) : typeof id === 'number' ? `#${id}` : '?' }))));
         panel.replaceChildren(el('h4', {}, el('span', { text: L().homeHead(home.length) }), closeB), grid, el('h4', {}, el('span', { text: L().dexHead(nSeen, SET.dex.length) })), dex);
