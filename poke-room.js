@@ -119,7 +119,7 @@
       ate: (n) => `냠냠! ${n}`, fav: '좋아해요! 💖💖', hatched: (n) => `펑! ${iga(n)} 태어났어요!`, shinyHatch: (n) => `✨ 반짝이 ${iga(n)} 태어났어요!!`,
       evolved: (a, b) => `${iga(a)} ${euro(b)} 진화했어요!`, eggInfo: (n) => `🥚 열매 ${n}개 더 먹으면 태어나요`, toEvo: (n) => `진화까지 하트 ${n}개`, likes: (b) => `좋아하는 열매 ${b}`,
       shopHead: (c) => `코인 ${c}개`, eggs: '🥚 알', furn: '🪑 가구', bgHead: '🖼️ 장소 바꾸기', bgTip: '산 장소는 눌러서 언제든 바꿔요', bgOn: '사용 중', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
-      eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
+      eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, whoHead: '👑 로미와 친구들', whoTip: '알에서는 안 나와요. 가게에서 데려와요. 로미는 하트 10개마다 새 모습으로 변신해요!', whoCame: (n) => `👑 ${iga(n)} 놀러 왔어요!`, whoHave: (n) => `${iga(n)} 벌써 우리 방에 있어요`, forms: '모습 고르기', decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
       homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, dexHead: (n, N) => `도감 ${n} / ${N}`,
       tapEgg: '🥚 알을 톡 눌러 봐요! 바로 깨어나요', goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
       rice: '밥', riceHint: '🍚 밥 줄 친구를 눌러요', full: (n) => `${n}: 배불러요 😋`, yum: '냠냠! 맛있어요 😋', eggRice: '알은 열매만 먹어요',
@@ -143,7 +143,7 @@
       ate: (n) => `Mampf! ${n}`, fav: 'Lecker! 💖💖', hatched: (n) => `Plopp! ${n} ist geschlüpft!`, shinyHatch: (n) => `✨ Ein schillerndes ${n} ist geschlüpft!!`,
       evolved: (a, b) => `${a} hat sich zu ${b} entwickelt!`, eggInfo: (n) => `🥚 Noch ${n} Beeren bis zum Schlüpfen`, toEvo: (n) => `Noch ${n} Herzen bis zur Entwicklung`, likes: (b) => `Lieblingsbeere ${b}`,
       shopHead: (c) => `${c} Münzen`, eggs: '🥚 Eier', furn: '🪑 Möbel', bgHead: '🖼️ Ort wechseln', bgTip: 'Gekaufte Orte jederzeit antippen zum Wechseln', bgOn: 'Aktiv', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
-      eggCame: (n) => `🥚 Ein ${n} ist da!`, decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
+      eggCame: (n) => `🥚 Ein ${n} ist da!`, whoHead: '👑 Romi & Freunde', whoTip: 'Kommen nicht aus Eiern – hier abholen. Romi verwandelt sich alle 10 Herzen neu!', whoCame: (n) => `👑 ${n} ist zu Besuch!`, whoHave: (n) => `${n} ist schon da`, forms: 'Aussehen wählen', decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
       homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, dexHead: (n, N) => `Pokédex ${n} / ${N}`,
       tapEgg: '🥚 Tippe das Ei an – es schlüpft sofort!', goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
       rice: 'Futter', riceHint: '🍚 Tippe an, wen du füttern willst', full: (n) => `${n}: Satt 😋`, yum: 'Mampf! Lecker 😋', eggRice: 'Eier fressen nur Beeren',
@@ -397,6 +397,9 @@
 .pr-card .pc-st { display: flex; gap: 4px; flex-wrap: wrap; }
 .pr-card .pc-st span { display: inline-flex; align-items: center; gap: 2px; padding: 1px 8px 1px 2px; border-radius: 99px; background: #EAF8F0; color: #2E7D3A; font-size: .86em; font-weight: 700; }
 .pr-card .pc-st span.pc-no { background: #FFE8EC; color: #C0392B; } .pr-card .pc-st .pi-w { font-size: 1.35em; }
+.pr-card .pc-forms { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; } .pr-card .pc-forms span { margin-right: 2px; }
+.pr-card .pc-forms button { border: 0; background: #fff; border-radius: 10px; padding: 2px; box-shadow: 0 0 0 2px #F3E3CC; cursor: pointer; } .pr-card .pc-forms button.on { box-shadow: 0 0 0 3px var(--c1); }
+.pr-card .pc-forms img { display: block; width: calc(30px * var(--pr-s)); height: calc(30px * var(--pr-s)); object-fit: contain; }
 .pr-card .pc-x { position: absolute; right: 6px; top: 3px; border: 0; background: none; font-size: 1.25em; color: #B07040; cursor: pointer; padding: 2px 4px; }
 /* 🖼️ 장소 배경: 방 전체가 그 장소 그림 (창문 · 커튼 · 벽지 무늬는 숨김), 밤엔 어둡게 */
 .pr.th-pkcenter > .pr-room { background: url(${BASE}poke/deco/scene-pkcenter.svg) center / 100% 100% no-repeat; }
@@ -580,6 +583,7 @@
       ['poop', '똥 치우기', '하루 두 번 💩 가 생겨요. 톡 누르면 치워져요.'],
       ['heart', '열매 보너스', '오늘 밥 · 쓰다듬기 · 목욕을 받은 친구가 미션 열매를 먹으면 하트 +1 (하루 한 번).'],
       ['ball', '소원', '하루에 한 친구가 💭 소원을 말해요 (⚽ 공놀이 또는 좋아하는 열매). 들어주면 하트 +1! 공놀이는 ⚽ 를 누르고 바닥을 눌러요.'],
+      ...(P ? [['heart', '로미와 친구들', '👑 로미 · 마야 · 메리루 · 사라 · 이안 · 준 · 카일은 가게에서 데려와요. 로미는 하트 10개마다 새 프린세스 모습으로 변신하고, 로미를 누르면 나오는 카드에서 모습을 골라요.']] : []),
       ['sick', '감기', '오래 못 오거나 목욕을 너무 오래 안 하면 가끔 걸려요. 그때만 💊 약 버튼이 나와요 (🪙 1개). 이틀 지나면 저절로 나아요.'],
       ['moon', '밤', '밤 8시 ~ 아침 7시는 자는 시간. 🌙 불 끄기를 누르면 침대에서 쿨쿨 자요.'],
       ['coin', '코인', `미션마다 🪙 1개, 황금 스티커마다 🪙 3개, 🎂 태어난 지 7 · 30 · 100 · 365일에도 받아요. 🛒 가게에서 새 ${P ? '하트 알' : '알'} (🪙 10), 가구, 🖼️ 장소(${P ? '하트로즈 베이커리 · 이모션 왕국 성 정원' : '포켓몬 센터 앞 · 체육관 · 바닷가'})를 사요. 장소마다 어울리는 가구가 따로 있어요.`],
@@ -596,6 +600,7 @@
       ['poop', 'Aufräumen', 'Zweimal am Tag gibt es 💩. Antippen = weg.'],
       ['heart', 'Pflege-Bonus', 'Wer heute Futter, Streicheln oder Baden bekam, kriegt bei der Missions-Beere +1 Herz (1× am Tag).'],
       ['ball', 'Wunsch', 'Jeden Tag hat ein Freund einen 💭 Wunsch (⚽ Ball oder Lieblingsbeere). Erfüllen = +1 Herz! Für den Ball ⚽ wählen und auf den Boden tippen.'],
+      ...(P ? [['heart', 'Romi & Freunde', '👑 Romi, Maya, Merilu, Sara, Ian, Jun und Kyle holst du im Laden. Romi verwandelt sich alle 10 Herzen in eine neue Prinzessin – im Steckbrief kannst du das Aussehen wählen.']] : []),
       ['sick', 'Erkältung', 'Wenn lange keiner kommt oder lange nicht gebadet wird. Nur dann gibt es den 💊-Knopf (🪙 1). Nach 2 Tagen auch von selbst gesund.'],
       ['moon', 'Nacht', '20–7 Uhr ist Schlafenszeit. 🌙 Licht aus → alle schlafen im Bett.'],
       ['coin', 'Münzen', `Pro Mission 🪙 1, pro Goldsticker 🪙 3, und zum 🎂 7./30./100./365. Tag. Im 🛒 Laden: neue ${P ? 'Herz-Eier' : 'Eier'} (🪙 10), Möbel und 🖼️ Orte – jeder Ort hat eigene Möbel.`],
@@ -676,14 +681,15 @@
       if (Array.isArray(h)) { const ok = new Set(all.map((m) => m.id)); return h.filter((id) => ok.has(id)).slice(0, HOME_MAX); }
       return all.slice(-HOME_MAX).map((m) => m.id);
     };
-    const need = (m) => (!hatched(m) ? EGG_NEED : SET.next(m.p).length ? SET.evoNeed(m.p) : 0);
+    const nextOf = (m) => { const n = SET.next(m.p); return SET.romi && SET.romi.has(m.p) ? n.filter((q) => q !== m.p && !(m.forms || []).includes(q)) : n; }; // 👑 로미는 아직 못 본 모습만
+    const need = (m) => (!hatched(m) ? EGG_NEED : nextOf(m).length ? SET.evoNeed(m.p) : 0);
     // 도감: 한 번 만난 친구는 계속 남음 (진화 · 변신해도 전 모습이 안 꺼짐). room.dex.{id} = 1 + 지금 방 친구
     const seenSet = () => new Set([...Object.keys(pk().dex || {}), ...mons().filter(hatched).map((m) => String(m.p))]);
     const meet = (...ids) => { const d = pk().dex || {}; for (const p of ids) if (p != null && !d[String(p)]) W(['dex', String(p)], 1); };
     const say = (t) => { msg.replaceChildren(...rich(t)); msgUntil = Date.now() + 3000; };
     // 💗 친해지기 (변신 없는 티니핑): 하트 5개마다 한 단계 — 축하만 (2026-11-16 엄마: 코인은 포켓몬 방과 같게, 고맙다는 🪙 은 없앰), 💗3부터 단짝(반짝 빛 · 춤)
     const FRIEND = 5;
-    const lvOf = (m) => (SET.friend && hatched(m) && !SET.next(m.p).length ? Math.floor((m.f || 0) / FRIEND) : 0);
+    const lvOf = (m) => (SET.friend && hatched(m) && !nextOf(m).length ? Math.floor((m.f || 0) / FRIEND) : 0);
     function addHome(id) { const h = pk().home; if (Array.isArray(h) && h.length < HOME_MAX) W(['home'], [...h, id]); }
 
     // ── 🍚 💩 🤚 🌙 돌보기 (맨 위 설명) ──
@@ -963,13 +969,19 @@
       const rows = [];
       if (egg) rows.push(...bar(f, EGG_NEED, 'strawberry', de ? 'Bis zum Schlüpfen' : '태어나기까지'));
       else {
-        const nexts = SET.next(m.p), n = need(m), lv = lvOf(m), age = m.h > 1e12 ? Math.floor((Date.now() - m.h) / 864e5) : -1;
+        const nexts = nextOf(m), n = need(m), lv = lvOf(m), age = m.h > 1e12 ? Math.floor((Date.now() - m.h) / 864e5) : -1;
         rows.push(el('div', { class: 'pc-sub' }, age >= 0 ? el('span', {}, ...rich(L().age(age))) : null, el('span', {}, de ? 'Liebt ' : '좋아하는 열매 ', icon(SET.fav(m.p)))));
         if (nexts.length) {
           const seen = seenSet();
           rows.push(...bar(f, n, 'heart', P ? (de ? 'Bis zur Verwandlung' : '변신까지') : (de ? 'Bis zur Entwicklung' : '진화까지')));
           rows.push(el('div', { class: 'pc-nx' }, el('span', { text: de ? 'Nächste Form ' : '다음 모습 ' }), ...nexts.slice(0, 3).map((q) => el('img', { src: SET.art(q), alt: '', class: seen.has(String(q)) ? 'pc-seen' : '' }))));
-        } else if (SET.friend) rows.push(...bar(f % FRIEND, FRIEND, 'heart', lv >= 3 ? (de ? `💗${lv} Beste Freunde` : `💗${lv} 단짝`) : `💗${lv} → 💗${lv + 1}`));
+        }
+        if (SET.romi && SET.romi.has(m.p) && (m.forms || []).length > 1) { // 👑 얻은 모습 중에서 고르기
+          const { id: mid, ...rest } = m;
+          rows.push(el('div', { class: 'pc-forms' }, el('span', { text: L().forms }), ...m.forms.map((q) => el('button', { type: 'button', class: q === m.p ? 'on' : '', 'aria-label': name(q),
+            onclick: (ev) => { ev.stopPropagation(); if (q === m.p) return; W(['mons', mid], { ...rest, p: q }); snd.stick(); closeCard(); } }, el('img', { src: SET.art(q), alt: '' })))));
+        }
+        if (nexts.length) { /* 위에서 그림 */ } else if (SET.friend) rows.push(...bar(f % FRIEND, FRIEND, 'heart', lv >= 3 ? (de ? `💗${lv} Beste Freunde` : `💗${lv} 단짝`) : `💗${lv} → 💗${lv + 1}`));
         else rows.push(...bar(1, 1, 'star', de ? '⭐ Letzte Entwicklung!' : '⭐ 최종 진화!', `💖 ${f}`));
         if (!isNight()) {
           const nd = needOf(m), sk = sickOf(m), w = wishOf(), chip = (ic, ok, a, b) => el('span', { class: ok ? '' : 'pc-no' }, icon(ic), ok ? a : b);
@@ -978,7 +990,7 @@
             w && w.id === m.id ? el('span', { class: 'pc-no' }, icon(w.kind === 'play' ? 'ball' : w.berry), de ? 'Wunsch' : '소원') : null));
         }
       }
-      const tag = egg ? '' : P ? (SET.next(m.p).length ? '' : `💗${lvOf(m)}`) : ['', 'Lv.1', 'Lv.2', 'Lv.3'][(FS.pokeStage && FS.pokeStage(m.p)) || 0] || '';
+      const tag = egg ? '' : P ? (nextOf(m).length ? '' : `💗${lvOf(m)}`) : ['', 'Lv.1', 'Lv.2', 'Lv.3'][(FS.pokeStage && FS.pokeStage(m.p)) || 0] || '';
       const c = el('div', { class: 'pr-card', style: `--c1:${col[0]};--c2:${col[1]}` }, pic,
         el('div', { class: 'pc-info' }, el('div', { class: 'pc-nm' }, el('span', { text: egg ? eggName(m.egg) : name(m.p) }), tag ? el('span', { class: 'pc-tag' }, ...rich(tag)) : null), ...rows),
         el('button', { type: 'button', class: 'pc-x', 'aria-label': L().close, text: '✕', onclick: closeCard }));
@@ -1209,7 +1221,7 @@
     }
     function sizeImg(e) {
       if (e._egg) { const img = e.querySelector('.pk-egg'); if (img) img.style.width = `${(SET.room ? 46 : 34) * scale}px`; return; }
-      if (e._img && SET.room) { e._img.style.height = `${52 * scale}px`; return; } // 티니핑 그림은 크기가 제각각 → 키를 맞춤
+      if (e._img && SET.room) { e._img.style.height = `${52 * scale * (e._tall || 1)}px`; return; } // 티니핑 그림은 크기가 제각각 → 키를 맞춤
       if (e._img && e._img.naturalWidth) e._img.style.width = `${e._img.naturalWidth * scale}px`;
     }
     function monEl(id) {
@@ -1223,7 +1235,7 @@
       const egg = !hatched(m), cracked = egg && ((m.f || 0) >= 3 || !!m.q), key = egg ? `egg/${m.egg}/${cracked ? 1 : 0}` : `${m.p}/${m.s ? 1 : 0}`;
       e.classList.toggle('glow', lvOf(m) >= 3);
       if (e._key === key) return;
-      e._key = key; e._egg = egg;
+      e._key = key; e._egg = egg; e._tall = !egg && SET.tall ? SET.tall(m.p) : 1;
       e.classList.toggle('egg', egg); e.classList.toggle('crack', cracked); e.classList.remove('hatch');
       if (egg) {
         e.innerHTML = `<span class="egw">${SET.eggHTML(m.egg)}${cracked ? CRACK : ''}</span>`;
@@ -1296,12 +1308,13 @@
     }
     // 하트가 늘어남 (열매 · 돌봄): 다 차면 진화/변신, 티니핑은 친해지기 단계
     function grow(e, m, add, x, y, text) {
-      const { id, ...v } = m, f = (m.f || 0) + add, nexts = SET.next(m.p), n = need(m);
+      const { id, ...v } = m, f = (m.f || 0) + add, nexts = nextOf(m), n = need(m);
       if (nexts.length && f >= n) {
         const to = pick(nexts), from = m.p;
         e._busy = true; e.classList.add('evo');
         evoScene(from, to); // ✨ 화면 전체 진화 장면
-        setTimeout(() => { W(['mons', id], { ...v, p: to, f: 0 }); meet(from, to); }, 700);
+        const forms = SET.romi && SET.romi.has(from) ? { forms: [...new Set([...(v.forms || [from]), from, to])] } : {}; // 👑 로미가 얻은 모습
+        setTimeout(() => { W(['mons', id], { ...v, ...forms, p: to, f: 0 }); meet(from, to); }, 700);
         setTimeout(() => { e._busy = false; e.classList.remove('evo'); }, 1400);
         return;
       }
@@ -1524,7 +1537,18 @@
             buy(`deco:${curPlace}:${key}`, price, () => W(decoPath(key), spotFor(key)));
           } }, !has && Date.now() < NEW_UNTIL ? el('span', { class: 'new', text: 'NEW' }) : null, ic, el('span', { class: 'n', text: DK[key][lang() === 'de' ? 7 : 6] }), has ? null : el('span', {}, icon('coin'), `${price}`));
         }));
+        // 👑 로미와 친구들 (티니핑 방): 알 말고 바로 데려옴. 로미 🪙 20, 친구 🪙 15
+        const fam = new Set(mons().map((x) => (SET.romi && SET.romi.has(x.p) ? 'romi' : x.p)));
+        const who = SET.buy && SET.buy.length ? el('div', { class: 'pr-grid' }, ...SET.buy.map((id) => {
+          const has = fam.has(id), price = id === 'romi' ? 20 : 15;
+          return el('button', { type: 'button', class: has ? 'on' : armed === `who:${id}` ? 'armed' : coins < price ? 'poor' : '', onclick: () => {
+            if (has) { say(L().whoHave(name(id))); return; }
+            buy(`who:${id}`, price, () => { const nid = uid('h'); W(['mons', nid], { egg: 'heart', p: id, h: Date.now(), f: 0, at: Date.now(), ...(id === 'romi' ? { forms: ['romi'] } : {}) });
+              meet(id); addHome(nid); news(L().whoCame(name(id))); setTimeout(() => voice({ p: id, h: 1 }, true), 500); });
+          } }, el('img', { src: SET.art(id), alt: '', loading: 'lazy' }), el('span', { class: 'n', text: name(id) }), has ? el('span', { text: '✓' }) : el('span', {}, icon('coin'), `${price}`));
+        })) : null;
         panel.replaceChildren(el('h4', {}, el('span', {}, icon('coin'), L().shopHead(coins)), closeB), el('h4', {}, el('span', { text: L().eggs })), eggs,
+          who ? el('h4', {}, el('span', {}, ...rich(L().whoHead))) : null, who ? el('p', { text: L().whoTip }) : null, who,
           el('h4', {}, el('span', {}, ...rich(L().bgHead))), el('p', { text: L().bgTip }), bgGrid,
           el('h4', {}, el('span', { text: curPlace === 'base' ? L().furn : `${L().furn} · ${BGP[curPlace][lang() === 'de' ? 2 : 1]}` })), el('p', { text: L().decoTip }), furn);
       } else if (open === 'help') {
