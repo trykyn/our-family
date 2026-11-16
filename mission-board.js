@@ -36,7 +36,12 @@
   --mb-font: inherit; font-family: inherit; }
 .mb-ms { margin-bottom: 14px; padding: 12px; border-radius: 18px; background: var(--mb-soft); }
 .mb-ms-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; font-family: var(--mb-font); font-size: 1.1em; }
-.mb-ms-h span { color: var(--mb-muted); font-size: .85em; }
+.mb-ms-h > span { display: inline-flex; align-items: center; gap: 8px; color: var(--mb-muted); font-size: .85em; }
+.mb-coin { display: inline-flex; align-items: center; gap: 3px; border: 0; border-radius: 999px; padding: 3px 11px 3px 4px; background: #FFF0B8; box-shadow: inset 0 0 0 2px #F5D06A;
+  font: inherit; font-weight: 800; font-size: 1.05em; color: #8A5A00; cursor: pointer; }
+.mb-coin .pi-w { width: 1.5em; height: 1.5em; display: block; } .mb-coin .pi-w svg { width: 100%; height: 100%; display: block; }
+.mb-coin:active { transform: scale(.94); }
+.mb-coin.pop { animation: mb-pop .7s cubic-bezier(.2, 1.6, .4, 1); }
 .mb-tiles { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); gap: 6px; }
 .mb-tiles.many { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
 .mb-tile { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px 6px; border-radius: 14px; border: 2.5px solid var(--mb-line);
@@ -145,7 +150,16 @@
     const W = (path, v) => o.write(path, v);
     const wrap = el('div', { class: 'mb' + (o.big ? ' big' : '') });
     root.replaceChildren(wrap);
-    let alive = true, del = false, popId = '', popGold = '', timer = 0;
+    let alive = true, del = false, popId = '', popGold = '', timer = 0, lastCoins = -1;
+    // 🪙 코인 칸 (오늘의 미션 옆): 누르면 코인 기록 — 방(poke-room.js)이 있는 앱에서만
+    function coinChip() {
+      const PR = window.PokeRoom, R = FS.ROOM || 'room';
+      if (!PR || !PR.coinSheet || !(kd()[R] && kd()[R].start)) return null;
+      const c = PR.coinCount(kd()), b = el('button', { type: 'button', class: 'mb-coin' + (lastCoins >= 0 && c > lastCoins ? ' pop' : ''), 'aria-label': `🪙 ${c}`,
+        onclick: () => { snd.coin(); PR.coinSheet(kd(), k, lang()); } }, ...PR.rich('🪙'), String(c));
+      lastCoins = c;
+      return b;
+    }
 
     function wig(e) { e.classList.remove('wig'); void e.offsetWidth; e.classList.add('wig'); }
     function render() {
@@ -156,7 +170,7 @@
       wrap.classList.toggle('del', del);
       // 오늘의 미션
       const ms = del ? el('div', { class: 'mb-delbar' }, el('span', { text: L().delHint }), el('button', { type: 'button', class: 'mb-btn', text: L().delDone, onclick: () => setDelete(false) }))
-        : el('div', { class: 'mb-ms' }, el('div', { class: 'mb-ms-h' }, el('b', { text: L().msTitle }), el('span', { text: `${M.done} / ${M.total}` })),
+        : el('div', { class: 'mb-ms' }, el('div', { class: 'mb-ms-h' }, el('b', { text: L().msTitle }), el('span', {}, `${M.done} / ${M.total}`, coinChip())),
           M.total ? el('div', { class: 'mb-tiles' + (M.total > 5 ? ' many' : ''), style: `--n:${M.total}` }, ...M.list.map((x) => el('button', { type: 'button', class: 'mb-tile' + (M.day[x.id] ? ' done' : ''), onclick: () => {
             if (M.got) { toast(L().msGot); return; }
             const on = !M.day[x.id];

@@ -303,7 +303,27 @@
 .pr-bar { display: flex; gap: 8px; margin-top: 8px; }
 .pr-bar button, .pr-bar span { flex: 1; min-width: 0; border: 0; border-radius: 14px; padding: calc(10px * var(--pr-s)) 8px; font: inherit; font-weight: 800; font-size: calc(15px * var(--pr-s));
   background: #FFF0D6; color: #6B3E12; cursor: pointer; text-align: center; }
-.pr-bar span { background: #FFF6CC; cursor: default; }
+.pr-bar span, .pr-bar .pr-coins { background: #FFF6CC; cursor: default; } .pr-bar .pr-coins { cursor: pointer; }
+/* 🪙 코인 기록 */
+.pr-clog { position: fixed; inset: 0; z-index: 2100; display: grid; place-items: center; background: rgba(40, 24, 8, .45); padding: 16px; }
+.pr-clog .cl-card { width: min(100%, 420px); max-height: min(84vh, 640px); display: flex; flex-direction: column; border-radius: 24px; background: #FFFCF3; color: #3A2410; box-shadow: 0 30px 70px -20px rgba(0,0,0,.5); overflow: hidden; animation: pr-clin .35s cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes pr-clin { from { transform: translateY(24px) scale(.96); opacity: 0; } }
+.pr-clog .cl-top { display: flex; align-items: center; gap: 10px; padding: 16px 16px 12px; background: linear-gradient(140deg, #FFE9A8, #FFD27A); }
+.pr-clog .cl-top > .pi-w { width: 44px; height: 44px; display: block; flex: none; } .pr-clog .cl-top > .pi-w svg { width: 100%; height: 100%; display: block; }
+.pr-clog .cl-top div { flex: 1; min-width: 0; } .pr-clog .cl-top small { display: block; font-size: 13px; font-weight: 700; color: #8A5A00; }
+.pr-clog .cl-top b { font-size: 26px; font-weight: 800; }
+.pr-clog .cl-x { border: 0; background: rgba(255,255,255,.7); border-radius: 50%; width: 36px; height: 36px; font-size: 18px; cursor: pointer; color: #6B3E26; flex: none; }
+.pr-clog .cl-list { overflow-y: auto; padding: 4px 14px 16px; -webkit-overflow-scrolling: touch; }
+.pr-clog h5 { margin: 12px 2px 4px; font-size: 13px; color: #9A7A5A; font-weight: 700; }
+.pr-clog .cl-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: #fff; margin-bottom: 4px; font-size: 15px; }
+.pr-clog .cl-row .w { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.pr-clog .cl-row .n { font-weight: 800; white-space: nowrap; } .pr-clog .cl-row .n.up { color: #2E9A55; } .pr-clog .cl-row .n.dn { color: #D0453A; }
+.pr-clog .cl-row .bal { min-width: 2.2em; text-align: right; font-size: 12px; color: #B09A80; white-space: nowrap; }
+.pr-clog .cl-row.wait { background: #FFF6DA; border: 1.5px dashed #F0C35A; }
+.pr-clog .cl-row.old { background: #F4EFE8; color: #7A6650; }
+.pr-clog .cl-row .pi-w, .pr-clog p .pi-w { width: 1.2em; height: 1.2em; display: inline-block; vertical-align: -.2em; } .pr-clog .cl-row .pi-w svg, .pr-clog p .pi-w svg { width: 100%; height: 100%; display: block; }
+.pr-clog .cl-empty { text-align: center; color: #9A7A5A; padding: 20px 0; }
+.pr-clog .cl-note { margin: 10px 2px 0; font-size: 12px; color: #9A7A5A; line-height: 1.5; }
 .pr-bar button[aria-pressed="true"] { background: #FF8A3D; color: #fff; box-shadow: 0 0 0 3px #FFD2B0; }
 .pr-msg { margin: 8px 2px 0; min-height: 1.3em; font-size: calc(13px * var(--pr-s)); color: #8A6A4A; text-align: center; }
 .pr-news { position: absolute; left: 50%; top: 6%; transform: translateX(-50%); z-index: 1000; background: #FFF8D6; color: #6B3E12; font-weight: 800; border-radius: 16px;
@@ -596,6 +616,68 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
   const nightKey = () => dayKey(Date.now() - 7 * 3600e3); // 밤 20시~아침 7시 = 그 저녁 날짜
   const CARE_START = new Date(2026, 10, 17).getTime(); // 목욕은 이날부터 셈 (전부 한꺼번에 꼬질꼬질해지지 않게)
   const MILE = [[7, 1], [30, 3], [100, 5], [365, 10]]; // 🎂 [태어난 지 며칠, 🪙 선물]
+  // 🪙 코인 기록 (방 아래 코인 칸 · 미션판 옆 🪙 을 누르면). 들어온 것: 미션(스티커 자료) · 황금 스티커(room.gp) · room.clog(생일 · 돌려받기), 나간 것: room.clog(가게 · 약)
+  //   기록을 시작하기 전에 쓴 코인처럼 자료로 셀 수 없는 차이는 '기록 전' 한 줄로 → 지금 가진 코인과 꼭 맞음
+  const CT = {
+    ko: { head: '코인 기록', now: '지금 가진 코인', mission: '🎯 오늘의 미션 완료', gold: '🏅 황금 스티커', goldWait: '🏅 황금 스티커 — 방을 열면 들어와요',
+      bd: (n, d) => `🎂 ${n} 태어난 지 ${d}일`, refund: '↩️ 없어진 가구 돌려받음', pill: '💊 약', egg: (n) => `🛒 ${n}`, bg: (n) => `🛒 장소: ${n}`, deco: (n) => `🛒 가구: ${n}`, who: (n) => `🛒 ${n} 데려오기`,
+      oldUp: '📦 기록을 시작하기 전에 받은 코인', oldDn: '📦 기록을 시작하기 전에 쓴 코인', other: '🪙 그 밖의 코인', empty: '아직 코인이 없어요. 오늘의 미션을 다 하면 🪙 1개!',
+      note: '미션마다 🪙 1, 황금 스티커마다 🪙 3, 🎂 생일 축하에도 받아요. 오른쪽 작은 숫자는 그때 가진 코인이에요.', days: ['일', '월', '화', '수', '목', '금', '토'], date: (m, d, w) => `${m}월 ${d}일 (${w})` },
+    de: { head: 'Münz-Verlauf', now: 'Münzen jetzt', mission: '🎯 Tagesmission geschafft', gold: '🏅 Goldsticker', goldWait: '🏅 Goldsticker – kommt beim Öffnen des Zimmers',
+      bd: (n, d) => `🎂 ${n}: ${d}. Tag`, refund: '↩️ Möbel zurückerstattet', pill: '💊 Medizin', egg: (n) => `🛒 ${n}`, bg: (n) => `🛒 Ort: ${n}`, deco: (n) => `🛒 Möbel: ${n}`, who: (n) => `🛒 ${n} abgeholt`,
+      oldUp: '📦 Vor dem Verlauf bekommen', oldDn: '📦 Vor dem Verlauf ausgegeben', other: '🪙 Sonstige', empty: 'Noch keine Münzen. Tagesmission schaffen = 🪙 1!',
+      note: 'Pro Mission 🪙 1, pro Goldsticker 🪙 3, dazu 🎂 Jubiläen. Die kleine Zahl rechts = Münzen danach.', days: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'], date: (m, d, w) => `${d}.${m}. (${w})` },
+  };
+  const coinCount = (kd) => Object.values(((kd || {})[FS.ROOM] || {}).items || {}).filter((v) => v === 'coin').length;
+  function coinRows(kd, kid, lg) {
+    const C = CT[lg], SET = FS.charSet(kid), R = (kd && kd[FS.ROOM]) || {}, start = R.start || 0, de = lg === 'de';
+    const rows = [], wait = [];
+    for (const s of Object.values((kd && kd.stickers) || {})) if (s && s.why === '@mission' && (s.at || 0) >= start && typeof s.d === 'number' && s.d >= 2000) rows.push({ t: s.at, n: 1, w: C.mission });
+    const golds = (kd && kd.golds) || {}, gp = R.gp || {};
+    const wkT = (w) => { const [y, m, d] = w.split('-').map(Number); return new Date(y, m - 1, d, 12).getTime(); };
+    for (const w of Object.keys(gp)) rows.push({ t: (golds[w] && golds[w].at) || wkT(w), n: 3, w: C.gold });
+    for (const [w, g] of Object.entries(golds)) if (g && (g.at || 0) >= start && !gp[w]) wait.push({ t: g.at, n: 3, w: C.goldWait, wait: true });
+    const deco = (place, key) => { const t = place === 'base' ? (SET.room === 'princess' ? DECO_P : DECO) : PDECO[place] || {}; return t[key] ? t[key][de ? 7 : 6] : key; };
+    const bgs = BGS[SET.room ? 'pp' : 'pk'];
+    for (const v of Object.values(R.clog || {})) {
+      if (!Array.isArray(v) || typeof v[1] !== 'number') continue;
+      const [t, n, why = ''] = v, [a, b, c] = String(why).split(':');
+      const w = a === 'pill' ? C.pill : a === 'refund' ? C.refund : a === 'bd' ? C.bd(SET.name(b, lg), c) : a === 'egg' ? C.egg(((n) => (/알|Ei$/.test(n) ? n : n + (de ? '-Ei' : ' 알')))(SET.eggName(b, lg))) : a === 'bg' ? C.bg(bgs[b] ? bgs[b][de ? 2 : 1] : b)
+        : a === 'deco' ? C.deco(deco(b, c)) : a === 'who' ? C.who(SET.name(b, lg)) : C.other;
+      rows.push({ t: Number(t) || 0, n, w });
+    }
+    rows.sort((x, y) => x.t - y.t);
+    const now = coinCount(kd), diff = now - rows.reduce((a, r) => a + r.n, 0);
+    if (diff) rows.unshift({ t: rows.length ? rows[0].t - 1 : start || Date.now(), n: diff, w: diff > 0 ? C.oldUp : C.oldDn, old: true });
+    let bal = 0;
+    for (const r of rows) { bal += r.n; r.bal = bal; }
+    return { rows: rows.reverse(), wait: wait.sort((x, y) => y.t - x.t), now };
+  }
+  function coinSheet(kd, kid, lg) {
+    addCss();
+    lg = lg === 'de' ? 'de' : 'ko';
+    for (const old of document.querySelectorAll('.pr-clog')) old.remove();
+    const C = CT[lg], { rows, wait, now } = coinRows(kd, kid, lg);
+    const esc = (e) => { if (e.key === 'Escape') close(); };
+    const list = el('div', { class: 'cl-list' });
+    const row = (r) => el('div', { class: 'cl-row' + (r.wait ? ' wait' : r.old ? ' old' : '') }, el('span', { class: 'w' }, ...rich(r.w)),
+      el('span', { class: 'n ' + (r.n > 0 ? 'up' : 'dn') }, r.n > 0 ? '+' : '−', icon('coin'), String(Math.abs(r.n))), el('span', { class: 'bal', text: r.wait ? '' : String(r.bal) }));
+    if (wait.length) list.append(...wait.map(row));
+    let day = '';
+    for (const r of rows) {
+      const d = new Date(r.t), k = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      if (k !== day && !r.old) { day = k; list.append(el('h5', { text: C.date(d.getMonth() + 1, d.getDate(), C.days[d.getDay()]) })); }
+      list.append(row(r));
+    }
+    if (!rows.length && !wait.length) list.append(el('p', { class: 'cl-empty' }, ...rich(C.empty)));
+    list.append(el('p', { class: 'cl-note' }, ...rich(C.note)));
+    const ov = el('div', { class: 'pr-clog', role: 'dialog', 'aria-label': C.head, onclick: (e) => { if (e.target === ov) close(); } },
+      el('div', { class: 'cl-card' }, el('div', { class: 'cl-top' }, icon('coin'), el('div', {}, el('small', { text: `${C.head} · ${C.now}` }), el('b', { text: String(now) })),
+        el('button', { type: 'button', class: 'cl-x', 'aria-label': '✕', text: '✕', onclick: () => close() })), list));
+    function close() { ov.remove(); document.removeEventListener('keydown', esc); }
+    document.body.append(ov); document.addEventListener('keydown', esc);
+    return close;
+  }
   const TOOLS = ['rice', 'soap', 'ball', 'pill'];
   // 🖼️ 장소 배경 (가게에서 사서 바꿈 — 방이 그 장소로 바뀜, 그림 poke/deco/scene-*.svg): [값(코인), 이름, 독일어]. 그림은 CSS .pr.th-{이름} (낮 · 밤). room.bgs.{이름} = 1 (산 것), room.bg = 쓰는 것 (없으면 기본)
   const BGS = {
@@ -699,7 +781,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     const roomEl = el('div', { class: 'pr-room' }, el('div', { class: 'pr-win', 'aria-hidden': 'true' }, el('i'), el('b')));
     const toolRow = el('div', { class: 'pr-tools' });
     const berryRow = el('div', { class: 'pr-berries' });
-    const coinEl = el('span');
+    const coinEl = el('button', { type: 'button', class: 'pr-coins', onclick: () => coinSheet(o.data(), o.kid, lang()) }); // 🪙 누르면 코인 기록
     const btnShop = el('button', { type: 'button', 'aria-pressed': 'false' });
     const btnDex = el('button', { type: 'button', 'aria-pressed': 'false' });
     const btnLight = el('button', { type: 'button', hidden: '' });
@@ -718,6 +800,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     const items = () => Object.entries(pk().items || {});
     const count = (kind) => items().filter(([, v]) => v === kind).length;
     const take = (kind, n) => items().filter(([, v]) => v === kind).slice(0, n).map(([id]) => id);
+    const coinLog = (n, why) => W(['clog', uid('l')], [Date.now(), n, why]); // 🪙 기록: room.clog.{id} = [때, +/-개수, 왜] (미션 · 황금 스티커는 그 자료로 셈)
     const mons = () => Object.entries(pk().mons || {}).filter(([, m]) => m && (m.egg || SET.valid(m.p))).map(([id, m]) => ({ id, ...m })).sort((a, b) => (a.at || 0) - (b.at || 0));
     const hatched = (m) => !!m.h && SET.valid(m.p);
     const homeIds = () => {
@@ -927,6 +1010,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       const own = take('pill', 1)[0], pay = own ? '' : take('coin', 1)[0]; // 사 둔 약이 있으면 그것부터, 없으면 🪙 1개
       if (!own && !pay) { say(L().noCoinPill); snd.boing(); return; }
       W(['items', own || pay], null);
+      if (pay) coinLog(-1, 'pill');
       setCare(m.id, { m: Date.now() }); hearts(x, y, 4, 'pill', true); sfx('pill'); happy(e);
       setTimeout(() => news(L().cured(name(m.p))), 300);
       setTimeout(() => { renderRoom(); renderBar(); }, 60);
@@ -980,6 +1064,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
         if (!ms || Math.max(bd[id] || 0, local.bd[id] || 0) >= ms[0]) continue;
         local.bd[id] = ms[0]; W(['bd', id], ms[0]);
         for (let i = 0; i < ms[1]; i++) W(['items', uid('b')], 'coin');
+        coinLog(ms[1], `bd:${m.p}:${ms[0]}`);
         const e = monEls.get(id);
         if (e) {
           const x = parseFloat(e.style.left), y = parseFloat(e.style.top);
@@ -1220,6 +1305,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       if (!gone.length) return;
       let c = 0;
       for (const k of gone) { W(['deco', k], null); for (let i = 0; i < DECO_GONE[k]; i++) W(['items', uid('r')], 'coin'); c += DECO_GONE[k]; }
+      coinLog(c, 'refund');
       news(L().refund(c));
     }
     function grants() {
@@ -1558,6 +1644,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       if (armed !== key) { armed = key; say(L().again); snd.tap(1); renderPanel(); return; }
       armed = '';
       for (const id of take('coin', price)) W(['items', id], null);
+      coinLog(-price, key); // 🪙 기록
       done(); snd.tada();
     }
     function renderPanel() {
@@ -1680,5 +1767,5 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     return S && S.key === 'ping' ? `<img class="pi" src="${BASE}ping/heartsping1.webp" alt="" style="width:1.5em;height:1.5em;object-fit:contain;vertical-align:-.4em">`
       : ICON.pokeball.replace('class="pi"', 'class="pi" style="width:1.25em;height:1.25em;vertical-align:-.24em"');
   }
-  window.PokeRoom = { mount, DECO, DECO_P, PDECO, ICON, rich, tabIcon };
+  window.PokeRoom = { mount, DECO, DECO_P, PDECO, ICON, rich, tabIcon, coinSheet, coinCount };
 })();
