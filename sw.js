@@ -1,11 +1,11 @@
 // 오프라인 지원: 네트워크 우선, 실패하면 캐시.
 // 앱 파일은 매번 서버에 "바뀌었나요?"를 물어봄(cache: 'no-cache'). GitHub Pages가 붙이는 10분 저장 표시 때문에
 // 홈 화면 앱이 예전 화면을 계속 보여 주는 일을 막음. 안 바뀌었으면 서버가 짧게 "그대로"라고만 답함.
-const CACHE = 'our-family-v71';
+const CACHE = 'our-family-v72';
 const OK_ORIGINS = ['https://www.gstatic.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', 'index.html', 'manifest.webmanifest', 'favicon.png', 'icon-180.png', 'icon-192.png', 'firebase-config.js', 'stickers-shared.js', 'poke-room.js'].map((u) => new Request(u, { cache: 'reload' })))));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', 'index.html', 'manifest.webmanifest', 'favicon.png', 'icon-180.png', 'icon-192.png', 'firebase-config.js', 'stickers-shared.js', 'poke-room.js', 'mission-board.js'].map((u) => new Request(u, { cache: 'reload' })))));
   self.skipWaiting();
 });
 self.addEventListener('activate', (e) => e.waitUntil((async () => {
