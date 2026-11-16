@@ -517,14 +517,15 @@
     achoo: [[900, 0, 0.1, 'sawtooth', 600], [700, 0.14, 0.28, 'sawtooth', 160]], pill: [[784, 0, 0.1], [988, 0.1, 0.1], [1319, 0.2, 0.26]], pet: [[440, 0, 0.14, 'sine', 520]],
   };
   // 🔊 포켓몬 울음소리: 한 번 받으면 기억 (오디오는 탭할 때 깨워 둔 같은 소리 상자로)
-  const cryBuf = {};
+  const PRELOADED = new Set(); // 미리 받은 그림 묶음 (방을 다시 열어도 또 받지 않게)
+  const cryBuf = new Map(); // 최근 24마리 울음소리만 기억 (메모리 아끼기)
   function playCry(id) {
     try {
       ax = ax || new (window.AudioContext || window.webkitAudioContext)();
       if (ax.state === 'suspended') ax.resume();
       const go = (b) => { const src = ax.createBufferSource(), g = ax.createGain(); g.gain.value = 0.5; src.buffer = b; src.connect(g).connect(ax.destination); src.start(); };
-      if (cryBuf[id]) return go(cryBuf[id]);
-      fetch(`${BASE}poke/cry/${id}.m4a`).then((r) => (r.ok ? r.arrayBuffer() : null)).then((ab) => { if (ab) ax.decodeAudioData(ab, (b) => { cryBuf[id] = b; go(b); }, () => {}); }).catch(() => {});
+      if (cryBuf.has(id)) return go(cryBuf.get(id));
+      fetch(`${BASE}poke/cry/${id}.m4a`).then((r) => (r.ok ? r.arrayBuffer() : null)).then((ab) => { if (ab) ax.decodeAudioData(ab, (b) => { cryBuf.set(id, b); if (cryBuf.size > 24) cryBuf.delete(cryBuf.keys().next().value); go(b); }, () => {}); }).catch(() => {});
     } catch {}
   }
   // 💖 티니핑: 친구마다 음높이가 다른 '핑♪' + 기기 목소리로 이름 (높은 목소리)
@@ -1357,7 +1358,7 @@
     function wander() {
       if (!alive) return;
       if (!root.isConnected) return destroy();
-      if (!root.offsetParent) return;
+      if (!root.offsetParent || document.hidden) return; // 안 보이면 쉼 (배터리)
       if (msgUntil && Date.now() > msgUntil) { msgUntil = 0; renderBar(); }
       if (isNight()) return;
       if (Date.now() > cheerAt) cheer();
@@ -1599,16 +1600,26 @@
     const nightTimer = setInterval(() => { if (alive && root.offsetParent) { renderRoom(); renderBar(); } }, 60e3); // 밤낮 · 밥 때 · 💩 (시간으로 바뀌는 것)
     const ro = window.ResizeObserver ? new ResizeObserver(() => { if (alive) renderRoom(); }) : null;
     if (ro) ro.observe(roomEl);
-    function destroy() { alive = false; clearInterval(timer); clearInterval(nightTimer); if (ro) ro.disconnect(); }
+    function destroy() { alive = false; clearInterval(timer); clearInterval(nightTimer); clearTimeout(upT); if (ro) ro.disconnect(); }
     renderAll();
     // 쓰기는 mount 가 끝난 다음에 (앱이 쓰자마자 다시 그리면서 방을 또 만들지 않게)
     setTimeout(grants, 900);
     setTimeout(refundGone, 1200);
     setTimeout(greet, 1600);
     setTimeout(party, 4000);
-    setTimeout(() => { if (alive) for (const t of [DK0, ...Object.keys(BGP).map((b) => PDECO[b] || {})]) for (const k of Object.keys(t)) new Image().src = `${BASE}poke/deco/${t[k][0]}.svg`; for (const n of Object.keys(BGP)) if (n !== 'base') new Image().src = `${BASE}poke/deco/scene-${n}.svg`; }, 5000); // 가구 그림 미리 받아 두기 (처음 살 때 '?' 안 보이게)
+    setTimeout(() => { // 가구 · 장소 그림 미리 받아 두기 ('?' 안 보이게) — 내 방 + 산 장소만, 이 페이지에서 한 번씩
+      if (!alive) return;
+      for (const pl of ['base', ...Object.keys(pk().bgs || {}).filter((b) => BGP[b])]) {
+        const key = `${SET.key}:${pl}`; if (PRELOADED.has(key)) continue; PRELOADED.add(key);
+        const t = pl === 'base' ? DK0 : PDECO[pl] || {};
+        for (const k of Object.keys(t)) new Image().src = `${BASE}poke/deco/${t[k][0]}.svg`;
+        if (pl !== 'base') new Image().src = `${BASE}poke/deco/scene-${pl}.svg`;
+      }
+    }, 5000);
     setTimeout(() => { const M = missionNow(); if (alive && M && M.got && !isNight()) for (const e of monEls.values()) if (!e._egg) happy(e); }, 2200); // 오늘 미션 다 했으면 다 같이 춤
-    root._pr = { update: () => { renderAll(); grants(); }, destroy };
+    let upT = 0;
+    const update = () => { if (upT) return; upT = setTimeout(() => { upT = 0; renderAll(); grants(); }, 40); }; // 자료가 연달아 바뀌어도 (코인 여러 개 · 생일 선물 …) 한 번만 다시 그림
+    root._pr = { update, destroy };
     return root._pr;
   }
   // 방으로 가는 버튼 그림 (각 앱 탭 · 버튼에서 씀): 포켓몬 = 몬스터볼, 티니핑 = 하츄핑 얼굴
