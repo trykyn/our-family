@@ -12,7 +12,7 @@
 <title>우리가족</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=Jua&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=Jua&display=swap" media="print" onload="this.media='all'">
 <style>
 /* 구조: 홈(오늘 일정 + 큰 아이콘 두 개) → 해시(#todo, #calendar)로 앱 안의 앱 화면을 엶. 뒤로가기 = 브라우저 뒤로.
    캘린더는 구글 캘린더 앱처럼 달력 칸 안에 일정 이름을 막대로 보여 줌. 한국어/독일어 전환. */
@@ -1728,7 +1728,18 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       fb = { A, F, auth: A.getAuth(app), db };
       A.onAuthStateChanged(fb.auth, async (user) => {
         S.user = user; S.house = null;
-        if (user) {
+        const c = load(HOUSE_KEY, null), saved = user && c && c.uid === user.uid && c.house ? c.house : null;
+        if (saved) {
+          S.house = saved; // 바로 열기 — 가족 문서는 휴대폰에 저장된 것부터 보임 (persistentLocalCache)
+          F.getDoc(F.doc(fb.db, 'users', user.uid)).then((u) => { // 뒤에서 확인: 가족 코드가 바뀌었으면 다시 연결
+            if (S.user !== user) return;
+            const h = (u.exists() && u.data().house) || null;
+            if (h === S.house) return;
+            S.house = h; store(HOUSE_KEY, { uid: user.uid, house: h });
+            if (!h) pruneLocal();
+            listenTodos(); loadPhoto(); renderAll(); refresh(true);
+          }).catch((e) => console.warn('house', e));
+        } else if (user) {
           try {
             const u = await F.getDoc(F.doc(fb.db, 'users', user.uid));
             S.house = (u.exists() && u.data().house) || null;
@@ -3333,14 +3344,14 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   cachedPhoto('get').then((b) => { if (b && !photoUrl) showPhoto(b); });
   startFirebase();
 
-  // 오프라인 지원 + 새 버전 바로 적용:
-  // sw.js 는 저장본을 쓰지 않고 늘 서버에서 확인(updateViaCache: 'none'), 앱으로 돌아올 때마다 새 버전 확인,
-  // 새 버전이 자리 잡으면 화면을 한 번 새로 고침.
+  // 오프라인 지원 + 새 버전 적용:
+  // sw.js 는 저장본을 쓰지 않고 늘 서버에서 확인(updateViaCache: 'none'), 앱으로 돌아올 때마다 새 버전 확인.
+  // 화면은 저장본으로 바로 열고(빠른 시작), 화면 파일이 바뀌었다고 sw 가 알려 주면 아무도 안 만질 때 새로 고침.
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     const hadController = !!navigator.serviceWorker.controller;
     let reloading = false;
     // 창이 열려 있거나 글을 쓰는 중, 동전이 날아가는 중이면 지금 새로 고치지 않음
-    const busy = () => !!(document.querySelector('.sheet-wrap:not([hidden]), .flying-coin, .swipe-fg.dragging, .ms-gift') || coinPending ||
+    const busy = () => !!(document.querySelector('.sheet-wrap:not([hidden]), .flying-coin, .swipe-fg.dragging, .mb-gift, .pr-gift') || coinPending ||
       (document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)));
     const reloadNow = () => { flushCoins(); location.reload(); };
     navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -3350,6 +3361,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       document.addEventListener('visibilitychange', () => { if (document.hidden) reloadNow(); }); // 앱을 내리면 그때
       const t = setInterval(() => { if (!busy()) { clearInterval(t); reloadNow(); } }, 2000); // 창을 닫으면 그때
     });
+    let swNew = false, touched = Date.now();
+    navigator.serviceWorker.addEventListener('message', (e) => { if (e.data === 'our-family-updated') swNew = true; });
+    for (const t of ['pointerdown', 'keydown', 'scroll']) document.addEventListener(t, () => { touched = Date.now(); }, { passive: true, capture: true });
+    setInterval(() => { if (swNew && !reloading && !busy() && Date.now() - touched > 60e3) { reloading = true; reloadNow(); } }, 5000);
+    document.addEventListener('visibilitychange', () => { if (document.hidden && swNew && !reloading) { reloading = true; reloadNow(); } });
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
       document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
     }).catch(() => {});
