@@ -91,6 +91,7 @@
 .mb-gift-card .reveal { width: 180px; height: 180px; animation: mb-pop .7s cubic-bezier(.2, 1.6, .4, 1); }
 .mb-gift-card .taps { display: flex; gap: 8px; } .mb-gift-card .taps i { width: 14px; height: 14px; border-radius: 50%; background: #F0D9B8; } .mb-gift-card .taps i.on { background: #FF8A3D; }
 .mb-gift-card .hint { font-weight: 700; color: #9A7A5A; }
+.mb-gift-card .hint .pi { width: 1.25em; height: 1.25em; vertical-align: -.25em; }
 .mb-confetti { position: fixed; width: 10px; height: 14px; border-radius: 3px; z-index: 210; pointer-events: none; animation: mb-conf 1.1s ease-out forwards; }
 .mb-toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 220; display: flex; gap: 12px; align-items: center;
   background: #3A2410; color: #fff; padding: 10px 16px; border-radius: 14px; font-size: 15px; }
@@ -210,7 +211,8 @@
         snd.tada();
         const rv = el('div', { class: 'reveal', html: FS.stickerSVG(k, d) });
         gift.replaceWith(rv); dots.remove();
-        hint.textContent = L().rewardGot(FS.rewardText ? FS.rewardText(d, lang()) : FS.rewardIcon(d));
+        const got = L().rewardGot(FS.rewardText ? FS.rewardText(d, lang()) : FS.rewardIcon(d));
+        if (window.PokeRoom && window.PokeRoom.rich) hint.replaceChildren(...window.PokeRoom.rich(got)); else hint.textContent = got; // 열매 · 코인 그림
         confetti(rv, 36);
         setTimeout(() => { ov.remove(); save(d); }, 1500);
       } });

@@ -249,7 +249,7 @@
       valid: (p) => !!PINGD[p], next: pingNext, evoNeed: () => 10, fav: (id) => (PINGD[id] ? PINGD[id][3] : 'strawberry'),
       dex: PING.map((r) => r[0]), eggs: ['heart'], startEggs: null, start: 'heartsping1',
       eggName: (egg, lang) => (PING_EGGS[egg] || PING_EGGS.heart)[lang === 'de' ? 1 : 0], eggHTML: pingHeart, hatch: pingHatch, shiny: 0,
-      friend: true, room: 'princess' }, // 변신 없는 티니핑: 하트 5개마다 친해지기 단계 💗 + 고맙다고 🪙, 💗3부터 반짝 빛 · 춤
+      friend: true, room: 'princess' }, // 변신 없는 티니핑: 하트 5개마다 친해지기 단계 💗 (코인은 없음), 💗3부터 반짝 빛 · 춤
   };
   const charSet = (kid) => SETS[kid === 'arin' ? 'ping' : 'poke'];
   // 키우기 방 자료가 들어 있는 칸: kids.{k}.room (2026-11-15 밤 엄마 요청으로 모두 새로 시작 — 예전 kids.{k}.poke 는 안 씀)
