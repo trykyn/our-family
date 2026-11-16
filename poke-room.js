@@ -129,7 +129,7 @@
       evoDoneP: (a, b) => `✨ 짜잔! ${iga(a)} ${euro(b)} 변신했어요!`, evoOk: '와! 좋아요',
       hatchStart: '어…? 알이 움직여요…!', hatchStartP: '어…? 하트가 두근두근 뛰어요…!', hatchMid: '조금만 더…! 💥', hatchOk: '반가워!',
       hatchDone: (n, sh) => (sh ? `✨ 와아! 반짝이 ${iga(n)} 태어났어요!` : `🎉 펑! ${iga(n)} 태어났어요!`), petted: (n) => `${n} 💕`,
-      soap: '목욕', ball: '공놀이', pill: '약', scrub: '뽀글뽀글 🫧', bathed: '뽀득뽀득! 깨끗해졌어요 ✨', eggClean: '알은 반짝반짝 깨끗해요',
+      soap: '목욕', ball: '공놀이', pill: '약', scrub: '뽀글뽀글 🫧', bathed: '뽀득뽀득! 깨끗해졌어요 ✨', bathIn: '첨벙! 욕조에 쏙 🫧', eggClean: '알은 반짝반짝 깨끗해요',
       soapHint: '🧼 씻길 친구를 톡톡톡 눌러요', ballHint: '⚽ 방바닥을 누르면 공을 던져요', pillHint: '💊 아픈 친구를 누르면 약을 줘요 (🪙 1개)', noPill: '💊 약이 없어요', noCoinPill: '🪙 코인이 1개 있어야 약을 줄 수 있어요. 푹 쉬면 이틀 뒤에 나아요',
       notSick: '안 아파요! 약은 아껴 둬요', cured: (n) => `💊 ${iga(n)} 다 나았어요! 고마워요`, sick: '🤒 아픈 친구가 있어요. 💊 약을 줘요', sickSay: (n) => `🤒 ${iga(n)} 감기에 걸렸어요… 💊 약을 주세요`,
       caught: (n) => `🤧 ${iga(n)} 감기에 걸렸어요! 💊 약을 주세요`, achoo: '에취! 🤧', dirty: '🛁 목욕할 친구가 있어요. 🧼 비누로 씻겨 줘요',
@@ -153,7 +153,7 @@
       evoDoneP: (a, b) => `✨ Tadaa! ${a} hat sich in ${b} verwandelt!`, evoOk: 'Juhu!',
       hatchStart: 'Huch…? Das Ei wackelt…!', hatchStartP: 'Oh…? Das Herz pocht…!', hatchMid: 'Gleich…! 💥', hatchOk: 'Hallo!',
       hatchDone: (n, sh) => (sh ? `✨ Wow! Ein schillerndes ${n} ist geschlüpft!` : `🎉 Plopp! ${n} ist geschlüpft!`), petted: (n) => `${n} 💕`,
-      soap: 'Baden', ball: 'Ball', pill: 'Medizin', scrub: 'Schrubb 🫧', bathed: 'Blitzsauber! ✨', eggClean: 'Eier sind schon sauber',
+      soap: 'Baden', ball: 'Ball', pill: 'Medizin', scrub: 'Schrubb 🫧', bathed: 'Blitzsauber! ✨', bathIn: 'Platsch! Ab in die Wanne 🫧', eggClean: 'Eier sind schon sauber',
       soapHint: '🧼 Tippe 3× auf wen du baden willst', ballHint: '⚽ Tippe auf den Boden zum Werfen', pillHint: '💊 Tippe auf den Kranken (kostet 🪙 1)', noPill: '💊 Keine Medizin', noCoinPill: '🪙 Medizin kostet 1 Münze. Nach 2 Tagen Ruhe wird es auch so gesund',
       notSick: 'Nicht krank! Heb die Medizin auf', cured: (n) => `💊 ${n} ist wieder gesund! Danke`, sick: '🤒 Jemand ist krank. Gib 💊 Medizin', sickSay: (n) => `🤒 ${n} ist erkältet… gib 💊 Medizin`,
       caught: (n) => `🤧 ${n} hat sich erkältet! Gib 💊 Medizin`, achoo: 'Hatschi! 🤧', dirty: '🛁 Jemand muss baden. Nimm die 🧼 Seife',
@@ -459,6 +459,19 @@
 .pr-evo.white .ev-egg { filter: brightness(0) invert(1) drop-shadow(0 0 14px #fff) drop-shadow(0 0 36px #FFE27A); }
 .pr-evo.hatched .ev-egg { opacity: 0; scale: 1.6; }
 .pr-evo .ev-nm { font-size: .9em; }
+/* 🛁 목욕 욕조 */
+.pr-tub { position: absolute; transform: translate(-50%, -100%); pointer-events: none; animation: pr-tubin .5s cubic-bezier(.2, 1.6, .4, 1); }
+.pr-tub svg { display: block; width: 100%; height: auto; }
+.pr-tub.out { animation: pr-tubout .5s ease-in forwards; }
+@keyframes pr-tubin { from { scale: .3; opacity: 0; } }
+@keyframes pr-tubout { to { scale: .6; opacity: 0; translate: 0 10%; } }
+.pr-tub .tb-water { stroke-dasharray: 6 5; animation: pr-pour .3s linear infinite, pr-streamoff 1.9s forwards; }
+@keyframes pr-pour { to { stroke-dashoffset: -11; } }
+@keyframes pr-streamoff { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+.pr-tub .tb-bub { transform-box: fill-box; transform-origin: center; animation: pr-tbub 1s ease-in-out infinite alternate; }
+@keyframes pr-tbub { from { scale: .55; } to { scale: 1.12; } }
+.pr-mon.inbath { animation: pr-bathwob 1s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes pr-bathwob { 0%, 100% { rotate: -4deg; } 50% { rotate: 4deg; } }
 .pr-hand.ghost { opacity: 0; animation: pr-rub .32s ease-in-out infinite alternate, pr-ghost 2.4s ease-in-out forwards; }
 @keyframes pr-ghost { 0% { opacity: 0; } 15%, 80% { opacity: .9; } 100% { opacity: 0; } }
 .pr-poo { padding: .28em; }
@@ -517,6 +530,36 @@
     achoo: [[900, 0, 0.1, 'sawtooth', 600], [700, 0.14, 0.28, 'sawtooth', 160]], pill: [[784, 0, 0.1], [988, 0.1, 0.1], [1319, 0.2, 0.26]], pet: [[440, 0, 0.14, 'sine', 520]],
   };
   // 🔊 포켓몬 울음소리: 한 번 받으면 기억 (오디오는 탭할 때 깨워 둔 같은 소리 상자로)
+  // 🛁 목욕 욕조: 수도꼭지에서 물이 쪼르륵 → 거품 → 쏙 빠짐 (앞면이 친구 아랫부분을 가려서 욕조 안에 앉은 것처럼)
+  const TUB = `<svg viewBox="0 0 120 92" aria-hidden="true" overflow="visible">
+<g class="tb-stream"><path d="M4 4h22v9h-5" fill="none" stroke="#C9962E" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 4h22v9h-5" fill="none" stroke="#F6CF6A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path class="tb-water" d="M21 16q1 14 6 26" stroke="#8FD3F4" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+<ellipse cx="60" cy="44" rx="53" ry="8" fill="#8FD3F4" opacity=".9"/><ellipse cx="60" cy="43" rx="44" ry="4" fill="#fff" opacity=".35"/>
+<rect x="2" y="38" width="116" height="10" rx="5" fill="#fff" stroke="#6B3E26" stroke-width="2.6"/>
+<path d="M6 46H114V60C114 75 101 82 86 82H34C19 82 6 75 6 60Z" fill="#fff" stroke="#6B3E26" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M12 60H108" stroke="#FF9EC7" stroke-width="4" stroke-linecap="round"/><path d="M60 72c-6-4-8-8-5-10 2-1 4 0 5 2 1-2 3-3 5-2 3 2 1 6-5 10z" fill="#FF8FB8"/>
+<circle cx="26" cy="85" r="4.5" fill="#F6CF6A" stroke="#6B3E26" stroke-width="1.8"/><circle cx="94" cy="85" r="4.5" fill="#F6CF6A" stroke="#6B3E26" stroke-width="1.8"/>
+${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7], [58, 30, 6]].map(([x, y, r], i) => `<circle class="tb-bub" style="animation-delay:${(i * 0.13).toFixed(2)}s" cx="${x}" cy="${y}" r="${r}" fill="#F3FAFF" stroke="#8EC9EA" stroke-width="1.6"/><circle cx="${x - r * .35}" cy="${y - r * .35}" r="${r * .28}" fill="#fff"/>`).join('')}
+</svg>`;
+  // 물 쪼르륵: 물줄기 소리(점점 높아짐) + 퐁퐁 거품
+  function pourSound() {
+    try {
+      ax = ax || new (window.AudioContext || window.webkitAudioContext)();
+      if (ax.state === 'suspended') ax.resume();
+      const t0 = ax.currentTime, len = 1.5, sr = ax.sampleRate, buf = ax.createBuffer(1, Math.floor(sr * len), sr), d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (0.55 + 0.45 * Math.sin((i / sr) * 2 * Math.PI * 23));
+      const src = ax.createBufferSource(), bp = ax.createBiquadFilter(), g = ax.createGain();
+      src.buffer = buf; bp.type = 'bandpass'; bp.Q.value = 4; bp.frequency.setValueAtTime(450, t0); bp.frequency.linearRampToValueAtTime(1300, t0 + len);
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.32, t0 + 0.06); g.gain.setValueAtTime(0.32, t0 + len - 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t0 + len);
+      src.connect(bp).connect(g).connect(ax.destination); src.start(t0); src.stop(t0 + len);
+      for (let i = 0; i < 8; i++) {
+        const tt = t0 + 0.25 + Math.random() * 1.4, f = 420 + Math.random() * 600, os = ax.createOscillator(), og = ax.createGain();
+        os.type = 'sine'; os.frequency.setValueAtTime(f, tt); os.frequency.exponentialRampToValueAtTime(f * 1.9, tt + 0.07);
+        og.gain.setValueAtTime(0.0001, tt); og.gain.exponentialRampToValueAtTime(0.12, tt + 0.01); og.gain.exponentialRampToValueAtTime(0.0001, tt + 0.09);
+        os.connect(og).connect(ax.destination); os.start(tt); os.stop(tt + 0.1);
+      }
+    } catch {}
+  }
   const PRELOADED = new Set(); // 미리 받은 그림 묶음 (방을 다시 열어도 또 받지 않게)
   const cryBuf = new Map(); // 최근 24마리 울음소리만 기억 (메모리 아끼기)
   function playCry(id) {
@@ -580,7 +623,7 @@
       ['heart', '하트가 모이면', P ? '💗 하트 5개마다 더 친해져요. 💗3이면 단짝이 돼서 반짝반짝 춤을 춰요. 변신하는 티니핑은 하트 10개에 변신해요.' : '진화해요! 첫 진화는 하트 10개, 다음 진화는 하트 15개.'],
       ['rice', '밥', '아침 · 점심 · 저녁마다 배고픈 친구 머리 위에 🍚 가 떠요. 🍚 밥을 누르고 그 친구를 눌러요.'],
       ['hand', '쓰다듬기', '친구를 꾹 누른 채 손가락으로 문질러요. 🤚 가 뜬 친구가 기다려요.'],
-      ['soap', '목욕', '🛁 가 뜨면 🧼 목욕을 누르고 친구를 톡톡톡 세 번! 🚿 샤워로 깨끗해져요.'],
+      ['soap', '목욕', '🛁 가 뜨면 🧼 목욕을 누르고 친구를 톡톡톡 세 번! 욕조에 쏙 들어가서 물이 쪼르륵 — 깨끗해져요.'],
       ['poop', '똥 치우기', '하루 두 번 💩 가 생겨요. 톡 누르면 치워져요.'],
       ['heart', '열매 보너스', '오늘 밥 · 쓰다듬기 · 목욕을 받은 친구가 미션 열매를 먹으면 하트 +1 (하루 한 번).'],
       ['ball', '소원', '하루에 한 친구가 💭 소원을 말해요 (⚽ 공놀이 또는 좋아하는 열매). 들어주면 하트 +1! 공놀이는 ⚽ 를 누르고 바닥을 눌러요.'],
@@ -597,7 +640,7 @@
       ['heart', 'Viele Herzen', P ? '💗 Alle 5 Herzen werdet ihr engere Freunde. Ab 💗3 beste Freunde: Glitzer und Tanz. Verwandelnde Teenieping verwandeln sich bei 10 Herzen.' : 'Entwicklung! Die erste bei 10 Herzen, die nächste bei 15.'],
       ['rice', 'Futter', 'Morgens, mittags und abends zeigt ein hungriger Freund 🍚. 🍚 Futter wählen und ihn antippen.'],
       ['hand', 'Streicheln', 'Gedrückt halten und mit dem Finger reiben. Wer 🤚 zeigt, wartet darauf.'],
-      ['soap', 'Baden', 'Bei 🛁: 🧼 Baden wählen und 3× antippen. Dann 🚿 Dusche – sauber!'],
+      ['soap', 'Baden', 'Bei 🛁: 🧼 Baden wählen und 3× antippen. Ab in die Wanne, Wasser plätschert – sauber!'],
       ['poop', 'Aufräumen', 'Zweimal am Tag gibt es 💩. Antippen = weg.'],
       ['heart', 'Pflege-Bonus', 'Wer heute Futter, Streicheln oder Baden bekam, kriegt bei der Missions-Beere +1 Herz (1× am Tag).'],
       ['ball', 'Wunsch', 'Jeden Tag hat ein Freund einen 💭 Wunsch (⚽ Ball oder Lieblingsbeere). Erfüllen = +1 Herz! Für den Ball ⚽ wählen und auf den Boden tippen.'],
@@ -643,7 +686,7 @@
     let muted = false;
     try { muted = localStorage.getItem('poke-room:mute') === '1'; } catch {}
     const snd = Object.fromEntries(Object.entries({ tap() {}, tada() {}, boing() {}, stick() {}, coin() {}, ...(o.snd || {}) }).map(([k, f]) => [k, (...a) => { if (!muted) f(...a); }]));
-    const sfx = (k) => { if (o.snd && !muted) beep(SFX[k]); }; // 소리를 넘긴 앱에서만
+    const sfx = (k) => { if (!o.snd || muted) return; if (k === 'pour') pourSound(); else beep(SFX[k]); }; // 소리를 넘긴 앱에서만
     let sayAt = 0;
     function voice(m, big) { // 🔊 포켓몬 울음소리 / 티니핑 '핑♪' + 이름 (이름은 8초에 한 번, 태어날 때 · 친해질 때는 꼭)
       if (muted || !o.snd || !m || !hatched(m)) return;
@@ -858,18 +901,26 @@
       if (e._shower) return;
       e._scrub = (e._scrub || 0) + 1; sfx('bubble');
       e.append(el('span', { class: 'foam', html: ICON.bubbles, style: `left:${rnd(0, 70).toFixed(0)}%;top:${rnd(5, 65).toFixed(0)}%` }));
-      if (e._scrub < 3) { bubble(x, y, L().scrub); return; }
+      if (e._scrub < 3) { if (e._sb) e._sb.remove(); e._sb = bubble(x, y, L().scrub); return; }
+      if (e._sb) { e._sb.remove(); e._sb = null; }
       e._scrub = 0; e._shower = true;
-      const sh = el('span', { class: 'pr-shower', html: ICON.shower, style: `left:${x}%;top:${y - 4}%` });
-      roomEl.append(sh); hearts(x, y + 4, 6, 'drop', true); sfx('shower');
+      // 🛁 욕조에 쏙: 친구 발밑에 욕조를 놓고 (친구보다 앞) 물 쪼르륵 → 거품 → 욕조가 쏙 빠지면 반짝
+      // 욕조 가장자리가 친구 키의 아래쪽 40% 쯤에 오게 (윗몸은 보이게)
+      const RH = roomEl.clientHeight || 1, mh = parseFloat(e._img && e._img.style.height) || (e.offsetHeight > 24 ? e.offsetHeight : 92 * scale), mw = Math.max(e.offsetWidth, mh * 0.9); // 그림이 아직 안 왔어도 보통 키로
+      const tw = Math.max(mw * 1.4, 58 * scale), th = tw * 92 / 120;
+      const bottom = parseFloat(e.style.top) + ((th * 54 / 92 - mh * 0.4) / RH) * 100;
+      const tub = el('span', { class: 'pr-tub', html: TUB, style: `left:${x}%;top:${bottom.toFixed(2)}%;width:${tw.toFixed(0)}px;z-index:${(parseInt(e.style.zIndex, 10) || 50) + 1}` });
+      roomEl.append(tub); e.classList.add('inbath'); bubble(x, y - 4, L().bathIn); sfx('pour');
+      setTimeout(() => hearts(x, y + 2, 5, 'bubbles', true), 700);
       const was = dirtyOf(m);
       setTimeout(() => {
-        sh.remove(); for (const f of e.querySelectorAll('.foam')) f.remove(); e._shower = false;
+        tub.classList.add('out'); setTimeout(() => tub.remove(), 520);
+        e.classList.remove('inbath'); for (const f of e.querySelectorAll('.foam')) f.remove(); e._shower = false;
         if (!alive) return;
         setCare(m.id, { b: Date.now() }); hearts(x, y, 4, 'sparkle', true); snd.stick(); happy(e); bubble(x, y, L().bathed);
         if (was) setTimeout(() => hearts(x, y, 4), 700);
         renderRoom(); renderBar();
-      }, 1100);
+      }, 2300);
     }
     function givePill(e, m, x, y) {
       if (!sickOf(m)) { bubble(x, y, L().notSick); snd.boing(); return; }
@@ -1203,7 +1254,7 @@
     }
     function bubble(x, y, t, extra) {
       const b = el('div', { class: 'pr-bub', style: `left:${x}%;top:${y}%` }, ...rich(t), extra);
-      roomEl.append(b); setTimeout(() => b.remove(), 2100);
+      roomEl.append(b); setTimeout(() => b.remove(), 2100); return b;
     }
     function hearts(x, y, n, icon, all) {
       for (let i = 0; i < n; i++) {
