@@ -126,7 +126,9 @@
       lightOff: '불 끄기', lightOn: '불 켜기', sleepy: '하암… 졸려요. 🌙 불을 꺼 주세요', night: '잘 자! 💤', morning: '☀️ 좋은 아침! 잘 잤어요?', hello: '👋 반가워요! 같이 놀아요', missed: '🥹 보고 싶었어요!',
       hungry: '🍚 배고픈 친구가 있어요. 밥을 줘요', petMe: '🤚 친구를 꾹 누른 채 문지르면 쓰다듬어요', poo: '💩 똥을 톡 눌러서 치워 줘요', cleaned: '✨ 깨끗해졌어요!', careBonus: (n) => `💕 잘 돌봐 줘서 ${iga(n)} 하트를 1개 더 받았어요!`, oneBerry: (n, b) => `${n}: 오늘 열매는 벌써 먹었어요. 좋아하는 ${b} 는 또 먹을 수 있어요!`,
       evoStart: (n) => `어라…? ${n}의 모습이…!`, evoStartP: (n) => `어머…? ${iga(n)} 반짝반짝 빛나요…!`, evoDone: (a, b) => `🎉 축하해요! ${iga(a)} ${euro(b)} 진화했어요!`,
-      evoDoneP: (a, b) => `✨ 짜잔! ${iga(a)} ${euro(b)} 변신했어요!`, evoOk: '와! 좋아요', petted: (n) => `${n} 💕`,
+      evoDoneP: (a, b) => `✨ 짜잔! ${iga(a)} ${euro(b)} 변신했어요!`, evoOk: '와! 좋아요',
+      hatchStart: '어…? 알이 움직여요…!', hatchStartP: '어…? 하트가 두근두근 뛰어요…!', hatchMid: '조금만 더…! 💥', hatchOk: '반가워!',
+      hatchDone: (n, sh) => (sh ? `✨ 와아! 반짝이 ${iga(n)} 태어났어요!` : `🎉 펑! ${iga(n)} 태어났어요!`), petted: (n) => `${n} 💕`,
       soap: '목욕', ball: '공놀이', pill: '약', scrub: '뽀글뽀글 🫧', bathed: '뽀득뽀득! 깨끗해졌어요 ✨', eggClean: '알은 반짝반짝 깨끗해요',
       soapHint: '🧼 씻길 친구를 톡톡톡 눌러요', ballHint: '⚽ 방바닥을 누르면 공을 던져요', pillHint: '💊 아픈 친구를 누르면 약을 줘요 (🪙 1개)', noPill: '💊 약이 없어요', noCoinPill: '🪙 코인이 1개 있어야 약을 줄 수 있어요. 푹 쉬면 이틀 뒤에 나아요',
       notSick: '안 아파요! 약은 아껴 둬요', cured: (n) => `💊 ${iga(n)} 다 나았어요! 고마워요`, sick: '🤒 아픈 친구가 있어요. 💊 약을 줘요', sickSay: (n) => `🤒 ${iga(n)} 감기에 걸렸어요… 💊 약을 주세요`,
@@ -148,7 +150,9 @@
       lightOff: 'Licht aus', lightOn: 'Licht an', sleepy: 'Gähn… müde. 🌙 Mach das Licht aus', night: 'Gute Nacht! 💤', morning: '☀️ Guten Morgen! Gut geschlafen?', hello: '👋 Hallo! Spiel mit mir', missed: '🥹 Ich hab dich vermisst!',
       hungry: '🍚 Jemand hat Hunger. Gib Futter', petMe: '🤚 Gedrückt halten und reiben = streicheln', poo: '💩 Tippe auf den Haufen zum Saubermachen', cleaned: '✨ Alles sauber!', careBonus: (n) => `💕 Gut gepflegt – ${n} bekommt 1 Herz extra!`, oneBerry: (n, b) => `${n} hatte heute schon eine Beere. Die Lieblingsbeere ${b} geht immer!`,
       evoStart: (n) => `Nanu…? ${n} verändert sich…!`, evoStartP: (n) => `Oh…? ${n} glitzert…!`, evoDone: (a, b) => `🎉 Glückwunsch! ${a} hat sich zu ${b} entwickelt!`,
-      evoDoneP: (a, b) => `✨ Tadaa! ${a} hat sich in ${b} verwandelt!`, evoOk: 'Juhu!', petted: (n) => `${n} 💕`,
+      evoDoneP: (a, b) => `✨ Tadaa! ${a} hat sich in ${b} verwandelt!`, evoOk: 'Juhu!',
+      hatchStart: 'Huch…? Das Ei wackelt…!', hatchStartP: 'Oh…? Das Herz pocht…!', hatchMid: 'Gleich…! 💥', hatchOk: 'Hallo!',
+      hatchDone: (n, sh) => (sh ? `✨ Wow! Ein schillerndes ${n} ist geschlüpft!` : `🎉 Plopp! ${n} ist geschlüpft!`), petted: (n) => `${n} 💕`,
       soap: 'Baden', ball: 'Ball', pill: 'Medizin', scrub: 'Schrubb 🫧', bathed: 'Blitzsauber! ✨', eggClean: 'Eier sind schon sauber',
       soapHint: '🧼 Tippe 3× auf wen du baden willst', ballHint: '⚽ Tippe auf den Boden zum Werfen', pillHint: '💊 Tippe auf den Kranken (kostet 🪙 1)', noPill: '💊 Keine Medizin', noCoinPill: '🪙 Medizin kostet 1 Münze. Nach 2 Tagen Ruhe wird es auch so gesund',
       notSick: 'Nicht krank! Heb die Medizin auf', cured: (n) => `💊 ${n} ist wieder gesund! Danke`, sick: '🤒 Jemand ist krank. Gib 💊 Medizin', sickSay: (n) => `🤒 ${n} ist erkältet… gib 💊 Medizin`,
@@ -220,9 +224,11 @@
 .pr-mon.flip img { transform: scaleX(-1); }
 .pr-mon::after { content: ''; position: absolute; left: 15%; right: 15%; bottom: -3px; height: 8px; border-radius: 50%; background: rgba(0,0,0,.16); z-index: -1; }
 .pk-egg { image-rendering: pixelated; }
-.pr-mon.egg > .pk-egg { animation: pr-wob 3.2s ease-in-out infinite; animation-delay: var(--wd, 0s); }
-.pr-mon.egg.crack > .pk-egg { animation-duration: 1.4s; }
-.pr-mon.egg .ck { position: absolute; left: 18%; top: 34%; width: 64%; pointer-events: none; }
+.pr-mon .egw, .pr-evo .egw { position: relative; display: block; transform-origin: 50% 92%; }
+.pr-mon.egg > .egw { animation: pr-wob 3.2s ease-in-out infinite; animation-delay: var(--wd, 0s); }
+.pr-mon.egg.crack > .egw { animation-duration: 1.4s; }
+.egw .ck { position: absolute; left: 16%; top: 36%; width: 68%; pointer-events: none; } .egw .pg-heart ~ .ck { left: 18%; top: 28%; width: 64%; }
+.egw .ck.k2 { left: 26%; top: 56%; width: 50%; } .egw .pg-heart ~ .ck.k2 { left: 28%; top: 50%; width: 44%; }
 @keyframes pr-wob { 0%, 70%, 100% { transform: rotate(0); } 76% { transform: rotate(-9deg); } 84% { transform: rotate(8deg); } 92% { transform: rotate(-4deg); } }
 .pr-mon.jump > img { animation: pr-jump .5s ease-out; }
 .pr-mon.flip.jump > img { animation-name: pr-jumpf; }
@@ -230,7 +236,7 @@
 @keyframes pr-jumpf { 40% { transform: scaleX(-1) translateY(-28%) scaleY(1.05); } 70% { transform: scaleX(-1) translateY(0) scaleY(.9); } }
 .pr-mon.evo > img { animation: pr-evo 1.4s ease-in-out; }
 @keyframes pr-evo { 0%, 100% { filter: none; } 20%, 60% { filter: brightness(0) invert(1); transform: scale(1.15); } 40%, 80% { filter: none; } }
-.pr-mon.egg.hatch > .pk-egg { animation: pr-hatch 1.3s ease-in-out forwards; }
+.pr-mon.egg.hatch > .egw { animation: pr-hatch 1.3s ease-in-out forwards; }
 @keyframes pr-hatch { 0% { transform: rotate(0); } 10%, 30%, 50% { transform: rotate(-14deg); } 20%, 40%, 60% { transform: rotate(14deg); } 85% { transform: scale(1.3); filter: brightness(0) invert(1); } 100% { transform: scale(1.4); filter: brightness(0) invert(1); opacity: .6; } }
 .pr.smooth .pr-mon img { image-rendering: auto; filter: drop-shadow(0 2px 2px rgba(0,0,0,.12)); }
 .pr-body { position: relative; display: block; transform-origin: 50% 100%; pointer-events: none; }
@@ -441,13 +447,25 @@
 .pr-evo .ev-sp { position: absolute; left: 50%; top: 40%; width: clamp(18px, 5vw, 34px); height: clamp(18px, 5vw, 34px); pointer-events: none; animation: pr-sp 1.7s ease-out forwards; }
 .pr-evo .ev-sp .pi { width: 100%; height: 100%; display: block; }
 @keyframes pr-sp { 0% { translate: -50% -50%; scale: .2; opacity: 1; } 100% { translate: calc(-50% + var(--dx)) calc(-50% + var(--dy)); scale: 1.2; rotate: var(--r); opacity: 0; } }
+/* 🐣 알에서 태어나는 장면 (진화 장면과 같은 무대) */
+.pr-evo .ev-stage .ev-egg { position: absolute; inset: 6%; display: grid; place-items: center; transform-origin: 50% 90%; transition: opacity .25s, scale .25s; }
+.pr-evo .ev-stage .ev-egg .egw { width: 88%; } .pr-evo .ev-stage .ev-egg .pk-egg, .pr-evo .ev-stage .ev-egg img { position: static; display: block; width: 100%; height: auto; }
+.pr-evo .ev-egg .ck { opacity: 0; transition: opacity .15s; } .pr-evo .ev-egg.c1 .ck:not(.k2), .pr-evo .ev-egg.c2 .ck.k2 { opacity: 1; }
+.pr-evo .ev-egg.w1 { animation: pr-wob 1.8s ease-in-out infinite; } .pr-evo .ev-egg.w2 { animation: pr-wob .7s ease-in-out infinite; } .pr-evo .ev-egg.w3 { animation: pr-shake .16s linear infinite; }
+@keyframes pr-shake { 0%, 100% { rotate: -7deg; } 50% { rotate: 7deg; } }
+.pr-evo.white .ev-egg { filter: brightness(0) invert(1) drop-shadow(0 0 14px #fff) drop-shadow(0 0 36px #FFE27A); }
+.pr-evo.hatched .ev-egg { opacity: 0; scale: 1.6; }
+.pr-evo .ev-nm { font-size: .9em; }
 .pr-hand.ghost { opacity: 0; animation: pr-rub .32s ease-in-out infinite alternate, pr-ghost 2.4s ease-in-out forwards; }
 @keyframes pr-ghost { 0% { opacity: 0; } 15%, 80% { opacity: .9; } 100% { opacity: 0; } }
 .pr-poo { padding: .28em; }
 .pr-grid button .new { position: absolute; left: 3px; top: 3px; padding: 0 4px; border-radius: 6px; background: #FF5FA2; color: #fff; font-size: calc(9px * var(--pr-s)); font-weight: 800; line-height: 1.5; }
 .pr-bub .st { margin-left: .4em; } .pr-bub .st i { font-style: normal; } .pr-bub .st i.off { opacity: .25; filter: grayscale(1); }
 `;
-  const CRACK = '<svg class="ck" viewBox="0 0 60 20" aria-hidden="true"><path d="M2 10l8-6 7 9 8-8 8 9 8-7 8 8 9-6" stroke="#5a3a1a" stroke-width="3" fill="none" stroke-linejoin="round"/></svg>';
+  // 알에 간 금: 알 그림과 한 덩어리(.egw)로 같이 흔들림. k2 = 장면에서 두 번째 금
+  const CRACK = '<svg class="ck" viewBox="0 0 60 30" aria-hidden="true"><path d="M3 15l7-6 6 9 8-10 7 10 8-8 7 9 6-6 5 4" stroke="#4A2E1A" stroke-width="3.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>'
+    + '<path d="M24 9l2-6M38 19l3 7" stroke="#4A2E1A" stroke-width="2.4" stroke-linecap="round"/><path d="M3 17l7-6 6 9 8-10 7 10 8-8 7 9 6-6 5 4" stroke="#fff" stroke-width="1.2" fill="none" opacity=".55"/></svg>';
+  const CRACK2 = '<svg class="ck k2" viewBox="0 0 60 30" aria-hidden="true"><path d="M4 12l9 6 8-8 9 9 9-7 9 8 8-5" stroke="#4A2E1A" stroke-width="3.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/><path d="M30 19l-2 8" stroke="#4A2E1A" stroke-width="2.4" stroke-linecap="round"/></svg>';
   function addCss() {
     if (document.getElementById('pr-css')) return;
     const st = document.createElement('style'); st.id = 'pr-css'; st.textContent = css; document.head.append(st);
@@ -1009,6 +1027,37 @@
       at(t + 900, burst);
       at(t + 16000, close);
     }
+    // ── 🐣 태어나는 장면: 알이 흔들흔들 → 금이 쩍 · 쩍 → 하얗게 번쩍! → 새 친구 + 이름 ──
+    function hatchScene(egg, p, sh) {
+      const P = SET.key === 'ping', T = [], at = (ms, f) => T.push(setTimeout(f, ms));
+      const tone = (f, d) => { if (o.snd && !muted) beep([[f, 0, d, 'triangle']]); };
+      const eg = el('div', { class: 'ev-egg w1', html: `<span class="egw">${SET.eggHTML(egg)}${CRACK}${CRACK2}</span>` });
+      const st = el('div', { class: 'ev-stage' }, eg, el('img', { class: 'ev-b', src: SET.art(p), alt: '' }));
+      const txt = el('div', { class: 'ev-txt' }, ...rich(P ? L().hatchStartP : L().hatchStart));
+      const ov = el('div', { class: 'pr-evo' + (P ? ' ping' : '') }, el('div', { class: 'ev-rays' }), st, el('div', { class: 'ev-flash' }), txt);
+      document.body.append(ov);
+      let doneAt = 0, closed = false;
+      const close = () => { if (closed) return; closed = true; T.forEach(clearTimeout); ov.classList.add('out'); setTimeout(() => ov.remove(), 400); };
+      ov.addEventListener('click', () => { if (doneAt && Date.now() - doneAt > 900) close(); });
+      const burst = () => { for (let i = 0; i < 28; i++) { const a = Math.random() * Math.PI * 2, d = 18 + Math.random() * 32;
+        const sp = el('span', { class: 'ev-sp', html: ICON[pick(P ? ['heart', 'sparkle', 'star'] : ['sparkle', 'star', 'party'])], style: `--dx:${(Math.cos(a) * d).toFixed(1)}vmin;--dy:${(Math.sin(a) * d).toFixed(1)}vmin;--r:${Math.round(rnd(-200, 200))}deg;animation-delay:${(i * 0.02).toFixed(2)}s` });
+        ov.append(sp); setTimeout(() => sp.remove(), 2200); } };
+      new Image().src = SET.art(p);
+      tone(392, 0.12);
+      at(1000, () => { eg.className = 'ev-egg w2 c1'; tone(330, 0.1); setTimeout(() => tone(330, 0.1), 160); });
+      at(2100, () => { eg.className = 'ev-egg w3 c1 c2'; tone(440, 0.1); setTimeout(() => tone(494, 0.1), 140); txt.replaceChildren(...rich(L().hatchMid)); });
+      at(2900, () => { ov.classList.add('white'); st.classList.add('glow'); tone(523, 0.45); });
+      at(3600, () => {
+        doneAt = Date.now();
+        ov.classList.remove('white'); st.classList.remove('glow'); ov.classList.add('flashing', 'done', 'show-b', 'hatched');
+        snd.tada(); burst(); setTimeout(() => voice({ p, h: 1 }, true), 450);
+        txt.replaceChildren(el('div', {}, ...rich(L().hatchDone(name(p), sh))),
+          el('div', { class: 'ev-res' }, el('img', { src: SET.art(p), alt: '' }), el('b', { class: 'ev-nm' }, sh ? icon('sparkle') : null, name(p))),
+          el('button', { type: 'button', class: 'ev-ok', text: L().hatchOk, onclick: (ev) => { ev.stopPropagation(); close(); } }));
+      });
+      at(4300, burst);
+      at(19000, close);
+    }
     // ── 친구들이 가구를 써요 (소파에 앉기 · 피아노 · 분수 · 밤엔 침대에서 쿨쿨) ──
     const UK = USE[SET.room ? 'pp' : 'pk'], BK = BED[SET.room ? 'pp' : 'pk'];
     const fac = () => (scale * 300) / Math.max(1, roomEl.clientWidth); // 가구 크기 비율 (방이 커도 가구는 2.4배까지)
@@ -1177,7 +1226,7 @@
       e._key = key; e._egg = egg;
       e.classList.toggle('egg', egg); e.classList.toggle('crack', cracked); e.classList.remove('hatch');
       if (egg) {
-        e.innerHTML = SET.eggHTML(m.egg) + (cracked ? CRACK : '');
+        e.innerHTML = `<span class="egw">${SET.eggHTML(m.egg)}${cracked ? CRACK : ''}</span>`;
         e.style.setProperty('--wd', `${rnd(0, 3).toFixed(1)}s`);
         e.setAttribute('aria-label', eggName(m.egg));
         e._img = null;
@@ -1218,8 +1267,9 @@
       const { id, q, ...v } = m;
       const have = new Set(mons().filter(hatched).map((z) => z.p));
       const p = SET.valid(m.p) ? m.p : SET.hatch(m.egg, have), s = Math.random() < SET.shiny;
-      e._busy = true; e.classList.add('hatch'); snd.tap(3);
-      setTimeout(() => { e._busy = false; W(['mons', id], { ...v, p, s, h: Date.now(), f: 0 }); meet(p); news(s ? L().shinyHatch(name(p)) : L().hatched(name(p))); hearts(x, y, 8); voice({ p, h: Date.now() }, true); }, 1300);
+      e._busy = true; e.classList.add('hatch');
+      hatchScene(m.egg, p, s); // 🐣 화면 전체 장면 (자료는 바로 저장)
+      setTimeout(() => { e._busy = false; W(['mons', id], { ...v, p, s, h: Date.now(), f: 0 }); meet(p); hearts(x, y, 8); }, 1300);
     }
     function feed(e, m, kind, x, y) {
       const key = take(kind, 1)[0];
