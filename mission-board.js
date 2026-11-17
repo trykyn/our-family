@@ -190,7 +190,7 @@
       popId = '';
       const foot = G.gift ? el('div', { class: 'mb-done' }, el('b', { text: L().goldDone(G.need) }), reward ? el('div', { class: 'rw', text: `🎁 ${reward}` }) : null,
         el('button', { type: 'button', class: 'mb-btn', text: L().newBoard, onclick: () => guard(() => { if (o.askNewBoard !== false && !confirm(L().newAsk)) return; W(['cfg'], { ...((kd().cfg) || {}), start: Date.now() }); render(); }) }))
-        : el('p', { class: 'mb-hint', text: Wk.all ? L().weekGold : L().offHint });
+        : el('p', { class: 'mb-hint', text: Wk.all && Wk.gold ? L().weekGold : L().offHint });
       wrap.replaceChildren(ms, golds, el('div', { class: 'mb-rw' }, '🎁 ', reward ? el('b', { text: reward }) : L().noReward, ` · 🏅 ${G.count}/${G.need}`),
         el('div', { class: 'mb-head' }, el('b', { text: L().week }), el('span', { text: `⭐ ${Wk.count} / 7` })), board, foot);
     }
@@ -214,13 +214,13 @@
         const got = L().rewardGot(FS.rewardText ? FS.rewardText(d, lang()) : FS.rewardIcon(d));
         if (window.PokeRoom && window.PokeRoom.rich) hint.replaceChildren(...window.PokeRoom.rich(got)); else hint.textContent = got; // 열매 · 코인 그림
         confetti(rv, 36);
-        setTimeout(() => { ov.remove(); save(d); }, 1500);
+        setTimeout(() => { ov.remove(); save(d, day); }, 1500);
       } });
       const ov = el('div', { class: 'mb-gift' }, el('div', { class: 'mb-gift-card' }, el('b', { text: L().msGiftTitle }), gift, dots, hint));
       document.body.append(ov);
     }
-    function save(d) {
-      const id = newId(), day = keyOf(new Date()), md = (kd().mdone || {})[day];
+    function save(d, day) { // day = 선물 상자를 연 날 (상자를 열어 둔 채 자정이 지나도 그날에 붙음)
+      const id = newId(), md = (kd().mdone || {})[day];
       if (md && md.got) return; // 오늘 스티커는 한 장만
       const R = FS.ROOM || 'room';
       if (FS.weekCompletesToday(kd(), k, day)) { const wk = FS.weekKeys(day)[0]; W(['golds', wk], { at: Date.now(), d }); popGold = wk; setTimeout(() => { snd.tada(); toast(L().goldGot); }, 500); }
@@ -235,7 +235,11 @@
     // 쉬는 날 표시/해제 — 표시해서 이번 주가 다 차면 황금 스티커도
     function toggleOff(x) {
       const day = keyOf(new Date());
-      if (x.off) { W(['mdone', x.key, 'off'], null); if (x.sick) W(['mdone', x.key, 'sick'], null); render(); toast(L().offUndone); return; }
+      if (x.off) {
+        const Wk = FS.weekState(kd(), k, day), gw = Wk.all && Wk.gold ? FS.weekKeys(x.key)[0] : '', g = gw && (kd().golds || {})[gw]; // 풀면 이번 주가 안 차므로 황금 스티커도 뺌
+        W(['mdone', x.key, 'off'], null); if (x.sick) W(['mdone', x.key, 'sick'], null); if (g) W(['golds', gw], null); render();
+        toast(L().offUndone, g ? () => { W(['mdone', x.key, 'off'], true); if (x.sick) W(['mdone', x.key, 'sick'], true); W(['golds', gw], g); render(); } : undefined); return;
+      }
       let gw = '';
       if (FS.weekCompletesWithOff(kd(), k, day, x.key)) { gw = FS.weekKeys(day)[0]; W(['golds', gw], { at: Date.now(), d: FS.newRewardD() }); popGold = gw; setTimeout(() => snd.tada(), 300); }
       W(['mdone', x.key, 'off'], true);

@@ -120,7 +120,7 @@
       evolved: (a, b) => `${iga(a)} ${euro(b)} 진화했어요!`, eggInfo: (n) => `🥚 열매 ${n}개 더 먹으면 태어나요`, toEvo: (n) => `진화까지 하트 ${n}개`, likes: (b) => `좋아하는 열매 ${b}`,
       shopHead: (c) => `코인 ${c}개`, eggs: '🥚 알', furn: '🪑 가구', bgHead: '🖼️ 장소 바꾸기', bgTip: '산 장소는 눌러서 언제든 바꿔요', bgOn: '사용 중', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
       eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, whoHead: '👑 로미와 친구들', whoTip: '알에서는 안 나와요. 가게에서 데려와요. 로미는 처음부터 선물로 놀러 오고, 하트 15개마다 새 모습으로 변신해요!', romiGift: '👑 로미가 선물로 놀러 왔어요! 하트 15개마다 변신해요', romiHome: '👑 로미가 방에 나왔어요!', romiBack: (c) => `👑 로미는 이제 선물이에요! 로미 살 때 쓴 🪙 코인 ${c}개를 돌려받았어요`, whoCame: (n) => `👑 ${iga(n)} 놀러 왔어요!`, whoHave: (n) => `${iga(n)} 벌써 우리 방에 있어요`, forms: '모습 고르기', decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
-      homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, dexHead: (n, N) => `도감 ${n} / ${N}`,
+      homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, homeSwap: (n) => `🏠 방이 꽉 차서 ${iga(n)} 친구 목록에서 쉬어요 (📖 에서 다시 넣어요)`, dexHead: (n, N) => `도감 ${n} / ${N}`,
       tapEgg: '🥚 알을 톡 눌러 봐요! 바로 깨어나요', goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개', coinLog: '기록', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
       rice: '밥', riceHint: '🍚 밥 줄 친구를 눌러요', full: (n) => `${n}: 배불러요 😋`, yum: '냠냠! 맛있어요 😋', eggRice: '알은 열매만 먹어요',
       lightOff: '불 끄기', lightOn: '불 켜기', sleepy: '하암… 졸려요. 🌙 불을 꺼 주세요', night: '잘 자! 💤', morning: '☀️ 좋은 아침! 잘 잤어요?', hello: '👋 반가워요! 같이 놀아요', missed: '🥹 보고 싶었어요!',
@@ -144,7 +144,7 @@
       evolved: (a, b) => `${a} hat sich zu ${b} entwickelt!`, eggInfo: (n) => `🥚 Noch ${n} Beeren bis zum Schlüpfen`, toEvo: (n) => `Noch ${n} Herzen bis zur Entwicklung`, likes: (b) => `Lieblingsbeere ${b}`,
       shopHead: (c) => `${c} Münzen`, eggs: '🥚 Eier', furn: '🪑 Möbel', bgHead: '🖼️ Ort wechseln', bgTip: 'Gekaufte Orte jederzeit antippen zum Wechseln', bgOn: 'Aktiv', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
       eggCame: (n) => `🥚 Ein ${n} ist da!`, whoHead: '👑 Romi & Freunde', whoTip: 'Kommen nicht aus Eiern – hier abholen. Romi kommt gleich als Geschenk und verwandelt sich alle 15 Herzen neu!', romiGift: '👑 Romi ist als Geschenk da! Alle 15 Herzen verwandelt sie sich', romiHome: '👑 Romi ist jetzt im Zimmer!', romiBack: (c) => `👑 Romi ist jetzt ein Geschenk – 🪙 ${c} Münzen zurück`, whoCame: (n) => `👑 ${n} ist zu Besuch!`, whoHave: (n) => `${n} ist schon da`, forms: 'Aussehen wählen', decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
-      homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, dexHead: (n, N) => `Pokédex ${n} / ${N}`,
+      homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, homeSwap: (n) => `🏠 Zimmer voll – ${n} ruht in der Freundesliste (📖)`, dexHead: (n, N) => `Pokédex ${n} / ${N}`,
       tapEgg: '🥚 Tippe das Ei an – es schlüpft sofort!', goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen', coinLog: 'Verlauf', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
       rice: 'Futter', riceHint: '🍚 Tippe an, wen du füttern willst', full: (n) => `${n}: Satt 😋`, yum: 'Mampf! Lecker 😋', eggRice: 'Eier fressen nur Beeren',
       lightOff: 'Licht aus', lightOn: 'Licht an', sleepy: 'Gähn… müde. 🌙 Mach das Licht aus', night: 'Gute Nacht! 💤', morning: '☀️ Guten Morgen! Gut geschlafen?', hello: '👋 Hallo! Spiel mit mir', missed: '🥹 Ich hab dich vermisst!',
@@ -852,7 +852,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     const items = () => Object.entries(pk().items || {});
     const count = (kind) => items().filter(([, v]) => v === kind).length;
     const take = (kind, n) => items().filter(([, v]) => v === kind).slice(0, n).map(([id]) => id);
-    const coinLog = (n, why) => W(['clog', uid('l')], [Date.now(), n, why]); // 🪙 기록: room.clog.{id} = [때, +/-개수, 왜] (미션 · 황금 스티커는 그 자료로 셈)
+    const coinLog = (n, why, key) => W(['clog', key || uid('l')], [Date.now(), n, why]); // 🪙 기록: room.clog.{id} = [때, +/-개수, 왜] (미션 · 황금 스티커는 그 자료로 셈)
     const mons = () => Object.entries(pk().mons || {}).filter(([, m]) => m && (m.egg || SET.valid(m.p))).map(([id, m]) => ({ id, ...m })).sort((a, b) => (a.at || 0) - (b.at || 0));
     const hatched = (m) => !!m.h && SET.valid(m.p);
     const homeIds = () => {
@@ -869,7 +869,19 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     // 💗 친해지기 (변신 없는 티니핑): 하트 5개마다 한 단계 — 축하만 (2026-11-16 엄마: 코인은 포켓몬 방과 같게, 고맙다는 🪙 은 없앰), 💗3부터 단짝(반짝 빛 · 춤)
     const FRIEND = 5;
     const lvOf = (m) => (SET.friend && hatched(m) && !nextOf(m).length ? Math.floor((m.f || 0) / FRIEND) : 0);
-    function addHome(id) { const h = pk().home; if (Array.isArray(h) && h.length < HOME_MAX) W(['home'], [...h, id]); }
+    // 새 알 · 데려온 친구는 꼭 방에 보이게: 방이 꽉 찼으면(6마리) 가장 오래 방에 있던 친구(로미 빼고)가 친구 목록으로 쉬러 감 (📖 에서 다시 넣음)
+    function addHome(id) {
+      if (!Array.isArray(pk().home)) return; // 목록을 아직 안 만들었으면 새 친구가 저절로 방에 나옴 (마지막 6마리)
+      const cur = homeIds();
+      if (cur.includes(id)) return;
+      if (cur.length >= HOME_MAX) {
+        const all = pk().mons || {}, out = cur.find((x) => all[x] && hatched(all[x]) && !(SET.romi && SET.romi.has(all[x].p)));
+        if (!out) return;
+        cur.splice(cur.indexOf(out), 1);
+        const n = name(all[out].p); setTimeout(() => news(L().homeSwap(n)), 50); // 새 친구 알림 다음에
+      }
+      W(['home'], [...cur, id]);
+    }
 
     // ── 🍚 💩 🤚 🌙 돌보기 (맨 위 설명) ──
     // 🖼️ 지금 장소 (산 장소만) · 그 장소의 가구 자료와 저장 위치
@@ -1115,8 +1127,8 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
         const age = Math.floor((now - m.h) / 864e5), ms = MILE.filter(([d]) => age >= d).pop();
         if (!ms || Math.max(bd[id] || 0, local.bd[id] || 0) >= ms[0]) continue;
         local.bd[id] = ms[0]; W(['bd', id], ms[0]);
-        for (let i = 0; i < ms[1]; i++) W(['items', uid('b')], 'coin');
-        coinLog(ms[1], `bd:${m.p}:${ms[0]}`);
+        for (let i = 0; i < ms[1]; i++) W(['items', `b${id}_${ms[0]}_${i}`], 'coin'); // 정해진 이름 = 두 기기가 같이 줘도 한 번
+        coinLog(ms[1], `bd:${m.p}:${ms[0]}`, `bd${id}_${ms[0]}`);
         const e = monEls.get(id);
         if (e) {
           const x = parseFloat(e.style.left), y = parseFloat(e.style.top);
@@ -1356,8 +1368,8 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       const deco = pk().deco || {}, gone = Object.keys(deco).filter((k) => DECO_GONE[k] && !DK0[k]); // 내 방 가구만
       if (!gone.length) return;
       let c = 0;
-      for (const k of gone) { W(['deco', k], null); for (let i = 0; i < DECO_GONE[k]; i++) W(['items', uid('r')], 'coin'); c += DECO_GONE[k]; }
-      coinLog(c, 'refund');
+      for (const k of gone) { W(['deco', k], null); for (let i = 0; i < DECO_GONE[k]; i++) W(['items', `r${k}${i}`], 'coin'); c += DECO_GONE[k]; }
+      coinLog(c, 'refund', `refund_${gone.sort().join('_')}`);
       news(L().refund(c));
     }
     function grants() {
@@ -1384,9 +1396,9 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
         grantAt = Date.now(); local.romi = 1;
         let rid = (mons().find((m) => hatched(m) && SET.romi.has(m.p)) || {}).id;
         if (!rs) {
-          if (rid) { for (let i = 0; i < ROMI_PRICE; i++) W(['items', uid('r')], 'coin'); coinLog(ROMI_PRICE, 'romi'); news(L().romiBack(ROMI_PRICE)); }
+          if (rid) { for (let i = 0; i < ROMI_PRICE; i++) W(['items', `romi${i}`], 'coin'); coinLog(ROMI_PRICE, 'romi', 'romi'); news(L().romiBack(ROMI_PRICE)); }
           else {
-            rid = uid('h'); W(['mons', rid], { egg: 'heart', p: 'romi', h: Date.now(), f: 0, at: Date.now(), forms: ['romi'] });
+            rid = 'romi'; W(['mons', rid], { egg: 'heart', p: 'romi', h: Date.now(), f: 0, at: Date.now(), forms: ['romi'] });
             meet('romi'); news(L().romiGift); setTimeout(() => voice({ p: 'romi', h: 1 }, true), 600);
           }
         }
@@ -1705,7 +1717,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       btnShop.replaceChildren(icon('shop'), L().shop); btnShop.setAttribute('aria-pressed', String(open === 'shop'));
       btnDex.replaceChildren(icon('book'), `${SET.dex.filter((id) => seenSet().has(String(id))).length}/${SET.dex.length}`); btnDex.setAttribute('aria-pressed', String(open === 'dex'));
       if (!msgUntil || Date.now() > msgUntil) msg.replaceChildren(...rich(feeding === 'rice' ? L().riceHint : feeding === 'soap' ? L().soapHint : feeding === 'ball' ? L().ballHint : feeding === 'pill' ? L().pillHint : feeding ? L().feedHint(`${BERRY[feeding][1]} ${bName(feeding)}`)
-        : isNight() ? (lightsOff() || !awake() ? L().sleep : L().sleepy) : mons().some((m) => m.q && !hatched(m)) ? L().tapEgg : hint()));
+        : !mons().length ? '' : mons().some((m) => m.q && !hatched(m)) ? L().tapEgg : isNight() ? (lightsOff() || !awake() ? L().sleep : L().sleepy) : hint()));
     }
     function buy(key, price, done) {
       const c = count('coin');
@@ -1724,7 +1736,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       if (open === 'shop') {
         const deco = decoData();
         const eggs = el('div', { class: 'pr-grid' }, ...SET.eggs.map((egg) => el('button', { type: 'button', class: armed === `egg:${egg}` ? 'armed' : coins < FS.EGG_PRICE ? 'poor' : '',
-          onclick: () => buy(`egg:${egg}`, FS.EGG_PRICE, () => { const id = uid('e'); W(['mons', id], { egg, f: 0, at: Date.now() }); addHome(id); news(L().eggCame(eggName(egg))); }) },
+          onclick: () => buy(`egg:${egg}`, FS.EGG_PRICE, () => { const id = uid('e'); if (!pk().start) W(['start'], Date.now()); W(['mons', id], { egg, f: 0, at: Date.now() }); addHome(id); news(L().eggCame(eggName(egg))); }) },
           el('span', { class: 'eg', html: SET.eggHTML(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', {}, icon('coin'), `${FS.EGG_PRICE}`))));
         const BG = BGS[SET.room ? 'pp' : 'pk'], bgs = pk().bgs || {}, cur = (pk().bg && bgs[pk().bg]) ? pk().bg : 'base';
         const bgGrid = el('div', { class: 'pr-grid' }, ...Object.keys(BG).map((k) => {
