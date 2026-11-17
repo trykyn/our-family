@@ -658,13 +658,14 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     ice: ['얼음', 'Eis', '#73CEC9'], fighting: ['격투', 'Kampf', '#C22E28'], poison: ['독', 'Gift', '#A33EA1'], ground: ['땅', 'Boden', '#D9A84A'], flying: ['비행', 'Flug', '#A98FF3'], psychic: ['에스퍼', 'Psycho', '#F95587'],
     bug: ['벌레', 'Käfer', '#A6B91A'], rock: ['바위', 'Gestein', '#B6A136'], ghost: ['고스트', 'Geist', '#735797'], dragon: ['드래곤', 'Drache', '#6F35FC'], dark: ['악', 'Unlicht', '#705746'], steel: ['강철', 'Stahl', '#9A9AB8'], fairy: ['페어리', 'Fee', '#D685AD'] };
   const DXT = {
-    ko: { height: '키', weight: '몸무게', fav: '좋아하는 열매', desc: '도감 설명', evo: '진화', change: '변신', romiForms: '로미의 변신 모습', ping: '티니핑', legend: '🌟 전설의 티니핑', friend: '👑 로미와 친구들',
+    ko: { height: '키', weight: '몸무게', fav: '좋아하는 열매', desc: '도감 설명', about: '특기 · 성격', evo: '진화', change: '변신', romiForms: '로미의 변신 모습', ping: '티니핑', legend: '🌟 전설의 티니핑', friend: '👑 로미와 친구들',
       own: (d) => `🏠 우리 방 친구 · 함께한 지 ${d}일`, met: '📖 예전에 만났어요', cry: '그림을 누르면 목소리가 나와요', prev: '이전', next: '다음' },
-    de: { height: 'Größe', weight: 'Gewicht', fav: 'Lieblingsbeere', desc: 'Pokédex-Eintrag', evo: 'Entwicklung', change: 'Verwandlung', romiForms: 'Romis Verwandlungen', ping: 'Teenieping', legend: '🌟 Legendäres Teenieping', friend: '👑 Romi & Freunde',
+    de: { height: 'Größe', weight: 'Gewicht', fav: 'Lieblingsbeere', desc: 'Pokédex-Eintrag', about: 'Können & Art', evo: 'Entwicklung', change: 'Verwandlung', romiForms: 'Romis Verwandlungen', ping: 'Teenieping', legend: '🌟 Legendäres Teenieping', friend: '👑 Romi & Freunde',
       own: (d) => `🏠 Wohnt bei uns · seit ${d} Tagen`, met: '📖 Schon einmal getroffen', cry: 'Bild antippen = Stimme', prev: 'Zurück', next: 'Weiter' },
   };
-  let DEXINFO = null; // 한 번만 받음
-  const dexInfo = () => DEXINFO || (DEXINFO = fetch(`${FS.BASE}poke/info.json`).then((r) => (r.ok ? r.json() : {})).catch(() => { DEXINFO = null; return {}; }));
+  // 티니핑 소개는 ping/info.json { id: [한국어, 독일어] } (만화 내용을 찾아 짧게 쓴 것 — 모르는 친구는 비워 둠)
+  const DEXINFO = {}; // 한 번만 받음
+  const dexInfo = (k) => DEXINFO[k] || (DEXINFO[k] = fetch(`${FS.BASE}${k}/info.json`).then((r) => (r.ok ? r.json() : {})).catch(() => { DEXINFO[k] = null; return {}; }));
   const ROMI_PRICE = 20; // 👑 예전 로미 값 (이제는 선물 — 산 적 있으면 돌려줌)
   const MILE = [[7, 1], [30, 3], [100, 5], [365, 10]]; // 🎂 [태어난 지 며칠, 🪙 선물]
   // 🪙 코인 기록 (방 아래 코인 칸 · 미션판 옆 🪙 을 누르면). 들어온 것: 미션(스티커 자료) · 황금 스티커(room.gp) · room.clog(생일 · 돌려받기), 나간 것: room.clog(가게 · 약)
@@ -1797,7 +1798,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       const hw = el('div', { class: 'dc-stats' });
       const statFav = el('div', {}, el('small', { text: D.fav }), el('b', {}, icon(fk), ` ${favB ? favB[de ? 3 : 2] : ''}`));
       hw.append(statFav);
-      const desc = el('div', { class: 'dc-sec', hidden: '' }, el('small', { text: D.desc }), el('div', { class: 'dc-desc' }));
+      const desc = el('div', { class: 'dc-sec', hidden: '' }, el('small', { text: isPoke ? D.desc : D.about }), el('div', { class: 'dc-desc' }));
       const ch = chainOf(id), evo = ch.length ? el('div', { class: 'dc-sec' }, el('small', { text: isPoke ? D.evo : D.change }),
         el('div', { class: 'dc-evo' }, ...ch.flatMap((g, gi) => [gi ? el('i', { text: '›' }) : null, el('div', { class: 'grp' }, ...g.map((x) => { const k = seenS.has(String(x));
           return el('button', { type: 'button', class: (String(x) === String(id) ? 'on' : '') + (k ? '' : ' unk'), 'aria-label': k ? name(x) : '?', onclick: () => { if (k && String(x) !== String(id)) { snd.tap(2); close(); dexCard(x); } } }, el('img', { src: SET.art(x), alt: '', loading: 'lazy' })); }))]).filter(Boolean))) : null;
@@ -1810,7 +1811,8 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
         el('div', { class: 'dc-body' }, el('h3', { text: name(id) }), genus, typeRow, hw, desc, evo, own, el('p', { class: 'dc-tip', text: D.cry })));
       document.body.append(ov); document.addEventListener('keydown', esc);
       snd.tap(3);
-      if (isPoke) dexInfo().then((I) => { // 포켓몬: 분류 · 타입 · 키 · 몸무게 · 설명
+      if (!isPoke) dexInfo('ping').then((I) => { const v = I && I[id], t = v && v[de ? 1 : 0]; if (t && ov.isConnected) { desc.querySelector('.dc-desc').textContent = t; desc.hidden = false; } }); // 티니핑: 특기 · 성격
+      if (isPoke) dexInfo('poke').then((I) => { // 포켓몬: 분류 · 타입 · 키 · 몸무게 · 설명
         const v = I && I[id];
         if (!v || !ov.isConnected) return;
         genus.textContent = v[de ? 1 : 0];
