@@ -119,7 +119,7 @@
       ate: (n) => `냠냠! ${n}`, fav: '좋아해요! 💖💖', hatched: (n) => `펑! ${iga(n)} 태어났어요!`, shinyHatch: (n) => `✨ 반짝이 ${iga(n)} 태어났어요!!`,
       evolved: (a, b) => `${iga(a)} ${euro(b)} 진화했어요!`, eggInfo: (n) => `🥚 열매 ${n}개 더 먹으면 태어나요`, toEvo: (n) => `진화까지 하트 ${n}개`, likes: (b) => `좋아하는 열매 ${b}`,
       shopHead: (c) => `코인 ${c}개`, eggs: '🥚 알', furn: '🪑 가구', bgHead: '🖼️ 장소 바꾸기', bgTip: '산 장소는 눌러서 언제든 바꿔요', bgOn: '사용 중', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
-      eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, whoHead: '👑 로미와 친구들', whoTip: '알에서는 안 나와요. 가게에서 데려와요. 로미는 처음부터 선물로 놀러 오고, 하트 15개마다 새 모습으로 변신해요!', romiGift: '👑 로미가 선물로 놀러 왔어요! 하트 15개마다 변신해요', romiBack: (c) => `👑 로미는 이제 선물이에요! 로미 살 때 쓴 🪙 코인 ${c}개를 돌려받았어요`, whoCame: (n) => `👑 ${iga(n)} 놀러 왔어요!`, whoHave: (n) => `${iga(n)} 벌써 우리 방에 있어요`, forms: '모습 고르기', decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
+      eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, whoHead: '👑 로미와 친구들', whoTip: '알에서는 안 나와요. 가게에서 데려와요. 로미는 처음부터 선물로 놀러 오고, 하트 15개마다 새 모습으로 변신해요!', romiGift: '👑 로미가 선물로 놀러 왔어요! 하트 15개마다 변신해요', romiHome: '👑 로미가 방에 나왔어요!', romiBack: (c) => `👑 로미는 이제 선물이에요! 로미 살 때 쓴 🪙 코인 ${c}개를 돌려받았어요`, whoCame: (n) => `👑 ${iga(n)} 놀러 왔어요!`, whoHave: (n) => `${iga(n)} 벌써 우리 방에 있어요`, forms: '모습 고르기', decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
       homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, dexHead: (n, N) => `도감 ${n} / ${N}`,
       tapEgg: '🥚 알을 톡 눌러 봐요! 바로 깨어나요', goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개', coinLog: '기록', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
       rice: '밥', riceHint: '🍚 밥 줄 친구를 눌러요', full: (n) => `${n}: 배불러요 😋`, yum: '냠냠! 맛있어요 😋', eggRice: '알은 열매만 먹어요',
@@ -143,7 +143,7 @@
       ate: (n) => `Mampf! ${n}`, fav: 'Lecker! 💖💖', hatched: (n) => `Plopp! ${n} ist geschlüpft!`, shinyHatch: (n) => `✨ Ein schillerndes ${n} ist geschlüpft!!`,
       evolved: (a, b) => `${a} hat sich zu ${b} entwickelt!`, eggInfo: (n) => `🥚 Noch ${n} Beeren bis zum Schlüpfen`, toEvo: (n) => `Noch ${n} Herzen bis zur Entwicklung`, likes: (b) => `Lieblingsbeere ${b}`,
       shopHead: (c) => `${c} Münzen`, eggs: '🥚 Eier', furn: '🪑 Möbel', bgHead: '🖼️ Ort wechseln', bgTip: 'Gekaufte Orte jederzeit antippen zum Wechseln', bgOn: 'Aktiv', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
-      eggCame: (n) => `🥚 Ein ${n} ist da!`, whoHead: '👑 Romi & Freunde', whoTip: 'Kommen nicht aus Eiern – hier abholen. Romi kommt gleich als Geschenk und verwandelt sich alle 15 Herzen neu!', romiGift: '👑 Romi ist als Geschenk da! Alle 15 Herzen verwandelt sie sich', romiBack: (c) => `👑 Romi ist jetzt ein Geschenk – 🪙 ${c} Münzen zurück`, whoCame: (n) => `👑 ${n} ist zu Besuch!`, whoHave: (n) => `${n} ist schon da`, forms: 'Aussehen wählen', decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
+      eggCame: (n) => `🥚 Ein ${n} ist da!`, whoHead: '👑 Romi & Freunde', whoTip: 'Kommen nicht aus Eiern – hier abholen. Romi kommt gleich als Geschenk und verwandelt sich alle 15 Herzen neu!', romiGift: '👑 Romi ist als Geschenk da! Alle 15 Herzen verwandelt sie sich', romiHome: '👑 Romi ist jetzt im Zimmer!', romiBack: (c) => `👑 Romi ist jetzt ein Geschenk – 🪙 ${c} Münzen zurück`, whoCame: (n) => `👑 ${n} ist zu Besuch!`, whoHave: (n) => `${n} ist schon da`, forms: 'Aussehen wählen', decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
       homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, dexHead: (n, N) => `Pokédex ${n} / ${N}`,
       tapEgg: '🥚 Tippe das Ei an – es schlüpft sofort!', goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen', coinLog: 'Verlauf', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
       rice: 'Futter', riceHint: '🍚 Tippe an, wen du füttern willst', full: (n) => `${n}: Satt 😋`, yum: 'Mampf! Lecker 😋', eggRice: 'Eier fressen nur Beeren',
@@ -473,7 +473,7 @@
 .pr[class*=" th-"] > .pr-room::before, .pr[class*=" th-"] > .pr-room::after { display: none; }
 .pr[class*=" th-"] > .pr-room > .pr-win, .pr[class*=" th-"] > .pr-room > .pr-cur { display: none; }
 .pr-grid button .bgpv { display: block; width: 92%; margin: 3px 0 2px; pointer-events: none; }
-.pr-grid button .bgpv .pr-room { display: block; border-radius: 8px; box-shadow: inset 0 0 0 2px rgba(0,0,0,.06); }
+.pr-grid button .bgpv .pr-room { display: block; aspect-ratio: 4 / 3; height: auto; min-height: 0; max-height: none; border-radius: 8px; /* 미리보기는 늘 4:3 (아이패드 앱의 큰 방 높이 규칙을 안 받게) */ box-shadow: inset 0 0 0 2px rgba(0,0,0,.06); }
 /* ✨ 진화 · 변신 장면 (화면 전체) */
 .pr-evo { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none;
   background: radial-gradient(circle at 50% 42%, #3B2F78, #0E0A24 72%); animation: pr-evo-in .5s ease-out; transition: opacity .35s; }
@@ -1377,15 +1377,22 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
         W(['mons', `gold${i}`], { egg: 'gold', f: 0, at: Date.now() }); addHome(`gold${i}`);
         news(L().goldEgg); return;
       }
-      // 👑 로미는 선물 (2026-11-17 엄마: 변신 모습이 많아서 처음부터): 티니핑 방에 한 번만 (room.romi = 1). 예전에 🪙 20 주고 산 로미가 있으면 그 코인을 돌려줌
-      if (SET.romi && !pk().romi && !local.romi) {
-        grantAt = Date.now(); local.romi = 1; W(['romi'], 1);
-        if (mons().some((m) => SET.romi.has(m.p))) {
-          for (let i = 0; i < ROMI_PRICE; i++) W(['items', uid('r')], 'coin');
-          coinLog(ROMI_PRICE, 'romi'); news(L().romiBack(ROMI_PRICE)); return;
+      // 👑 로미는 선물 (2026-11-17 엄마: 변신 모습이 많아서 처음부터): 티니핑 방에 한 번만. 예전에 🪙 20 주고 산 로미가 있으면 그 코인을 돌려줌
+      //   room.romi = 1 (선물 줌) → 2 (방에도 나옴). 방이 꽉 차(6명) 있어도 로미는 맨 앞에 넣어 꼭 보이게 (맨 끝 친구는 친구 목록으로 — 도감에서 다시 넣을 수 있음)
+      const rs = pk().romi || 0;
+      if (SET.romi && rs < 2 && !local.romi) {
+        grantAt = Date.now(); local.romi = 1;
+        let rid = (mons().find((m) => hatched(m) && SET.romi.has(m.p)) || {}).id;
+        if (!rs) {
+          if (rid) { for (let i = 0; i < ROMI_PRICE; i++) W(['items', uid('r')], 'coin'); coinLog(ROMI_PRICE, 'romi'); news(L().romiBack(ROMI_PRICE)); }
+          else {
+            rid = uid('h'); W(['mons', rid], { egg: 'heart', p: 'romi', h: Date.now(), f: 0, at: Date.now(), forms: ['romi'] });
+            meet('romi'); news(L().romiGift); setTimeout(() => voice({ p: 'romi', h: 1 }, true), 600);
+          }
         }
-        const nid = uid('h'); W(['mons', nid], { egg: 'heart', p: 'romi', h: Date.now(), f: 0, at: Date.now(), forms: ['romi'] });
-        meet('romi'); addHome(nid); news(L().romiGift); setTimeout(() => voice({ p: 'romi', h: 1 }, true), 600);
+        W(['romi'], 2);
+        const h = homeIds();
+        if (rid && !h.includes(rid)) { W(['home'], [rid, ...h].slice(0, HOME_MAX)); if (rs) news(L().romiHome); }
       }
     }
     let newsAt = 0;
@@ -1749,7 +1756,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
           } }, el('img', { src: SET.art(id), alt: '', loading: 'lazy' }), el('span', { class: 'n', text: name(id) }), has ? el('span', { text: '✓' }) : el('span', {}, icon('coin'), `${price}`));
         })) : null;
         panel.replaceChildren(el('h4', {}, el('span', {}, icon('coin'), L().shopHead(coins)), closeB), el('h4', {}, el('span', { text: L().eggs })), eggs,
-          who ? el('h4', {}, el('span', {}, ...rich(L().whoHead))) : null, who ? el('p', { text: L().whoTip }) : null, who,
+          ...(who ? [el('h4', {}, el('span', {}, ...rich(L().whoHead))), el('p', { text: L().whoTip }), who] : []), // 포켓몬 방엔 없음 (replaceChildren 은 null 을 글자로 넣음)
           el('h4', {}, el('span', {}, ...rich(L().bgHead))), el('p', { text: L().bgTip }), bgGrid,
           el('h4', {}, el('span', { text: curPlace === 'base' ? L().furn : `${L().furn} · ${BGP[curPlace][lang() === 'de' ? 2 : 1]}` })), el('p', { text: L().decoTip }), furn);
       } else if (open === 'help') {
