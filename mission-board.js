@@ -48,7 +48,7 @@
 .mb-tile.done { border-color: var(--mb-done); background: #EAF8F0; }
 .mb-tile.done::after { content: '✓'; position: absolute; top: 3px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: var(--mb-done); color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center; }
 .mb-claim, .mb-got { width: 100%; margin-top: 10px; border: 0; border-radius: 14px; padding: 12px; font: inherit; font-family: var(--mb-font); font-size: 1.1em; text-align: center; }
-.mb-claim { background: linear-gradient(140deg, var(--mb-k1), var(--mb-k2)); color: #2A1A0A; cursor: pointer; animation: mb-wob 1.6s infinite; }
+.mb-claim { background: linear-gradient(140deg, var(--mb-k1), var(--mb-k2)); color: #2A1A0A; cursor: pointer; animation: mb-pulse 1.6s ease-in-out infinite; } /* 넓은 막대라 기울이면 위 칸을 덮음 → 두근두근만 */
 .mb-got { background: #EAF7EC; color: #2E7D3A; }
 .mb-noms { color: var(--mb-muted); text-align: center; margin: 4px 0; }
 .mb-golds { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
@@ -96,6 +96,7 @@
 .mb-toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 220; display: flex; gap: 12px; align-items: center;
   background: #3A2410; color: #fff; padding: 10px 16px; border-radius: 14px; font-size: 15px; }
 .mb-toast button { border: 0; background: none; color: #FFD27A; font: inherit; font-weight: 700; cursor: pointer; }
+@keyframes mb-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
 @keyframes mb-wob { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
 @keyframes mb-pop { 0% { transform: scale(.2); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
 @keyframes mb-conf { to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; } }

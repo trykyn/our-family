@@ -673,13 +673,24 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
   const CT = {
     ko: { head: '코인 기록', now: '지금 가진 코인', mission: '🎯 오늘의 미션 완료', gold: '🏅 황금 스티커', goldWait: '🏅 황금 스티커 — 방을 열면 들어와요',
       bd: (n, d) => `🎂 ${n} 태어난 지 ${d}일`, refund: '↩️ 없어진 가구 돌려받음', romi: '👑 로미 선물 — 살 때 쓴 코인 돌려받음', pill: '💊 약', egg: (n) => `🛒 ${n}`, bg: (n) => `🛒 장소: ${n}`, deco: (n) => `🛒 가구: ${n}`, who: (n) => `🛒 ${n} 데려오기`,
+      hg: { day: '🔤 오늘의 한글', chal: '🔤 한글 오늘의 도전', streak: '🔤 한글 7일 연속 선물', unit: (n) => `🔤 한글 승급 시험 (${n}단원)` },
       oldUp: '📦 기록을 시작하기 전에 받은 코인', oldDn: '📦 기록을 시작하기 전에 쓴 코인', other: '🪙 그 밖의 코인', empty: '아직 코인이 없어요. 오늘의 미션을 다 하면 🪙 1개!',
-      note: '미션마다 🪙 1, 황금 스티커마다 🪙 3, 🎂 생일 축하에도 받아요. 오른쪽 작은 숫자는 그때 가진 코인이에요.', days: ['일', '월', '화', '수', '목', '금', '토'], date: (m, d, w) => `${m}월 ${d}일 (${w})` },
+      note: '미션마다 🪙 1, 황금 스티커마다 🪙 3, 🔤 한글 놀이 · 🎂 생일 축하에도 받아요. 오른쪽 작은 숫자는 그때 가진 코인이에요.', days: ['일', '월', '화', '수', '목', '금', '토'], date: (m, d, w) => `${m}월 ${d}일 (${w})` },
     de: { head: 'Münz-Verlauf', now: 'Münzen jetzt', mission: '🎯 Tagesmission geschafft', gold: '🏅 Goldsticker', goldWait: '🏅 Goldsticker – kommt beim Öffnen des Zimmers',
       bd: (n, d) => `🎂 ${n}: ${d}. Tag`, refund: '↩️ Möbel zurückerstattet', romi: '👑 Romi-Geschenk – Münzen zurück', pill: '💊 Medizin', egg: (n) => `🛒 ${n}`, bg: (n) => `🛒 Ort: ${n}`, deco: (n) => `🛒 Möbel: ${n}`, who: (n) => `🛒 ${n} abgeholt`,
+      hg: { day: '🔤 Hangul: Tageslektion', chal: '🔤 Hangul: Tages-Challenge', streak: '🔤 Hangul: 7 Tage am Stück', unit: (n) => `🔤 Hangul: Prüfung Einheit ${n}` },
       oldUp: '📦 Vor dem Verlauf bekommen', oldDn: '📦 Vor dem Verlauf ausgegeben', other: '🪙 Sonstige', empty: 'Noch keine Münzen. Tagesmission schaffen = 🪙 1!',
-      note: 'Pro Mission 🪙 1, pro Goldsticker 🪙 3, dazu 🎂 Jubiläen. Die kleine Zahl rechts = Münzen danach.', days: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'], date: (m, d, w) => `${d}.${m}. (${w})` },
+      note: 'Pro Mission 🪙 1, pro Goldsticker 🪙 3, dazu 🔤 Hangul-Spiel und 🎂 Jubiläen. Die kleine Zahl rechts = Münzen danach.', days: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'], date: (m, d, w) => `${d}.${m}. (${w})` },
   };
+  // 🔤 한글 놀이(hangul-play)가 방 가방에 넣는 코인: 칸 이름으로 [때, 왜] (기록 칸 이름은 'h' + 칸 이름 — 한글 놀이도 같은 이름으로 씀)
+  function hangulWhy(id) {
+    let m;
+    const at = (y, mo, d) => Math.min(Date.now(), new Date(+y, mo - 1, +d, 12).getTime());
+    if ((m = /^hangul-(\d{4})-(\d\d)-(\d\d)(-chal)?$/.exec(id))) return [at(m[1], m[2], m[3]), m[4] ? 'hangul:chal' : 'hangul:day'];
+    if ((m = /^hangul-streak-(\d{4})-(\d\d)-(\d\d)-\d+$/.exec(id))) return [at(m[1], m[2], m[3]), 'hangul:streak'];
+    if ((m = /^hangul-unit(\w+)-\d+$/.exec(id))) return [0, `hangul:unit:${m[1]}`];
+    return /^hangul-/.test(id) ? [0, 'hangul:day'] : null;
+  }
   const coinCount = (kd) => Object.values(((kd || {})[FS.ROOM] || {}).items || {}).filter((v) => v === 'coin').length;
   function coinRows(kd, kid, lg) {
     const C = CT[lg], SET = FS.charSet(kid), R = (kd && kd[FS.ROOM]) || {}, start = R.start || 0, de = lg === 'de';
@@ -691,10 +702,12 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     for (const [w, g] of Object.entries(golds)) if (g && (g.at || 0) >= start && !gp[w]) wait.push({ t: g.at, n: 3, w: C.goldWait, wait: true });
     const deco = (place, key) => { const t = place === 'base' ? (SET.room === 'princess' ? DECO_P : DECO) : PDECO[place] || {}; return t[key] ? t[key][de ? 7 : 6] : key; };
     const bgs = BGS[SET.room ? 'pp' : 'pk'];
-    for (const v of Object.values(R.clog || {})) {
+    const clog = { ...(R.clog || {}) }; // 복사본 (가족 자료는 그대로)
+    for (const [id, v] of Object.entries(R.items || {})) { const hw = v === 'coin' && !clog['h' + id] && hangulWhy(id); if (hw) clog['_' + id] = [hw[0] || Date.now(), 1, hw[1]]; } // 방을 열면 기록으로 옮겨짐
+    for (const v of Object.values(clog)) {
       if (!Array.isArray(v) || typeof v[1] !== 'number') continue;
       const [t, n, why = ''] = v, [a, b, c] = String(why).split(':');
-      const w = a === 'pill' ? C.pill : a === 'refund' ? C.refund : a === 'romi' ? C.romi : a === 'bd' ? C.bd(SET.name(b, lg), c) : a === 'egg' ? C.egg(((n) => (/알|Ei$/.test(n) ? n : n + (de ? '-Ei' : ' 알')))(SET.eggName(b, lg))) : a === 'bg' ? C.bg(bgs[b] ? bgs[b][de ? 2 : 1] : b)
+      const w = a === 'pill' ? C.pill : a === 'hangul' ? (b === 'unit' ? C.hg.unit(c) : C.hg[b] || C.hg.day) : a === 'refund' ? C.refund : a === 'romi' ? C.romi : a === 'bd' ? C.bd(SET.name(b, lg), c) : a === 'egg' ? C.egg(((n) => (/알|Ei$/.test(n) ? n : n + (de ? '-Ei' : ' 알')))(SET.eggName(b, lg))) : a === 'bg' ? C.bg(bgs[b] ? bgs[b][de ? 2 : 1] : b)
         : a === 'deco' ? C.deco(deco(b, c)) : a === 'who' ? C.who(SET.name(b, lg)) : C.other;
       rows.push({ t: Number(t) || 0, n, w });
     }
@@ -1372,6 +1385,17 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       coinLog(c, 'refund', `refund_${gone.sort().join('_')}`);
       news(L().refund(c));
     }
+    // 🔤 한글 놀이 코인 → 코인 기록 (가게에서 쓰면 가방에서 없어지므로 그 전에). 한글 놀이가 이미 적었으면 그대로
+    const hgDone = new Set();
+    function hangulLog() {
+      if (!alive) return;
+      const cl = pk().clog || {};
+      for (const [id, v] of items()) {
+        if (v !== 'coin' || cl['h' + id] || hgDone.has(id)) continue;
+        const hw = hangulWhy(id);
+        if (hw) { hgDone.add(id); W(['clog', 'h' + id], [hw[0] || Date.now(), 1, hw[1]]); }
+      }
+    }
     function grants() {
       const start = pk().start;
       if (!alive || !start || Date.now() - grantAt < 3000) return;
@@ -1875,6 +1899,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     function destroy() { alive = false; clearInterval(timer); clearInterval(nightTimer); clearTimeout(upT); if (ro) ro.disconnect(); }
     renderAll();
     // 쓰기는 mount 가 끝난 다음에 (앱이 쓰자마자 다시 그리면서 방을 또 만들지 않게)
+    setTimeout(hangulLog, 600);
     setTimeout(grants, 900);
     setTimeout(refundGone, 1200);
     setTimeout(greet, 1600);
@@ -1890,7 +1915,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     }, 5000);
     setTimeout(() => { const M = missionNow(); if (alive && M && M.got && !isNight()) for (const e of monEls.values()) if (!e._egg) happy(e); }, 2200); // 오늘 미션 다 했으면 다 같이 춤
     let upT = 0;
-    const update = () => { if (upT) return; upT = setTimeout(() => { upT = 0; renderAll(); grants(); }, 40); }; // 자료가 연달아 바뀌어도 (코인 여러 개 · 생일 선물 …) 한 번만 다시 그림
+    const update = () => { if (upT) return; upT = setTimeout(() => { upT = 0; renderAll(); hangulLog(); grants(); }, 40); }; // 자료가 연달아 바뀌어도 (코인 여러 개 · 생일 선물 …) 한 번만 다시 그림
     root._pr = { update, destroy };
     return root._pr;
   }
