@@ -44,7 +44,7 @@
 .mb-tile:active { transform: scale(.95); }
 .mb-tile .e { font-size: 30px; line-height: 1.1; }
 .mb-tile .e .mi { width: 1.15em; height: 1.15em; display: inline-block; vertical-align: middle; }
-.mb-tile .t { font-size: 11px; font-weight: 700; line-height: 1.2; text-align: center; overflow-wrap: anywhere; }
+.mb-tile .t { font-size: 11px; font-weight: 700; line-height: 1.2; text-align: center; word-break: keep-all; overflow-wrap: anywhere; }
 .mb-tile.done { border-color: var(--mb-done); background: #EAF8F0; }
 .mb-tile.done::after { content: '✓'; position: absolute; top: 3px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: var(--mb-done); color: #fff; font-size: 13px; font-weight: 700; display: grid; place-items: center; }
 .mb-claim, .mb-got { width: 100%; margin-top: 10px; border: 0; border-radius: 14px; padding: 12px; font: inherit; font-family: var(--mb-font); font-size: 1.1em; text-align: center; }
