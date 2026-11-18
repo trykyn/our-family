@@ -3170,7 +3170,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#money-pics').replaceChildren(...keys.map((key) => h('button', {
       type: 'button', 'aria-pressed': String(moneyKey === key), 'aria-label': labelOf(MONEY_NOTES[key]),
       onclick: () => { moneyKey = moneyKey === key ? '' : key; SND.tap(2); renderMoneyPics(); },
-    }, h('span', { class: 'e', text: MONEY_NOTES[key][0] }), labelOf(MONEY_NOTES[key]))));
+    }, h('span', { class: 'e', html: window.PiggyBank ? window.PiggyBank.iconHTML(key) : MONEY_NOTES[key][0] }), labelOf(MONEY_NOTES[key])))); // 직접 그린 귀여운 그림 (piggy-bank.js)
   }
   const closeMoney = () => { moneySheet.hidden = true; document.body.style.overflow = ''; };
   moneySheet.addEventListener('click', (e) => { if (e.target.closest('[data-money-close]')) closeMoney(); });

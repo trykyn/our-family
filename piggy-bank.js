@@ -11,19 +11,21 @@
      onAdjust?() = ✏️ 금액 맞추기를 앱이 직접 (없으면 이 파일의 창, guard 뒤), onNote?(id, 기록) = 직접 쓴 글을 저장한 뒤 (번역 등),
      history?: 보여 줄 기록 줄 수 (0 = 안 보임), historyEl?: 기록을 그릴 자리 (없으면 저금통 바로 아래), text?: { … 문구 바꾸기 }, big? });
    pb.update(); pb.flush(); pb.pending(); pb.edit(id) = 기록 고치기 창; pb.coinsOut(금액) = 썼어요 그림; pb.cheer() = 받았어요 그림; pb.destroy();
-   PiggyBank.NOTES = 기록 이유 그림 [그림, 한국어, 독일어], IN_KEYS · OUT_KEYS = 받은 돈 · 쓴 돈 그림 순서. 쓰기는 누를 때만 (mount 중에는 안 씀). */
+   PiggyBank.NOTES = 기록 이유 [이모지, 한국어, 독일어], iconHTML(키) = 직접 그린 귀여운 그림, IN_KEYS · OUT_KEYS = 받은 돈 · 쓴 돈 그림 순서. 쓰기는 누를 때만 (mount 중에는 안 씀).
+   🎨 저금통 모양 3가지 (kids.{k}.pbTheme): ball 몬스터볼(처음 모양) · pig 🐷 돼지 · bear 🧸 곰돌이 (몬스터볼은 방에 있는 포켓몬 친구가 옆에서 지켜 줌, ../poke/art) — 아이가 골라요. */
 (() => {
   'use strict';
+  const BASE = (document.currentScript && document.currentScript.src) ? new URL('.', document.currentScript.src).href : './'; // 포켓몬 그림: poke/art/*.png
   const T = {
     ko: {
-      hint: '동전을 저금통에 넣어 봐!', outHint: '꺼낸 돈을 눌러 봐!', lockedHint: '엄마·아빠가 잠금을 풀면 넣을 수 있어요', unlock: '🔒 잠금 풀기', pig: '저금통',
-      modeIn: '🐷 넣기', modeOut: '💸 꺼내기', whatBuy: '뭐 샀어?', notEnough: '저금통에 돈이 모자라요', own: '✏️ 직접 쓰기',
+      hint: '동전을 저금통에 넣어 봐!', theme: '저금통 모양', themes: { pig: '돼지', bear: '곰돌이', ball: '몬스터볼' }, outHint: '꺼낸 돈을 눌러 봐!', lockedHint: '엄마·아빠가 잠금을 풀면 넣을 수 있어요', unlock: '🔒 잠금 풀기', pig: '저금통',
+      modeIn: '🪙 넣기', modeOut: '💸 꺼내기', whatBuy: '뭐 샀어?', notEnough: '저금통에 돈이 모자라요', own: '✏️ 직접 쓰기',
       noMoney: '아직 기록이 없어요.', in: '받았어요', out: '썼어요', edit: '기록 고치기', save: '저장', cancel: '취소', del: '지우기', delAsk: '이 기록을 지울까요?',
       fix: '금액 맞추기', adjTitle: '🔒 저금통 금액 맞추기', adjHint: '저금통에 실제로 들어 있는 돈을 넣으면 그 금액으로 맞춰져요.', adjBad: '금액을 넣어 주세요.',
     },
     de: {
-      hint: 'Wirf die Münzen ins Sparschwein!', outHint: 'Tippe auf das Geld, das du rausnimmst!', lockedHint: 'Mama oder Papa entsperren, dann geht es', unlock: '🔒 Entsperren', pig: 'Sparschwein',
-      modeIn: '🐷 Einwerfen', modeOut: '💸 Rausnehmen', whatBuy: 'Was hast du gekauft?', notEnough: 'So viel ist nicht im Sparschwein', own: '✏️ Selbst schreiben',
+      hint: 'Wirf die Münzen ins Sparschwein!', theme: 'Aussehen', themes: { pig: 'Schwein', bear: 'Teddy', ball: 'Pokéball' }, outHint: 'Tippe auf das Geld, das du rausnimmst!', lockedHint: 'Mama oder Papa entsperren, dann geht es', unlock: '🔒 Entsperren', pig: 'Sparschwein',
+      modeIn: '🪙 Einwerfen', modeOut: '💸 Rausnehmen', whatBuy: 'Was hast du gekauft?', notEnough: 'So viel ist nicht im Sparschwein', own: '✏️ Selbst schreiben',
       noMoney: 'Noch keine Einträge.', in: 'Bekommen', out: 'Ausgegeben', edit: 'Eintrag ändern', save: 'Speichern', cancel: 'Abbrechen', del: 'Löschen', delAsk: 'Diesen Eintrag löschen?',
       fix: 'Betrag anpassen', adjTitle: '🔒 Betrag im Sparschwein', adjHint: 'Gib ein, wie viel wirklich im Sparschwein ist.', adjBad: 'Bitte einen Betrag eingeben.',
     },
@@ -34,6 +36,46 @@
     snack: ['🍭', '간식', 'Süßigkeiten'], ice: ['🍦', '아이스크림', 'Eis'], toy: ['🧸', '장난감', 'Spielzeug'], game: ['🎮', '게임', 'Spiel'], book: ['📚', '책', 'Buch'],
     school: ['✏️', '학용품', 'Schulsachen'], buygift: ['💝', '선물 사기', 'Geschenk gekauft'], play: ['🎡', '놀러 가기', 'Ausflug'], save: ['🏦', '은행에 저금', 'Aufs Konto'],
   };
+  const MO = '#5A4434', ST = `stroke="${MO}" stroke-width="3"`;
+  const face = (x, y, s = 1) => `<circle cx="${x - 5 * s}" cy="${y}" r="${2.1 * s}" fill="${MO}"/><circle cx="${x + 5 * s}" cy="${y}" r="${2.1 * s}" fill="${MO}"/>`
+    + `<path d="M${x - 2.4 * s} ${y + 3 * s}q${2.4 * s} ${2.6 * s} ${4.8 * s} 0" stroke="${MO}" stroke-width="${1.8 * s}" fill="none"/>`
+    + `<ellipse cx="${x - 8.5 * s}" cy="${y + 3 * s}" rx="${2.6 * s}" ry="${1.6 * s}" fill="#FF8FA8" opacity=".7"/><ellipse cx="${x + 8.5 * s}" cy="${y + 3 * s}" rx="${2.6 * s}" ry="${1.6 * s}" fill="#FF8FA8" opacity=".7"/>`;
+  const twinkle = (x, y, r, c = '#FFD45C') => `<path d="M${x} ${y - r}q${r * .2} ${r * .8} ${r} ${r}q-${r * .8} ${r * .2}-${r} ${r}q-${r * .2}-${r * .8}-${r}-${r}q${r * .8}-${r * .2} ${r}-${r}z" fill="${c}"/>`;
+  const ICONS = {
+    coins: `<ellipse cx="20" cy="52" rx="13" ry="5" fill="#E8B23A" ${ST}/><ellipse cx="20" cy="45" rx="13" ry="5" fill="#F4C542" ${ST}/><ellipse cx="20" cy="38" rx="13" ry="5" fill="#FFD45C" ${ST}/>`
+      + `<circle cx="42" cy="36" r="17" fill="#FFD45C" ${ST}/><circle cx="42" cy="36" r="11.5" fill="none" stroke="#E8B23A" stroke-width="2.5"/>` + face(42, 35, .75) + twinkle(55, 12, 6),
+    allowance: `<rect x="5" y="17" width="54" height="32" rx="7" fill="#A8E3A0" ${ST}/><rect x="10" y="22" width="44" height="22" rx="4" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="3 3"/>`
+      + `<circle cx="32" cy="33" r="10" fill="#D6F5CF" ${ST}/>` + face(32, 32, .62) + `<text x="13" y="30" font-size="10" font-weight="800" font-family="system-ui,sans-serif" fill="#3E8A4A">€</text><text x="45" y="45" font-size="10" font-weight="800" font-family="system-ui,sans-serif" fill="#3E8A4A">€</text>`,
+    gift: `<rect x="11" y="29" width="42" height="28" rx="6" fill="#FF8FB1" ${ST}/><rect x="8" y="20" width="48" height="12" rx="5" fill="#FFB3CB" ${ST}/><rect x="28" y="20" width="8" height="37" fill="#FFD45C" ${ST}/>`
+      + `<path d="M32 20c-4-9-15-11-14-4 1 5 9 5 14 4zM32 20c4-9 15-11 14-4-1 5-9 5-14 4z" fill="#FFD45C" ${ST}/>` + face(20, 43, .55) + twinkle(52, 10, 5) + twinkle(10, 10, 4, '#FFB3CB'),
+    tooth: `<path d="M15 13c6-6 13-3 17 0 4-3 11-6 17 0 6 7 3 18-1 24-2 4-2 15-7 17-4 1-5-10-9-10s-5 11-9 10c-5-2-5-13-7-17-4-6-7-17-1-24z" fill="#fff" ${ST}/>`
+      + face(32, 29, .8) + twinkle(54, 10, 7) + twinkle(9, 22, 4, '#BFE3FF'),
+    found: `<path d="M32 5l7.8 15.6 17.2 2.5-12.5 12.2 3 17.1L32 44.4l-15.4 8 3-17.1L7 23.1l17.2-2.5z" fill="#FFD45C" ${ST}/>` + face(32, 31, .82) + twinkle(55, 50, 5, '#FFB3CB'),
+    snack: `<rect x="29.5" y="34" width="5" height="27" rx="2.5" fill="#fff" ${ST}/><circle cx="32" cy="23" r="18" fill="#FF8FB1" ${ST}/>`
+      + `<path d="M32 23m-11 0a11 11 0 1 0 11-11a7 7 0 1 1-7 7a3.5 3.5 0 1 0 3.5-3.5" fill="none" stroke="#fff" stroke-width="3.2"/><path d="M27 34l10 0" stroke="#FF5F9E" stroke-width="3"/>` + twinkle(55, 9, 5),
+    ice: `<path d="M19 31h26L32 61z" fill="#F2C27C" ${ST}/><path d="M24 38l12 12M30 34l9 9M36 34l-10 11M41 35l-7 9" stroke="#D89A4C" stroke-width="2"/>`
+      + `<circle cx="32" cy="23" r="15" fill="#FFC2D6" ${ST}/><path d="M18 27q4 5 8 1t7 1 7-1 7-1" fill="none" stroke="#fff" stroke-width="2.5"/><circle cx="35" cy="7" r="4.5" fill="#FF5A6E" ${ST}/>` + face(32, 21, .7),
+    toy: `<circle cx="17" cy="15" r="8" fill="#D9A066" ${ST}/><circle cx="47" cy="15" r="8" fill="#D9A066" ${ST}/><circle cx="17" cy="15" r="3.5" fill="#F3D2A8"/><circle cx="47" cy="15" r="3.5" fill="#F3D2A8"/>`
+      + `<circle cx="32" cy="32" r="21" fill="#D9A066" ${ST}/><ellipse cx="32" cy="40" rx="9" ry="7" fill="#F3D2A8"/><ellipse cx="32" cy="37" rx="3.5" ry="2.5" fill="${MO}"/>`
+      + `<circle cx="24" cy="29" r="2.4" fill="${MO}"/><circle cx="40" cy="29" r="2.4" fill="${MO}"/><path d="M29 43q3 2.5 6 0" stroke="${MO}" stroke-width="2" fill="none"/>`
+      + `<path d="M24 56l8-4 8 4-8 4z" fill="#FF5F9E" ${ST}/>`,
+    game: `<path d="M15 21h34c8 0 12 9 10 20-1 8-8 10-12 4l-4-5H21l-4 5c-4 6-11 4-12-4-2-11 2-20 10-20z" fill="#A99BFF" ${ST}/>`
+      + `<path d="M17 26v10M12 31h10" stroke="#fff" stroke-width="4"/><circle cx="45" cy="27" r="3.2" fill="#FFD45C" ${ST}/><circle cx="51" cy="34" r="3.2" fill="#FF8FB1" ${ST}/>` + face(32, 31, .55),
+    book: `<rect x="13" y="8" width="38" height="48" rx="5" fill="#6EC6FF" ${ST}/><rect x="13" y="8" width="9" height="48" rx="3" fill="#4DA8E8" ${ST}/>`
+      + `<path d="M22 50h29" stroke="#fff" stroke-width="3"/>` + face(37, 28, .8) + twinkle(37, 15, 4.5, '#FFE27A'),
+    school: `<g transform="rotate(-38 32 32)"><rect x="24" y="4" width="16" height="42" rx="3" fill="#FFD45C" ${ST}/><rect x="24" y="4" width="16" height="9" rx="3" fill="#FF8FB1" ${ST}/>`
+      + `<path d="M24 46l8 14 8-14z" fill="#F7D9B5" ${ST}/><path d="M29.5 55.5l2.5 4.5 2.5-4.5z" fill="${MO}"/>` + face(32, 28, .6) + `</g>` + twinkle(52, 50, 5, '#BFE3FF'),
+    buygift: `<path d="M32 55C14 43 6 33 8 22c2-9 13-13 20-6l4 4 4-4c7-7 18-3 20 6 2 11-6 21-24 33z" fill="#FF6FA8" ${ST}/>`
+      + `<path d="M8 30h48" stroke="#FFD45C" stroke-width="6"/><path d="M8 30h48" stroke="${MO}" stroke-width="1.5" opacity=".35"/>` + face(32, 39, .7) + twinkle(54, 8, 5),
+    play: `<path d="M22 36q2 12 10 22M42 34q-2 12-10 24" fill="none" stroke="${MO}" stroke-width="2"/>`
+      + `<ellipse cx="22" cy="21" rx="13" ry="15" fill="#6EC6FF" ${ST}/><path d="M20 36l2 3 2-3z" fill="#6EC6FF" ${ST}/>`
+      + `<ellipse cx="43" cy="19" rx="13" ry="15" fill="#FFD45C" ${ST}/><path d="M41 34l2 3 2-3z" fill="#FFD45C" ${ST}/>` + face(43, 19, .7)
+      + `<path d="M15 14q3-4 7-4" stroke="#fff" stroke-width="2.5" fill="none"/>`,
+    save: `<path d="M7 25L32 9l25 16z" fill="#FFB15C" ${ST}/><rect x="9" y="47" width="46" height="9" rx="2" fill="#E9DFCF" ${ST}/>`
+      + `<rect x="13" y="27" width="8" height="20" fill="#fff" ${ST}/><rect x="28" y="27" width="8" height="20" fill="#fff" ${ST}/><rect x="43" y="27" width="8" height="20" fill="#fff" ${ST}/>`
+      + `<circle cx="32" cy="19" r="4.5" fill="#FFD45C" ${ST}/>` + twinkle(56, 8, 5),
+  };
+  const iconHTML = (key) => (ICONS[key] ? `<svg class="pb-ic" viewBox="0 0 64 64" aria-hidden="true" stroke-linejoin="round" stroke-linecap="round">${ICONS[key]}</svg>` : `<span class="pb-ic">${(NOTES[key] || [''])[0]}</span>`);
   const IN_KEYS = ['allowance', 'gift', 'tooth', 'found', 'coins'];
   const OUT_KEYS = ['snack', 'ice', 'toy', 'game', 'book', 'school', 'buygift', 'play', 'save'];
   const PIG_SVG = `<svg viewBox="0 0 220 160" aria-hidden="true">
@@ -50,6 +92,31 @@
     <circle cx="158" cy="74" r="6" fill="#3B1B2B"/><circle cx="160" cy="72" r="2" fill="#fff"/>
     <ellipse cx="148" cy="106" rx="10" ry="6" fill="#FF6F9E" opacity=".45"/>
   </svg>`;
+  const BEAR_SVG = `<svg viewBox="0 0 220 160" aria-hidden="true">
+    <circle cx="58" cy="34" r="20" fill="#E8A86C"/><circle cx="162" cy="34" r="20" fill="#E8A86C"/><circle cx="58" cy="34" r="10" fill="#F9D3AE"/><circle cx="162" cy="34" r="10" fill="#F9D3AE"/>
+    <ellipse cx="80" cy="146" rx="20" ry="11" fill="#E8A86C"/><ellipse cx="140" cy="146" rx="20" ry="11" fill="#E8A86C"/>
+    <ellipse cx="110" cy="90" rx="80" ry="60" fill="#F2BC86"/>
+    <ellipse cx="80" cy="64" rx="30" ry="14" fill="#fff" opacity=".3"/>
+    <rect x="88" y="33" width="44" height="10" rx="5" fill="#7A4A2E"/>
+    <ellipse cx="110" cy="110" rx="28" ry="20" fill="#FCE5CC"/><ellipse cx="110" cy="101" rx="8" ry="6" fill="#5A3A2A"/>
+    <path d="M102 113q8 7 16 0" stroke="#5A3A2A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <circle cx="82" cy="86" r="7" fill="#3B2A20"/><circle cx="138" cy="86" r="7" fill="#3B2A20"/><circle cx="84.5" cy="83.5" r="2.4" fill="#fff"/><circle cx="140.5" cy="83.5" r="2.4" fill="#fff"/>
+    <ellipse cx="66" cy="106" rx="10" ry="6" fill="#FF9FB2" opacity=".65"/><ellipse cx="154" cy="106" rx="10" ry="6" fill="#FF9FB2" opacity=".65"/>
+    <path d="M160 22c-8-10-22-6-16 3 4 5 12 1 16-3zm0 0c8-10 22-6 16 3-4 5-12 1-16-3z" fill="#FF7EB6"/><circle cx="160" cy="22" r="4.5" fill="#FF5F9E"/>
+    <path d="M196 70l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#FFD45C"/><path d="M22 96l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#FFB3CB"/>
+  </svg>`;
+  const BALL_SVG = `<svg viewBox="0 0 220 160" aria-hidden="true">
+    <ellipse cx="110" cy="152" rx="60" ry="6" fill="#000" opacity=".12"/>
+    <path d="M40 84a70 70 0 0 1 140 0z" fill="#F0443A"/>
+    <path d="M40 84a70 70 0 0 0 140 0z" fill="#FAFAFA"/>
+    <path d="M58 46a62 62 0 0 1 40-28" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" opacity=".45"/>
+    <rect x="40" y="78" width="140" height="12" fill="#2B2B2B"/>
+    <circle cx="110" cy="84" r="70" fill="none" stroke="#2B2B2B" stroke-width="6"/>
+    <circle cx="110" cy="84" r="20" fill="#FAFAFA" stroke="#2B2B2B" stroke-width="7"/><circle cx="110" cy="84" r="9" fill="#fff" stroke="#BDBDBD" stroke-width="2.5"/>
+    <rect x="88" y="20" width="44" height="10" rx="5" fill="#7A1410"/>
+    <path d="M190 30l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#FFD45C"/><path d="M26 120l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#FFD45C"/>
+  </svg>`;
+  const THEMES = { pig: { svg: PIG_SVG, slot: [102, 41], icon: '🐷' }, bear: { svg: BEAR_SVG, slot: [110, 38], icon: '🧸' }, ball: { svg: BALL_SVG, slot: [110, 25], icon: '⚪', buddy: true } };
   // 돈: 5€ 지폐(회색), 1€(가운데 은색 + 금색 테두리), 50c·20c·10c(금색). 실제 크기 비율에 가깝게
   const COINS = [{ v: 5, w: 100, h: 54, label: '5', unit: '€', bill: true }, { v: 1, size: 64, label: '1', unit: '€', bi: true }, { v: 0.5, size: 66, label: '50', unit: 'c' }, { v: 0.2, size: 60, label: '20', unit: 'c' }, { v: 0.1, size: 54, label: '10', unit: 'c' }];
   function coinSVG(c) {
@@ -77,6 +144,24 @@
 .pb-pig { width: 210px; max-width: 70%; border: 0; background: none; padding: 0; cursor: pointer; }
 .pb.big .pb-pig { width: 240px; }
 .pb-pig svg { width: 100%; height: auto; display: block; overflow: visible; }
+.pb-ic { display: inline-block; width: 1em; height: 1em; vertical-align: -0.15em; line-height: 1; }
+/* 🎨 모양마다 배경 */
+.pb-bank { border-radius: 28px; margin-bottom: 4px; }
+.pb.t-pig .pb-bank { background: radial-gradient(circle at 20% 25%, #FFE3EE 0 7px, transparent 8px) 0 0 / 46px 46px, linear-gradient(#FFF4F8, rgba(255, 244, 248, 0)); }
+.pb.t-bear .pb-bank { background: radial-gradient(circle at 30% 30%, #FFE9C7 0 6px, transparent 7px) 0 0 / 40px 40px, radial-gradient(circle at 75% 70%, #FFE0EC 0 5px, transparent 6px) 0 0 / 40px 40px, linear-gradient(#FFF8EC, rgba(255, 248, 236, 0)); }
+.pb.pb.t-bear { --pb-c: #B46A2E; } /* 앱이 정한 색보다 모양 색 먼저 */
+.pb.t-ball .pb-bank { background: radial-gradient(circle, #FFD9D5 0 3px, transparent 4px) 0 0 / 28px 28px, linear-gradient(#FFF0EE, rgba(255, 240, 238, 0)); }
+.pb.pb.t-ball { --pb-c: #D63A30; }
+.pb-buddy { position: absolute; right: 4%; bottom: 52px; width: 92px; height: 92px; object-fit: contain; pointer-events: none; animation: pb-bob 1.8s ease-in-out infinite; filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .18)); }
+.pb.big .pb-buddy { width: 120px; height: 120px; right: 10%; }
+.pb-buddy.hop { animation: pb-hop .5s ease-out; }
+.pb [hidden], .pb-ov [hidden] { display: none !important; } /* 숨긴 칸은 앱 CSS 와 상관없이 숨김 */
+@keyframes pb-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes pb-hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-26px) rotate(-8deg); } }
+.pb-themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pb-themes button { display: grid; justify-items: center; gap: 4px; padding: 10px 4px 8px; border: 3px solid rgba(0, 0, 0, .08); border-radius: 18px; background: #fff; color: #3A2230; font: 700 14px/1.2 var(--font-body, inherit); cursor: pointer; }
+.pb-themes button svg { width: 100%; height: auto; }
+.pb-themes button[aria-pressed="true"] { border-color: #FF7EB6; background: #FFF0F6; }
 .pb-pig.bump svg { animation: pb-bump .45s cubic-bezier(.2, 1.6, .4, 1); }
 .pb-pig.wig svg { animation: pb-wig .5s ease-in-out; }
 .pb-pig.tip svg { animation: pb-tip .75s ease-in-out; transform-origin: 50% 80%; }
@@ -109,7 +194,7 @@
 .pb-buy .h .amt { color: #D64545; }
 .pb-pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; }
 .pb-pics button { display: grid; justify-items: center; gap: 2px; padding: 8px 2px 6px; border: 2px solid rgba(0, 0, 0, .08); border-radius: 16px; background: #fff; color: #3A2230; font: 600 12px/1.2 var(--font-body, inherit); cursor: pointer; }
-.pb-pics button .e { font-size: 32px; line-height: 1.1; }
+.pb-pics button .e { font-size: 38px; line-height: 1; }
 .pb-pics button[aria-pressed="true"] { border-color: var(--pb-c); background: color-mix(in srgb, var(--pb-c) 12%, #fff); transform: scale(1.05); }
 .pb-field { width: 100%; box-sizing: border-box; height: 44px; padding: 0 12px; border: 2px solid rgba(0, 0, 0, .1); border-radius: 12px; font: 500 16px var(--font-body, inherit); background: #fff; color: #222; }
 .pb-acts { display: flex; gap: 8px; justify-content: flex-end; }
@@ -129,6 +214,7 @@
 .pb-hist li { display: flex; align-items: center; gap: 10px; padding: 8px 4px; border-top: 1px solid rgba(0, 0, 0, .08); cursor: pointer; border-radius: 10px; }
 .pb-hist li:first-child { border-top: 0; }
 .pb-hist li:active { background: rgba(0, 0, 0, .05); }
+.pb-hist .ic { flex: none; font-size: 26px; display: inline-flex; }
 .pb-hist .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pb-hist .d { flex: none; font-size: 13px; opacity: .6; font-variant-numeric: tabular-nums; }
 .pb-hist .amt { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -178,8 +264,15 @@
     const by = () => (o.by ? { by: o.by() } : {});
     const zoom = o.big ? 1.25 : 1;
     let alive = true, pending = 0, timer = 0, mode = 'in', buyKey = '', wasLocked = null, msgT = 0;
-    const pig = el('button', { type: 'button', class: 'pb-pig', html: PIG_SVG });
+    const themeKey = () => { const t = (o.data() || {}).pbTheme; return THEMES[t] ? t : 'ball'; }; // 처음엔 몬스터볼 (2026-11-18 엄마)
+    let shownTheme = '';
+    const pig = el('button', { type: 'button', class: 'pb-pig' });
+    const buddy = el('img', { class: 'pb-buddy', alt: '', draggable: 'false', hidden: '' });
+    // 몬스터볼 옆 친구: 방에 나와 있는 첫 포켓몬 (없으면 피카츄)
+    const buddyId = () => { const r = (o.data() || {}).room || {}, all = r.mons || {}, ids = Array.isArray(r.home) ? r.home : Object.keys(all);
+      for (const id of ids) { const m = all[id], p = m && m.h && +m.p; if (p >= 1 && p <= 151) return p; } return 25; };
     const bal = el('span', { class: 'pb-bal' });
+    const look = el('button', { type: 'button', class: 'pb-fix', text: '🎨', onclick: () => openThemes() });
     const fix = el('button', { type: 'button', class: 'pb-fix', text: '✏️', onclick: () => { flush(); if (o.onAdjust) o.onAdjust(); else guard(openAdj); } });
     const modes = el('div', { class: 'pb-modes' });
     const hint = el('p', { class: 'pb-hint' });
@@ -188,7 +281,7 @@
     const buy = el('div', { class: 'pb-buy', hidden: '' });
     const buyOwn = el('input', { class: 'pb-field', type: 'text', maxlength: '60' }); // 다시 그려도 쓰던 글이 남게 하나만
     const hist = el('ul', { class: 'pb-hist' });
-    const wrap = el('div', { class: 'pb' + (o.big ? ' big' : '') }, el('div', { class: 'pb-bank' }, pig, el('div', { class: 'pb-balrow' }, bal, fix)), modes, hint, unlockBtn, coins, buy, o.history && !o.historyEl ? hist : null);
+    const wrap = el('div', { class: 'pb' + (o.big ? ' big' : '') }, el('div', { class: 'pb-bank' }, pig, buddy, el('div', { class: 'pb-balrow' }, bal, look, fix)), modes, hint, unlockBtn, coins, buy, o.history && !o.historyEl ? hist : null);
     root.replaceChildren(wrap);
     if (o.history && o.historyEl) o.historyEl.replaceChildren(el('div', { class: 'pb' }, hist)); // 앱이 정한 자리 (버튼 아래 등)
 
@@ -203,7 +296,7 @@
     }
     const noteText = (m) => {
       const v = m.note || '';
-      if (v.startsWith('@')) { const t = NOTES[v.slice(1)]; return t ? `${t[0]} ${label(v.slice(1))}` : ''; }
+      if (v.startsWith('@')) return label(v.slice(1));
       return m.src && m.src !== lang() && m.tr ? m.tr : v; // 다른 언어로 쓴 글은 번역이 있으면 번역
     };
     const moneyOf = () => (o.data() || {}).money || {};
@@ -211,7 +304,7 @@
     function pics(keys, cur, onPick) {
       const box = el('div', { class: 'pb-pics' });
       const draw = (sel) => box.replaceChildren(...keys.map((key) => el('button', { type: 'button', 'aria-pressed': String(sel === key),
-        onclick: () => { const v = sel === key ? '' : key; snd.tap(2); onPick(v); draw(v); } }, el('span', { class: 'e', text: NOTES[key][0] }), label(key))));
+        onclick: () => { const v = sel === key ? '' : key; snd.tap(2); onPick(v); draw(v); } }, el('span', { class: 'e', html: iconHTML(key) }), label(key))));
       draw(cur);
       return box;
     }
@@ -219,6 +312,11 @@
       if (!alive) return;
       const lk = locked();
       wasLocked = lk;
+      const tk = themeKey(), th = THEMES[tk];
+      if (tk !== shownTheme) { shownTheme = tk; pig.innerHTML = th.svg; for (const k of Object.keys(THEMES)) wrap.classList.toggle('t-' + k, k === tk); }
+      buddy.hidden = !th.buddy;
+      if (th.buddy) { const src = `${BASE}poke/art/${buddyId()}.png`; if (buddy.getAttribute('src') !== src) buddy.src = src; }
+      look.setAttribute('aria-label', L().theme); look.title = L().theme;
       bal.textContent = fmt(r2(sumOf(o.data()) + pending));
       if (popIt) anim(bal, 'pop');
       pig.setAttribute('aria-label', L().pig);
@@ -240,7 +338,8 @@
       if (o.history) {
         const ms = Object.entries(moneyOf()).map(([id, m]) => ({ id, ...m })).filter((m) => m.note !== '@adjust' && m.note !== '@carry').sort((a, b) => (b.at || 0) - (a.at || 0)).slice(0, o.history);
         hist.replaceChildren(...(ms.length ? ms.map((m) => { const d = new Date(m.at || 0);
-          return el('li', { onclick: () => edit(m.id) }, el('span', { class: 't', text: noteText(m) || (m.amt >= 0 ? L().in : L().out) }), el('span', { class: 'd', text: `${d.getMonth() + 1}/${d.getDate()}` }),
+          const nk = (m.note || '').startsWith('@') ? m.note.slice(1) : '';
+          return el('li', { onclick: () => edit(m.id) }, el('span', { class: 'ic', html: nk && NOTES[nk] ? iconHTML(nk) : '' }), el('span', { class: 't', text: noteText(m) || (m.amt >= 0 ? L().in : L().out) }), el('span', { class: 'd', text: `${d.getMonth() + 1}/${d.getDate()}` }),
             el('span', { class: 'amt ' + (m.amt >= 0 ? 'plus' : 'minus'), text: (m.amt >= 0 ? '+' : '−') + fmt(Math.abs(m.amt)) })); })
           : [el('li', { class: 'none', text: L().noMoney })]));
       }
@@ -267,12 +366,12 @@
     const coinText = (c, sign) => sign + (c.v >= 1 ? `${c.v} €` : `${Math.round(c.v * 100)} c`);
     function landed(c) {
       if (!alive) return;
-      snd.coin(); anim(pig, 'bump');
+      snd.coin(); anim(pig, 'bump'); hop();
       pending = r2(pending + c.v);
       render(true); plusPop(coinText(c, '+'));
       clearTimeout(timer); timer = setTimeout(flush, GROUP_MS);
     }
-    const slot = () => { const pr = pig.getBoundingClientRect(); return { pr, x: pr.left + pr.width * (102 / 220), y: pr.top + pr.height * (41 / 160) }; };
+    const slot = () => { const pr = pig.getBoundingClientRect(), [sx, sy] = THEMES[themeKey()].slot; return { pr, x: pr.left + pr.width * (sx / 220), y: pr.top + pr.height * (sy / 160) }; };
     // 돈을 (from 위치에서) 저금통 구멍으로 날려 보냄
     function fly(c, from) {
       const { x: tx, y: ty } = slot();
@@ -334,7 +433,15 @@
     });
     btns.splice(COINS.filter((c) => c.bill).length, 0, el('i', { class: 'br' }));
     coins.replaceChildren(...btns);
-    pig.addEventListener('click', () => { anim(pig, 'wig'); snd.oink(); });
+    pig.addEventListener('click', () => { anim(pig, 'wig'); hop(); snd.oink(); });
+    function hop() { if (buddy.hidden) return; buddy.classList.remove('hop'); void buddy.offsetWidth; buddy.classList.add('hop'); clearTimeout(buddy._t); buddy._t = setTimeout(() => buddy.classList.remove('hop'), 600); }
+    // 🎨 저금통 모양 고르기 (아이도 바로)
+    function openThemes() {
+      const cur = themeKey();
+      sheet(el('h3', { text: '🎨 ' + L().theme }), el('div', { class: 'pb-themes' }, ...Object.entries(THEMES).map(([k, t]) => el('button', { type: 'button', 'aria-pressed': String(k === cur),
+        onclick: () => { closeOv(); snd.tap(3); if (k !== cur) W(['pbTheme'], k); } }, el('span', { html: t.svg }), `${t.icon} ${L().themes[k]}`))),
+        el('div', { class: 'pb-acts' }, el('button', { type: 'button', class: 'pb-btn ghost', text: L().cancel, onclick: closeOv })));
+    }
     // 창 (고치기 · 금액 맞추기)
     let ov = null;
     const closeOv = () => { if (ov) { ov.remove(); ov = null; } };
@@ -426,5 +533,5 @@
     render(false);
     return api;
   }
-  window.PiggyBank = { mount, NOTES, IN_KEYS, OUT_KEYS, sumOf, fmt };
+  window.PiggyBank = { mount, NOTES, iconHTML, IN_KEYS, OUT_KEYS, sumOf, fmt };
 })();
