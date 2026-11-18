@@ -1,10 +1,10 @@
 // 오프라인 · 빠른 시작: 저장해 둔 것을 바로 보여 주고(기다리지 않음), 뒤에서 서버에 새 것이 있는지 받아 둠.
 // 앱 화면(html · js)이 바뀌었으면 화면에 알려서, 아무도 안 만질 때 조용히 새로 고침 (GitHub Pages 10분 저장 표시 때문에 cache: 'no-cache').
-const CACHE = 'our-family-v94';
+const CACHE = 'our-family-v95';
 const OK_ORIGINS = ['https://www.gstatic.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', 'index.html', 'manifest.webmanifest', 'favicon.png', 'icon-180.png', 'icon-192.png', 'firebase-config.js', 'stickers-shared.js', 'poke-room.js', 'mission-board.js'].map((u) => new Request(u, { cache: 'reload' })))));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', 'index.html', 'manifest.webmanifest', 'favicon.png', 'icon-180.png', 'icon-192.png', 'firebase-config.js', 'stickers-shared.js', 'poke-room.js', 'mission-board.js', 'piggy-bank.js'].map((u) => new Request(u, { cache: 'reload' })))));
   self.skipWaiting();
 });
 self.addEventListener('activate', (e) => e.waitUntil((async () => {
