@@ -292,7 +292,15 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .plus-pop { position: fixed; z-index: 260; pointer-events: none; font-family: var(--font-display); font-size: 24px; color: #2E9D5A; text-shadow: 0 1px 0 #fff; animation: plusup .9s ease-out forwards; }
 @keyframes plusup { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -48px); opacity: 0; } }
 .coin-hint { margin: 2px 0 8px; text-align: center; font-size: 15px; font-weight: 700; color: var(--kc); }
-.coins { display: flex; align-items: flex-end; justify-content: center; gap: 12px; margin-bottom: 16px; }
+.coins { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 10px 12px; margin-bottom: 16px; }
+.coins .br { flex-basis: 100%; height: 0; } /* 5€ 지폐 한 줄, 동전 한 줄 */
+.pig.tip svg { animation: pigtip .75s ease-in-out; transform-origin: 50% 80%; }
+@keyframes pigtip { 0%, 100% { transform: none; } 25% { transform: translateY(-8px) rotate(-14deg); } 50% { transform: translateY(-12px) rotate(12deg); } 75% { transform: translateY(-5px) rotate(-7deg); } }
+.allow-ask { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; padding: 10px 12px; border-radius: 16px; background: color-mix(in srgb, var(--k1) 35%, var(--surface)); font-weight: 700; }
+.allow-ask[hidden] { display: none; }
+.allow-ask .q { flex: 1 1 100%; }
+.allow-ask .btn { flex: 1 1 0; height: 40px; font-size: 15px; padding: 0 10px; }
+.allow-ask .btn.ghost { background: var(--surface); }
 .coin { border: 0; background: none; padding: 0; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; }
 .coin svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, .18)); }
 .coin:active svg { transform: scale(.94); }
@@ -695,6 +703,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     </div>
     <p class="coin-hint" data-t="coinHint">동전을 저금통에 넣어 봐!</p>
     <div class="coins" id="coins"></div>
+    <div class="allow-ask" id="allow-ask" hidden></div>
     <div class="money-btns small">
       <button type="button" class="btn" id="money-in" data-t="moneyIn">+ 받았어요</button>
       <button type="button" class="btn ghost" id="money-out" data-t="moneyOut">− 썼어요</button>
@@ -765,6 +774,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <h3 id="money-title"></h3>
     <label class="lbl"><span data-t="moneyAmt">금액 (€)</span><input class="field" id="money-amt" type="text" inputmode="decimal" maxlength="9" placeholder="0,00"></label>
     <div class="pics" id="money-pics"></div>
+    <label class="lbl" id="allow-row" hidden><span data-t="allowDay">📅 매주 용돈 날</span><select class="field" id="allow-wd"></select></label>
     <details class="parent-note"><summary data-t="giveOwn">✏️ 직접 쓰기</summary><input class="field" id="money-note" type="text" maxlength="60"></details>
     <p class="hint err" id="money-err" hidden></p>
     <div class="sheet-actions">
@@ -970,7 +980,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       sickBtn: '🤒 아파요', ttCfg: '📚 다빈 시간표 (월~금, 1~6교시)',
       
       msCfg: '🎯 오늘의 미션 (다 하면 스티커 1장)', msWd: '평일만', msAdd: '+ 추가', msOwnPh: '직접 쓰기 (예: 피아노 연습)',
-      cfgTitle: (n) => `${n} 목표·보상`, moneyInTitle: '💶 받은 돈', moneyOutTitle: '💸 쓴 돈', moneyBad: '금액을 넣어 주세요.',
+      cfgTitle: (n) => `${n} 목표·보상`, moneyInTitle: '💶 받은 돈', moneyOutTitle: '💸 쓴 돈', moneyBad: '금액을 넣어 주세요.', allowDay: '📅 매주 용돈 날 (알려 줘요)', allowNone: '알림 없음', allowWd: (w) => '일월화수목금토'[w] + '요일',
+      allowAsk: (wd, today) => (today ? '💶 오늘은 용돈 날! 받았어요?' : `💶 ${wd} 용돈, 받았어요?`), allowYes: '받았어요', allowSkip: '이번 주는 없어요', allowSaved: '📅 용돈 날을 저장했어요',
       vacTitle: '휴가', vacSet: '✈️ 휴가 설정', vacHint: '휴가 기간에는 가족 일정의 기본 일정이 모두 비어요. 그날만 넣은 일정은 그대로 보여요.',
       vacStart: '시작', vacEnd: '끝', vacName: '이름 (선택)', vacNamePh: '예: 이탈리아 여행', vacAdd: '추가', close: '닫기',
       vacBad: '끝 날짜가 시작 날짜보다 빨라요.', vacNeed: '시작과 끝 날짜를 골라 주세요.', vacNone: '등록된 휴가가 없어요.',
@@ -1034,7 +1045,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       sickBtn: '🤒 Krank', ttCfg: '📚 Davins Stundenplan (Mo–Fr, 1.–6. Stunde)',
       
       msCfg: '🎯 Tagesmission (alles geschafft = 1 Sticker)', msWd: 'Nur Mo–Fr', msAdd: '+ Hinzufügen', msOwnPh: 'Selbst schreiben (z. B. Klavier üben)',
-      cfgTitle: (n) => `Ziel & Belohnung für ${n}`, moneyInTitle: '💶 Bekommen', moneyOutTitle: '💸 Ausgegeben', moneyBad: 'Bitte einen Betrag eingeben.',
+      cfgTitle: (n) => `Ziel & Belohnung für ${n}`, moneyInTitle: '💶 Bekommen', moneyOutTitle: '💸 Ausgegeben', moneyBad: 'Bitte einen Betrag eingeben.', allowDay: '📅 Taschengeld-Tag (Erinnerung)', allowNone: 'Keine Erinnerung', allowWd: (w) => ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][w],
+      allowAsk: (wd, today) => (today ? '💶 Heute ist Taschengeld-Tag! Bekommen?' : `💶 Taschengeld vom ${wd} schon bekommen?`), allowYes: 'Bekommen', allowSkip: 'Diese Woche nicht', allowSaved: '📅 Taschengeld-Tag gespeichert',
       vacTitle: 'Urlaub', vacSet: '✈️ Urlaub eintragen', vacHint: 'Im Urlaub sind die Standard-Pläne im Familienplan leer. Für einzelne Tage Eingetragenes bleibt sichtbar.',
       vacStart: 'Von', vacEnd: 'Bis', vacName: 'Name (optional)', vacNamePh: 'z. B. Italienreise', vacAdd: 'Hinzufügen', close: 'Schließen',
       vacBad: 'Das Ende liegt vor dem Anfang.', vacNeed: 'Bitte Anfang und Ende wählen.', vacNone: 'Kein Urlaub eingetragen.',
@@ -2900,6 +2912,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
        stickers.{id} = { at, d(그림 번호), why('@brush' 또는 직접 쓴 글), src?, tr?, by }
        cfg = { goal, reward, rsrc?, rtr?, start }   ← start 이후에 붙인 스티커가 지금 판
        money.{id} = { at, amt(+받음 −씀, 유로), note, src?, tr?, by }   (다빈만)
+       allow = { wd(용돈 날 요일 0=일), amt?, at(정한 때), skip?(건너뛴 용돈 날) }   ← 그 요일이 지나도 💶 용돈 기록이 없으면 저금통 화면에서 '받았어요?'
      스티커 그림은 직접 그린 것: 다빈 = 동글동글 속성 몬스터, 아린 = 반짝이 하트 요정 */
   const KIDS_KEY = 'our-family:kids';
   let kidsData = load(KIDS_KEY, {});
@@ -2912,7 +2925,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
 
   // 칭찬 이유·용돈 내용: [그림, 한국어, 독일어]
   const MONEY_NOTES = {
-    coins: ['🪙', '동전 넣기', 'Münzen eingeworfen'], allowance: ['💶', '용돈', 'Taschengeld'], gift: ['🎁', '선물 받음', 'Geschenk'], found: ['⭐', '칭찬 보상', 'Belohnung'],
+    coins: ['🪙', '동전 넣기', 'Münzen eingeworfen'], allowance: ['💶', '용돈', 'Taschengeld'], gift: ['🎁', '선물 받음', 'Geschenk'], tooth: ['🦷', '이빨 요정', 'Zahnfee'], found: ['⭐', '칭찬 보상', 'Belohnung'],
     snack: ['🍭', '간식', 'Süßigkeiten'], toy: ['🧸', '장난감', 'Spielzeug'], save: ['🐷', '저금', 'Sparen'],
   };
   const labelOf = (t) => t[lang === 'de' ? 2 : 1];
@@ -3073,6 +3086,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     if (k === 'davin') {
       const ms = moneyOf(k);
       renderBalance(false);
+      renderAllow(k);
       const shown = ms.filter((m) => m.note !== '@adjust' && m.note !== '@carry'); // 엄마가 맞춘 기록 · 2달 지나 합친 기록은 숨김
       $('#money-hist').replaceChildren(...(shown.length ? shown.slice(0, 40).map((m) => h('li', {},
         h('span', { class: 't', text: textOf(m.note, m.src, m.tr, m.by, MONEY_NOTES) || (m.amt >= 0 ? L().moneyIn : L().moneyOut) }),
@@ -3102,8 +3116,16 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <ellipse cx="148" cy="106" rx="10" ry="6" fill="#FF6F9E" opacity=".45"/>
   </svg>`;
   // 동전: 1€(가운데 은색 + 금색 테두리), 50c·20c·10c(금색). 실제 크기 비율에 가깝게
-  const COINS = [{ v: 1, size: 64, label: '1', unit: '€', bi: true }, { v: 0.5, size: 66, label: '50', unit: 'c' }, { v: 0.2, size: 60, label: '20', unit: 'c' }, { v: 0.1, size: 54, label: '10', unit: 'c' }];
+  const COINS = [{ v: 5, w: 100, h: 54, label: '5', unit: '€', bill: true }, { v: 1, size: 64, label: '1', unit: '€', bi: true }, { v: 0.5, size: 66, label: '50', unit: 'c' }, { v: 0.2, size: 60, label: '20', unit: 'c' }, { v: 0.1, size: 54, label: '10', unit: 'c' }];
   function coinSVG(c) {
+    if (c.bill) return `<svg viewBox="0 0 120 64" aria-hidden="true">
+      <rect x="1" y="1" width="118" height="62" rx="6" fill="#C8D2CF" stroke="#8C9A96" stroke-width="2"/>
+      <rect x="7" y="7" width="106" height="50" rx="4" fill="none" stroke="#A8B5B1" stroke-width="1.5" stroke-dasharray="3 2"/>
+      <path d="M60 52V32a13 13 0 0 1 26 0v20" fill="none" stroke="#9AA8A4" stroke-width="6"/><path d="M66 52V34a7 7 0 0 1 14 0v18" fill="#B3C0BC"/>
+      <rect x="96" y="7" width="9" height="50" fill="#E2C35C" opacity=".75"/>
+      <text x="32" y="42" text-anchor="middle" font-family="Jua, sans-serif" font-size="36" fill="#4B5A56">5</text>
+      <text x="32" y="55" text-anchor="middle" font-family="Jua, sans-serif" font-size="11" fill="#4B5A56">EURO</text>
+    </svg>`;
     const ring = c.bi ? '#E2B84A' : '#D9A92E', face = c.bi ? '#D5DAE0' : '#F0C64E', ink = c.bi ? '#5A6470' : '#8A6200';
     return `<svg viewBox="0 0 100 100" aria-hidden="true">
       <circle cx="50" cy="50" r="48" fill="${ring}"/><circle cx="50" cy="50" r="48" fill="none" stroke="${c.bi ? '#B8902A' : '#B88A1C'}" stroke-width="3" stroke-dasharray="3 3"/>
@@ -3162,8 +3184,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   }
   function renderCoins() {
     $('#pig').innerHTML = PIG_SVG;
-    $('#coins').replaceChildren(...COINS.map((c) => {
-      const b = h('button', { type: 'button', class: 'coin', style: `width:${c.size}px;height:${c.size}px`, 'aria-label': c.v >= 1 ? '1 €' : `${Math.round(c.v * 100)} Cent` });
+    const els = COINS.map((c) => {
+      const b = h('button', { type: 'button', class: 'coin', style: `width:${c.w || c.size}px;height:${c.h || c.size}px`, 'aria-label': c.v >= 1 ? `${c.v} €` : `${Math.round(c.v * 100)} Cent` });
       b.innerHTML = coinSVG(c);
       // 누르면 날아가고, 끌어서 저금통에 놓아도 들어감
       let start = null, ghost = null;
@@ -3173,8 +3195,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       b.addEventListener('pointermove', (e) => {
         if (!start || e.pointerId !== start.id) return;
         if (!ghost && Math.hypot(e.clientX - start.x, e.clientY - start.y) < 8) return;
-        if (!ghost) { ghost = document.createElement('div'); ghost.className = 'flying-coin'; ghost.innerHTML = coinSVG(c); Object.assign(ghost.style, { width: `${c.size}px`, height: `${c.size}px` }); document.body.append(ghost); SND.tap(1); }
-        ghost.style.left = `${e.clientX - c.size / 2}px`; ghost.style.top = `${e.clientY - c.size / 2}px`;
+        if (!ghost) { ghost = document.createElement('div'); ghost.className = 'flying-coin'; ghost.innerHTML = coinSVG(c); Object.assign(ghost.style, { width: `${c.w || c.size}px`, height: `${c.h || c.size}px` }); document.body.append(ghost); SND.tap(1); }
+        ghost.style.left = `${e.clientX - (c.w || c.size) / 2}px`; ghost.style.top = `${e.clientY - (c.h || c.size) / 2}px`;
       });
       const end = (e, cancel) => {
         if (!start || e.pointerId !== start.id) return;
@@ -3192,9 +3214,46 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       b.addEventListener('pointerup', (e) => end(e, false));
       b.addEventListener('pointercancel', (e) => end(e, true));
       return b;
-    }));
+    });
+    els.splice(COINS.filter((c) => c.bill).length, 0, h('i', { class: 'br' }));
+    $('#coins').replaceChildren(...els);
   }
   renderCoins();
+  // 💸 썼어요: 저금통이 흔들리며 구멍에서 돈이 튀어나옴 (쓴 만큼, 최대 6개)
+  function coinsOut(amt) {
+    const pig = $('#pig'), pr = pig.getBoundingClientRect();
+    if (!pr.width) return;
+    pig.classList.remove('tip', 'wiggle'); void pig.offsetWidth; pig.classList.add('tip');
+    setTimeout(() => pig.classList.remove('tip'), 800); // 남아 있으면 나중에 톡 눌러도 꿈틀이 안 보임
+    const sx = pr.left + pr.width * (102 / 220), sy = pr.top + pr.height * (41 / 160), list = [];
+    let left = Math.round(amt * 100);
+    for (const c of COINS) while (left >= Math.round(c.v * 100) && list.length < 6) { list.push(c); left -= Math.round(c.v * 100); }
+    if (!list.length) list.push(COINS[COINS.length - 1]);
+    list.forEach((c, i) => setTimeout(() => {
+      const w = (c.w || c.size) * 0.8, ht = (c.h || c.size) * 0.8, el = h('div', { class: 'flying-coin' });
+      el.innerHTML = coinSVG(c);
+      Object.assign(el.style, { left: `${sx - w / 2}px`, top: `${sy - ht / 2}px`, width: `${w}px`, height: `${ht}px` });
+      document.body.append(el);
+      const dx = (i % 2 ? 1 : -1) * (40 + Math.random() * 70);
+      el.animate([{ transform: 'translate(0, 0) scale(.3)', opacity: 0 }, { transform: `translate(${dx * 0.5}px, -90px) rotate(180deg) scale(1)`, opacity: 1, offset: 0.45 },
+        { transform: `translate(${dx}px, 150px) rotate(360deg) scale(.9)`, opacity: 0 }], { duration: 900, easing: 'cubic-bezier(.3, 0, .6, 1)' }).onfinish = () => el.remove();
+      if (i < 3) SND.coin();
+    }, 250 + i * 140));
+  }
+  /* 📅 용돈 날 알림: 정한 요일이 지났는데 그 뒤로 💶 용돈 기록이 없으면 저금통 화면에 '받았어요?' (누르면 부모 확인 → 받은 돈 창) */
+  function renderAllow(k) {
+    const box = $('#allow-ask'), a = kidOf(k).allow;
+    box.hidden = true;
+    if (!a || !(a.wd >= 0)) return;
+    const now = new Date(), d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() - a.wd + 7) % 7)), dk = keyOf(d);
+    const set = a.at ? new Date(a.at) : null;
+    if (set && new Date(set.getFullYear(), set.getMonth(), set.getDate()) > d) return; // 알림을 정하기 전의 용돈 날은 안 물음
+    if (a.skip === dk || moneyOf(k).some((m) => m.note === '@allowance' && m.at >= d.getTime())) return;
+    box.replaceChildren(h('span', { class: 'q', text: L().allowAsk(L().allowWd(a.wd), dk === keyOf(now)) }),
+      h('button', { type: 'button', class: 'btn', text: L().allowYes, onclick: () => parentOnly(() => openMoney(1, a.amt)) }),
+      h('button', { type: 'button', class: 'btn ghost', text: L().allowSkip, onclick: () => parentOnly(() => kidsWrite([k, 'allow', 'skip'], dk)) }));
+    box.hidden = false;
+  }
   /* 엄마용: 금액 숫자를 2초 꾹 누르면 '금액 맞추기' (버튼 없음, 다빈이가 모르게). 맞춘 차이만큼 숨은 기록을 남김 */
   const adjSheet = $('#adj-sheet');
   let pressTimer = null, pressAt = null;
@@ -3330,18 +3389,22 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   /* 용돈 기록 창 */
   const moneySheet = $('#money-sheet');
   let moneySign = 1, moneyKey = '';
-  function openMoney(sign) {
+  function openMoney(sign, preset) {
     moneySign = sign; moneyKey = sign > 0 ? 'allowance' : '';
     $('#money-form').className = 'sheet k-davin';
     $('#money-title').textContent = sign > 0 ? L().moneyInTitle : L().moneyOutTitle;
-    $('#money-amt').value = ''; $('#money-note').value = ''; $('#money-err').hidden = true;
+    $('#money-amt').value = preset > 0 ? String(preset).replace('.', ',') : ''; $('#money-note').value = ''; $('#money-err').hidden = true;
     $('#money-form').querySelector('details').open = false;
     renderMoneyPics();
+    const al = kidOf('davin').allow, wsel = $('#allow-wd');
+    $('#allow-row').hidden = sign < 0;
+    wsel.replaceChildren(h('option', { value: '', text: L().allowNone }), ...[1, 2, 3, 4, 5, 6, 0].map((w) => h('option', { value: String(w), text: L().allowWd(w) })));
+    wsel.value = al && al.wd >= 0 ? String(al.wd) : '';
     moneySheet.hidden = false; document.body.style.overflow = 'hidden';
     setTimeout(() => $('#money-amt').focus(), 50);
   }
   function renderMoneyPics() {
-    const keys = moneySign > 0 ? ['allowance', 'gift', 'found'] : ['snack', 'toy', 'save'];
+    const keys = moneySign > 0 ? ['allowance', 'gift', 'tooth', 'found'] : ['snack', 'toy', 'save'];
     $('#money-pics').replaceChildren(...keys.map((key) => h('button', {
       type: 'button', 'aria-pressed': String(moneyKey === key), 'aria-label': labelOf(MONEY_NOTES[key]),
       onclick: () => { moneyKey = moneyKey === key ? '' : key; SND.tap(2); renderMoneyPics(); },
@@ -3354,15 +3417,21 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   $('#money-form').addEventListener('submit', (ev) => {
     ev.preventDefault();
     const amt = Math.round(Number($('#money-amt').value.replace(/\s/g, '').replace(',', '.')) * 100) / 100;
-    if (!(amt > 0)) { const err = $('#money-err'); err.textContent = L().moneyBad; err.hidden = false; return; }
+    const wdv = $('#allow-wd').value, cur = kidOf('davin').allow || null, curWd = cur && cur.wd >= 0 ? String(cur.wd) : '', allowOn = moneySign > 0 && !$('#allow-row').hidden;
+    const saveAllow = (a) => kidsWrite(['davin', 'allow'], wdv === '' ? null : { wd: +wdv, at: cur && curWd === wdv && cur.at ? cur.at : Date.now(), ...(a > 0 ? { amt: a } : {}) });
+    if (!(amt > 0)) {
+      if (allowOn && wdv !== curWd) { saveAllow(cur && cur.amt); closeMoney(); toast(L().allowSaved); return; } // 금액 없이 용돈 날만 바꿈
+      const err = $('#money-err'); err.textContent = L().moneyBad; err.hidden = false; return;
+    }
     const own = $('#money-note').value.trim();
     const id = newId();
     const m = { at: Date.now(), amt: moneySign * amt, note: own || (moneyKey ? `@${moneyKey}` : ''), by: myId() };
     if (own) m.src = hasHangul(own) ? 'ko' : 'de';
     kidsWrite(['davin', 'money', id], m);
     closeMoney();
-    if (moneySign > 0) { SND.coin(); confetti($('#pig'), 20); } else SND.tap(0);
-    wiggle($('#pig'));
+    // 용돈 날 알림: 요일을 바꿨거나, 💶 용돈 금액이 달라졌으면 저장 (다음 알림에 그 금액을 미리 채움)
+    if (allowOn && (wdv !== curWd || (wdv !== '' && moneyKey === 'allowance' && !own && (!cur || cur.amt !== amt)))) saveAllow(moneyKey === 'allowance' && !own ? amt : cur && cur.amt);
+    if (moneySign > 0) { SND.coin(); confetti($('#pig'), 20); wiggle($('#pig')); } else { SND.tap(0); coinsOut(amt); }
     if (own) translateInto(['davin', 'money', id], m, 'note', 'tr');
   });
   document.addEventListener('keydown', (e) => {
