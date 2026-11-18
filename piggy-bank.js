@@ -8,10 +8,9 @@
    쓰는 법: const pb = PiggyBank.mount(el, {
      kid, lang: () => 'ko'|'de', data: () => kids[k], write: (path, v) => …(kids.{k} 아래 경로),
      snd?, locked?() = 아이 잠금 중이면 true, guard?(fn) = 부모 확인, by?(),
-     onAdjust?() = ✏️ 금액 맞추기를 앱이 직접 (없으면 이 파일의 창, guard 뒤), onBalHold?() = 금액을 2초 꾹 (예전 방식),
-     onNote?(id, 기록) = 직접 쓴 글을 저장한 뒤 (번역 등), history?: 이 안에 보여 줄 기록 줄 수 (0 = 안 보임 — 앱이 직접 그리면 pb.edit(id) 로 고치기 창),
-     hint?(잠김) = 동전 위 안내 글, text?: { … 문구 바꾸기 }, big? });
-   pb.update(); pb.flush(); pb.pending(); pb.edit(id); pb.coinsOut(금액) = 썼어요 그림; pb.cheer() = 받았어요 그림; pb.destroy();
+     onAdjust?() = ✏️ 금액 맞추기를 앱이 직접 (없으면 이 파일의 창, guard 뒤), onNote?(id, 기록) = 직접 쓴 글을 저장한 뒤 (번역 등),
+     history?: 보여 줄 기록 줄 수 (0 = 안 보임), historyEl?: 기록을 그릴 자리 (없으면 저금통 바로 아래), text?: { … 문구 바꾸기 }, big? });
+   pb.update(); pb.flush(); pb.pending(); pb.edit(id) = 기록 고치기 창; pb.coinsOut(금액) = 썼어요 그림; pb.cheer() = 받았어요 그림; pb.destroy();
    PiggyBank.NOTES = 기록 이유 그림 [그림, 한국어, 독일어], IN_KEYS · OUT_KEYS = 받은 돈 · 쓴 돈 그림 순서. 쓰기는 누를 때만 (mount 중에는 안 씀). */
 (() => {
   'use strict';
@@ -94,7 +93,7 @@
 .pb-fix { width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, .06); font-size: 17px; cursor: pointer; flex: none; }
 .pb-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-width: 340px; width: 100%; margin: 4px auto 8px; padding: 4px; border-radius: 18px; background: rgba(0, 0, 0, .05); }
 .pb-modes button { height: 42px; border: 0; border-radius: 14px; background: none; font: 700 16px/1 var(--font-body, inherit); color: inherit; opacity: .65; cursor: pointer; }
-.pb-modes button[aria-pressed="true"] { background: #fff; opacity: 1; box-shadow: 0 2px 6px rgba(0, 0, 0, .12); }
+.pb-modes button[aria-pressed="true"] { background: #fff; color: #3A2230; opacity: 1; box-shadow: 0 2px 6px rgba(0, 0, 0, .12); }
 .pb.big .pb-modes button { height: 48px; font-size: 18px; }
 .pb-hint { margin: 2px 0 8px; text-align: center; font-size: 15px; font-weight: 700; color: var(--pb-c); }
 .pb-unlock { display: block; margin: 0 auto 10px; height: 42px; padding: 0 18px; border-radius: 21px; border: 2px solid var(--pb-c); background: #fff; color: var(--pb-c); font: 700 16px/1 var(--font-body, inherit); cursor: pointer; }
@@ -105,18 +104,18 @@
 .pb-coin:active svg { transform: scale(.94); }
 .pb-coins.locked .pb-coin svg { filter: grayscale(.25) drop-shadow(0 3px 2px rgba(0, 0, 0, .18)); } /* 잠겨도 돈은 잘 보이게 */
 .pb-coins.locked .pb-coin::after { content: '🔒'; position: absolute; right: -4px; top: -6px; font-size: 16px; }
-.pb-buy { display: grid; gap: 10px; margin: 0 auto 14px; padding: 12px; width: 100%; max-width: 460px; box-sizing: border-box; border-radius: 20px; background: #FFF0F5; }
+.pb-buy { display: grid; gap: 10px; margin: 0 auto 14px; padding: 12px; width: 100%; max-width: 460px; box-sizing: border-box; border-radius: 20px; background: #FFF0F5; color: #3A2230; } /* 어두운 화면에서도 밝은 칸이라 글자는 늘 진하게 */
 .pb-buy .h { display: flex; align-items: center; justify-content: space-between; font: 400 22px/1.2 var(--font-display, inherit); }
 .pb-buy .h .amt { color: #D64545; }
 .pb-pics { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; }
-.pb-pics button { display: grid; justify-items: center; gap: 2px; padding: 8px 2px 6px; border: 2px solid rgba(0, 0, 0, .08); border-radius: 16px; background: #fff; color: inherit; font: 600 12px/1.2 var(--font-body, inherit); cursor: pointer; }
+.pb-pics button { display: grid; justify-items: center; gap: 2px; padding: 8px 2px 6px; border: 2px solid rgba(0, 0, 0, .08); border-radius: 16px; background: #fff; color: #3A2230; font: 600 12px/1.2 var(--font-body, inherit); cursor: pointer; }
 .pb-pics button .e { font-size: 32px; line-height: 1.1; }
 .pb-pics button[aria-pressed="true"] { border-color: var(--pb-c); background: color-mix(in srgb, var(--pb-c) 12%, #fff); transform: scale(1.05); }
 .pb-field { width: 100%; box-sizing: border-box; height: 44px; padding: 0 12px; border: 2px solid rgba(0, 0, 0, .1); border-radius: 12px; font: 500 16px var(--font-body, inherit); background: #fff; color: #222; }
 .pb-acts { display: flex; gap: 8px; justify-content: flex-end; }
 .pb-acts .grow { flex: 1; }
 .pb-btn { height: 46px; padding: 0 18px; border: 0; border-radius: 14px; background: var(--pb-c); color: #fff; font: 700 16px/1 var(--font-body, inherit); cursor: pointer; }
-.pb-btn.ghost { background: rgba(0, 0, 0, .06); color: inherit; }
+.pb-btn.ghost { background: rgba(0, 0, 0, .08); color: #3A2230; }
 .pb-btn.danger { background: none; color: #D64545; padding: 0 6px; }
 .pb-btn:disabled { opacity: .4; }
 .pb-fly { position: fixed; z-index: 250; pointer-events: none; }
@@ -189,8 +188,9 @@
     const buy = el('div', { class: 'pb-buy', hidden: '' });
     const buyOwn = el('input', { class: 'pb-field', type: 'text', maxlength: '60' }); // 다시 그려도 쓰던 글이 남게 하나만
     const hist = el('ul', { class: 'pb-hist' });
-    const wrap = el('div', { class: 'pb' + (o.big ? ' big' : '') }, el('div', { class: 'pb-bank' }, pig, el('div', { class: 'pb-balrow' }, bal, fix)), modes, hint, unlockBtn, coins, buy, o.history ? hist : null);
+    const wrap = el('div', { class: 'pb' + (o.big ? ' big' : '') }, el('div', { class: 'pb-bank' }, pig, el('div', { class: 'pb-balrow' }, bal, fix)), modes, hint, unlockBtn, coins, buy, o.history && !o.historyEl ? hist : null);
     root.replaceChildren(wrap);
+    if (o.history && o.historyEl) o.historyEl.replaceChildren(el('div', { class: 'pb' }, hist)); // 앱이 정한 자리 (버튼 아래 등)
 
     function anim(e, c) { e.classList.remove('bump', 'wig', 'tip', 'pop', 'no'); void e.offsetWidth; e.classList.add(c); clearTimeout(e._pbT); e._pbT = setTimeout(() => e.classList.remove(c), 800); }
     function confetti(target, n = 22) {
@@ -225,7 +225,7 @@
       fix.setAttribute('aria-label', L().fix); fix.title = L().fix;
       modes.replaceChildren(...[['in', L().modeIn], ['out', L().modeOut]].map(([m, t]) => el('button', { type: 'button', 'aria-pressed': String(mode === m), text: t,
         onclick: () => { if (mode === m) return; guard(() => { flush(); mode = m; buyKey = ''; snd.tap(1); render(false); }); } })));
-      if (!msgT) hint.textContent = lk ? L().lockedHint : mode === 'out' ? L().outHint : (o.hint && o.hint(false)) || L().hint;
+      if (!msgT) hint.textContent = lk ? L().lockedHint : mode === 'out' ? L().outHint : L().hint;
       unlockBtn.textContent = L().unlock; unlockBtn.hidden = !lk;
       coins.classList.toggle('locked', lk);
       // 💸 꺼낸 돈 → 뭐 샀어?
@@ -335,15 +335,6 @@
     btns.splice(COINS.filter((c) => c.bill).length, 0, el('i', { class: 'br' }));
     coins.replaceChildren(...btns);
     pig.addEventListener('click', () => { anim(pig, 'wig'); snd.oink(); });
-    // 예전 방식: 금액 숫자를 2초 꾹
-    if (o.onBalHold) {
-      let pressTimer = null, pressAt = null;
-      const stop = () => { clearTimeout(pressTimer); pressTimer = null; };
-      bal.addEventListener('pointerdown', (e) => { pressAt = { x: e.clientX, y: e.clientY }; stop(); pressTimer = setTimeout(() => { pressTimer = null; flush(); o.onBalHold(); }, 2000); });
-      bal.addEventListener('pointermove', (e) => { if (pressTimer && pressAt && Math.hypot(e.clientX - pressAt.x, e.clientY - pressAt.y) > 12) stop(); });
-      for (const t of ['pointerup', 'pointercancel', 'pointerleave']) bal.addEventListener(t, stop);
-      bal.addEventListener('contextmenu', (e) => e.preventDefault());
-    }
     // 창 (고치기 · 금액 맞추기)
     let ov = null;
     const closeOv = () => { if (ov) { ov.remove(); ov = null; } };
@@ -352,6 +343,8 @@
       ov = el('div', { class: 'pb-ov', onclick: (e) => { if (e.target === ov) closeOv(); } }, el('div', { class: 'pb-sheet', role: 'dialog', 'aria-modal': 'true' }, ...kids));
       document.body.append(ov);
     }
+    const onKey = (e) => { if (e.key === 'Escape' && ov) closeOv(); };
+    document.addEventListener('keydown', onKey);
     // 기록 고치기: 그림 · 직접 쓰기 (다빈이도 · 부모도), 지우기는 부모 확인
     function edit(id) {
       if (!alive) return;
@@ -425,10 +418,10 @@
     const lockTick = setInterval(() => { if (alive && locked() !== wasLocked) render(false); }, 5000);
     function destroy() {
       flush(); closeOv(); alive = false; clearInterval(lockTick); clearTimeout(msgT);
-      document.removeEventListener('visibilitychange', onVis); window.removeEventListener('pagehide', onHide);
+      document.removeEventListener('visibilitychange', onVis); window.removeEventListener('pagehide', onHide); document.removeEventListener('keydown', onKey);
       if (root._pb === api) root._pb = null;
     }
-    const api = { update: () => render(false), flush: () => flush(), pending: () => pending, edit, coinsOut, cheer, destroy, k: o.kid, pig, bal };
+    const api = { update: () => render(false), flush: () => flush(), pending: () => pending, edit, coinsOut, cheer, destroy };
     root._pb = api;
     render(false);
     return api;

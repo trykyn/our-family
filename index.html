@@ -288,17 +288,6 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .money-btns.small .btn { height: 44px; font-size: 15px; }
 .money-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
 .money-btns .btn { height: 56px; font-size: 18px; }
-.hist { list-style: none; margin: 0; padding: 0; display: grid; }
-.hist li { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); }
-.hist li:first-child { border-top: 0; }
-.hist li.tap { cursor: pointer; }
-.hist li.tap:active { background: color-mix(in srgb, var(--k1) 25%, transparent); }
-.hist .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hist .d { flex: none; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.hist .amt { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
-.hist .amt.plus { color: #2E9D5A; }
-.hist .amt.minus { color: var(--danger); }
-.hist button.x { flex: none; border: 0; background: none; color: var(--muted); padding: 4px 6px; font-size: 16px; line-height: 1; }
 
 /* 그림 버튼 (칭찬 이유·용돈 내용) */
 .pics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
@@ -683,7 +672,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       <button type="button" class="btn" id="money-in" data-t="moneyIn">+ 받았어요</button>
       <button type="button" class="btn ghost" id="money-out" data-t="moneyOut">− 썼어요</button>
     </div>
-    <ul class="hist" id="money-hist"></ul>
+    <div id="money-hist"></div>
   </section>
 </main>
 
@@ -721,22 +710,6 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <div class="sheet-actions">
       <span class="grow"></span>
       <button type="button" class="btn ghost" data-cfg-close data-t="cancel">취소</button>
-      <button type="submit" class="btn" data-t="save">저장</button>
-    </div>
-  </form>
-</div>
-
-<!-- 저금통 금액 맞추기 (부모용, 금액을 2초 꾹 눌러야 열림) -->
-<div class="sheet-wrap" id="adj-sheet" hidden>
-  <div class="scrim" data-adj-close></div>
-  <form class="sheet k-davin" id="adj-form" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="adj-title" novalidate>
-    <h3 id="adj-title" data-t="adjTitle">🔒 저금통 금액 맞추기</h3>
-    <p class="hint" data-t="adjHint">저금통에 실제로 들어 있는 돈을 넣으면 그 금액으로 맞춰져요.</p>
-    <label class="lbl"><span data-t="adjAmt">저금통에 있는 돈 (€)</span><input class="field" id="adj-amt" type="text" inputmode="decimal" maxlength="9"></label>
-    <p class="hint err" id="adj-err" hidden></p>
-    <div class="sheet-actions">
-      <span class="grow"></span>
-      <button type="button" class="btn ghost" data-adj-close data-t="cancel">취소</button>
       <button type="submit" class="btn" data-t="save">저장</button>
     </div>
   </form>
@@ -949,10 +922,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', prevDay: '전날', nextDay: '다음 날', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
       lgPub: '공휴일', lgSch: '학교 방학',
       kidCfg: '목표·보상 설정', money: '💶 용돈', moneyIn: '+ 받았어요', moneyOut: '− 썼어요',
-      giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', tabRoom: '🥚 포켓몬', tabRoomPing: '💖 티니핑', tabStickers: '🎯 주간 미션', tabMoney: '🐷 저금통', coinHint: '동전을 저금통에 넣어 봐!', lockTitle: '아이 화면 잠금 (비밀번호 2자리)', lockOnNote: '켜져 있어요. 스티커 주기 · 동전 넣기 · 용돈 기록 · 스티커 설정은 비밀번호를 넣어야 해요. 한 번 풀면 3분 동안 열려 있어요.', lockOffNote: '켜면 스티커 주기 · 동전 넣기 · 용돈 기록 · 스티커 설정에 엄마·아빠 비밀번호(2자리)가 필요해요.', lockOn: '잠금 켜기', lockOff: '잠금 끄기', pinAsk: '🔒 엄마·아빠 비밀번호', pinNew: '🔒 새 비밀번호 2자리', pinAgain: '🔒 한 번 더 넣어 주세요', pinWrong: '비밀번호가 달라요', pinMismatch: '처음 넣은 번호와 달라요', lockedHint: '🔒 엄마·아빠한테 보여 줘!', adjTitle: '🔒 저금통 금액 맞추기', adjHint: '저금통에 실제로 들어 있는 돈을 넣으면 그 금액으로 맞춰져요.', adjAmt: '저금통에 있는 돈 (€)', cfgSmall: '작은 스티커 몇 개 = 큰 스티커 1장?', cfgBig: '🏅 황금 스티커 몇 개 = 선물?', cfgBigReward: '🏅 큰 스티커 받을 때마다 (선택)', cfgBigRewardPh: '예: 아이스크림', cfgReward: '🎁 선물 (황금 스티커를 다 모으면)', cfgRewardPh: '예: 아이스크림, 놀이터, 레고',
+      giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', tabRoom: '🥚 포켓몬', tabRoomPing: '💖 티니핑', tabStickers: '🎯 주간 미션', tabMoney: '🐷 저금통', lockTitle: '아이 화면 잠금 (비밀번호 2자리)', lockOnNote: '켜져 있어요. 스티커 주기 · 동전 넣기 · 용돈 기록 · 스티커 설정은 비밀번호를 넣어야 해요. 한 번 풀면 3분 동안 열려 있어요.', lockOffNote: '켜면 스티커 주기 · 동전 넣기 · 용돈 기록 · 스티커 설정에 엄마·아빠 비밀번호(2자리)가 필요해요.', lockOn: '잠금 켜기', lockOff: '잠금 끄기', pinAsk: '🔒 엄마·아빠 비밀번호', pinNew: '🔒 새 비밀번호 2자리', pinAgain: '🔒 한 번 더 넣어 주세요', pinWrong: '비밀번호가 달라요', pinMismatch: '처음 넣은 번호와 달라요', cfgSmall: '작은 스티커 몇 개 = 큰 스티커 1장?', cfgBig: '🏅 황금 스티커 몇 개 = 선물?', cfgBigReward: '🏅 큰 스티커 받을 때마다 (선택)', cfgBigRewardPh: '예: 아이스크림', cfgReward: '🎁 선물 (황금 스티커를 다 모으면)', cfgRewardPh: '예: 아이스크림, 놀이터, 레고',
       moneyAmt: '금액 (€)', 
       
-      delMoney: '이 기록을 지울까요?', noMoney: '아직 기록이 없어요.',
       sickBtn: '🤒 아파요', ttCfg: '📚 다빈 시간표 (월~금, 1~6교시)',
       
       msCfg: '🎯 오늘의 미션 (다 하면 스티커 1장)', msWd: '평일만', msAdd: '+ 추가', msOwnPh: '직접 쓰기 (예: 피아노 연습)',
@@ -1014,10 +986,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', prevDay: 'Vortag', nextDay: 'Nächster Tag', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
       lgPub: 'Feiertag', lgSch: 'Schulferien',
       kidCfg: 'Ziel & Belohnung', money: '💶 Taschengeld', moneyIn: '+ Bekommen', moneyOut: '− Ausgegeben',
-      giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', tabRoom: '🥚 Pokémon', tabRoomPing: '💖 Teenieping', tabStickers: '🎯 Wochenmission', tabMoney: '🐷 Sparschwein', coinHint: 'Wirf die Münzen ins Sparschwein!', lockTitle: 'Kindersperre (2-stelliger Code)', lockOnNote: 'Aktiv. Sticker geben, Münzen einwerfen, Taschengeld und Sticker-Einstellungen brauchen den Code. Danach bleibt es 3 Minuten offen.', lockOffNote: 'Wenn aktiv, brauchen Sticker geben, Münzen einwerfen, Taschengeld und Sticker-Einstellungen einen 2-stelligen Eltern-Code.', lockOn: 'Sperre einschalten', lockOff: 'Sperre ausschalten', pinAsk: '🔒 Eltern-Code', pinNew: '🔒 Neuer 2-stelliger Code', pinAgain: '🔒 Bitte noch einmal', pinWrong: 'Falscher Code', pinMismatch: 'Stimmt nicht mit dem ersten Code überein', lockedHint: '🔒 Zeig es Mama oder Papa!', adjTitle: '🔒 Betrag im Sparschwein korrigieren', adjHint: 'Gib ein, wie viel wirklich im Sparschwein ist – der Betrag wird darauf gesetzt.', adjAmt: 'Betrag im Sparschwein (€)', cfgSmall: 'Kleine Sticker für 1 großen?', cfgBig: '🏅 Goldsticker bis zum Geschenk?', cfgBigReward: '🏅 Bei jedem großen Sticker (optional)', cfgBigRewardPh: 'z. B. ein Eis', cfgReward: '🎁 Geschenk (alle Goldsticker gesammelt)', cfgRewardPh: 'z. B. Eis, Spielplatz, Lego',
+      giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', tabRoom: '🥚 Pokémon', tabRoomPing: '💖 Teenieping', tabStickers: '🎯 Wochenmission', tabMoney: '🐷 Sparschwein', lockTitle: 'Kindersperre (2-stelliger Code)', lockOnNote: 'Aktiv. Sticker geben, Münzen einwerfen, Taschengeld und Sticker-Einstellungen brauchen den Code. Danach bleibt es 3 Minuten offen.', lockOffNote: 'Wenn aktiv, brauchen Sticker geben, Münzen einwerfen, Taschengeld und Sticker-Einstellungen einen 2-stelligen Eltern-Code.', lockOn: 'Sperre einschalten', lockOff: 'Sperre ausschalten', pinAsk: '🔒 Eltern-Code', pinNew: '🔒 Neuer 2-stelliger Code', pinAgain: '🔒 Bitte noch einmal', pinWrong: 'Falscher Code', pinMismatch: 'Stimmt nicht mit dem ersten Code überein', cfgSmall: 'Kleine Sticker für 1 großen?', cfgBig: '🏅 Goldsticker bis zum Geschenk?', cfgBigReward: '🏅 Bei jedem großen Sticker (optional)', cfgBigRewardPh: 'z. B. ein Eis', cfgReward: '🎁 Geschenk (alle Goldsticker gesammelt)', cfgRewardPh: 'z. B. Eis, Spielplatz, Lego',
       moneyAmt: 'Betrag (€)', 
       
-      delMoney: 'Diesen Eintrag löschen?', noMoney: 'Noch keine Einträge.',
       sickBtn: '🤒 Krank', ttCfg: '📚 Davins Stundenplan (Mo–Fr, 1.–6. Stunde)',
       
       msCfg: '🎯 Tagesmission (alles geschafft = 1 Sticker)', msWd: 'Nur Mo–Fr', msAdd: '+ Hinzufügen', msOwnPh: 'Selbst schreiben (z. B. Klavier üben)',
@@ -2901,10 +2872,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const { SND } = FS;
 
   // 칭찬 이유·용돈 내용: [그림, 한국어, 독일어]
-  const MONEY_NOTES = (window.PiggyBank && window.PiggyBank.NOTES) || { // 공통 파일(piggy-bank.js)에 있음 — 못 불러왔을 때만 아래
-    coins: ['🪙', '동전 넣기', 'Münzen eingeworfen'], allowance: ['💶', '용돈', 'Taschengeld'], gift: ['🎁', '선물 받음', 'Geschenk'], tooth: ['🦷', '이빨 요정', 'Zahnfee'], found: ['⭐', '칭찬 보상', 'Belohnung'],
-    snack: ['🍭', '간식', 'Süßigkeiten'], toy: ['🧸', '장난감', 'Spielzeug'], save: ['🐷', '저금', 'Sparen'],
-  };
+  const MONEY_NOTES = (window.PiggyBank && window.PiggyBank.NOTES) || {}; // 기록 이유 그림 [그림, 한국어, 독일어] — 공통 파일(piggy-bank.js)
   const labelOf = (t) => t[lang === 'de' ? 2 : 1];
   // '@키'면 정해진 말(그림+말), 아니면 직접 쓴 글 (다른 사람이 다른 언어로 썼으면 번역)
   function textOf(v, src, tr, by, table) {
@@ -2919,8 +2887,6 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const stickersOf = (k) => FS.stickersOf(kidOf(k));
   const boardOf = (k) => FS.boardOf(kidOf(k), k);
   const moneyOf = (k) => Object.entries(kidOf(k).money || {}).map(([id, m]) => ({ id, ...m })).sort((a, b) => (b.at || 0) - (a.at || 0));
-  const fmtMoney = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n || 0); // 독일 돈이니까 늘 0,00 €
-  const shortDate = (at) => { const k = keyOf(new Date(at)); return L().vacRange(k, k); };
 
   /* 소리 (파일 없이 간단히 만든 소리) */
   /* 반짝이 종이 */
@@ -3059,26 +3025,17 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     }
     // 용돈 (다빈만)
     if (k === 'davin') {
-      const ms = moneyOf(k);
-      if (pbCtl) pbCtl.update();
+      if (pbCtl) pbCtl.update(); // 저금통 · 기록 목록 (piggy-bank.js)
       renderAllow(k);
-      const shown = ms.filter((m) => m.note !== '@adjust' && m.note !== '@carry'); // 엄마가 맞춘 기록 · 2달 지나 합친 기록은 숨김
-      $('#money-hist').replaceChildren(...(shown.length ? shown.slice(0, 40).map((m) => h('li', { class: 'tap', onclick: () => { if (pbCtl && pbCtl.edit) pbCtl.edit(m.id); } }, // 누르면 그림 · 메모 고치기 (piggy-bank.js)
-        h('span', { class: 't', text: textOf(m.note, m.src, m.tr, m.by, MONEY_NOTES) || (m.amt >= 0 ? L().moneyIn : L().moneyOut) }),
-        h('span', { class: 'd', text: shortDate(m.at) }),
-        h('span', { class: 'amt ' + (m.amt >= 0 ? 'plus' : 'minus'), text: (m.amt >= 0 ? '+' : '−') + fmtMoney(Math.abs(m.amt)) }),
-        h('button', { type: 'button', class: 'x', 'aria-label': L().delete, text: '✕', onclick: (e) => { e.stopPropagation(); parentOnly(() => { if (confirm(L().delMoney)) kidsWrite([k, 'money', m.id], null); }); } })))
-        : [h('li', { class: 'hint', text: L().noMoney })]));
     }
   }
 
   for (const b of document.querySelectorAll('[data-kid-tab]')) b.addEventListener('click', () => { kidTab = b.dataset.kidTab; SND.tap(1); renderKidScreen(); });
   /* 🐷 저금통: 돼지 · 돈 넣기(누르거나 끌어 놓기) · 금액은 공통 파일(piggy-bank.js — 우리집 한눈에 아이패드와 같이 씀).
      받았어요/썼어요 창 · 기록 목록 · 금액 맞추기 · 용돈 날 알림은 여기 (비밀번호 · 번역 · 가족 저장은 이 앱 것) */
-  const moneySum = () => moneyOf('davin').reduce((a, m) => a + (m.amt || 0), 0);
   if (window.PiggyBank) pbCtl = window.PiggyBank.mount($('#kid-pb'), { kid: 'davin', lang: () => lang, data: () => kidOf('davin'), write: (path, v) => kidsWrite(['davin', ...path], v),
-    snd: SND, locked: () => !unlocked(), guard: parentOnly, by: myId, onBalHold: () => parentOnly(openAdj), onAdjust: () => parentOnly(openAdj),
-    onNote: (id, m) => translateInto(['davin', 'money', id], m, 'note', 'tr'), hint: (lk) => (lk ? L().lockedHint : L().coinHint) });
+    snd: SND, locked: () => !unlocked(), guard: parentOnly, by: myId, history: 40, historyEl: $('#money-hist'), // ✏️ 금액 맞추기 · 기록 지우기 = 부모 비밀번호 (guard)
+    onNote: (id, m) => translateInto(['davin', 'money', id], m, 'note', 'tr') });
   /* 📅 용돈 날 알림: 정한 요일이 지났는데 그 뒤로 💶 용돈 기록이 없으면 저금통 화면에 '받았어요?' (누르면 부모 확인 → 받은 돈 창) */
   function renderAllow(k) {
     const box = $('#allow-ask'), a = kidOf(k).allow;
@@ -3093,27 +3050,6 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       h('button', { type: 'button', class: 'btn ghost', text: L().allowSkip, onclick: () => parentOnly(() => kidsWrite([k, 'allow', 'skip'], dk)) }));
     box.hidden = false;
   }
-  /* 엄마용: 금액 숫자를 2초 꾹 누르면 '금액 맞추기' (버튼 없음, 다빈이가 모르게). 맞춘 차이만큼 숨은 기록을 남김 */
-  const adjSheet = $('#adj-sheet');
-  function openAdj() {
-    if (pbCtl) pbCtl.flush();
-    $('#adj-amt').value = (Math.round(moneySum() * 100) / 100).toFixed(2).replace('.', ',');
-    $('#adj-err').hidden = true;
-    adjSheet.hidden = false; document.body.style.overflow = 'hidden';
-    setTimeout(() => { const i = $('#adj-amt'); i.focus(); i.select(); }, 50);
-  }
-  const closeAdj = () => { adjSheet.hidden = true; document.body.style.overflow = ''; };
-  adjSheet.addEventListener('click', (e) => { if (e.target.closest('[data-adj-close]')) closeAdj(); });
-  $('#adj-form').addEventListener('submit', (ev) => {
-    ev.preventDefault();
-    const raw = $('#adj-amt').value.replace(/\s/g, '').replace('€', '').replace(',', '.');
-    const target = Math.round(Number(raw) * 100) / 100;
-    if (raw === '' || !(target >= 0)) { const err = $('#adj-err'); err.textContent = L().moneyBad; err.hidden = false; return; }
-    const diff = Math.round((target - moneySum()) * 100) / 100;
-    if (diff) kidsWrite(['davin', 'money', newId()], { at: Date.now(), amt: diff, note: '@adjust', by: myId() });
-    closeAdj();
-  });
-
   const GROWN = (k) => k === 'mom' || k === 'dad'; // 엄마·아빠는 선물 상자 열 때 비밀번호 없음
 
   /* 목표·보상 설정 창 (부모용) */
@@ -3230,7 +3166,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     setTimeout(() => $('#money-amt').focus(), 50);
   }
   function renderMoneyPics() {
-    const keys = moneySign > 0 ? ['allowance', 'gift', 'tooth', 'found'] : (window.PiggyBank && window.PiggyBank.OUT_KEYS) || ['snack', 'toy', 'save'];
+    const keys = (moneySign > 0 ? ['allowance', 'gift', 'tooth', 'found'] : (window.PiggyBank && window.PiggyBank.OUT_KEYS) || []).filter((key) => MONEY_NOTES[key]);
     $('#money-pics').replaceChildren(...keys.map((key) => h('button', {
       type: 'button', 'aria-pressed': String(moneyKey === key), 'aria-label': labelOf(MONEY_NOTES[key]),
       onclick: () => { moneyKey = moneyKey === key ? '' : key; SND.tap(2); renderMoneyPics(); },
@@ -3291,7 +3227,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const hadController = !!navigator.serviceWorker.controller;
     let reloading = false;
     // 창이 열려 있거나 글을 쓰는 중, 동전이 날아가는 중이면 지금 새로 고치지 않음
-    const busy = () => !!(document.querySelector('.sheet-wrap:not([hidden]), .pb-fly, .swipe-fg.dragging, .mb-gift, .pr-evo, .pr-dexcard, .pr-clog, .pr-mon.drag, .pr-deco.drag') || (pbCtl && pbCtl.pending()) ||
+    const busy = () => !!(document.querySelector('.sheet-wrap:not([hidden]), .pb-fly, .pb-ov, .swipe-fg.dragging, .mb-gift, .pr-evo, .pr-dexcard, .pr-clog, .pr-mon.drag, .pr-deco.drag') || (pbCtl && pbCtl.pending()) ||
       (document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)));
     const reloadNow = () => { if (pbCtl) pbCtl.flush(); location.reload(); };
     navigator.serviceWorker.addEventListener('controllerchange', () => {
