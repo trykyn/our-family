@@ -152,6 +152,13 @@
 .pb.pb.t-bear { --pb-c: #B46A2E; } /* 앱이 정한 색보다 모양 색 먼저 */
 .pb.t-ball .pb-bank { background: radial-gradient(circle, #FFD9D5 0 3px, transparent 4px) 0 0 / 28px 28px, linear-gradient(#FFF0EE, rgba(255, 240, 238, 0)); }
 .pb.pb.t-ball { --pb-c: #D63A30; }
+/* 어두운 화면 (앱 글자색이 밝으면 .dark): 밝은 배경 대신 은은하게, 글자색은 부드럽게 */
+.pb.dark.t-pig .pb-bank { background: radial-gradient(circle at 20% 25%, rgba(255, 150, 190, .16) 0 7px, transparent 8px) 0 0 / 46px 46px, linear-gradient(rgba(255, 255, 255, .05), rgba(255, 255, 255, 0)); }
+.pb.dark.t-bear .pb-bank { background: radial-gradient(circle at 30% 30%, rgba(255, 200, 140, .14) 0 6px, transparent 7px) 0 0 / 40px 40px, linear-gradient(rgba(255, 255, 255, .05), rgba(255, 255, 255, 0)); }
+.pb.dark.t-ball .pb-bank { background: radial-gradient(circle, rgba(255, 130, 120, .14) 0 3px, transparent 4px) 0 0 / 28px 28px, linear-gradient(rgba(255, 255, 255, .05), rgba(255, 255, 255, 0)); }
+.pb.pb.dark.t-ball { --pb-c: #F3B1AA; }
+.pb.pb.dark.t-bear { --pb-c: #E9C29A; }
+.pb-look { display: block; margin: 0 auto 12px; padding: 6px 12px; border: 0; background: none; color: inherit; opacity: .5; font: 600 13px/1.2 var(--font-body, inherit); cursor: pointer; } /* 자주 안 바꾸니 맨 아래에 작게 */
 .pb-buddy { position: absolute; right: 4%; bottom: 52px; width: 92px; height: 92px; object-fit: contain; pointer-events: none; animation: pb-bob 1.8s ease-in-out infinite; filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .18)); }
 .pb.big .pb-buddy { width: 120px; height: 120px; right: 10%; }
 .pb-buddy.hop { animation: pb-hop .5s ease-out; }
@@ -272,7 +279,7 @@
     const buddyId = () => { const r = (o.data() || {}).room || {}, all = r.mons || {}, ids = Array.isArray(r.home) ? r.home : Object.keys(all);
       for (const id of ids) { const m = all[id], p = m && m.h && +m.p; if (p >= 1 && p <= 151) return p; } return 25; };
     const bal = el('span', { class: 'pb-bal' });
-    const look = el('button', { type: 'button', class: 'pb-fix', text: '🎨', onclick: () => openThemes() });
+    const look = el('button', { type: 'button', class: 'pb-look', onclick: () => openThemes() });
     const fix = el('button', { type: 'button', class: 'pb-fix', text: '✏️', onclick: () => { flush(); if (o.onAdjust) o.onAdjust(); else guard(openAdj); } });
     const modes = el('div', { class: 'pb-modes' });
     const hint = el('p', { class: 'pb-hint' });
@@ -281,7 +288,7 @@
     const buy = el('div', { class: 'pb-buy', hidden: '' });
     const buyOwn = el('input', { class: 'pb-field', type: 'text', maxlength: '60' }); // 다시 그려도 쓰던 글이 남게 하나만
     const hist = el('ul', { class: 'pb-hist' });
-    const wrap = el('div', { class: 'pb' + (o.big ? ' big' : '') }, el('div', { class: 'pb-bank' }, pig, buddy, el('div', { class: 'pb-balrow' }, bal, look, fix)), modes, hint, unlockBtn, coins, buy, o.history && !o.historyEl ? hist : null);
+    const wrap = el('div', { class: 'pb' + (o.big ? ' big' : '') }, el('div', { class: 'pb-bank' }, pig, buddy, el('div', { class: 'pb-balrow' }, bal, fix)), modes, hint, unlockBtn, coins, buy, o.history && !o.historyEl ? hist : null, look);
     root.replaceChildren(wrap);
     if (o.history && o.historyEl) o.historyEl.replaceChildren(el('div', { class: 'pb' }, hist)); // 앱이 정한 자리 (버튼 아래 등)
 
@@ -316,7 +323,9 @@
       if (tk !== shownTheme) { shownTheme = tk; pig.innerHTML = th.svg; for (const k of Object.keys(THEMES)) wrap.classList.toggle('t-' + k, k === tk); }
       buddy.hidden = !th.buddy;
       if (th.buddy) { const src = `${BASE}poke/art/${buddyId()}.png`; if (buddy.getAttribute('src') !== src) buddy.src = src; }
-      look.setAttribute('aria-label', L().theme); look.title = L().theme;
+      look.textContent = '🎨 ' + L().theme;
+      const c = (getComputedStyle(wrap).color.match(/[\d.]+/g) || []).map(Number); // 앱 글자색이 밝으면 어두운 화면
+      wrap.classList.toggle('dark', c.length >= 3 && 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2] > 160);
       bal.textContent = fmt(r2(sumOf(o.data()) + pending));
       if (popIt) anim(bal, 'pop');
       pig.setAttribute('aria-label', L().pig);
@@ -517,6 +526,8 @@
     }
     // 💶 받았어요: 반짝이 + 꿈틀
     function cheer() { if (!alive) return; confetti(pig); anim(pig, 'wig'); }
+    const mq = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null, onScheme = () => render(false); // 화면 밝기가 바뀌면 다시 그림
+    if (mq && mq.addEventListener) mq.addEventListener('change', onScheme);
     const onVis = () => { if (document.hidden) flush(); };
     document.addEventListener('visibilitychange', onVis);
     window.addEventListener('pagehide', onHide);
@@ -525,7 +536,7 @@
     const lockTick = setInterval(() => { if (alive && locked() !== wasLocked) render(false); }, 5000);
     function destroy() {
       flush(); closeOv(); alive = false; clearInterval(lockTick); clearTimeout(msgT);
-      document.removeEventListener('visibilitychange', onVis); window.removeEventListener('pagehide', onHide); document.removeEventListener('keydown', onKey);
+      document.removeEventListener('visibilitychange', onVis); window.removeEventListener('pagehide', onHide); document.removeEventListener('keydown', onKey); if (mq && mq.removeEventListener) mq.removeEventListener('change', onScheme);
       if (root._pb === api) root._pb = null;
     }
     const api = { update: () => render(false), flush: () => flush(), pending: () => pending, edit, coinsOut, cheer, destroy };
