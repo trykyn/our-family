@@ -11,7 +11,7 @@
      onAdjust?() = ✏️ 금액 맞추기를 앱이 직접 (없으면 이 파일의 창, guard 뒤), onNote?(id, 기록) = 직접 쓴 글을 저장한 뒤 (번역 등),
      history?: 보여 줄 기록 줄 수 (0 = 안 보임), historyEl?: 기록을 그릴 자리 (없으면 저금통 바로 아래), text?: { … 문구 바꾸기 }, big? });
    pb.update(); pb.flush(); pb.pending(); pb.edit(id) = 기록 고치기 창; pb.coinsOut(금액) = 썼어요 그림; pb.cheer() = 받았어요 그림; pb.destroy();
-   PiggyBank.NOTES = 기록 이유 [이모지, 한국어, 독일어], iconHTML(키) = 직접 그린 귀여운 그림, IN_KEYS · OUT_KEYS = 받은 돈 · 쓴 돈 그림 순서. 쓰기는 누를 때만 (mount 중에는 안 씀).
+   PiggyBank.NOTES = 기록 이유 [이모지, 한국어, 독일어], iconHTML(키) = 직접 그린 귀여운 그림, picker(키들, 고른 것, 고르면, 언어, 소리) = 그림 고르기 칸, bankSVG(자료) = 고른 저금통 그림, IN_KEYS · OUT_KEYS = 받은 돈 · 쓴 돈 그림 순서. 쓰기는 누를 때만 (mount 중에는 안 씀).
    🎨 저금통 모양 3가지 (kids.{k}.pbTheme): ball 몬스터볼(처음 모양) · pig 🐷 돼지 · bear 🧸 곰돌이 (몬스터볼은 방에 있는 포켓몬 친구가 옆에서 지켜 줌, ../poke/art) — 아이가 골라요. */
 (() => {
   'use strict';
@@ -257,13 +257,31 @@
   const cw = (c) => c.w || c.size, ch = (c) => c.h || c.size;
   const hasHangul = (t) => /[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(t);
   const GROUP_MS = 10000; // 10초 안에 연달아 넣은 돈은 한 번에 넣은 것으로
+  const themeOf = (d) => { const t = d && d.pbTheme; return THEMES[t] ? t : 'ball'; }; // 처음엔 몬스터볼 (2026-11-18 엄마)
+  const bankSVG = (d) => THEMES[themeOf(d)].svg; // 지금 고른 저금통 그림 (우리집 한눈에 이름 옆 작은 칩)
+  const labelOf = (key, lang) => { const t = NOTES[key]; return t ? t[lang === 'de' ? 2 : 1] : ''; };
+  // 그림 고르기 칸: keys 중 하나 (다시 누르면 풀림). 저금통 안 · 고치기 창 · 앱의 받은 돈/쓴 돈 창이 같이 씀
+  function picker(keys, cur, onPick, lang, tap) {
+    const box = el('div', { class: 'pb-pics' });
+    const draw = (sel) => box.replaceChildren(...keys.filter((k) => NOTES[k]).map((key) => el('button', { type: 'button', 'aria-pressed': String(sel === key),
+      onclick: () => { const v = sel === key ? '' : key; if (tap) tap(2); onPick(v); draw(v); } }, el('span', { class: 'e', html: iconHTML(key) }), labelOf(key, lang))));
+    draw(cur);
+    return box;
+  }
+  // 날아가는 돈 그림 하나 (x, y = 왼쪽 위)
+  function flyer(c, x, y, w, h) {
+    const f = el('div', { class: 'pb-fly', html: coinSVG(c) });
+    Object.assign(f.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+    document.body.append(f);
+    return f;
+  }
 
   function mount(root, o) {
     addCss();
     if (root._pb) root._pb.destroy(); // 같은 자리에는 저금통 하나만
     const lang = () => (o.lang && o.lang() === 'de' ? 'de' : 'ko');
     const L = () => ({ ...T[lang()], ...((o.text && (o.text[lang()] || o.text)) || {}) });
-    const label = (key) => { const t = NOTES[key]; return t ? t[lang() === 'de' ? 2 : 1] : ''; };
+    const label = (key) => labelOf(key, lang());
     const snd = { tap() {}, coin() {}, oink() {}, ...(o.snd || {}) };
     const locked = () => !!(o.locked && o.locked());
     const guard = o.guard || ((fn) => fn());
@@ -271,8 +289,8 @@
     const by = () => (o.by ? { by: o.by() } : {});
     const zoom = o.big ? 1.25 : 1;
     let alive = true, pending = 0, timer = 0, mode = 'in', buyKey = '', wasLocked = null, msgT = 0;
-    const themeKey = () => { const t = (o.data() || {}).pbTheme; return THEMES[t] ? t : 'ball'; }; // 처음엔 몬스터볼 (2026-11-18 엄마)
-    let shownTheme = '';
+    const themeKey = () => themeOf(o.data());
+    let shownTheme = '', histKey = '';
     const pig = el('button', { type: 'button', class: 'pb-pig' });
     const buddy = el('img', { class: 'pb-buddy', alt: '', draggable: 'false', hidden: '' });
     // 몬스터볼 옆 친구: 방에 나와 있는 첫 포켓몬 (없으면 피카츄)
@@ -281,7 +299,8 @@
     const bal = el('span', { class: 'pb-bal' });
     const look = el('button', { type: 'button', class: 'pb-look', onclick: () => openThemes() });
     const fix = el('button', { type: 'button', class: 'pb-fix', text: '✏️', onclick: () => { flush(); if (o.onAdjust) o.onAdjust(); else guard(openAdj); } });
-    const modes = el('div', { class: 'pb-modes' });
+    const modeBtns = ['in', 'out'].map((m) => el('button', { type: 'button', onclick: () => { if (mode === m) return; guard(() => { flush(); mode = m; buyKey = ''; snd.tap(1); render(false); }); } }));
+    const modes = el('div', { class: 'pb-modes' }, ...modeBtns);
     const hint = el('p', { class: 'pb-hint' });
     const unlockBtn = el('button', { type: 'button', class: 'pb-unlock', onclick: () => guard(() => render(false)) });
     const coins = el('div', { class: 'pb-coins' });
@@ -308,13 +327,7 @@
     };
     const moneyOf = () => (o.data() || {}).money || {};
     // 그림 고르기 칸 (keys 중 하나, 다시 누르면 풀림)
-    function pics(keys, cur, onPick) {
-      const box = el('div', { class: 'pb-pics' });
-      const draw = (sel) => box.replaceChildren(...keys.map((key) => el('button', { type: 'button', 'aria-pressed': String(sel === key),
-        onclick: () => { const v = sel === key ? '' : key; snd.tap(2); onPick(v); draw(v); } }, el('span', { class: 'e', html: iconHTML(key) }), label(key))));
-      draw(cur);
-      return box;
-    }
+    const pics = (keys, cur, onPick) => picker(keys, cur, onPick, lang(), snd.tap);
     function render(popIt) {
       if (!alive) return;
       const lk = locked();
@@ -330,8 +343,7 @@
       if (popIt) anim(bal, 'pop');
       pig.setAttribute('aria-label', L().pig);
       fix.setAttribute('aria-label', L().fix); fix.title = L().fix;
-      modes.replaceChildren(...[['in', L().modeIn], ['out', L().modeOut]].map(([m, t]) => el('button', { type: 'button', 'aria-pressed': String(mode === m), text: t,
-        onclick: () => { if (mode === m) return; guard(() => { flush(); mode = m; buyKey = ''; snd.tap(1); render(false); }); } })));
+      modeBtns.forEach((b, i) => { b.textContent = i ? L().modeOut : L().modeIn; b.setAttribute('aria-pressed', String(mode === (i ? 'out' : 'in'))); });
       if (!msgT) hint.textContent = lk ? L().lockedHint : mode === 'out' ? L().outHint : L().hint;
       unlockBtn.textContent = L().unlock; unlockBtn.hidden = !lk;
       coins.classList.toggle('locked', lk);
@@ -346,11 +358,13 @@
       }
       if (o.history) {
         const ms = Object.entries(moneyOf()).map(([id, m]) => ({ id, ...m })).filter((m) => m.note !== '@adjust' && m.note !== '@carry').sort((a, b) => (b.at || 0) - (a.at || 0)).slice(0, o.history);
+        const key = lang() + JSON.stringify(ms.map((m) => [m.id, m.at, m.amt, m.note, m.src, m.tr]));
+        if (key !== histKey) { histKey = key;
         hist.replaceChildren(...(ms.length ? ms.map((m) => { const d = new Date(m.at || 0);
           const nk = (m.note || '').startsWith('@') ? m.note.slice(1) : '';
           return el('li', { onclick: () => edit(m.id) }, el('span', { class: 'ic', html: nk && NOTES[nk] ? iconHTML(nk) : '' }), el('span', { class: 't', text: noteText(m) || (m.amt >= 0 ? L().in : L().out) }), el('span', { class: 'd', text: `${d.getMonth() + 1}/${d.getDate()}` }),
             el('span', { class: 'amt ' + (m.amt >= 0 ? 'plus' : 'minus'), text: (m.amt >= 0 ? '+' : '−') + fmt(Math.abs(m.amt)) })); })
-          : [el('li', { class: 'none', text: L().noMoney })]));
+          : [el('li', { class: 'none', text: L().noMoney })])); }
       }
     }
     function say(t) { hint.textContent = t; clearTimeout(msgT); msgT = setTimeout(() => { msgT = 0; render(false); }, 2200); }
@@ -383,10 +397,7 @@
     const slot = () => { const pr = pig.getBoundingClientRect(), [sx, sy] = THEMES[themeKey()].slot; return { pr, x: pr.left + pr.width * (sx / 220), y: pr.top + pr.height * (sy / 160) }; };
     // 돈을 (from 위치에서) 저금통 구멍으로 날려 보냄
     function fly(c, from) {
-      const { x: tx, y: ty } = slot();
-      const f = el('div', { class: 'pb-fly', html: coinSVG(c) });
-      Object.assign(f.style, { left: `${from.left}px`, top: `${from.top}px`, width: `${from.width}px`, height: `${from.height}px` });
-      document.body.append(f);
+      const { x: tx, y: ty } = slot(), f = flyer(c, from.left, from.top, from.width, from.height);
       const dx = tx - (from.left + from.width / 2), dy = ty - (from.top + from.height / 2);
       const a = f.animate([
         { transform: 'translate(0, 0) rotate(0) scale(1)' },
@@ -401,10 +412,7 @@
       if (sumOf(o.data()) + pending - c.v < -0.001) { anim(bal, 'no'); snd.tap(0); say(L().notEnough); return; }
       pending = r2(pending - c.v);
       anim(pig, 'tip'); snd.coin(); render(true); plusPop(coinText(c, '−'), true);
-      const { x: sx, y: sy } = slot();
-      const f = el('div', { class: 'pb-fly', html: coinSVG(c) });
-      Object.assign(f.style, { left: `${sx - to.width / 2}px`, top: `${sy - to.height / 2}px`, width: `${to.width}px`, height: `${to.height}px` });
-      document.body.append(f);
+      const { x: sx, y: sy } = slot(), f = flyer(c, sx - to.width / 2, sy - to.height / 2, to.width, to.height);
       const dx = to.left + to.width / 2 - sx, dy = to.top + to.height / 2 - sy;
       f.animate([{ transform: 'translate(0, 0) scale(.2)', opacity: 0 }, { transform: `translate(${dx * 0.4}px, ${Math.min(dy * 0.4, 0) - 90}px) rotate(180deg) scale(1)`, opacity: 1, offset: 0.45 },
         { transform: `translate(${dx}px, ${dy}px) rotate(360deg) scale(1)`, opacity: 0.2 }], { duration: 700, easing: 'cubic-bezier(.3, 0, .5, 1)' }).onfinish = () => f.remove();
@@ -420,8 +428,8 @@
       b.addEventListener('pointermove', (e) => {
         if (!start || e.pointerId !== start.id || mode === 'out') return;
         if (!ghost && Math.hypot(e.clientX - start.x, e.clientY - start.y) < 8) return;
-        if (!ghost) { ghost = el('div', { class: 'pb-fly', html: coinSVG(c) }); Object.assign(ghost.style, { width: `${w}px`, height: `${ht}px` }); document.body.append(ghost); snd.tap(1); }
-        ghost.style.left = `${e.clientX - w / 2}px`; ghost.style.top = `${e.clientY - ht / 2}px`;
+        if (!ghost) { ghost = flyer(c, e.clientX - w / 2, e.clientY - ht / 2, w, ht); snd.tap(1); }
+        else { ghost.style.left = `${e.clientX - w / 2}px`; ghost.style.top = `${e.clientY - ht / 2}px`; }
       });
       const end = (e, cancel) => {
         if (!start || e.pointerId !== start.id) return;
@@ -515,9 +523,7 @@
       for (const c of COINS) while (left >= Math.round(c.v * 100) && list.length < 6) { list.push(c); left -= Math.round(c.v * 100); }
       if (!list.length) list.push(COINS[COINS.length - 1]);
       list.forEach((c, i) => setTimeout(() => {
-        const w = cw(c) * 0.8 * zoom, ht = ch(c) * 0.8 * zoom, f = el('div', { class: 'pb-fly', html: coinSVG(c) });
-        Object.assign(f.style, { left: `${sx - w / 2}px`, top: `${sy - ht / 2}px`, width: `${w}px`, height: `${ht}px` });
-        document.body.append(f);
+        const w = cw(c) * 0.8 * zoom, ht = ch(c) * 0.8 * zoom, f = flyer(c, sx - w / 2, sy - ht / 2, w, ht);
         const dx = (i % 2 ? 1 : -1) * (40 + Math.random() * 70);
         f.animate([{ transform: 'translate(0, 0) scale(.3)', opacity: 0 }, { transform: `translate(${dx * 0.5}px, -90px) rotate(180deg) scale(1)`, opacity: 1, offset: 0.45 },
           { transform: `translate(${dx}px, 150px) rotate(360deg) scale(.9)`, opacity: 0 }], { duration: 900, easing: 'cubic-bezier(.3, 0, .6, 1)' }).onfinish = () => f.remove();
@@ -544,5 +550,5 @@
     render(false);
     return api;
   }
-  window.PiggyBank = { mount, NOTES, iconHTML, IN_KEYS, OUT_KEYS, sumOf, fmt };
+  window.PiggyBank = { mount, NOTES, iconHTML, picker, bankSVG, IN_KEYS, OUT_KEYS, sumOf, fmt };
 })();

@@ -290,10 +290,6 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .money-btns .btn { height: 56px; font-size: 18px; }
 
 /* 그림 버튼 (칭찬 이유·용돈 내용) */
-.pics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-.pics button { display: grid; justify-items: center; gap: 2px; padding: 8px 2px 6px; border: 2px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); font-size: 11px; font-weight: 600; }
-.pics button .e { font-size: 28px; line-height: 1.1; }
-.pics button[aria-pressed="true"] { border-color: var(--kc); background: color-mix(in srgb, var(--k1) 40%, var(--surface)); transform: scale(1.04); }
 @keyframes shake { 0%, 100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-12deg) scale(1.08); } 50% { transform: rotate(10deg) scale(1.12); } 75% { transform: rotate(-6deg) scale(1.05); } }
 .parent-note summary { font-size: 13px; color: var(--muted); cursor: pointer; }
 .parent-note .field { margin-top: 6px; }
@@ -721,7 +717,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   <form class="sheet" id="money-form" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="money-title" novalidate>
     <h3 id="money-title"></h3>
     <label class="lbl"><span data-t="moneyAmt">금액 (€)</span><input class="field" id="money-amt" type="text" inputmode="decimal" maxlength="9" placeholder="0,00"></label>
-    <div class="pics" id="money-pics"></div>
+    <div id="money-pics"></div>
     <label class="lbl" id="allow-row" hidden><span data-t="allowDay">📅 매주 용돈 날</span><select class="field" id="allow-wd"></select></label>
     <details class="parent-note"><summary data-t="giveOwn">✏️ 직접 쓰기</summary><input class="field" id="money-note" type="text" maxlength="60"></details>
     <p class="hint err" id="money-err" hidden></p>
@@ -2872,7 +2868,6 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const { SND } = FS;
 
   // 칭찬 이유·용돈 내용: [그림, 한국어, 독일어]
-  const MONEY_NOTES = (window.PiggyBank && window.PiggyBank.NOTES) || {}; // 기록 이유 그림 [그림, 한국어, 독일어] — 공통 파일(piggy-bank.js)
   const labelOf = (t) => t[lang === 'de' ? 2 : 1];
   // '@키'면 정해진 말(그림+말), 아니면 직접 쓴 글 (다른 사람이 다른 언어로 썼으면 번역)
   function textOf(v, src, tr, by, table) {
@@ -3165,12 +3160,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     moneySheet.hidden = false; document.body.style.overflow = 'hidden';
     setTimeout(() => $('#money-amt').focus(), 50);
   }
-  function renderMoneyPics() {
-    const keys = (moneySign > 0 ? ['allowance', 'gift', 'tooth', 'found'] : (window.PiggyBank && window.PiggyBank.OUT_KEYS) || []).filter((key) => MONEY_NOTES[key]);
-    $('#money-pics').replaceChildren(...keys.map((key) => h('button', {
-      type: 'button', 'aria-pressed': String(moneyKey === key), 'aria-label': labelOf(MONEY_NOTES[key]),
-      onclick: () => { moneyKey = moneyKey === key ? '' : key; SND.tap(2); renderMoneyPics(); },
-    }, h('span', { class: 'e', html: window.PiggyBank ? window.PiggyBank.iconHTML(key) : MONEY_NOTES[key][0] }), labelOf(MONEY_NOTES[key])))); // 직접 그린 귀여운 그림 (piggy-bank.js)
+  function renderMoneyPics() { // 그림 고르기 칸: 공통 파일(piggy-bank.js)의 귀여운 그림
+    const PB = window.PiggyBank;
+    if (!PB || !PB.picker) { $('#money-pics').replaceChildren(); return; } // 예전 piggy-bank.js 가 남아 있어도 안 멈춤
+    $('#money-pics').replaceChildren(PB.picker(moneySign > 0 ? ['allowance', 'gift', 'tooth', 'found'] : PB.OUT_KEYS, moneyKey, (v) => { moneyKey = v; }, lang, SND.tap));
   }
   const closeMoney = () => { moneySheet.hidden = true; document.body.style.overflow = ''; };
   moneySheet.addEventListener('click', (e) => { if (e.target.closest('[data-money-close]')) closeMoney(); });
