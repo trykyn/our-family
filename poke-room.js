@@ -107,7 +107,8 @@
     <path d="M20 14c-1-4 1-8 5-9" stroke="#2E8A44" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M15 15c3-3 9-3 11 0-3 2-8 2-11 0z" fill="#5CBF6E" stroke="#2E8A44" stroke-width="1.6"/>${hl(15, 24, 1.6, 4.4, 10)}`),
     };
   })();
-  const HOME_MAX = 6, EGG_NEED = 5;
+  const HOME_MAX = 6, EGG_NEED = 3; // 알: 열매 3개 (2026-11-19 엄마: 5개는 너무 오래 걸림)
+  const BERRY_PRICE = 2; // 🛒 열매 1개 = 🪙 2
   const BERRY = Object.fromEntries(FS.BERRIES.map((b) => [b[0], b]));
   const jong = (w) => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c < 11172 ? c % 28 : 0; };
   const rang = (w) => w + (jong(w) ? '이랑' : '랑');
@@ -118,10 +119,10 @@
       noBerry: (b) => `${iga(b)} 없어요. 오늘 미션을 하면 받아요`, feedHint: (b) => `${b} 줄 친구를 눌러요`, pickBerry: '열매를 고르고 친구를 눌러서 먹여요',
       ate: (n) => `냠냠! ${n}`, fav: '좋아해요! 💖💖', hatched: (n) => `펑! ${iga(n)} 태어났어요!`, shinyHatch: (n) => `✨ 반짝이 ${iga(n)} 태어났어요!!`,
       evolved: (a, b) => `${iga(a)} ${euro(b)} 진화했어요!`, eggInfo: (n) => `🥚 열매 ${n}개 더 먹으면 태어나요`, toEvo: (n) => `진화까지 하트 ${n}개`, likes: (b) => `좋아하는 열매 ${b}`,
-      shopHead: (c) => `코인 ${c}개`, eggs: '🥚 알', furn: '🪑 가구', bgHead: '🖼️ 장소 바꾸기', bgTip: '산 장소는 눌러서 언제든 바꿔요', bgOn: '사용 중', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
+      shopHead: (c) => `코인 ${c}개`, berries: '🍓 열매', berryTip: '좋아하는 열매를 주면 하트 2개!', berryGot: (b) => `${b} 샀어요! 아래 열매 칸에 있어요`, eggs: '🥚 알', furn: '🪑 가구', bgHead: '🖼️ 장소 바꾸기', bgTip: '산 장소는 눌러서 언제든 바꿔요', bgOn: '사용 중', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
       eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, whoHead: '👑 로미와 친구들', whoTip: '알에서는 안 나와요. 가게에서 데려와요. 로미는 처음부터 선물로 놀러 오고, 하트 15개마다 새 모습으로 변신해요!', romiGift: '👑 로미가 선물로 놀러 왔어요! 하트 15개마다 변신해요', romiHome: '👑 로미가 방에 나왔어요!', romiBack: (c) => `👑 로미는 이제 선물이에요! 로미 살 때 쓴 🪙 코인 ${c}개를 돌려받았어요`, whoCame: (n) => `👑 ${iga(n)} 놀러 왔어요!`, whoHave: (n) => `${iga(n)} 벌써 우리 방에 있어요`, forms: '모습 고르기', decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
       homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, homeSwap: (n) => `🏠 방이 꽉 차서 ${iga(n)} 친구 목록에서 쉬어요 (📖 에서 다시 넣어요)`, dexHead: (n, N) => `도감 ${n} / ${N}`,
-      tapEgg: '🥚 알을 톡 눌러 봐요! 바로 깨어나요', goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개', coinLog: '기록', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
+      tapEgg: '🥚 알을 톡 눌러 봐요! 바로 깨어나요', goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개 + 🍓 열매 3개', coinLog: '기록', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
       rice: '밥', riceHint: '🍚 밥 줄 친구를 눌러요', full: (n) => `${n}: 배불러요 😋`, yum: '냠냠! 맛있어요 😋', eggRice: '알은 열매만 먹어요',
       lightOff: '불 끄기', lightOn: '불 켜기', sleepy: '하암… 졸려요. 🌙 불을 꺼 주세요', night: '잘 자! 💤', morning: '☀️ 좋은 아침! 잘 잤어요?', hello: '👋 반가워요! 같이 놀아요', missed: '🥹 보고 싶었어요!',
       hungry: '🍚 배고픈 친구가 있어요. 밥을 줘요', petMe: '🤚 친구를 꾹 누른 채 문지르면 쓰다듬어요', poo: '💩 똥을 톡 눌러서 치워 줘요', cleaned: '✨ 깨끗해졌어요!', careBonus: (n) => `💕 잘 돌봐 줘서 ${iga(n)} 하트를 1개 더 받았어요!`, oneBerry: (n, b) => `${n}: 오늘 열매는 벌써 먹었어요. 좋아하는 ${b} 는 또 먹을 수 있어요!`,
@@ -142,10 +143,10 @@
       noBerry: (b) => `Keine ${b}. Schaffe deine Tagesmission!`, feedHint: (b) => `Tippe ein Pokémon an, um ${b} zu geben`, pickBerry: 'Beere wählen, dann Pokémon antippen',
       ate: (n) => `Mampf! ${n}`, fav: 'Lecker! 💖💖', hatched: (n) => `Plopp! ${n} ist geschlüpft!`, shinyHatch: (n) => `✨ Ein schillerndes ${n} ist geschlüpft!!`,
       evolved: (a, b) => `${a} hat sich zu ${b} entwickelt!`, eggInfo: (n) => `🥚 Noch ${n} Beeren bis zum Schlüpfen`, toEvo: (n) => `Noch ${n} Herzen bis zur Entwicklung`, likes: (b) => `Lieblingsbeere ${b}`,
-      shopHead: (c) => `${c} Münzen`, eggs: '🥚 Eier', furn: '🪑 Möbel', bgHead: '🖼️ Ort wechseln', bgTip: 'Gekaufte Orte jederzeit antippen zum Wechseln', bgOn: 'Aktiv', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
+      shopHead: (c) => `${c} Münzen`, berries: '🍓 Beeren', berryTip: 'Lieblingsbeere = 2 Herzen!', berryGot: (b) => `${b} gekauft! Liegt unten bei den Beeren`, eggs: '🥚 Eier', furn: '🪑 Möbel', bgHead: '🖼️ Ort wechseln', bgTip: 'Gekaufte Orte jederzeit antippen zum Wechseln', bgOn: 'Aktiv', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
       eggCame: (n) => `🥚 Ein ${n} ist da!`, whoHead: '👑 Romi & Freunde', whoTip: 'Kommen nicht aus Eiern – hier abholen. Romi kommt gleich als Geschenk und verwandelt sich alle 15 Herzen neu!', romiGift: '👑 Romi ist als Geschenk da! Alle 15 Herzen verwandelt sie sich', romiHome: '👑 Romi ist jetzt im Zimmer!', romiBack: (c) => `👑 Romi ist jetzt ein Geschenk – 🪙 ${c} Münzen zurück`, whoCame: (n) => `👑 ${n} ist zu Besuch!`, whoHave: (n) => `${n} ist schon da`, forms: 'Aussehen wählen', decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
       homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, homeSwap: (n) => `🏠 Zimmer voll – ${n} ruht in der Freundesliste (📖)`, dexHead: (n, N) => `Pokédex ${n} / ${N}`,
-      tapEgg: '🥚 Tippe das Ei an – es schlüpft sofort!', goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen', coinLog: 'Verlauf', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
+      tapEgg: '🥚 Tippe das Ei an – es schlüpft sofort!', goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen + 🍓 3 Beeren', coinLog: 'Verlauf', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
       rice: 'Futter', riceHint: '🍚 Tippe an, wen du füttern willst', full: (n) => `${n}: Satt 😋`, yum: 'Mampf! Lecker 😋', eggRice: 'Eier fressen nur Beeren',
       lightOff: 'Licht aus', lightOn: 'Licht an', sleepy: 'Gähn… müde. 🌙 Mach das Licht aus', night: 'Gute Nacht! 💤', morning: '☀️ Guten Morgen! Gut geschlafen?', hello: '👋 Hallo! Spiel mit mir', missed: '🥹 Ich hab dich vermisst!',
       hungry: '🍚 Jemand hat Hunger. Gib Futter', petMe: '🤚 Gedrückt halten und reiben = streicheln', poo: '💩 Tippe auf den Haufen zum Saubermachen', cleaned: '✨ Alles sauber!', careBonus: (n) => `💕 Gut gepflegt – ${n} bekommt 1 Herz extra!`, oneBerry: (n, b) => `${n} hatte heute schon eine Beere. Die Lieblingsbeere ${b} geht immer!`,
@@ -375,6 +376,7 @@
 .pr-grid button { position: relative; border: 0; border-radius: 12px; background: #fff; padding: 4px 2px; font: inherit; font-size: calc(10.5px * var(--pr-s)); color: #6B3E12; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
 .pr-grid button img { width: 80%; aspect-ratio: 1; object-fit: contain; }
+.pr-grid button .bry { font-size: calc(40px * var(--pr-s)); margin: 6px 0 2px; line-height: 1; } /* 🛒 열매 */
 .pr-grid button .eg { width: 42%; margin: 6px 0 2px; } .pr-grid button .eg .pk-egg { display: block; width: 100%; }
 .pr-grid button .e { font-size: calc(30px * var(--pr-s)); line-height: 1.3; }
 .pr-grid button.on { background: #FFE2C4; box-shadow: 0 0 0 2px #FF8A3D; }
@@ -672,12 +674,12 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
   //   기록을 시작하기 전에 쓴 코인처럼 자료로 셀 수 없는 차이는 '기록 전' 한 줄로 → 지금 가진 코인과 꼭 맞음
   const CT = {
     ko: { head: '코인 기록', now: '지금 가진 코인', mission: '🎯 오늘의 미션 완료', gold: '🏅 황금 스티커', goldWait: '🏅 황금 스티커 — 방을 열면 들어와요',
-      bd: (n, d) => `🎂 ${n} 태어난 지 ${d}일`, refund: '↩️ 없어진 가구 돌려받음', romi: '👑 로미 선물 — 살 때 쓴 코인 돌려받음', pill: '💊 약', egg: (n) => `🛒 ${n}`, bg: (n) => `🛒 장소: ${n}`, deco: (n) => `🛒 가구: ${n}`, who: (n) => `🛒 ${n} 데려오기`,
+      bd: (n, d) => `🎂 ${n} 태어난 지 ${d}일`, refund: '↩️ 없어진 가구 돌려받음', romi: '👑 로미 선물 — 살 때 쓴 코인 돌려받음', pill: '💊 약', egg: (n) => `🛒 ${n}`, bg: (n) => `🛒 장소: ${n}`, berry: (n) => `🛒 열매: ${n}`, deco: (n) => `🛒 가구: ${n}`, who: (n) => `🛒 ${n} 데려오기`,
       hg: { day: '🔤 오늘의 한글', chal: '🔤 한글 오늘의 도전', streak: '🔤 한글 7일 연속 선물', unit: (n) => `🔤 한글 승급 시험 (${n}단원)` },
       oldUp: '📦 기록을 시작하기 전에 받은 코인', oldDn: '📦 기록을 시작하기 전에 쓴 코인', other: '🪙 그 밖의 코인', empty: '아직 코인이 없어요. 오늘의 미션을 다 하면 🪙 1개!',
       note: '미션마다 🪙 1, 황금 스티커마다 🪙 3, 🔤 한글 놀이 · 🎂 생일 축하에도 받아요. 오른쪽 작은 숫자는 그때 가진 코인이에요.', days: ['일', '월', '화', '수', '목', '금', '토'], date: (m, d, w) => `${m}월 ${d}일 (${w})` },
     de: { head: 'Münz-Verlauf', now: 'Münzen jetzt', mission: '🎯 Tagesmission geschafft', gold: '🏅 Goldsticker', goldWait: '🏅 Goldsticker – kommt beim Öffnen des Zimmers',
-      bd: (n, d) => `🎂 ${n}: ${d}. Tag`, refund: '↩️ Möbel zurückerstattet', romi: '👑 Romi-Geschenk – Münzen zurück', pill: '💊 Medizin', egg: (n) => `🛒 ${n}`, bg: (n) => `🛒 Ort: ${n}`, deco: (n) => `🛒 Möbel: ${n}`, who: (n) => `🛒 ${n} abgeholt`,
+      bd: (n, d) => `🎂 ${n}: ${d}. Tag`, refund: '↩️ Möbel zurückerstattet', romi: '👑 Romi-Geschenk – Münzen zurück', pill: '💊 Medizin', egg: (n) => `🛒 ${n}`, bg: (n) => `🛒 Ort: ${n}`, berry: (n) => `🛒 Beere: ${n}`, deco: (n) => `🛒 Möbel: ${n}`, who: (n) => `🛒 ${n} abgeholt`,
       hg: { day: '🔤 Hangul: Tageslektion', chal: '🔤 Hangul: Tages-Challenge', streak: '🔤 Hangul: 7 Tage am Stück', unit: (n) => `🔤 Hangul: Prüfung Einheit ${n}` },
       oldUp: '📦 Vor dem Verlauf bekommen', oldDn: '📦 Vor dem Verlauf ausgegeben', other: '🪙 Sonstige', empty: 'Noch keine Münzen. Tagesmission schaffen = 🪙 1!',
       note: 'Pro Mission 🪙 1, pro Goldsticker 🪙 3, dazu 🔤 Hangul-Spiel und 🎂 Jubiläen. Die kleine Zahl rechts = Münzen danach.', days: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'], date: (m, d, w) => `${d}.${m}. (${w})` },
@@ -708,7 +710,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       if (!Array.isArray(v) || typeof v[1] !== 'number') continue;
       const [t, n, why = ''] = v, [a, b, c] = String(why).split(':');
       const w = a === 'pill' ? C.pill : a === 'hangul' ? (b === 'unit' ? C.hg.unit(c) : C.hg[b] || C.hg.day) : a === 'refund' ? C.refund : a === 'romi' ? C.romi : a === 'bd' ? C.bd(SET.name(b, lg), c) : a === 'egg' ? C.egg(((n) => (/알|Ei$/.test(n) ? n : n + (de ? '-Ei' : ' 알')))(SET.eggName(b, lg))) : a === 'bg' ? C.bg(bgs[b] ? bgs[b][de ? 2 : 1] : b)
-        : a === 'deco' ? C.deco(deco(b, c)) : a === 'who' ? C.who(SET.name(b, lg)) : C.other;
+        : a === 'berry' ? C.berry(((x) => (x ? x[de ? 3 : 2] : b))(FS.BERRIES.find((x) => x[0] === b))) : a === 'deco' ? C.deco(deco(b, c)) : a === 'who' ? C.who(SET.name(b, lg)) : C.other;
       rows.push({ t: Number(t) || 0, n, w });
     }
     rows.sort((x, y) => x.t - y.t);
@@ -766,7 +768,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
   const HELP = {
     ko: (P) => [
       ['star', '매일 미션', '🎯 오늘의 미션을 다 하면 🎁 선물 상자에서 열매 1개 + 🪙 코인 1개를 받아요.'],
-      ['strawberry', '열매 주기', `아래 열매를 고르고 친구를 눌러요. ${P ? '하트 알' : '알'}은 열매 5개를 먹으면 깨어나요. 친구는 하트 1개, 좋아하는 열매면 하트 2개! 좋아하지 않는 열매는 하루에 한 개만 먹어요.`],
+      ['strawberry', '열매 주기', `아래 열매를 고르고 친구를 눌러요. ${P ? '하트 알' : '알'}은 열매 3개를 먹으면 깨어나요. 친구는 하트 1개, 좋아하는 열매면 하트 2개! 좋아하지 않는 열매는 하루에 한 개만 먹어요.`],
       ['heart', '하트가 모이면', P ? '💗 하트 5개마다 더 친해져요. 💗3이면 단짝이 돼서 반짝반짝 춤을 춰요. 변신하는 티니핑은 하트 10개에 변신해요 (로미는 15개).' : '진화해요! 첫 진화는 하트 10개, 다음 진화는 하트 15개.'],
       ['rice', '밥', '아침 · 점심 · 저녁마다 배고픈 친구 머리 위에 🍚 가 떠요. 🍚 밥을 누르고 그 친구를 눌러요.'],
       ['hand', '쓰다듬기', '친구를 꾹 누른 채 손가락으로 문질러요. 🤚 가 뜬 친구가 기다려요.'],
@@ -777,13 +779,13 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       ...(P ? [['heart', '로미와 친구들', '👑 로미는 처음부터 선물로 놀러 와요. 마야 · 메리루 · 사라 · 이안 · 준 · 카일은 가게에서 데려와요. 로미는 하트 15개마다 새 프린세스 모습으로 변신하고, 로미를 누르면 나오는 카드에서 모습을 골라요.']] : []),
       ['sick', '감기', '오래 못 오거나 목욕을 너무 오래 안 하면 가끔 걸려요. 그때만 💊 약 버튼이 나와요 (🪙 1개). 이틀 지나면 저절로 나아요.'],
       ['moon', '밤', '밤 8시 ~ 아침 7시는 자는 시간. 🌙 불 끄기를 누르면 침대에서 쿨쿨 자요.'],
-      ['coin', '코인', `미션마다 🪙 1개, 황금 스티커마다 🪙 3개, 🎂 태어난 지 7 · 30 · 100 · 365일에도 받아요. 🛒 가게에서 새 ${P ? '하트 알' : '알'} (🪙 10), 가구, 🖼️ 장소(${P ? '하트로즈 베이커리 · 이모션 왕국 성 정원' : '포켓몬 센터 앞 · 체육관 · 바닷가'})를 사요. 장소마다 어울리는 가구가 따로 있어요. 아래 🪙 코인 칸을 누르면 언제 받고 썼는지 기록이 나와요.`],
+      ['coin', '코인', `미션마다 🪙 1개, 황금 스티커마다 🪙 3개 + 열매 3개, 🎂 태어난 지 7 · 30 · 100 · 365일에도 받아요. 🛒 가게에서 열매 (🪙 2), 새 ${P ? '하트 알' : '알'} (🪙 10), 가구, 🖼️ 장소(${P ? '하트로즈 베이커리 · 이모션 왕국 성 정원' : '포켓몬 센터 앞 · 체육관 · 바닷가'})를 사요. 장소마다 어울리는 가구가 따로 있어요. 아래 🪙 코인 칸을 누르면 언제 받고 썼는지 기록이 나와요.`],
       ['star', P ? '황금 하트' : '황금 알', P ? '황금 스티커 4개마다 👑 황금 하트가 와요. 특별한 티니핑이 들어 있대요!' : '황금 스티커 4개마다 🌟 황금 알이 와요. 전설의 포켓몬이 들어 있대요!'],
       ['sound', '소리', '방 오른쪽 위 버튼으로 소리를 끄고 켜요. 친구를 누르면 상태 카드가 나와요.'],
     ],
     de: (P) => [
       ['star', 'Tagesmission', '🎯 Alle Missionen geschafft → im 🎁 Geschenk gibt es 1 Beere + 🪙 1 Münze.'],
-      ['strawberry', 'Beeren geben', `Beere unten wählen, dann einen Freund antippen. ${P ? 'Herz-Eier' : 'Eier'} schlüpfen nach 5 Beeren. Sonst 1 Herz, Lieblingsbeere 2 Herzen! Andere Beeren nur eine pro Tag.`],
+      ['strawberry', 'Beeren geben', `Beere unten wählen, dann einen Freund antippen. ${P ? 'Herz-Eier' : 'Eier'} schlüpfen nach 3 Beeren. Sonst 1 Herz, Lieblingsbeere 2 Herzen! Andere Beeren nur eine pro Tag.`],
       ['heart', 'Viele Herzen', P ? '💗 Alle 5 Herzen werdet ihr engere Freunde. Ab 💗3 beste Freunde: Glitzer und Tanz. Verwandelnde Teenieping verwandeln sich bei 10 Herzen (Romi bei 15).' : 'Entwicklung! Die erste bei 10 Herzen, die nächste bei 15.'],
       ['rice', 'Futter', 'Morgens, mittags und abends zeigt ein hungriger Freund 🍚. 🍚 Futter wählen und ihn antippen.'],
       ['hand', 'Streicheln', 'Gedrückt halten und mit dem Finger reiben. Wer 🤚 zeigt, wartet darauf.'],
@@ -794,7 +796,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       ...(P ? [['heart', 'Romi & Freunde', '👑 Romi kommt gleich als Geschenk. Maya, Merilu, Sara, Ian, Jun und Kyle holst du im Laden. Romi verwandelt sich alle 15 Herzen in eine neue Prinzessin – im Steckbrief kannst du das Aussehen wählen.']] : []),
       ['sick', 'Erkältung', 'Wenn lange keiner kommt oder lange nicht gebadet wird. Nur dann gibt es den 💊-Knopf (🪙 1). Nach 2 Tagen auch von selbst gesund.'],
       ['moon', 'Nacht', '20–7 Uhr ist Schlafenszeit. 🌙 Licht aus → alle schlafen im Bett.'],
-      ['coin', 'Münzen', `Pro Mission 🪙 1, pro Goldsticker 🪙 3, und zum 🎂 7./30./100./365. Tag. Im 🛒 Laden: neue ${P ? 'Herz-Eier' : 'Eier'} (🪙 10), Möbel und 🖼️ Orte – jeder Ort hat eigene Möbel. Tippe unten auf 🪙, um den Münz-Verlauf zu sehen.`],
+      ['coin', 'Münzen', `Pro Mission 🪙 1, pro Goldsticker 🪙 3 + 3 Beeren, und zum 🎂 7./30./100./365. Tag. Im 🛒 Laden: Beeren (🪙 2), neue ${P ? 'Herz-Eier' : 'Eier'} (🪙 10), Möbel und 🖼️ Orte – jeder Ort hat eigene Möbel. Tippe unten auf 🪙, um den Münz-Verlauf zu sehen.`],
       ['star', P ? 'Goldherz' : 'Gold-Ei', P ? 'Alle 4 Goldsticker kommt ein 👑 Goldherz mit einem besonderen Teenieping!' : 'Alle 4 Goldsticker kommt ein 🌟 Gold-Ei mit einem legendären Pokémon!'],
       ['sound', 'Ton', 'Oben rechts im Zimmer Ton an/aus. Freund antippen = Steckbrief.'],
     ],
@@ -1403,7 +1405,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       const gp = pk().gp || {}, todo = golds.filter((w) => !gp[w]);
       if (todo.length) {
         grantAt = Date.now();
-        for (const w of todo) { for (const x of ['a', 'b', 'c']) W(['items', `g${w}${x}`], 'coin'); W(['gp', w], 1); }
+        for (const w of todo) { for (const x of ['a', 'b', 'c']) W(['items', `g${w}${x}`], 'coin'); for (const x of ['d', 'e', 'f']) W(['items', `g${w}${x}`], FS.rewardItem(FS.newRewardD())); W(['gp', w], 1); }
         news(L().goldBonus); return;
       }
       const all = pk().mons || {};
@@ -1475,7 +1477,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       return e;
     }
     function setLook(e, m) {
-      const egg = !hatched(m), cracked = egg && ((m.f || 0) >= 3 || !!m.q), key = egg ? `egg/${m.egg}/${cracked ? 1 : 0}` : `${m.p}/${m.s ? 1 : 0}`;
+      const egg = !hatched(m), cracked = egg && ((m.f || 0) >= EGG_NEED - 1 || !!m.q), key = egg ? `egg/${m.egg}/${cracked ? 1 : 0}` : `${m.p}/${m.s ? 1 : 0}`;
       e.classList.toggle('glow', lvOf(m) >= 3);
       if (e._key === key) return;
       e._key = key; e._egg = egg; e._tall = !egg && SET.tall ? SET.tall(m.p) : 1;
@@ -1504,7 +1506,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       const m = { id: e._id, ...raw };
       const x = parseFloat(e.style.left), y = parseFloat(e.style.top) - 14;
       e.classList.remove('jump'); void e.offsetWidth; e.classList.add('jump');
-      if (!hatched(m) && m.q) return hatchEgg(e, m, x, y); // 첫 알: 바로 깨어남
+      if (!hatched(m) && (m.q || (m.f || 0) >= EGG_NEED)) return hatchEgg(e, m, x, y); // 첫 알 · 열매를 다 먹은 알(예전 5개 규칙 때 먹인 것): 바로 깨어남
       if (feeding === 'rice') return eatRice(e, m, x, y);
       if (feeding === 'soap') return scrub(e, m, x, y);
       if (feeding === 'pill') return givePill(e, m, x, y);
@@ -1741,7 +1743,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       btnShop.replaceChildren(icon('shop'), L().shop); btnShop.setAttribute('aria-pressed', String(open === 'shop'));
       btnDex.replaceChildren(icon('book'), `${SET.dex.filter((id) => seenSet().has(String(id))).length}/${SET.dex.length}`); btnDex.setAttribute('aria-pressed', String(open === 'dex'));
       if (!msgUntil || Date.now() > msgUntil) msg.replaceChildren(...rich(feeding === 'rice' ? L().riceHint : feeding === 'soap' ? L().soapHint : feeding === 'ball' ? L().ballHint : feeding === 'pill' ? L().pillHint : feeding ? L().feedHint(`${BERRY[feeding][1]} ${bName(feeding)}`)
-        : !mons().length ? '' : mons().some((m) => m.q && !hatched(m)) ? L().tapEgg : isNight() ? (lightsOff() || !awake() ? L().sleep : L().sleepy) : hint()));
+        : !mons().length ? '' : mons().some((m) => !hatched(m) && (m.q || (m.f || 0) >= EGG_NEED)) ? L().tapEgg : isNight() ? (lightsOff() || !awake() ? L().sleep : L().sleepy) : hint()));
     }
     function buy(key, price, done) {
       const c = count('coin');
@@ -1759,6 +1761,9 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       const coins = count('coin');
       if (open === 'shop') {
         const deco = decoData();
+        const berries = el('div', { class: 'pr-grid' }, ...FS.BERRIES.map(([b, , ko, de]) => el('button', { type: 'button', class: armed === `berry:${b}` ? 'armed' : coins < BERRY_PRICE ? 'poor' : '',
+          onclick: () => buy(`berry:${b}`, BERRY_PRICE, () => { W(['items', uid('s')], b); say(L().berryGot(lang() === 'de' ? de : ko)); }) },
+          el('span', { class: 'bry' }, icon(b)), el('span', { class: 'n', text: lang() === 'de' ? de : ko }), el('span', {}, icon('coin'), `${BERRY_PRICE}`))));
         const eggs = el('div', { class: 'pr-grid' }, ...SET.eggs.map((egg) => el('button', { type: 'button', class: armed === `egg:${egg}` ? 'armed' : coins < FS.EGG_PRICE ? 'poor' : '',
           onclick: () => buy(`egg:${egg}`, FS.EGG_PRICE, () => { const id = uid('e'); if (!pk().start) W(['start'], Date.now()); W(['mons', id], { egg, f: 0, at: Date.now() }); addHome(id); news(L().eggCame(eggName(egg))); }) },
           el('span', { class: 'eg', html: SET.eggHTML(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', {}, icon('coin'), `${FS.EGG_PRICE}`))));
@@ -1791,7 +1796,8 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
               meet(id); addHome(nid); news(L().whoCame(name(id))); setTimeout(() => voice({ p: id, h: 1 }, true), 500); });
           } }, el('img', { src: SET.art(id), alt: '', loading: 'lazy' }), el('span', { class: 'n', text: name(id) }), has ? el('span', { text: '✓' }) : el('span', {}, icon('coin'), `${price}`));
         })) : null;
-        panel.replaceChildren(el('h4', {}, el('span', {}, icon('coin'), L().shopHead(coins)), closeB), el('h4', {}, el('span', { text: L().eggs })), eggs,
+        panel.replaceChildren(el('h4', {}, el('span', {}, icon('coin'), L().shopHead(coins)), closeB), el('h4', {}, el('span', {}, ...rich(L().berries))), el('p', { text: L().berryTip }), berries,
+          el('h4', {}, el('span', { text: L().eggs })), eggs,
           ...(who ? [el('h4', {}, el('span', {}, ...rich(L().whoHead))), el('p', { text: L().whoTip }), who] : []), // 포켓몬 방엔 없음 (replaceChildren 은 null 을 글자로 넣음)
           el('h4', {}, el('span', {}, ...rich(L().bgHead))), el('p', { text: L().bgTip }), bgGrid,
           el('h4', {}, el('span', { text: curPlace === 'base' ? L().furn : `${L().furn} · ${BGP[curPlace][lang() === 'de' ? 2 : 1]}` })), el('p', { text: L().decoTip }), furn);
