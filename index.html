@@ -171,6 +171,12 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .nav-btn svg { width: 16px; height: 16px; }
 /* 한 사람 한 줄: [얼굴] 이름 │ 오전 │ 오후 — 글은 한 줄, 길면 … (눌러서 전체 보기·수정) */
 .fam-grid { display: grid; gap: 6px; }
+.fam-events { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; width: 100%; margin-top: 10px; padding: 10px 0 0; border: 0; border-top: 1px dashed var(--line); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.fam-events .fev { display: inline-flex; align-items: center; gap: 5px; min-width: 0; max-width: 100%; font-size: 13px; font-weight: 600; }
+.fam-events .fev b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.fam-events .fev i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ec); }
+.fam-events .tm { flex: none; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fam-events .more { color: var(--muted); font-size: 13px; font-weight: 600; }
 .fam-head, .fam { display: grid; grid-template-columns: 34px 54px minmax(0, 1fr) minmax(0, 1fr); column-gap: 8px; align-items: center; }
 .fam-head { padding: 0 10px 2px; font-size: 11px; font-weight: 600; color: var(--muted); }
 .fam-head span:first-child { grid-column: 3; }
@@ -192,6 +198,8 @@ button.hol { border: 0; font-family: inherit; cursor: pointer; }
 .with-row img { width: 36px; height: 36px; border-radius: 50%; box-shadow: 0 0 0 2px var(--mc); transition: opacity .15s, filter .15s; }
 .with-row button[aria-pressed="false"] { color: var(--muted); }
 .with-row button:disabled { cursor: default; }
+.vac-who { margin-top: 2px; }
+.vac-list .who { font-size: 12px; color: var(--muted); }
 .with-row button[aria-pressed="false"] img { opacity: .35; filter: grayscale(1); box-shadow: 0 0 0 2px var(--line); }
 .fam .sl .ft { color: #2A9690; font-weight: 600; }
 .rt-every { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
@@ -429,6 +437,8 @@ input[type="date"].field::-webkit-date-and-time-value { text-align: left; margin
 .home-todos li:first-child { border-top: 0; }
 .home-todos .row-v { display: flex; align-items: center; gap: 8px; padding: 10px 16px; }
 .home-todos .row-v .pdot { margin-right: 2px; }
+.home-todos button.row-v { width: 100%; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.home-todos button.row-v:active { background: color-mix(in srgb, var(--line) 50%, transparent); }
 .home-todos .pdot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--pc); }
 .home-todos .body { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 10px 0; text-align: left; color: inherit; }
 .home-todos .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -592,6 +602,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       </div>
     </div>
     <div class="fam-grid" id="fam-grid"></div>
+    <button type="button" class="fam-events" id="fam-events" data-go="calendar" hidden></button>
     <div class="pack-row" id="pack-row"></div>
   </section>
   <div class="dinner-box" id="dinner-box" hidden>
@@ -760,6 +771,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       <label class="lbl"><span data-t="vacEnd">끝</span><input class="field" id="vac-e" type="date"></label>
     </div>
     <label class="lbl"><span data-t="vacName">이름 (선택)</span><input class="field" id="vac-name" type="text" maxlength="40" data-t-ph="vacNamePh"></label>
+    <div class="with-row vac-who" id="vac-who"></div>
     <p class="hint err" id="vac-err" hidden></p>
     <div class="sheet-actions">
       <span class="grow"></span>
@@ -809,6 +821,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     <label class="rt-every"><input type="checkbox" class="check" id="pk-every"><span id="pk-every-label"></span></label>
     <div class="sheet-actions">
       <button type="button" class="link-btn" id="pk-del" data-t="delete" style="color:var(--danger)">지우기</button>
+      <button type="button" class="link-btn" id="pk-skip" data-t="packSkip" hidden>이번만 빼기</button>
       <span class="grow"></span>
       <button type="button" class="btn ghost" data-pk-close data-t="cancel">취소</button>
       <button type="submit" class="btn" data-t="save">저장</button>
@@ -915,7 +928,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const T = {
     ko: {
       appName: '우리가족', todayTitle: '오늘 일정', todo: '할일목록', calendar: '캘린더', back: '홈으로',
-      famTitle: '가족 일정', famAll: '가족', am: '오전', pm: '오후', prevDay: '전날', nextDay: '다음 날', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
+      famTitle: '가족 일정', famEvents: '구글 일정', famAll: '가족', am: '오전', pm: '오후', prevDay: '전날', nextDay: '다음 날', dayToday: '오늘', dayTomorrow: '내일', dayYesterday: '어제',
       lgPub: '공휴일', lgSch: '학교 방학',
       kidCfg: '목표·보상 설정', money: '💶 용돈', moneyIn: '+ 받았어요', moneyOut: '− 썼어요',
       giveOwn: '✏️ 직접 쓰기 (부모용)', delMode: '🗑 스티커 지우기', tabRoom: '🥚 포켓몬', tabRoomPing: '💖 티니핑', tabStickers: '🎯 주간 미션', tabMoney: '🐷 저금통', lockTitle: '아이 화면 잠금 (비밀번호 2자리)', lockOnNote: '켜져 있어요. 스티커 주기 · 동전 넣기 · 용돈 기록 · 스티커 설정은 비밀번호를 넣어야 해요. 한 번 풀면 3분 동안 열려 있어요.', lockOffNote: '켜면 스티커 주기 · 동전 넣기 · 용돈 기록 · 스티커 설정에 엄마·아빠 비밀번호(2자리)가 필요해요.', lockOn: '잠금 켜기', lockOff: '잠금 끄기', pinAsk: '🔒 엄마·아빠 비밀번호', pinNew: '🔒 새 비밀번호 2자리', pinAgain: '🔒 한 번 더 넣어 주세요', pinWrong: '비밀번호가 달라요', pinMismatch: '처음 넣은 번호와 달라요', cfgSmall: '작은 스티커 몇 개 = 큰 스티커 1장?', cfgBig: '🏅 황금 스티커 몇 개 = 선물?', cfgBigReward: '🏅 큰 스티커 받을 때마다 (선택)', cfgBigRewardPh: '예: 아이스크림', cfgReward: '🎁 선물 (황금 스티커를 다 모으면)', cfgRewardPh: '예: 아이스크림, 놀이터, 레고',
@@ -926,7 +939,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       msCfg: '🎯 오늘의 미션 (다 하면 스티커 1장)', msWd: '평일만', msAdd: '+ 추가', msOwnPh: '직접 쓰기 (예: 피아노 연습)',
       cfgTitle: (n) => `${n} 목표·보상`, moneyInTitle: '💶 받은 돈', moneyOutTitle: '💸 쓴 돈', moneyBad: '금액을 넣어 주세요.', moneyOver: (h) => `저금통에는 ${h}밖에 없어요. 그래도 기록할까요?`, allowDay: '📅 매주 용돈 날 (알려 줘요)', allowNone: '알림 없음', allowWd: (w) => '일월화수목금토'[w] + '요일',
       allowAsk: (wd, today) => (today ? '💶 오늘은 용돈 날! 받았어요?' : `💶 ${wd} 용돈, 받았어요?`), allowYes: '받았어요', allowSkip: '이번 주는 없어요', allowSaved: '📅 용돈 날을 저장했어요',
-      vacTitle: '휴가', vacSet: '✈️ 휴가 설정', vacHint: '휴가 기간에는 가족 일정의 기본 일정이 모두 비어요. 그날만 넣은 일정은 그대로 보여요.',
+      vacTitle: '휴가', vacSet: '✈️ 휴가 설정', vacHint: '휴가 기간에는 고른 사람의 기본 일정이 비어요. 그날만 넣은 일정은 그대로 보여요.', vacWho: '누가', vacWhoNeed: '쉬는 사람을 한 명 이상 골라 주세요.',
+      rtEveryOff: '매주 일정을 바꿨어요. 이 날은 쉬는 날이라 화면에는 안 보여요.',
       vacStart: '시작', vacEnd: '끝', vacName: '이름 (선택)', vacNamePh: '예: 이탈리아 여행', vacAdd: '추가', close: '닫기',
       vacBad: '끝 날짜가 시작 날짜보다 빨라요.', vacNeed: '시작과 끝 날짜를 골라 주세요.', vacNone: '등록된 휴가가 없어요.',
       vacRange: (s, e) => (s === e ? `${fromKey(s).getMonth() + 1}/${fromKey(s).getDate()}` : `${fromKey(s).getMonth() + 1}/${fromKey(s).getDate()} – ${fromKey(e).getMonth() + 1}/${fromKey(e).getDate()}`),
@@ -934,7 +948,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       shortDay: (d) => `${d.getMonth() + 1}/${d.getDate()} (${T.ko.weekdays[d.getDay()]})`,
       rtEvery: (wd) => `매주 ${T.ko.weekdays[wd]}요일 기본으로 저장`, rtReset: '기본으로 되돌리기',
       packTitle: '🎒 준비물', packAdd: '+ 준비물', packWhat: '무엇을', packPh: '예: 체육복, 수영 가방', packWhoLabel: '누가', packAll: '모두',
-      packEvery: (wd) => `매주 ${T.ko.weekdays[wd]}요일마다`, packEdit: (d) => `🎒 준비물 · ${d}`,
+      packEvery: (wd) => `매주 ${T.ko.weekdays[wd]}요일마다`, packSkip: '이번만 빼기', packEdit: (d) => `🎒 준비물 · ${d}`,
       packSugg: ['체육복', '운동화', '수영 가방', '실내화', '도시락', '간식', '물병', '숙제', '알림장', '우산', '도서관 책', '준비물 돈'],
       rtChanged: '이 날만 바꾼 일정이에요.', withLabel: '같이', rtHint: '저장하면 이 날만 바뀌어요. 매주 바꾸려면 아래를 체크하세요. 다른 사람 얼굴을 누르면 같은 일정이 그 사람에게도 들어가요.',
       city: '뮌헨', homeTodoTitle: '챙길 할 일', seeAll: '전체 보기', moreTodos: (n) => `외 ${n}개`,
@@ -969,7 +983,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       confirmDisconnect: (e) => `${e} 연결을 끊을까요?`, shownCals: '보이는 캘린더',
       loading: '불러오는 중…', updated: (m) => m < 1 ? '방금 업데이트됨' : m < 60 ? `${m}분 전 업데이트됨` : `${Math.round(m / 60)}시간 전 업데이트됨`,
       autoNote: '열 때마다 자동으로 새로 불러와요.',
-      errNet: '일정을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.', errSetup: '캘린더 서버 설정이 아직 안 끝났어요.',
+      errNet: '일정을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.', houseNet: '인터넷에 연결되지 않았어요. 연결된 뒤 다시 눌러 주세요.', errSetup: '캘린더 서버 설정이 아직 안 끝났어요.',
       errSignIn: '로그인하지 못했어요. 다시 해 주세요.',
       pushTitle: '아침 7시 알림', pushOn: '알림 켜기', pushOff: '알림 끄기', pushTest: '지금 테스트',
       pushOnNote: '매일 아침 7시에 "오늘의 가족 일정과 할 일을 확인하세요" 알림이 와요.', pushOffNote: '켜면 매일 아침 7시에 이 휴대폰으로 알림이 와요.',
@@ -979,7 +993,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     },
     de: {
       appName: 'Unsere Familie', todayTitle: 'Heute', todo: 'Aufgaben', calendar: 'Kalender', back: 'Zur Startseite',
-      famTitle: 'Familienplan', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', prevDay: 'Vortag', nextDay: 'Nächster Tag', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
+      famTitle: 'Familienplan', famEvents: 'Google-Termine', famAll: 'Familie', am: 'Vormittag', pm: 'Nachmittag', prevDay: 'Vortag', nextDay: 'Nächster Tag', dayToday: 'Heute', dayTomorrow: 'Morgen', dayYesterday: 'Gestern',
       lgPub: 'Feiertag', lgSch: 'Schulferien',
       kidCfg: 'Ziel & Belohnung', money: '💶 Taschengeld', moneyIn: '+ Bekommen', moneyOut: '− Ausgegeben',
       giveOwn: '✏️ Selbst schreiben (Eltern)', delMode: '🗑 Sticker löschen', tabRoom: '🥚 Pokémon', tabRoomPing: '💖 Teenieping', tabStickers: '🎯 Wochenmission', tabMoney: '🐷 Sparschwein', lockTitle: 'Kindersperre (2-stelliger Code)', lockOnNote: 'Aktiv. Sticker geben, Münzen einwerfen, Taschengeld und Sticker-Einstellungen brauchen den Code. Danach bleibt es 3 Minuten offen.', lockOffNote: 'Wenn aktiv, brauchen Sticker geben, Münzen einwerfen, Taschengeld und Sticker-Einstellungen einen 2-stelligen Eltern-Code.', lockOn: 'Sperre einschalten', lockOff: 'Sperre ausschalten', pinAsk: '🔒 Eltern-Code', pinNew: '🔒 Neuer 2-stelliger Code', pinAgain: '🔒 Bitte noch einmal', pinWrong: 'Falscher Code', pinMismatch: 'Stimmt nicht mit dem ersten Code überein', cfgSmall: 'Kleine Sticker für 1 großen?', cfgBig: '🏅 Goldsticker bis zum Geschenk?', cfgBigReward: '🏅 Bei jedem großen Sticker (optional)', cfgBigRewardPh: 'z. B. ein Eis', cfgReward: '🎁 Geschenk (alle Goldsticker gesammelt)', cfgRewardPh: 'z. B. Eis, Spielplatz, Lego',
@@ -990,7 +1004,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       msCfg: '🎯 Tagesmission (alles geschafft = 1 Sticker)', msWd: 'Nur Mo–Fr', msAdd: '+ Hinzufügen', msOwnPh: 'Selbst schreiben (z. B. Klavier üben)',
       cfgTitle: (n) => `Ziel & Belohnung für ${n}`, moneyInTitle: '💶 Bekommen', moneyOutTitle: '💸 Ausgegeben', moneyBad: 'Bitte einen Betrag eingeben.', moneyOver: (h) => `Im Sparschwein sind nur ${h}. Trotzdem eintragen?`, allowDay: '📅 Taschengeld-Tag (Erinnerung)', allowNone: 'Keine Erinnerung', allowWd: (w) => ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][w],
       allowAsk: (wd, today) => (today ? '💶 Heute ist Taschengeld-Tag! Bekommen?' : `💶 Taschengeld vom ${wd} schon bekommen?`), allowYes: 'Bekommen', allowSkip: 'Diese Woche nicht', allowSaved: '📅 Taschengeld-Tag gespeichert',
-      vacTitle: 'Urlaub', vacSet: '✈️ Urlaub eintragen', vacHint: 'Im Urlaub sind die Standard-Pläne im Familienplan leer. Für einzelne Tage Eingetragenes bleibt sichtbar.',
+      vacTitle: 'Urlaub', vacSet: '✈️ Urlaub eintragen', vacHint: 'Im Urlaub sind die Standard-Pläne der gewählten Personen leer. Für einzelne Tage Eingetragenes bleibt sichtbar.', vacWho: 'Wer', vacWhoNeed: 'Bitte mindestens eine Person wählen.',
+      rtEveryOff: 'Wochenplan geändert. An diesem Tag ist frei, darum ist es hier nicht zu sehen.',
       vacStart: 'Von', vacEnd: 'Bis', vacName: 'Name (optional)', vacNamePh: 'z. B. Italienreise', vacAdd: 'Hinzufügen', close: 'Schließen',
       vacBad: 'Das Ende liegt vor dem Anfang.', vacNeed: 'Bitte Anfang und Ende wählen.', vacNone: 'Kein Urlaub eingetragen.',
       vacRange: (s, e) => (s === e ? `${fromKey(s).getDate()}.${fromKey(s).getMonth() + 1}.` : `${fromKey(s).getDate()}.${fromKey(s).getMonth() + 1}. – ${fromKey(e).getDate()}.${fromKey(e).getMonth() + 1}.`),
@@ -998,7 +1013,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       shortDay: (d) => `${T.de.weekdays[d.getDay()]}, ${d.getDate()}.${d.getMonth() + 1}.`,
       rtEvery: (wd) => `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][wd]} als Standard speichern`, rtReset: 'Zurück zum Standard',
       packTitle: '🎒 Mitnehmen', packAdd: '+ Mitnehmen', packWhat: 'Was', packPh: 'z. B. Sportsachen, Schwimmtasche', packWhoLabel: 'Wer', packAll: 'Alle',
-      packEvery: (wd) => `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][wd]}`, packEdit: (d) => `🎒 Mitnehmen · ${d}`,
+      packEvery: (wd) => `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][wd]}`, packSkip: 'Nur diesmal nicht', packEdit: (d) => `🎒 Mitnehmen · ${d}`,
       packSugg: ['Sportsachen', 'Turnschuhe', 'Schwimmtasche', 'Hausschuhe', 'Brotzeit', 'Trinkflasche', 'Hausaufgaben', 'Hausaufgabenheft', 'Regenschirm', 'Büchereibuch', 'Geld'],
       rtChanged: 'Nur für diesen Tag geändert.', withLabel: 'Auch für', rtHint: 'Speichern ändert nur diesen Tag. Für jede Woche unten ankreuzen. Tippe auf andere Gesichter, um denselben Plan auch für sie einzutragen.',
       city: 'München', homeTodoTitle: 'Wichtig & bald fällig', seeAll: 'Alle anzeigen', moreTodos: (n) => `und ${n} weitere`,
@@ -1033,7 +1048,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       confirmDisconnect: (e) => `Verbindung zu ${e} trennen?`, shownCals: 'Angezeigte Kalender',
       loading: 'Wird geladen…', updated: (m) => m < 1 ? 'Gerade aktualisiert' : m < 60 ? `Vor ${m} Min. aktualisiert` : `Vor ${Math.round(m / 60)} Std. aktualisiert`,
       autoNote: 'Wird bei jedem Öffnen automatisch aktualisiert.',
-      errNet: 'Termine konnten nicht geladen werden. Bitte Internetverbindung prüfen.', errSetup: 'Der Kalender-Server ist noch nicht fertig eingerichtet.',
+      errNet: 'Termine konnten nicht geladen werden. Bitte Internetverbindung prüfen.', houseNet: 'Keine Internetverbindung. Bitte später noch einmal tippen.', errSetup: 'Der Kalender-Server ist noch nicht fertig eingerichtet.',
       errSignIn: 'Anmeldung fehlgeschlagen. Bitte erneut versuchen.',
       pushTitle: 'Erinnerung um 7 Uhr', pushOn: 'Einschalten', pushOff: 'Ausschalten', pushTest: 'Jetzt testen',
       pushOnNote: 'Jeden Morgen um 7 Uhr kommt eine Mitteilung zum Familienplan und den Aufgaben.', pushOffNote: 'Eingeschaltet kommt jeden Morgen um 7 Uhr eine Mitteilung auf dieses Handy.',
@@ -1132,6 +1147,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const SHARED_KEY = 'our-family:todos-shared'; // 가족 목록의 마지막 모습 (빠른 표시·오프라인용)
   let localTodos = load(TODO_KEY, []);
   let sharedTodos = load(SHARED_KEY, null);
+  let carryLocal = false; // 이 휴대폰에서 처음 가족에 들어갈 때만 true: 로그인 전에 적어 둔 일정 · 휴가 · 준비물 · 스티커를 가족 문서로 옮김
   let todoUnsub = null;
   const isShared = () => !!(fb && S.user && S.house);
   const visibleTodos = () => (sharedTodos && (isShared() || !S.ready)) ? sharedTodos : localTodos;
@@ -1181,7 +1197,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     if (t.getHours() < LUNCH_UNTIL) next.setHours(LUNCH_UNTIL, 0, 5, 0); else next.setHours(24, 0, 5, 0);
     mealTimer = setTimeout(() => {
       const k = keyOf(new Date());
-      if (k !== todayKey) { now = new Date(); todayKey = k; renderAll(); } else renderDinner();
+      if (k !== todayKey) newDay(k); else renderDinner();
     }, Math.min(next - t, 2 ** 31 - 1));
     const day = (isShared() || !S.ready) ? mealsToday() : null;
     const box = $('#dinner-box');
@@ -1261,6 +1277,21 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
           }
           localTodos = []; store(TODO_KEY, localTodos);
           todoWrite(up);
+        }
+        // 할 일 말고도: 가족 문서에 없는 것만 더함 (가족이 이미 쓴 것은 그대로. 예전엔 가족 것으로 덮여서 사라졌음)
+        if (carryLocal) {
+          carryLocal = false;
+          const ops = [], has = (o, ...p) => p.reduce((x, k) => (x && typeof x === 'object' ? x[k] : undefined), o) != null;
+          for (const [id, v] of Object.entries(vacations || {})) if (v && !has(d.vacations, id)) ops.push([['vacations', id], v]);
+          for (const [id, v] of Object.entries(packData || {})) if (v && !has(d.pack, id)) ops.push([['pack', id], v]);
+          for (const [key, ps] of Object.entries(routine.days || {})) for (const [p, v] of Object.entries(ps || {})) if (v && !has(d.routine, key, p)) ops.push([['routine', key, p], v]);
+          for (const [p, ds] of Object.entries(routine.base || {})) for (const [dw, v] of Object.entries(ds || {})) if (v && !has(d.routineBase, p, dw)) ops.push([['routineBase', p, dw], v]);
+          for (const [k, v] of Object.entries(kidsData || {})) {
+            if (v == null) continue;
+            if (!has(d.kids, k)) { ops.push([['kids', k], v]); continue; }
+            if (typeof v === 'object') for (const [f, x] of Object.entries(v)) if (x != null && !has(d.kids, k, f)) ops.push([['kids', k, f], x]);
+          }
+          if (ops.length) fb.F.updateDoc(houseRef(), ...ops.flatMap(([p, v]) => [new fb.F.FieldPath(...p), v])).catch((e) => console.warn('carry', e));
         }
       }
       // 장보기·주간식단도 같은 문서를 씀 → 이 앱이 쓰는 부분이 바뀌었을 때만 다시 그림
@@ -1443,7 +1474,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     toastTimer = setTimeout(() => el.remove(), 2500); // 2.5초 뒤 사라짐
   }
   // 앱을 막 켠 1~2초: 가족 목록(저장본)은 보이지만 아직 로그인 확인 전 → 이때 바꾸면 이 휴대폰에만 들어가고 사라짐. 잠깐 기다리게.
-  const todoWait = () => { if (S.ready || !sharedTodos) return false; toast(L().loading); renderTodos(); return true; };
+  // 가족 목록이 아직 안 왔으면 잠깐 기다림: 앱을 막 켰을 때(저장본만 있음) · 막 로그인해서 가족 목록이 아직 없을 때 (예전엔 저장이 안 되거나 지운 게 되살아났음)
+  const todoWait = () => {
+    if (!(S.ready ? isShared() && !sharedTodos : !!sharedTodos)) return false;
+    toast(L().loading); renderTodos(); return true;
+  };
   function finishTodo(t) {
     if (todoWait()) return;
     setDone(t, true);
@@ -1559,9 +1594,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#todo-box').hidden = pick.length === 0;
     $('#home-todos').replaceChildren(
       ...pick.slice(0, MAX).map((t) => {
-        // 처음 화면은 보기 전용 (고치기·완료는 할일목록에서)
+        // 누르면 바로 그 할 일 창 (거기서 완료 · 고치기)
         return h('li', { style: `--pc:${PRI[priOf(t)].c}` },
-          h('div', { class: 'row-v' }, h('span', { class: 'pdot' }),
+          h('button', { type: 'button', class: 'row-v', onclick: () => openSheet(t) }, h('span', { class: 'pdot' }),
             h('span', { class: 't', text: shownText(t) }), whoChip(t), dueChip(t)));
       }),
       ...(pick.length > MAX ? [h('li', { class: 'more', text: L().moreTodos(pick.length - MAX) })] : []));
@@ -1698,6 +1733,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
             if (S.user !== user) return;
             const h = (u.exists() && u.data().house) || null;
             if (h === S.house) return;
+            carryLocal = false; // 휴대폰에 있는 건 예전 가족 것 → 새 가족으로 옮기지 않음
             S.house = h; store(HOUSE_KEY, { uid: user.uid, house: h });
             Object.assign(S, { accounts: [], calendars: [], months: {}, error: '' }); saveCal(); // 예전 가족 일정은 버림
             if (!h) pruneLocal();
@@ -1708,6 +1744,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
             const u = await F.getDoc(F.doc(fb.db, 'users', user.uid));
             S.house = (u.exists() && u.data().house) || null;
             store(HOUSE_KEY, { uid: user.uid, house: S.house });
+            carryLocal = !!S.house; // 이 휴대폰에 저장된 가족이 없었음 → 휴대폰에 있는 건 로그인 전에 쓴 것 (로그아웃하면 지워지니까)
           } catch (e) {
             // 인터넷이 안 되면 지난번 가족 코드를 그대로 씀 (가족 연결이 풀린 것처럼 보이지 않게)
             console.warn('house', e);
@@ -1733,7 +1770,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   async function signIn() {
     try { await fb.A.signInWithPopup(fb.auth, new fb.A.GoogleAuthProvider()); }
     catch (e) {
-      if (!/popup-closed|cancelled-popup/.test(String(e && e.code))) { S.houseError = L().errSignIn; renderAll(); }
+      if (!/popup-closed|cancelled-popup/.test(String(e && e.code))) { S.houseError = 'errSignIn'; renderAll(); }
     }
   }
   async function signOut() {
@@ -1759,10 +1796,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       await fb.A.signOut(fb.auth);
     }
   }
-  async function linkHouse(code) {
-    await fb.F.setDoc(fb.F.doc(fb.db, 'users', S.user.uid), { house: code });
+  async function linkHouse(code, written) {
+    if (!written) await fb.F.setDoc(fb.F.doc(fb.db, 'users', S.user.uid), { house: code });
     S.house = code; S.houseError = '';
     store(HOUSE_KEY, { uid: S.user.uid, house: code });
+    carryLocal = true;
     listenTodos();
     loadPhoto();
     renderAll(); refresh(true);
@@ -1818,27 +1856,36 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       const r = await fetch(WORKER + '/photo/upload', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': blob.type }, body: blob });
       if (!r.ok) throw new Error(String(r.status));
       showPhoto(blob); cachedPhoto('put', blob);
-    } catch (e) { console.warn('photo upload', e); photoMsg = L().photoErr; }
+    } catch (e) { console.warn('photo upload', e); photoMsg = 'photoErr'; }
     photoBusy = false; renderAccount();
   }
   async function joinHouse(raw) {
     const code = String(raw).toUpperCase().replace(/[^A-Z0-9]/g, '');
     try {
-      if (!code || !(await fb.F.getDoc(fb.F.doc(fb.db, 'households', code))).exists()) { S.houseError = L().houseBad; renderAll(); return; }
+      if (!code || !(await fb.F.getDoc(fb.F.doc(fb.db, 'households', code))).exists()) { S.houseError = 'houseBad'; renderAll(); return; }
       await linkHouse(code);
-    } catch (e) { console.warn(e); S.houseError = L().houseBad; renderAll(); }
+    } catch (e) { console.warn(e); S.houseError = 'houseNet'; renderAll(); } // 인터넷이 없으면 '코드를 못 찾음'이 아니라 연결 안내 (코드가 틀린 줄 알았음)
   }
   let creatingHouse = false; // 두 번 눌러도 가족이 두 개 생기지 않게
   async function createHouse() {
-    if (creatingHouse) return;
+    if (creatingHouse) { toast(L().loading); return; }
+    // 인터넷이 없으면 바로 안내 (예전엔 아무 반응 없이 기다리다, 나중에 아무도 연결 안 된 가족이 생길 수 있었음)
+    if (!navigator.onLine) { S.houseError = 'houseNet'; renderAll(); return; }
     creatingHouse = true; S.houseError = ''; toast(L().loading);
+    // 오래 걸리면 안내만 (보내는 중인 것은 그대로 — 가족과 '내 가족' 연결을 한 번에 보내서, 나중에 들어가도 반쪽짜리가 안 생김)
+    const slow = setTimeout(() => { S.houseError = 'houseNet'; renderAll(); }, 12000);
     try {
       const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       const code = [...crypto.getRandomValues(new Uint8Array(10))].map((n) => abc[n % abc.length]).join('');
-      await fb.F.setDoc(fb.F.doc(fb.db, 'households', code), { stores: {}, items: {}, stock: {}, meals: {}, created: Date.now() });
-      await linkHouse(code);
-    } catch (e) { console.warn(e); S.houseError = L().errNet; renderAll(); }
-    finally { creatingHouse = false; }
+      const b = fb.F.writeBatch(fb.db);
+      b.set(fb.F.doc(fb.db, 'households', code), { stores: {}, items: {}, stock: {}, meals: {}, created: Date.now() });
+      b.set(fb.F.doc(fb.db, 'users', S.user.uid), { house: code });
+      await b.commit();
+      clearTimeout(slow);
+      if (!S.user) return;
+      await linkHouse(code, true);
+    } catch (e) { console.warn(e); S.houseError = 'houseNet'; renderAll(); }
+    finally { clearTimeout(slow); creatingHouse = false; }
   }
 
   /* ───────── 아침 7시 알림 (휴대폰마다 켬. 아이폰은 홈 화면에 추가한 앱 + iOS 16.4 이상) ─────────
@@ -1849,9 +1896,14 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   const b64ToBytes = (s) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (s.length % 4)) % 4)), (c) => c.charCodeAt(0));
   // 서비스 워커가 알림 문구 언어를 알 수 있게 저장
   function savePrefs() { try { caches.open('our-family-prefs').then((c) => c.put('lang', new Response(lang))).catch(() => {}); } catch {} }
+  // serviceWorker.ready 는 sw 가 없으면 영영 기다림 → 알림 단추가 눌린 채 멈췄음. 8초까지만 기다림 (앱을 막 켰을 때는 등록 중일 수 있어서 조금은 기다림)
+  async function swReg() {
+    const reg = await Promise.race([navigator.serviceWorker.ready, new Promise((r) => setTimeout(r, 8000, null))]);
+    if (!reg || !reg.pushManager) throw new Error('no_sw');
+    return reg;
+  }
   async function pushSub() {
-    const reg = await navigator.serviceWorker.ready;
-    return reg.pushManager.getSubscription();
+    return (await swReg()).pushManager.getSubscription();
   }
   async function refreshPush() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) pushState = 'unsupported';
@@ -1864,13 +1916,13 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     try {
       const perm = await Notification.requestPermission(); // 버튼을 누른 순간에 물어봐야 아이폰이 허용
       if (perm !== 'granted') { pushState = perm === 'denied' ? 'denied' : 'off'; return; }
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await swReg();
       const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID_PUBLIC) });
       await post('/push/subscribe', { sub: sub.toJSON() });
       savePrefs();
       store(PUSH_KEY, true);
       pushState = 'on';
-    } catch (e) { console.warn('push', e); pushMsg = L().pushErr; }
+    } catch (e) { console.warn('push', e); pushMsg = 'pushErr'; }
     finally { pushBusy = false; renderAccount(); }
   }
   async function pushOff() {
@@ -1888,8 +1940,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     try {
       const sub = await pushSub();
       const r = sub ? await post('/push/test', { endpoint: sub.endpoint }) : { ok: false };
-      pushMsg = r.ok ? L().pushSent : L().pushErr;
-    } catch (e) { console.warn('push', e); pushMsg = L().pushErr; }
+      pushMsg = r.ok ? 'pushSent' : 'pushErr';
+    } catch (e) { console.warn('push', e); pushMsg = 'pushErr'; }
     finally { pushBusy = false; renderAccount(); }
   }
   // 앱을 열 때: 알림을 켜 둔 휴대폰이면 서버에 다시 등록 (만료돼서 서버가 지웠어도 되살림, 같은 등록이면 그대로)
@@ -1898,7 +1950,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const want = load(PUSH_KEY, null);
     if (want === false || Notification.permission !== 'granted') return;
     try {
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await swReg();
       let sub = await reg.pushManager.getSubscription();
       if (!sub && want !== true) return;
       if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID_PUBLIC) });
@@ -1918,7 +1970,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         h('button', { type: 'button', class: on ? 'btn ghost' : 'btn', disabled: pushBusy, text: on ? L().pushOff : L().pushOn, onclick: on ? pushOff : pushOn }),
         on ? h('button', { type: 'button', class: 'link-btn', disabled: pushBusy, text: L().pushTest, onclick: pushTest }) : null));
     }
-    if (pushMsg) kids.push(h('p', { class: 'hint', style: 'margin-top:6px', text: pushMsg }));
+    if (pushMsg) kids.push(h('p', { class: 'hint', style: 'margin-top:6px', text: tx(pushMsg) }));
     return h('div', { class: 'push-row' }, ...kids);
   }
 
@@ -1955,7 +2007,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     if (!S.user) return [
       h('h3', { text: L().account }),
       h('p', { class: 'hint', text: L().signHint }),
-      S.houseError && h('p', { class: 'hint err', text: S.houseError }),
+      S.houseError && h('p', { class: 'hint err', text: tx(S.houseError) }),
       h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn', text: L().signIn, onclick: signIn })),
     ];
     const who = h('div', { class: 'who' },
@@ -1967,7 +2019,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         h('h3', { text: L().account }), who,
         h('div', { class: 'row' }, fileIn,
           h('button', { type: 'button', class: 'btn ghost', disabled: photoBusy, text: photoBusy ? L().photoSaving : L().changePhoto, onclick: () => fileIn.click() })),
-        photoMsg && h('p', { class: 'hint err', style: 'margin-top:8px', text: photoMsg }),
+        photoMsg && h('p', { class: 'hint err', style: 'margin-top:8px', text: tx(photoMsg) }),
         pushBlock(),
       ];
     }
@@ -1975,7 +2027,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     return [
       h('h3', { text: L().account }), who,
       h('p', { class: 'hint', style: 'margin-top:10px', text: L().houseHint }),
-      S.houseError && h('p', { class: 'hint err', text: S.houseError }),
+      S.houseError && h('p', { class: 'hint err', text: tx(S.houseError) }),
       h('form', { class: 'row', onsubmit: (e) => { e.preventDefault(); joinHouse(input.value); } },
         input, h('button', { type: 'submit', class: 'btn', text: L().join })),
       h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn ghost', text: L().create, onclick: createHouse })),
@@ -2075,6 +2127,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   let inflight = null;
   let againAfter = false;
   let retries = 0; // 연속 실패 횟수 (한 번만 자동 재시도)
+  // 오류 문구는 열쇠('errNet' 또는 ['errNet', 자세히])로 저장하고 그릴 때 번역 (언어를 바꿔도 예전 언어로 남지 않게)
+  function tx(m) { return Array.isArray(m) ? `${L()[m[0]]} (${m[1]})` : m ? (typeof L()[m] === 'string' ? L()[m] : m) : ''; }
   const errDetail = (e) => String((e && (e.code || e.message || e.name)) || '?').slice(0, 80);
   async function refresh(force) {
     if (!S.user || !S.house) return;
@@ -2092,8 +2146,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         S.accounts = d.accounts || []; S.calendars = d.calendars || [];
         const colors = Object.fromEntries(S.calendars.map((x) => [x.id, x.color]));
         S.months[mk] = { at: d.at || Date.now(), events: (d.events || []).map((ev) => toEvent(ev, colors[ev.cal])) };
-        const keys = Object.keys(S.months).sort();
-        while (keys.length > 6) delete S.months[keys.shift()];
+        // 6달만 저장: 지금 보는 달 · 이번 달에서 가장 먼 달부터 지움 (예전엔 가장 이른 달부터 지워서, 몇 달 앞을 보면 이번 달이 계속 사라졌음)
+        const mi = (k) => { const [y, m] = k.split('-').map(Number); return y * 12 + m; };
+        const far = (k) => Math.min(Math.abs(mi(k) - mi(mk)), Math.abs(mi(k) - mi(monthKey(new Date()))));
+        const keys = Object.keys(S.months).filter((k) => k !== mk).sort((a, b) => far(b) - far(a));
+        while (keys.length > 5) delete S.months[keys.shift()];
         saveCal();
         retries = 0;
       } catch (e) {
@@ -2103,8 +2160,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         // 앱을 막 켰을 때 · 다시 돌아왔을 때는 인터넷이 잠깐 안 잡힐 수 있음 → 몇 번 더 (3초 · 10초 · 30초), 그동안은 저장된 일정을 조용히 보여 줌
         const wait = [3000, 10000, 30000][retries];
         if (!known && wait) { retries++; setTimeout(() => refresh(true), wait); }
-        S.error = e.code === 'not_configured' ? L().errSetup : e.code === 'no_house' ? L().needHouse
-          : (wait && c) ? '' : `${L().errNet} (${errDetail(e)})`;
+        S.error = e.code === 'not_configured' ? 'errSetup' : e.code === 'no_house' ? 'needHouse'
+          : (wait && c) ? '' : ['errNet', errDetail(e)];
       } finally {
         S.busy = false; inflight = null;
         renderAll();
@@ -2122,7 +2179,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       .then(({ url }) => { if (w && !w.closed) w.location.href = url; else location.href = url; })
       .catch((e) => {
         if (w) w.close();
-        S.error = e.code === 'not_configured' ? L().errSetup : L().errNet;
+        S.error = e.code === 'not_configured' ? 'errSetup' : 'errNet';
         renderCalCard();
       });
   }
@@ -2134,11 +2191,19 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     try { await post('/disconnect', { email }); } catch (e) { console.warn(e); }
     S.months = {}; refresh(true);
   }
+  // 날이 바뀌면 '오늘'로 다시 (밤에 '내일'을 보다 두면 아침에도 그 날이 보였음). 달력도 오늘 보던 달 · 날이었으면 새 오늘로
+  function newDay(k) {
+    const oldMonth = monthKey(now), oldToday = todayKey;
+    now = new Date(); todayKey = k; famOffset = 0;
+    if (monthKey(view) === oldMonth) view = new Date(now.getFullYear(), now.getMonth(), 1);
+    if (selected === oldToday) selected = k;
+    renderAll();
+  }
   // 앱으로 돌아오거나 열려 있는 동안 자동으로 새로 불러오기
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) return;
     const k = keyOf(new Date());
-    if (k !== todayKey) { now = new Date(); todayKey = k; renderAll(); }
+    if (k !== todayKey) newDay(k);
     else renderDinner(); // 점심 → 저녁 (잠든 사이 1시가 지났을 수 있음)
     retries = 0; // 돌아올 때마다 조용한 재시도 다시 (지하철에서 다 써 버렸어도)
     refresh(false);
@@ -2221,7 +2286,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     // 그날만 직접 바꾼 일정은 어느 경우든 그대로.
     const hs = holidaysOn(key);
     // 공휴일·가족 휴가: 기본 일정 모두 쉼
-    if (hs.some((x) => x.type === 'pub') || vacationsOn(key).length) return { e: { am: '', pm: '' }, changed: false };
+    if (hs.some((x) => x.type === 'pub') || vacationsOn(key, m).length) return { e: { am: '', pm: '' }, changed: false };
     if (hs.length) {
       const off = (v) => v === '@school' || v === '@schoolSport';
       if (off(e.am) || off(e.pm)) e = { ...e, am: off(e.am) ? '' : e.am, pm: off(e.pm) ? '' : e.pm };
@@ -2235,10 +2300,12 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     return v;
   }
   // 저장: 가족 문서(로그인) 또는 이 휴대폰. value 가 null 이면 지움. 한 달 넘은 '그날만' 변경은 같이 정리.
-  /* 가족 휴가: vacations.{id} = { s, e, name?, src?, tr?, by } — 기간 동안 기본 일정을 모두 비움 */
+  /* 가족 휴가: vacations.{id} = { s, e, name?, src?, tr?, by, who? } — 기간 동안 기본 일정을 비움. who = 쉬는 사람들 (없으면 가족 모두) */
   const VAC_KEY = 'our-family:vacations';
   let vacations = load(VAC_KEY, {});
-  const vacationsOn = (key) => Object.values(vacations).filter((v) => v && v.s <= key && key <= v.e);
+  // p 를 주면 그 사람이 쉬는 휴가만 (아이들만 여행 · 아빠만 휴가)
+  const vacationsOn = (key, p) => Object.values(vacations).filter((v) => v && v.s <= key && key <= v.e && (!p || !Array.isArray(v.who) || v.who.includes(p)));
+  const vacWhoText = (v) => (Array.isArray(v.who) ? v.who.map((p) => nameOf(p)).join('·') : '');
   const vacName = (v) => (!v.name ? L().vacTitle : (v.src && v.src !== lang && v.tr && !mine(v)) ? v.tr : v.name);
   function vacWrite(id, value) {
     if (isShared()) {
@@ -2258,14 +2325,22 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const list = Object.entries(vacations).filter(([, v]) => v && v.e >= today).sort(([, a], [, b]) => a.s.localeCompare(b.s));
     $('#vac-list').replaceChildren(...(list.length ? list.map(([id, v]) => h('li', {},
       h('span', { class: 'when', text: L().vacRange(v.s, v.e) }),
-      h('span', { class: 'nm', text: vacName(v) }),
+      h('span', { class: 'nm', text: vacName(v) }, vacWhoText(v) ? h('span', { class: 'who', text: ` · ${vacWhoText(v)}` }) : null),
       h('button', { type: 'button', class: 'link-btn', text: L().delete, onclick: () => { if (confirm(L().vacConfirm(vacName(v)))) vacWrite(id, null); } })))
       : [h('li', { class: 'hint', text: L().vacNone })]));
+  }
+  let vacWho = [];
+  function renderVacWho() {
+    $('#vac-who').replaceChildren(h('span', { text: L().vacWho }), ...PEOPLE.map((p) => h('button', {
+      type: 'button', style: `--mc:${MCOLOR[p]}`, 'aria-pressed': String(vacWho.includes(p)), 'aria-label': nameOf(p),
+      onclick: () => { vacWho = vacWho.includes(p) ? vacWho.filter((x) => x !== p) : PEOPLE.filter((x) => x === p || vacWho.includes(x)); renderVacWho(); },
+    }, h('img', { src: avatarOf(p), alt: '' }), nameOf(p))));
   }
   function openVac() {
     const k = famKey();
     $('#vac-s').value = k; $('#vac-e').value = k; $('#vac-name').value = '';
     $('#vac-err').hidden = true;
+    vacWho = [...PEOPLE]; renderVacWho();
     renderVacList();
     vacSheet.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -2281,11 +2356,13 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const err = $('#vac-err');
     if (!s || !e) { err.textContent = L().vacNeed; err.hidden = false; return; }
     if (e < s) { err.textContent = L().vacBad; err.hidden = false; return; }
+    if (!vacWho.length) { err.textContent = L().vacWhoNeed; err.hidden = false; return; }
     const id = newId();
     const v = { s, e, by: myId() };
+    if (vacWho.length < PEOPLE.length) v.who = [...vacWho];
     if (name) { v.name = name; v.src = hasHangul(name) ? 'ko' : 'de'; }
     vacWrite(id, v);
-    $('#vac-name').value = ''; err.hidden = true;
+    $('#vac-name').value = ''; err.hidden = true; vacWho = [...PEOPLE]; renderVacWho();
     // 이름은 다른 언어로도 번역해 둠
     if (name) translateLine(name, v.src, v.src === 'ko' ? 'de' : 'ko').then((tr) => patchEntry(['vacations', id], (c) => c.name === name, 'tr', tr)).catch(() => {});
   });
@@ -2380,15 +2457,30 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     return ops;
   }
 
+  // 가족 일정 아래에 그날 구글 일정을 한 줄로 (저장해 둔 일정만 씀). 누르면 달력의 그날로
+  function renderFamEvents(key) {
+    const box = $('#fam-events');
+    if (!box) return;
+    const evs = S.user && S.house ? eventsOn(key) : [];
+    box.hidden = !evs.length;
+    if (!evs.length) { box.replaceChildren(); return; }
+    const MAX = 4;
+    box.setAttribute('aria-label', `${L().famEvents}: ${evs.map((ev) => ev.title).join(', ')}`);
+    box.onclick = () => { selected = key; view = new Date(fromKey(key).getFullYear(), fromKey(key).getMonth(), 1); };
+    box.replaceChildren(...evs.slice(0, MAX).map((ev) => h('span', { class: 'fev', style: `--ec:${ev.color}` }, h('i'),
+      !ev.allDay && ev.s === key && ev.time ? h('span', { class: 'tm', text: ev.time }) : null, h('b', { text: ev.title || '' }))),
+      ...(evs.length > MAX ? [h('span', { class: 'more', text: `+${evs.length - MAX}` })] : []));
+  }
   function renderToday() {
     const key = famKey();
     renderPack();
+    renderFamEvents(key);
     $('#fam-title').textContent = famOffset === 0 ? L().todayTitle : L().famTitle;
     $('#fam-day').textContent = famOffset === 0 ? L().dayToday : famOffset === 1 ? L().dayTomorrow
       : famOffset === -1 ? L().dayYesterday : L().shortDay(fromKey(key));
     $('#fam-hol').replaceChildren(
       // 휴가 표시를 누르면 휴가 설정 창
-      ...vacationsOn(key).map((v) => h('button', { type: 'button', class: 'hol vac', text: `✈️ ${vacName(v)}`, onclick: () => openVac() })),
+      ...vacationsOn(key).map((v) => h('button', { type: 'button', class: 'hol vac', text: `✈️ ${vacName(v)}${vacWhoText(v) ? ` · ${vacWhoText(v)}` : ''}`, onclick: () => openVac() })),
       ...holidaysOn(key).map((x) => h('span', {
         class: `hol ${x.type}`, title: x.de,
         text: `${x.type === 'pub' ? '🎉' : /Bettag/.test(x.de) ? '🏫' : '🏖️'} ${lang === 'de' ? x.de : (HOL_KO[x.de] || x.de)}`,
@@ -2591,7 +2683,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   $('#routine-edit').addEventListener('submit', (ev) => {
     ev.preventDefault();
     if (!rt) return;
-    const { m, key, e } = rt;
+    const { m, key } = rt;
+    const every = $('#rt-every').checked;
+    // '매주'로 저장할 때 안 고친 칸은 원래 매주 일정에서 (방학 · 휴가 · 공휴일엔 화면에 학교 · 일이 빠져 보여서, 그대로 저장하면 매주 일정에서 지워졌음)
+    const e = every && !rt.changed ? baseEntry(m, key) : rt.e;
     const am = parseSlot($('#rt-am').value, e.am, rt.shown.am), pm = parseSlot($('#rt-pm').value, e.pm, rt.shown.pm);
     const entry = { am, pm };
     // 글을 바꿨으면 쓴 사람 = 나, 그대로면 원래 쓴 사람 유지 (Firestore 는 undefined 를 못 받음)
@@ -2603,7 +2698,6 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       entry.src = hasHangul(free.join(' ')) ? 'ko' : 'de';
       if (e.tr && e.src === entry.src && e.am === am && e.pm === pm) entry.tr = e.tr;
     }
-    const every = $('#rt-every').checked;
     // 아무것도 안 바꾸고 저장 → 아무것도 쓰지 않음 (빈 '그날만 바꾼 것'이 남아 휴가 · 매주 기본이 안 먹히던 것)
     const others = [...rtWith.am, ...rtWith.pm].some((p) => p !== m); // '같이'로 다른 사람을 골랐는지 (연 사람은 늘 들어 있음)
     if (!every && !edited && am === (e.am || '') && pm === (e.pm || '') && !rt.changed && !others) { closeRoutine(); return; }
@@ -2625,6 +2719,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     }
     routineWriteMany(writes);
     closeRoutine();
+    if (every) { // 매주 일정은 바뀌었지만 오늘은 쉬는 날이라 화면엔 안 보이면 알려 줌 (저장이 안 된 줄 알았음)
+      const hs = holidaysOn(key), sch = (v) => v === '@school' || v === '@schoolSport';
+      if (vacationsOn(key, m).length || hs.some((x) => x.type === 'pub') || (hs.length && (sch(entry.am) || sch(entry.pm)))) toast(L().rtEveryOff);
+    }
     for (const [pth, v] of writes) if (v) translateRoutine(pth, v);
     // 다빈·아린 일정이 바뀌었으면 그날 주간 미션의 🤒 표시도 맞춤
     for (const p of ['davin', 'arin']) {
@@ -2638,9 +2736,16 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
 
   /* ───────── 🎒 준비물 ───────── */
   const WHO_ORDER = ['davin', 'arin', 'mom', 'dad', ''];
+  // 매주 준비물은 쉬는 날엔 안 보임: 그 사람 휴가 · 공휴일 · 아이 것은 학교 방학, '이번만 빼기' 한 날 (그날만 넣은 준비물은 언제나 보임)
+  function weeklyOff(p, key) {
+    if (Array.isArray(p.skip) && p.skip.includes(key)) return true;
+    if (p.who ? vacationsOn(key, p.who).length : vacationsOn(key).some((v) => !Array.isArray(v.who))) return true;
+    const hs = holidaysOn(key);
+    return hs.some((x) => x.type === 'pub') || (hs.length > 0 && (p.who === 'davin' || p.who === 'arin'));
+  }
   function packOn(key) {
     const dow = DOWK[fromKey(key).getDay()];
-    return Object.entries(packData).filter(([, p]) => p && p.text && (p.date === key || (!p.date && p.dow === dow)))
+    return Object.entries(packData).filter(([, p]) => p && p.text && (p.date === key || (!p.date && p.dow === dow && !weeklyOff(p, key))))
       .map(([id, p]) => ({ id, ...p })).sort((a, b) => WHO_ORDER.indexOf(a.who || '') - WHO_ORDER.indexOf(b.who || '') || (a.at || 0) - (b.at || 0));
   }
   const packText = (p) => (p.src && p.src !== lang && p.tr && !mine(p) ? p.tr : p.text);
@@ -2680,6 +2785,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#pk-every-label').textContent = L().packEvery(d.getDay());
     $('#pk-sugg').replaceChildren(...L().packSugg.map((v) => h('option', { value: v })));
     $('#pk-del').hidden = !item;
+    $('#pk-skip').hidden = !(item && item.dow);
     renderPkWho();
     pkSheet.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -2689,6 +2795,14 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   pkSheet.addEventListener('click', (e) => { if (e.target.closest('[data-pk-close]')) closePack(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pkSheet.hidden) closePack(); });
   $('#pk-del').addEventListener('click', () => { if (pk && pk.item) packWrite(pk.item.id, null); closePack(); });
+  // 매주 준비물을 이번 한 번만 뺌 (지나간 날짜는 정리)
+  $('#pk-skip').addEventListener('click', () => {
+    if (!pk || !pk.item || !pk.item.dow) return;
+    const { id, ...item } = pk.item, today = keyOf(new Date());
+    item.skip = [...new Set([...(Array.isArray(item.skip) ? item.skip : []).filter((d) => d >= today), pk.key])].sort();
+    packWrite(id, item);
+    closePack();
+  });
   $('#pack-edit').addEventListener('submit', (ev) => {
     ev.preventDefault();
     if (!pk) return;
@@ -2698,7 +2812,10 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const same = item && typed === packText(item).trim();
     const text = same ? item.text : typed;
     const entry = { text, who: pk.who, by: same && item.by ? item.by : myId(), at: item ? (item.at || Date.now()) : Date.now() };
-    if ($('#pk-every').checked) entry.dow = (item && item.dow) || DOWK[fromKey(key).getDay()]; else entry.date = (item && item.date) || key;
+    if ($('#pk-every').checked) {
+      entry.dow = (item && item.dow) || DOWK[fromKey(key).getDay()];
+      if (item && Array.isArray(item.skip) && item.skip.length) entry.skip = item.skip;
+    } else entry.date = (item && item.date) || key;
     entry.src = same && item.src ? item.src : hasHangul(text) ? 'ko' : 'de';
     if (same && item.tr) entry.tr = item.tr;
     const id = item ? item.id : newId();
@@ -2808,7 +2925,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const kids = [h('h3', { text: L().gcal })];
     const at = S.months[monthKey(view)] && S.months[monthKey(view)].at;
     if (S.busy) kids.push(h('p', { class: 'hint', text: L().loading }));
-    else if (S.error) kids.push(h('p', { class: 'hint err', text: S.error }));
+    else if (S.error) kids.push(h('p', { class: 'hint err', text: tx(S.error) }));
     else if (S.accounts.length && at) kids.push(h('p', { class: 'hint', text: `${L().updated(Math.round((Date.now() - at) / 60000))} · ${L().autoNote}` }));
     if (!S.accounts.length) {
       kids.push(h('p', { class: 'hint', style: 'margin-top:4px', text: L().gcalNone }));
@@ -2946,7 +3063,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
   function unlockFor() {
     unlockedUntil = Date.now() + 3 * 60e3;
     clearTimeout(relockTimer);
-    relockTimer = setTimeout(() => { unlockedUntil = 0; if (current === 'kid') renderKidScreen(); }, 3 * 60e3 + 50);
+    relockTimer = setTimeout(() => {
+      unlockedUntil = 0;
+      if (mbCtl && mbCtl.deleting) mbCtl.setDelete(false); // 다시 잠기면 스티커 지우기도 끝 (켜 둔 채 아이에게 주면 비밀번호 없이 지울 수 있었음)
+      if (current === 'kid') renderKidScreen();
+    }, 3 * 60e3 + 50);
     if (current === 'kid') renderKidScreen();
   }
   // 잠겨 있으면 비밀번호를 먼저 묻고, 맞으면 하려던 일을 함
@@ -3055,7 +3176,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
 
   /* 목표·보상 설정 창 (부모용) */
   const cfgSheet = $('#cfg-sheet');
-  let cfgMissions = [], cfgTT = null;
+  let cfgMissions = [], cfgTT = null, cfgOpen = null; // cfgOpen = 창을 열 때 보였던 값 (그 사이 다른 사람이 고친 걸 덮어쓰지 않게, 안 고친 칸은 저장 안 함)
   function renderCfgTT() {
     const days = [['mon', 1], ['tue', 2], ['wed', 3], ['thu', 4], ['fri', 5]];
     const opts = [['', '–'], ...Object.entries(FS.SUBJECTS).map(([k, t]) => [k, `${t[0]} ${t[lang === 'de' ? 2 : 1]}`])];
@@ -3070,27 +3191,35 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
           return sel;
         }))));
   }
-  function renderCfgMissions() {
+  // '직접 쓰기'에 쓰다 만 글: 다른 단추를 눌러 목록을 다시 그려도 남기고, 저장 · 엔터를 누르면 목록에 넣음 (예전엔 '+ 추가'를 안 누르면 사라졌음)
+  function addOwnMission() {
+    const el = $('#cfg-own'), t = el ? el.value.trim() : '';
+    if (!t) return false;
+    cfgMissions.push({ id: 'c' + newId(), text: t, src: hasHangul(t) ? 'ko' : 'de' });
+    el.value = '';
+    return true;
+  }
+  function renderCfgMissions(fresh) {
     const box = $('#cfg-missions');
     const has = new Set(cfgMissions.map((x) => x.id));
-    const own = h('input', { class: 'field', type: 'text', maxlength: '30', placeholder: L().msOwnPh });
+    const old = $('#cfg-own');
+    const own = h('input', { class: 'field', type: 'text', maxlength: '30', id: 'cfg-own', placeholder: L().msOwnPh, enterkeyhint: 'enter',
+      onkeydown: (e) => { if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); if (addOwnMission()) renderCfgMissions(); } } });
+    if (old && !fresh) own.value = old.value;
     box.replaceChildren(
       ...cfgMissions.map((x, i) => h('div', { class: 'row-m' }, h('span', { class: 'e', html: FS.missionIconHTML(x) }), h('span', { class: 't', text: FS.missionLabel(x, lang) }),
         h('button', { type: 'button', class: 'wd', 'aria-pressed': String(!!x.wd), text: L().msWd, onclick: () => { cfgMissions[i] = { ...x, wd: !x.wd }; if (!cfgMissions[i].wd) delete cfgMissions[i].wd; renderCfgMissions(); } }),
         h('button', { type: 'button', 'aria-label': L().delete, text: '✕', onclick: () => { cfgMissions.splice(i, 1); renderCfgMissions(); } }))),
       h('div', { class: 'add' }, ...Object.entries(FS.MISSIONS).filter(([id]) => !has.has(id)).map(([id, t]) => h('button', { type: 'button', text: `${t[0]} ${t[lang === 'de' ? 2 : 1]}`,
         onclick: () => { cfgMissions.push({ id }); renderCfgMissions(); } }))),
-      h('div', { class: 'own' }, own, h('button', { type: 'button', class: 'btn ghost', text: L().msAdd, onclick: () => {
-        const t = own.value.trim(); if (!t) return;
-        cfgMissions.push({ id: 'c' + newId(), text: t, src: hasHangul(t) ? 'ko' : 'de' }); renderCfgMissions();
-      } })));
+      h('div', { class: 'own' }, own, h('button', { type: 'button', class: 'btn ghost', text: L().msAdd, onclick: () => { if (addOwnMission()) renderCfgMissions(); } })));
   }
   function openCfg() {
     cfgMissions = FS.missionsOf(kidOf(kidName), kidName).map((x) => ({ ...x }));
     cfgTT = kidName === 'davin' ? JSON.parse(JSON.stringify(FS.ttOf(kidOf('davin')))) : null;
     $('#cfg-tt-box').hidden = !cfgTT;
     if (cfgTT) renderCfgTT();
-    renderCfgMissions();
+    renderCfgMissions(true);
     $('#cfg-del').hidden = false;
     const c = cfgOf(kidName);
     $('#cfg-form').className = `sheet k-${kidName}`;
@@ -3099,30 +3228,36 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     $('#cfg-big').value = c.big;
     $('#cfg-bigreward').value = textOf(c.bigReward, c.bsrc, c.btr, c.bby || c.by, {});
     $('#cfg-reward').value = textOf(c.reward, c.rsrc, c.rtr, c.rby || c.by, {});
+    cfgOpen = { small: String(c.small), big: String(c.big), reward: $('#cfg-reward').value.trim(), bigReward: $('#cfg-bigreward').value.trim(),
+      missions: JSON.stringify(cfgMissions), tt: JSON.stringify(cfgTT) };
     cfgSheet.hidden = false; document.body.style.overflow = 'hidden';
   }
   const closeCfg = () => { cfgSheet.hidden = true; document.body.style.overflow = ''; };
   cfgSheet.addEventListener('click', (e) => { if (e.target.closest('[data-cfg-close]')) closeCfg(); });
   $('#kid-cfg-btn').addEventListener('click', () => parentOnly(openCfg));
-  $('#cfg-del').addEventListener('click', () => { closeCfg(); kidTab = 'stickers'; renderKidScreen(); if (mbCtl) mbCtl.setDelete(true); });
+  // 🗑 스티커 지우기: 창에서 고친 게 있으면 먼저 저장 (예전엔 저장 안 하고 닫아서 고친 게 사라졌음)
+  $('#cfg-del').addEventListener('click', () => { $('#cfg-form').dispatchEvent(new Event('submit', { cancelable: true })); closeCfg(); kidTab = 'stickers'; renderKidScreen(); if (mbCtl) mbCtl.setDelete(true); });
   $('#cfg-form').addEventListener('submit', (ev) => {
     ev.preventDefault();
-    const c = cfgOf(kidName);
-    const num = (id, lo, hi, d) => Math.max(lo, Math.min(hi, Math.round(Number($(id).value) || d)));
-    const next = { ...c, small: num('#cfg-small', 3, 30, c.small), big: num('#cfg-big', 2, 8, c.big) };
+    if (!cfgOpen) return;
+    addOwnMission();
+    const c = cfgOf(kidName), o = cfgOpen;
+    // 안 고친 칸은 지금 값 그대로 (창을 연 사이 다른 휴대폰에서 바꾼 것을 덮어쓰지 않게)
+    const num = (id, lo, hi, d, was) => ($(id).value.trim() === was ? d : Math.max(lo, Math.min(hi, Math.round(Number($(id).value) || d))));
+    const next = { ...c, small: num('#cfg-small', 3, 30, c.small, o.small), big: num('#cfg-big', 2, 8, c.big, o.big) };
     delete next.goal; // 예전 방식의 개수
     // 글을 바꿨을 때만 쓴 사람·번역을 새로 (보상 둘 다, 쓴 사람도 따로: 하나만 고쳐도 다른 하나의 번역이 안 사라지게)
     const texts = [['#cfg-reward', 'reward', 'rsrc', 'rtr', 'rby'], ['#cfg-bigreward', 'bigReward', 'bsrc', 'btr', 'bby']];
     const changed = [];
     for (const [sel, f, srcF, trF, byF] of texts) {
-      const typed = $(sel).value.trim(), shown = textOf(c[f], c[srcF], c[trF], c[byF] || c.by, {});
-      if (typed === shown) { if (!next[byF] && c.by) next[byF] = c.by; continue; }
+      const typed = $(sel).value.trim();
+      if (typed === o[f]) { if (!next[byF] && c.by) next[byF] = c.by; continue; }
       next[f] = typed; next.by = next[byF] = myId(); delete next[trF];
       if (typed) { next[srcF] = hasHangul(typed) ? 'ko' : 'de'; changed.push([f, trF]); } else delete next[srcF];
     }
     const kid = kidName; // 번역이 끝나기 전에 다른 아이 화면으로 가도 그 아이 설정에 저장
-    kidsWrite([kid, 'cfg'], next);
-    if (JSON.stringify(cfgMissions) !== JSON.stringify(FS.missionsOf(kidOf(kid), kid))) {
+    if (JSON.stringify(next) !== JSON.stringify(c)) kidsWrite([kid, 'cfg'], next);
+    if (JSON.stringify(cfgMissions) !== o.missions) {
       const list = cfgMissions.map((x) => ({ ...x }));
       kidsWrite([kid, 'missions'], list);
       const need = list.filter((x) => x.text && !x.tr);
@@ -3135,7 +3270,8 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
         if (hit) kidsWrite([kid, 'missions'], merged);
       })();
     }
-    if (kid === 'davin' && cfgTT && JSON.stringify(cfgTT) !== JSON.stringify(FS.ttOf(kidOf('davin')))) kidsWrite(['davin', 'timetable'], cfgTT);
+    if (kid === 'davin' && cfgTT && JSON.stringify(cfgTT) !== o.tt) kidsWrite(['davin', 'timetable'], cfgTT);
+    cfgOpen = null;
     closeCfg();
     // 번역은 하나씩 차례로, 번역 칸만 저장 (그 사이 보상 글이 바뀌었으면 저장 안 함)
     (async () => {
