@@ -19,7 +19,8 @@
       week: '이번 주', weekGold: '🏅 이번 주 완성! 황금 스티커를 받았어요', offHint: '빈 칸을 누르면 쉬는 날 (아프거나 여행 간 날)',
       goldDone: (n) => `🎉 황금 스티커 ${n}개 다 모았어요!`, newBoard: '새 판 시작', newAsk: '선물을 받았으면 새 판을 시작할까요?',
       offDone: '🏖️ 쉬는 날로 표시했어요', offUndone: '쉬는 날 표시를 지웠어요', delHint: '지울 스티커를 누르세요', delDone: '완료', delToast: '스티커를 지웠어요', undo: '되돌리기',
-      goldGot: '🏅 황금 스티커를 받았어요!',
+      goldGot: '🏅 황금 스티커를 받았어요!', todayHint: '⭐ 오늘 미션을 다 하면 여기에 스티커가 붙어요!', rest: '🏖️ 오늘은 미션 없는 날이에요',
+      yday: '🌙 어제 미션 다 했는데 깜빡했어요', ydayTitle: '🌙 어제 미션 선물', extra: (n) => `🏅 ${n}개 더 모았어요 (새 판으로 넘어가요)`, offLong: '오늘 칸을 꾹 누르면 쉬는 날 (아플 때)',
     },
     de: {
       msTitle: '🎯 Tagesmission', msGot: '✅ Heute schon einen Missions-Sticker bekommen!', msClaim: '🎁 Geschenk öffnen!', lock: '🔒 ', tapBox: 'Tipp dreimal aufs Geschenk!',
@@ -27,7 +28,8 @@
       week: 'Diese Woche', weekGold: '🏅 Woche geschafft! Goldsticker bekommen', offHint: 'Leeres Feld antippen = Pausentag (krank oder verreist)',
       goldDone: (n) => `🎉 Alle ${n} Goldsticker gesammelt!`, newBoard: 'Neue Runde starten', newAsk: 'Geschenk bekommen? Neue Runde starten?',
       offDone: '🏖️ Als Pausentag eingetragen', offUndone: 'Pausentag entfernt', delHint: 'Tippe auf einen Sticker zum Löschen', delDone: 'Fertig', delToast: 'Sticker gelöscht', undo: 'Rückgängig',
-      goldGot: '🏅 Goldsticker bekommen!',
+      goldGot: '🏅 Goldsticker bekommen!', todayHint: '⭐ Alle Missionen schaffen – dann klebt hier der Sticker!', rest: '🏖️ Heute keine Missionen',
+      yday: '🌙 Gestern alles geschafft, nur vergessen', ydayTitle: '🌙 Geschenk von gestern', extra: (n) => `🏅 ${n} mehr gesammelt (zählen für die nächste Runde)`, offLong: 'Heute-Feld lang drücken = Pausentag (krank)',
     },
   };
   // 색은 각 앱이 바꿀 수 있게 변수로 (--mb-k1/k2 = 아이 색, --mb-kc = 진한 글자색)
@@ -50,6 +52,9 @@
 .mb-claim, .mb-got { width: 100%; margin-top: 10px; border: 0; border-radius: 14px; padding: 12px; font: inherit; font-family: var(--mb-font); font-size: 1.1em; text-align: center; }
 .mb-claim { background: linear-gradient(140deg, var(--mb-k1), var(--mb-k2)); color: #2A1A0A; cursor: pointer; animation: mb-pulse 1.6s ease-in-out infinite; } /* 넓은 막대라 기울이면 위 칸을 덮음 → 두근두근만 */
 .mb-got { background: #EAF7EC; color: #2E7D3A; }
+.mb-yday { width: 100%; margin-top: 8px; border: 2px dashed var(--mb-k2); border-radius: 14px; padding: 9px; background: transparent; color: inherit; font: inherit; font-size: .9em; cursor: pointer; }
+.mb-tiles.wig .mb-tile { animation: mb-wob .45s; }
+.mb-noms.rest { font-size: 1.05em; }
 .mb-noms { color: var(--mb-muted); text-align: center; margin: 4px 0; }
 .mb-golds { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
 .mb-big { width: clamp(50px, 14vw, 64px); height: clamp(50px, 14vw, 64px); border-radius: 50%; border: 3px dashed var(--mb-line); background: var(--mb-surface); display: grid; place-items: center; color: var(--mb-line); font-size: 26px; padding: 0; font-family: inherit; }
@@ -159,14 +164,16 @@
       const ms = del ? el('div', { class: 'mb-delbar' }, el('span', { text: L().delHint }), el('button', { type: 'button', class: 'mb-btn', text: L().delDone, onclick: () => setDelete(false) }))
         : el('div', { class: 'mb-ms' }, el('div', { class: 'mb-ms-h' }, el('b', { text: L().msTitle }), el('span', { text: `${M.done} / ${M.total}` })),
           M.total ? el('div', { class: 'mb-tiles' + (M.total > 5 ? ' many' : ''), style: `--n:${M.total}` }, ...M.list.map((x) => el('button', { type: 'button', class: 'mb-tile' + (M.day[x.id] ? ' done' : ''), onclick: () => {
+            if (keyOf(new Date()) !== day) { render(); return; } // 자정이 지났으면 새 날로 다시 그림
             if (M.got) { toast(L().msGot); return; }
             const on = !M.day[x.id];
             W(['mdone', day, x.id], on ? true : null); snd.tap(on ? 3 : 1);
             render();
             if (on && M.done + 1 === M.total) setTimeout(() => giftGuard(openGift), 350); // 마지막 미션 → (필요하면 부모 확인) → 선물 상자
           } }, el('span', { class: 'e', html: FS.missionIconHTML ? FS.missionIconHTML(x) : '' }, FS.missionIconHTML ? null : FS.missionIcon(x)), el('span', { class: 't', text: FS.missionLabel(x, lang()) }))))
-            : el('p', { class: 'mb-noms', text: L().noMs }),
-          M.got ? el('div', { class: 'mb-got', text: L().msGot }) : M.all ? el('button', { type: 'button', class: 'mb-claim', text: L().msClaim, onclick: () => giftGuard(openGift) }) : null);
+            : el('p', { class: 'mb-noms' + (FS.missionsOf(kd(), k).length ? ' rest' : ''), text: FS.missionsOf(kd(), k).length ? L().rest : L().noMs }),
+          M.got ? el('div', { class: 'mb-got', text: L().msGot }) : M.all ? el('button', { type: 'button', class: 'mb-claim', text: L().msClaim, onclick: () => giftGuard(() => openGift()) }) : null,
+          ydayBtn());
       // 황금 스티커 줄
       const golds = el('div', { class: 'mb-golds' });
       for (let i = 0; i < G.need; i++) {
@@ -176,7 +183,7 @@
         golds.append(b);
       }
       golds.append(el('span', { class: 'mb-gift-ic' + (G.gift ? ' ready' : ''), 'aria-hidden': 'true', text: '🎁' }));
-      popGold = '';
+      if (popGold && G.golds.some((g) => g.week === popGold)) popGold = ''; // 폰: 가족 문서가 돌아와 그려진 뒤에 지움 (펑 효과가 보이게)
       // 이번 주 7칸
       const board = el('div', { class: 'mb-board' }, ...Wk.days.map((x) => {
         if (x.got) {
@@ -185,21 +192,46 @@
           b.append(el('span', { class: 'day', text: labels[x.i] }));
           return b;
         }
-        return el('button', { type: 'button', class: `mb-slot ${x.off ? 'off' : x.status}`, 'aria-label': labels[x.i], onclick: () => { if (x.status !== 'future' && !del) guard(() => toggleOff(x)); } },
-          x.sick ? '🤒' : x.off ? '🏖️' : x.status === 'missed' ? '·' : x.status === 'today' ? '⭐' : '', el('span', { class: 'day', text: labels[x.i] }));
+        let hold = 0, held = false;
+        const sb = el('button', { type: 'button', class: `mb-slot ${x.off ? 'off' : x.status}`, 'aria-label': labels[x.i], onclick: () => {
+          if (del || x.status === 'future' || x.rest || held) { held = false; return; } // 미션 없는 날은 저절로 쉬는 날
+          if (x.status === 'today') { const t = wrap.querySelector('.mb-tiles'); if (t) wig(t); snd.boing(); toast(L().todayHint); return; } // 오늘 ⭐: 쉬는 날이 아니라 미션 칸을 보여 줌
+          guard(() => toggleOff(x));
+        } }, x.sick ? '🤒' : x.off ? '🏖️' : x.status === 'missed' ? '·' : x.status === 'today' ? '⭐' : '', el('span', { class: 'day', text: labels[x.i] }));
+        if (x.status === 'today' && !x.off) { // 오늘 칸 꾹 (1초) = 아파서 쉬는 날 (부모 확인)
+          const stop = () => clearTimeout(hold);
+          sb.addEventListener('pointerdown', () => { stop(); held = false; hold = setTimeout(() => { held = true; if (!del) guard(() => toggleOff(x)); }, 1000); });
+          for (const t of ['pointerup', 'pointerleave', 'pointercancel']) sb.addEventListener(t, stop);
+          sb.addEventListener('contextmenu', (e) => e.preventDefault());
+        }
+        return sb;
       }));
-      popId = '';
+      if (popId && Wk.days.some((x) => x.id === popId)) popId = '';
       const foot = G.gift ? el('div', { class: 'mb-done' }, el('b', { text: L().goldDone(G.need) }), reward ? el('div', { class: 'rw', text: `🎁 ${reward}` }) : null,
-        el('button', { type: 'button', class: 'mb-btn', text: L().newBoard, onclick: () => guard(() => { if (o.askNewBoard !== false && !confirm(L().newAsk)) return; W(['cfg'], { ...((kd().cfg) || {}), start: Date.now() }); render(); }) }))
-        : el('p', { class: 'mb-hint', text: Wk.all && Wk.gold ? L().weekGold : L().offHint });
+        el('button', { type: 'button', class: 'mb-btn', text: L().newBoard, onclick: () => guard(() => { if (o.askNewBoard !== false && !confirm(L().newAsk)) return; const g = FS.goldState(kd(), k); W(['cfg', 'start'], g.nextStart || Date.now()); render(); }) }),
+        G.extra ? el('p', { class: 'mb-hint', text: L().extra(G.extra) }) : null)
+        : el('p', { class: 'mb-hint', text: Wk.all && Wk.gold ? L().weekGold : Wk.days.some((x) => x.status === 'today') ? `${L().offHint} · ${L().offLong}` : L().offHint });
       wrap.replaceChildren(ms, golds, el('div', { class: 'mb-rw' }, '🎁 ', reward ? el('b', { text: reward }) : L().noReward, ` · 🏅 ${G.count}/${G.need}`),
         el('div', { class: 'mb-head' }, el('b', { text: L().week }), el('span', { text: `⭐ ${Wk.count} / 7` })), board, foot);
     }
+    // 🌙 어제 미션을 다 했는데 선물 상자를 깜빡: 다음 날 낮 12시 전까지 부모가 대신 (어제 칸에 스티커)
+    function ydayBtn() {
+      const now = new Date();
+      if (del || now.getHours() >= 12) return null;
+      const y = keyOf(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1)), md = (kd().mdone || {})[y] || {};
+      if (md.got || md.off || md.sick || !FS.missionsOn(kd(), k, y).length) return null;
+      const start = FS.cfgOf(kd(), k).start || 0;
+      if (start && start > now.getTime() - 2 * 864e5) return null; // 막 시작한 판이면 안 보임
+      return el('button', { type: 'button', class: 'mb-yday', text: L().yday, onclick: () => guard(() => {
+        for (const x of FS.missionsOn(kd(), k, y)) W(['mdone', y, x.id], true);
+        openGift(y);
+      }) });
+    }
     // 🎁 선물 상자: 톡톡톡 3번 → 스티커 펑 → 오늘 칸에 붙고 방 가방에 열매 + 🪙
-    function openGift() {
+    function openGift(dayArg) { // dayArg = 어제 선물 (부모가 미션을 다 한 것으로 한 뒤)
       if (!alive || document.querySelector('.mb-gift')) return;
-      const day = keyOf(new Date()), M = FS.missionState(kd(), k, day);
-      if (!M.all || M.got) return;
+      const day = dayArg || keyOf(new Date()), M = FS.missionState(kd(), k, day);
+      if (M.got || (!dayArg && !M.all)) return;
       const d = FS.newRewardD();
       let taps = 0;
       const dots = el('div', { class: 'taps' }, el('i'), el('i'), el('i'));
@@ -217,11 +249,11 @@
         confetti(rv, 36);
         setTimeout(() => { ov.remove(); save(d, day); }, 1500);
       } });
-      const ov = el('div', { class: 'mb-gift' }, el('div', { class: 'mb-gift-card' }, el('b', { text: L().msGiftTitle }), gift, dots, hint));
+      const ov = el('div', { class: 'mb-gift' }, el('div', { class: 'mb-gift-card' }, el('b', { text: dayArg ? L().ydayTitle : L().msGiftTitle }), gift, dots, hint));
       document.body.append(ov);
     }
     function save(d, day) { // day = 선물 상자를 연 날 (상자를 열어 둔 채 자정이 지나도 그날에 붙음)
-      const id = newId(), md = (kd().mdone || {})[day];
+      const id = 'm' + day.replace(/-/g, ''), md = (kd().mdone || {})[day]; // 정해진 이름 = 두 기기가 같이 열어도 스티커 · 열매 · 코인 한 번
       if (md && md.got) return; // 오늘 스티커는 한 장만
       const R = FS.ROOM || 'room';
       if (FS.weekCompletesToday(kd(), k, day)) { const wk = FS.weekKeys(day)[0]; W(['golds', wk], { at: Date.now(), d }); popGold = wk; setTimeout(() => { snd.tada(); toast(L().goldGot); }, 500); }
@@ -249,14 +281,15 @@
     }
     // 🗑 지우기: 그날 스티커 (+ 그 주 황금 스티커, 아직 안 쓴 열매 · 코인) / 황금 스티커. 되돌리기 가능
     function delDay(x) {
-      const R = FS.ROOM || 'room', d0 = kd(), s = (d0.stickers || {})[x.id], wk = FS.weekKeys(x.key)[0], g = (d0.golds || {})[wk];
+      const R = FS.ROOM || 'room', d0 = kd(), s = (d0.stickers || {})[x.id], wk = FS.weekKeys(x.key)[0], md0 = (d0.mdone || {})[x.key] || {};
+      const g = md0.off || md0.sick ? null : (d0.golds || {})[wk]; // 쉬는 날로 남으면 이번 주는 그대로 다 참
       const items = (d0[R] || {}).items || {}, it = items[x.id], ic = items[x.id + 'c'];
       if (it) W([R, 'items', x.id], null);
       if (ic) W([R, 'items', x.id + 'c'], null);
       W(['mdone', x.key, 'got'], null); W(['stickers', x.id], null);
       if (g) W(['golds', wk], null);
       render();
-      toast(L().delToast, () => { W(['mdone', x.key, 'got'], x.id); if (s) W(['stickers', x.id], s); if (g) W(['golds', wk], g); if (it) W([R, 'items', x.id], it); if (ic) W([R, 'items', x.id + 'c'], ic); render(); });
+      toast(L().delToast, () => { const now = (kd().mdone || {})[x.key]; if (now && now.got && now.got !== x.id) return; W(['mdone', x.key, 'got'], x.id); if (s) W(['stickers', x.id], s); if (g) W(['golds', wk], g); if (it) W([R, 'items', x.id], it); if (ic) W([R, 'items', x.id + 'c'], ic); render(); });
     }
     function delGold(g) {
       const { week, ...v } = g;

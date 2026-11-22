@@ -924,7 +924,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       sickBtn: '🤒 아파요', ttCfg: '📚 다빈 시간표 (월~금, 1~6교시)',
       
       msCfg: '🎯 오늘의 미션 (다 하면 스티커 1장)', msWd: '평일만', msAdd: '+ 추가', msOwnPh: '직접 쓰기 (예: 피아노 연습)',
-      cfgTitle: (n) => `${n} 목표·보상`, moneyInTitle: '💶 받은 돈', moneyOutTitle: '💸 쓴 돈', moneyBad: '금액을 넣어 주세요.', allowDay: '📅 매주 용돈 날 (알려 줘요)', allowNone: '알림 없음', allowWd: (w) => '일월화수목금토'[w] + '요일',
+      cfgTitle: (n) => `${n} 목표·보상`, moneyInTitle: '💶 받은 돈', moneyOutTitle: '💸 쓴 돈', moneyBad: '금액을 넣어 주세요.', moneyOver: (h) => `저금통에는 ${h}밖에 없어요. 그래도 기록할까요?`, allowDay: '📅 매주 용돈 날 (알려 줘요)', allowNone: '알림 없음', allowWd: (w) => '일월화수목금토'[w] + '요일',
       allowAsk: (wd, today) => (today ? '💶 오늘은 용돈 날! 받았어요?' : `💶 ${wd} 용돈, 받았어요?`), allowYes: '받았어요', allowSkip: '이번 주는 없어요', allowSaved: '📅 용돈 날을 저장했어요',
       vacTitle: '휴가', vacSet: '✈️ 휴가 설정', vacHint: '휴가 기간에는 가족 일정의 기본 일정이 모두 비어요. 그날만 넣은 일정은 그대로 보여요.',
       vacStart: '시작', vacEnd: '끝', vacName: '이름 (선택)', vacNamePh: '예: 이탈리아 여행', vacAdd: '추가', close: '닫기',
@@ -988,7 +988,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       sickBtn: '🤒 Krank', ttCfg: '📚 Davins Stundenplan (Mo–Fr, 1.–6. Stunde)',
       
       msCfg: '🎯 Tagesmission (alles geschafft = 1 Sticker)', msWd: 'Nur Mo–Fr', msAdd: '+ Hinzufügen', msOwnPh: 'Selbst schreiben (z. B. Klavier üben)',
-      cfgTitle: (n) => `Ziel & Belohnung für ${n}`, moneyInTitle: '💶 Bekommen', moneyOutTitle: '💸 Ausgegeben', moneyBad: 'Bitte einen Betrag eingeben.', allowDay: '📅 Taschengeld-Tag (Erinnerung)', allowNone: 'Keine Erinnerung', allowWd: (w) => ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][w],
+      cfgTitle: (n) => `Ziel & Belohnung für ${n}`, moneyInTitle: '💶 Bekommen', moneyOutTitle: '💸 Ausgegeben', moneyBad: 'Bitte einen Betrag eingeben.', moneyOver: (h) => `Im Sparschwein sind nur ${h}. Trotzdem eintragen?`, allowDay: '📅 Taschengeld-Tag (Erinnerung)', allowNone: 'Keine Erinnerung', allowWd: (w) => ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][w],
       allowAsk: (wd, today) => (today ? '💶 Heute ist Taschengeld-Tag! Bekommen?' : `💶 Taschengeld vom ${wd} schon bekommen?`), allowYes: 'Bekommen', allowSkip: 'Diese Woche nicht', allowSaved: '📅 Taschengeld-Tag gespeichert',
       vacTitle: 'Urlaub', vacSet: '✈️ Urlaub eintragen', vacHint: 'Im Urlaub sind die Standard-Pläne im Familienplan leer. Für einzelne Tage Eingetragenes bleibt sichtbar.',
       vacStart: 'Von', vacEnd: 'Bis', vacName: 'Name (optional)', vacNamePh: 'z. B. Italienreise', vacAdd: 'Hinzufügen', close: 'Schließen',
@@ -2568,7 +2568,11 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const sick = !!e && (e.am === '@sick' || e.pm === '@sick');
     const md = ((kidOf(k).mdone || {})[key]) || {};
     if (sick === !!md.sick) return;
-    if (!sick) { kidsWrite([k, 'mdone', key, 'sick'], null); return; }
+    if (!sick) { // 아파요를 지우면: 그 날 덕분에 다 찬 주의 황금 스티커도 뺌 (미션판의 쉬는 날 풀기와 같게)
+      const W0 = FS.weekState(kidOf(k), k, key);
+      if (!md.got && !md.off && FS.missionsOn(kidOf(k), k, key).length && W0.all && W0.gold) kidsWrite([k, 'golds', W0.keys[0]], null);
+      kidsWrite([k, 'mdone', key, 'sick'], null); return;
+    }
     if (!md.got && !md.off && FS.weekCompletesWithOff(kidOf(k), k, key, key)) {
       kidsWrite([k, 'golds', FS.weekKeys(key)[0]], { at: Date.now(), d: FS.newRewardD() });
     }
@@ -3039,7 +3043,9 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
     const now = new Date(), d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() - a.wd + 7) % 7)), dk = keyOf(d);
     const set = a.at ? new Date(a.at) : null;
     if (set && new Date(set.getFullYear(), set.getMonth(), set.getDate()) > d) return; // 알림을 정하기 전의 용돈 날은 안 물음
-    if (a.skip === dk || moneyOf(k).some((m) => m.note === '@allowance' && m.at >= d.getTime())) return;
+    // 받은 것으로 보는 기록: 그 용돈 날 하루 전부터 💶 용돈 그림, 또는 정한 용돈 금액과 같은 받은 돈 (메모를 직접 썼거나 동전으로 넣었어도)
+    const given = (m) => m.amt > 0 && (m.at || 0) >= d.getTime() - 864e5 && (m.note === '@allowance' || (a.amt > 0 && Math.abs(m.amt - a.amt) < 0.005));
+    if (a.skip === dk || moneyOf(k).some(given)) return;
     box.replaceChildren(h('span', { class: 'q', text: L().allowAsk(L().allowWd(a.wd), dk === keyOf(now)) }),
       h('button', { type: 'button', class: 'btn', text: L().allowYes, onclick: () => parentOnly(() => openMoney(1, a.amt)) }),
       h('button', { type: 'button', class: 'btn ghost', text: L().allowSkip, onclick: () => parentOnly(() => kidsWrite([k, 'allow', 'skip'], dk)) }));
@@ -3178,6 +3184,7 @@ textarea.field { height: auto; min-height: 84px; padding: 10px 14px; resize: ver
       if (allowOn && wdv !== curWd) { saveAllow(cur && cur.amt); closeMoney(); toast(L().allowSaved); return; } // 금액 없이 용돈 날만 바꿈
       const err = $('#money-err'); err.textContent = L().moneyBad; err.hidden = false; return;
     }
+    if (moneySign < 0 && window.PiggyBank) { const have = window.PiggyBank.sumOf(kidOf('davin')); if (amt > have + 0.001 && !confirm(L().moneyOver(window.PiggyBank.fmt(have)))) return; } // 저금통보다 많이 쓴 기록
     const own = $('#money-note').value.trim();
     const id = newId();
     const m = { at: Date.now(), amt: moneySign * amt, note: own || (moneyKey ? `@${moneyKey}` : ''), by: myId() };

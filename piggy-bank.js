@@ -19,13 +19,13 @@
   const T = {
     ko: {
       hint: '동전을 저금통에 넣어 봐!', theme: '저금통 모양', themes: { pig: '돼지', bear: '곰돌이', ball: '몬스터볼' }, outHint: '꺼낸 돈을 눌러 봐!', lockedHint: '엄마·아빠가 잠금을 풀면 넣을 수 있어요', unlock: '🔒 잠금 풀기', pig: '저금통',
-      modeIn: '🪙 넣기', modeOut: '💸 꺼내기', whatBuy: '뭐 샀어?', notEnough: '저금통에 돈이 모자라요', own: '✏️ 직접 쓰기',
+      modeIn: '🪙 넣기', undo: (c) => `↩ 방금 ${c} 취소`, modeOut: '💸 꺼내기', whatBuy: '뭐 샀어?', notEnough: '저금통에 돈이 모자라요', own: '✏️ 직접 쓰기',
       noMoney: '아직 기록이 없어요.', in: '받았어요', out: '썼어요', edit: '기록 고치기', save: '저장', cancel: '취소', del: '지우기', delAsk: '이 기록을 지울까요?',
       fix: '금액 맞추기', adjTitle: '🔒 저금통 금액 맞추기', adjHint: '저금통에 실제로 들어 있는 돈을 넣으면 그 금액으로 맞춰져요.', adjBad: '금액을 넣어 주세요.',
     },
     de: {
       hint: 'Wirf die Münzen ins Sparschwein!', theme: 'Aussehen', themes: { pig: 'Schwein', bear: 'Teddy', ball: 'Pokéball' }, outHint: 'Tippe auf das Geld, das du rausnimmst!', lockedHint: 'Mama oder Papa entsperren, dann geht es', unlock: '🔒 Entsperren', pig: 'Sparschwein',
-      modeIn: '🪙 Einwerfen', modeOut: '💸 Rausnehmen', whatBuy: 'Was hast du gekauft?', notEnough: 'So viel ist nicht im Sparschwein', own: '✏️ Selbst schreiben',
+      modeIn: '🪙 Einwerfen', undo: (c) => `↩ ${c} zurück`, modeOut: '💸 Rausnehmen', whatBuy: 'Was hast du gekauft?', notEnough: 'So viel ist nicht im Sparschwein', own: '✏️ Selbst schreiben',
       noMoney: 'Noch keine Einträge.', in: 'Bekommen', out: 'Ausgegeben', edit: 'Eintrag ändern', save: 'Speichern', cancel: 'Abbrechen', del: 'Löschen', delAsk: 'Diesen Eintrag löschen?',
       fix: 'Betrag anpassen', adjTitle: '🔒 Betrag im Sparschwein', adjHint: 'Gib ein, wie viel wirklich im Sparschwein ist.', adjBad: 'Bitte einen Betrag eingeben.',
     },
@@ -188,6 +188,7 @@
 .pb-modes button[aria-pressed="true"] { background: #fff; color: #3A2230; opacity: 1; box-shadow: 0 2px 6px rgba(0, 0, 0, .12); }
 .pb.big .pb-modes button { height: 48px; font-size: 18px; }
 .pb-hint { margin: 2px 0 8px; text-align: center; font-size: 15px; font-weight: 700; color: var(--pb-c); }
+.pb-undo { display: block; margin: -2px auto 10px; padding: 6px 14px; border: 0; border-radius: 16px; background: rgba(0, 0, 0, .06); color: inherit; font: 700 14px/1.2 var(--font-body, inherit); cursor: pointer; }
 .pb-unlock { display: block; margin: 0 auto 10px; height: 42px; padding: 0 18px; border-radius: 21px; border: 2px solid var(--pb-c); background: #fff; color: var(--pb-c); font: 700 16px/1 var(--font-body, inherit); cursor: pointer; }
 .pb-coins { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 10px 12px; margin-bottom: 14px; }
 .pb-coins .br { flex-basis: 100%; height: 0; } /* 5€ 지폐 한 줄, 동전 한 줄 */
@@ -288,7 +289,10 @@
     const W = (path, v) => o.write(path, v);
     const by = () => (o.by ? { by: o.by() } : {});
     const zoom = o.big ? 1.25 : 1;
-    let alive = true, pending = 0, timer = 0, mode = 'in', buyKey = '', wasLocked = null, msgT = 0;
+    let alive = true, pending = 0, timer = 0, mode = 'in', buyKey = '', wasLocked = null, msgT = 0, coinsNow = [], reopenId = '', buyShown = false;
+    const sent = new Map(); // 이 기기에서 방금 쓴 기록 {id: 금액} — 폰은 가족 문서가 돌아와야 자료에 보여서, 그 전에도 금액에 셈
+    const total = () => { const m = moneyOf(); let t = sumOf(o.data()); for (const [id, a] of sent) { if (m[id]) sent.delete(id); else t += a; } return r2(t); };
+    const put = (m) => { const id = newId(); sent.set(id, m.amt); W(['money', id], m); return id; };
     const themeKey = () => themeOf(o.data());
     let shownTheme = '', histKey = '';
     const pig = el('button', { type: 'button', class: 'pb-pig' });
@@ -303,11 +307,18 @@
     const modes = el('div', { class: 'pb-modes' }, ...modeBtns);
     const hint = el('p', { class: 'pb-hint' });
     const unlockBtn = el('button', { type: 'button', class: 'pb-unlock', onclick: () => guard(() => render(false)) });
+    // ↩ 방금 넣은(꺼낸) 돈 하나 취소: 10초 안에 모으는 중이거나 '뭐 샀어?'를 고르는 중에
+    const undoBtn = el('button', { type: 'button', class: 'pb-undo', hidden: '', onclick: () => {
+      const v = coinsNow.pop(); if (v == null) return;
+      pending = r2(pending - v); snd.tap(1);
+      if (!coinsNow.length || !pending) { clearPending(); }
+      render(true);
+    } });
     const coins = el('div', { class: 'pb-coins' });
     const buy = el('div', { class: 'pb-buy', hidden: '' });
     const buyOwn = el('input', { class: 'pb-field', type: 'text', maxlength: '60' }); // 다시 그려도 쓰던 글이 남게 하나만
     const hist = el('ul', { class: 'pb-hist' });
-    const wrap = el('div', { class: 'pb' + (o.big ? ' big' : '') }, el('div', { class: 'pb-bank' }, pig, buddy, el('div', { class: 'pb-balrow' }, bal, fix)), modes, hint, unlockBtn, coins, buy, o.history && !o.historyEl ? hist : null, look);
+    const wrap = el('div', { class: 'pb' + (o.big ? ' big' : '') }, el('div', { class: 'pb-bank' }, pig, buddy, el('div', { class: 'pb-balrow' }, bal, fix)), modes, hint, undoBtn, unlockBtn, coins, buy, o.history && !o.historyEl ? hist : null, look);
     root.replaceChildren(wrap);
     if (o.history && o.historyEl) o.historyEl.replaceChildren(el('div', { class: 'pb' }, hist)); // 앱이 정한 자리 (버튼 아래 등)
 
@@ -339,7 +350,7 @@
       look.textContent = '🎨 ' + L().theme;
       const c = (getComputedStyle(wrap).color.match(/[\d.]+/g) || []).map(Number); // 앱 글자색이 밝으면 어두운 화면
       wrap.classList.toggle('dark', c.length >= 3 && 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2] > 160);
-      bal.textContent = fmt(r2(sumOf(o.data()) + pending));
+      bal.textContent = fmt(r2(total() + pending));
       if (popIt) anim(bal, 'pop');
       pig.setAttribute('aria-label', L().pig);
       fix.setAttribute('aria-label', L().fix); fix.title = L().fix;
@@ -347,10 +358,14 @@
       if (!msgT) hint.textContent = lk ? L().lockedHint : mode === 'out' ? L().outHint : L().hint;
       unlockBtn.textContent = L().unlock; unlockBtn.hidden = !lk;
       coins.classList.toggle('locked', lk);
+      const last = coinsNow[coinsNow.length - 1];
+      undoBtn.hidden = last == null; if (last != null) undoBtn.textContent = L().undo(coinText({ v: Math.abs(last) }, ''));
       // 💸 꺼낸 돈 → 뭐 샀어?
       buy.hidden = !(mode === 'out' && pending < 0);
-      if (!buy.hidden) {
-        buyOwn.placeholder = L().own;
+      if (buy.hidden) buyShown = false;
+      else if (buyShown) buy.querySelector('.h .amt').textContent = '−' + fmt(-pending);
+      else {
+        buyShown = true; buyOwn.placeholder = L().own;
         buy.replaceChildren(el('div', { class: 'h' }, el('span', { text: L().whatBuy }), el('span', { class: 'amt', text: '−' + fmt(-pending) })),
           pics(OUT_KEYS, buyKey, (v) => { buyKey = v; }), buyOwn,
           el('div', { class: 'pb-acts' }, el('button', { type: 'button', class: 'pb-btn ghost', text: L().cancel, onclick: () => { clearPending(); render(false); } }),
@@ -371,15 +386,16 @@
     // 모아 둔 돈을 기록 한 줄로: 넣은 돈 = '@coins', 꺼낸 돈 = 고른 그림 (직접 쓴 글이 있으면 그 글)
     function flush(ownText) {
       clearTimeout(timer);
-      if (!pending) return;
-      const amt = r2(pending), id = newId(), own = typeof ownText === 'string' ? ownText : buyOwn.value.trim();
+      if (!pending) { coinsNow = []; return ''; }
+      const amt = r2(pending), own = typeof ownText === 'string' ? ownText : buyOwn.value.trim();
       const m = { at: Date.now(), amt, note: amt > 0 ? '@coins' : own || (buyKey ? '@' + buyKey : ''), ...by() };
       if (amt < 0 && own) m.src = hasHangul(own) ? 'ko' : 'de';
-      pending = 0; buyKey = ''; buyOwn.value = '';
-      W(['money', id], m);
+      pending = 0; buyKey = ''; buyOwn.value = ''; coinsNow = [];
+      const id = put(m);
       if (own && o.onNote) o.onNote(id, m);
+      return id;
     }
-    function clearPending() { clearTimeout(timer); pending = 0; buyKey = ''; buyOwn.value = ''; }
+    function clearPending() { clearTimeout(timer); pending = 0; buyKey = ''; buyOwn.value = ''; coinsNow = []; }
     function plusPop(text, minus) {
       const r = pig.getBoundingClientRect();
       const t = el('div', { class: 'pb-plus' + (minus ? ' minus' : ''), text });
@@ -388,9 +404,9 @@
     }
     const coinText = (c, sign) => sign + (c.v >= 1 ? `${c.v} €` : `${Math.round(c.v * 100)} c`);
     function landed(c) {
-      if (!alive) return;
+      if (!alive || mode !== 'in') { put({ at: Date.now(), amt: c.v, note: '@coins', ...by() }); if (alive) render(true); return; }
       snd.coin(); anim(pig, 'bump'); hop();
-      pending = r2(pending + c.v);
+      pending = r2(pending + c.v); coinsNow.push(c.v);
       render(true); plusPop(coinText(c, '+'));
       clearTimeout(timer); timer = setTimeout(flush, GROUP_MS);
     }
@@ -409,8 +425,8 @@
     }
     // 💸 꺼내기: 저금통 구멍에서 그 돈 자리로 튀어나옴
     function takeOut(c, to) {
-      if (sumOf(o.data()) + pending - c.v < -0.001) { anim(bal, 'no'); snd.tap(0); say(L().notEnough); return; }
-      pending = r2(pending - c.v);
+      if (total() + pending - c.v < -0.001) { anim(bal, 'no'); snd.tap(0); say(L().notEnough); return; }
+      pending = r2(pending - c.v); coinsNow.push(-c.v);
       anim(pig, 'tip'); snd.coin(); render(true); plusPop(coinText(c, '−'), true);
       const { x: sx, y: sy } = slot(), f = flyer(c, sx - to.width / 2, sy - to.height / 2, to.width, to.height);
       const dx = to.left + to.width / 2 - sx, dy = to.top + to.height / 2 - sy;
@@ -479,7 +495,7 @@
       let key = isKey ? m0.note.slice(1) : '';
       const own = el('input', { class: 'pb-field', type: 'text', maxlength: '60', placeholder: L().own, value: isKey ? '' : m0.note || '' });
       sheet(el('h3', {}, el('span', { text: L().edit }), el('span', { class: 'amt ' + (m0.amt >= 0 ? 'plus' : 'minus'), text: (m0.amt >= 0 ? '+' : '−') + fmt(Math.abs(m0.amt)) })),
-        pics(keys.includes(key) ? keys : key ? [...keys, key] : keys, key, (v) => { key = v; }), own,
+        pics(keys.includes(key) ? keys : key ? [...keys, key] : keys, key, (v) => { key = v; if (v) own.value = ''; }), own,
         el('div', { class: 'pb-acts' },
           el('button', { type: 'button', class: 'pb-btn danger', text: '🗑 ' + L().del, onclick: () => { closeOv(); guard(() => { if (confirm(L().delAsk)) W(['money', id], null); }); } }),
           el('span', { class: 'grow' }),
@@ -488,27 +504,25 @@
             const cur = moneyOf()[id];
             closeOv();
             if (!cur) return;
-            const t = own.value.trim(), m = { ...cur, note: t || (key ? '@' + key : '') };
-            delete m.src; delete m.tr;
-            if (t) m.src = hasHangul(t) ? 'ko' : 'de';
-            if (t === cur.note && cur.tr) { m.src = cur.src; m.tr = cur.tr; } // 글을 안 바꿨으면 번역 그대로
-            W(['money', id], m); snd.tap(2);
-            if (t && t !== cur.note && o.onNote) o.onNote(id, m);
+            const t = own.value.trim(), note = t || (key ? '@' + key : '');
+            if (note === (m0.note || '')) return; // 안 바꿨으면 그대로 (그 사이 다른 기기에서 바꾼 것을 덮지 않게)
+            W(['money', id, 'note'], note); W(['money', id, 'src'], t ? (hasHangul(t) ? 'ko' : 'de') : null); W(['money', id, 'tr'], null); snd.tap(2);
+            if (t && o.onNote) o.onNote(id, { ...cur, note, src: hasHangul(t) ? 'ko' : 'de' });
           } })));
     }
     // ✏️ 금액 맞추기 (부모): 실제로 들어 있는 돈으로 — 차이만큼 숨은 기록
     function openAdj() {
       flush();
-      const inp = el('input', { class: 'pb-field', type: 'text', inputmode: 'decimal', maxlength: '9', value: r2(sumOf(o.data())).toFixed(2).replace('.', ',') });
+      const inp = el('input', { class: 'pb-field', type: 'text', inputmode: 'decimal', maxlength: '9', value: total().toFixed(2).replace('.', ',') });
       const err = el('p', { class: 'err', hidden: '' });
       sheet(el('h3', { text: L().adjTitle }), el('p', { text: L().adjHint }), inp, err,
         el('div', { class: 'pb-acts' }, el('button', { type: 'button', class: 'pb-btn ghost', text: L().cancel, onclick: closeOv }),
           el('button', { type: 'button', class: 'pb-btn', text: L().save, onclick: () => {
             const raw = inp.value.replace(/\s/g, '').replace('€', '').replace(',', '.'), target = r2(Number(raw));
             if (raw === '' || !(target >= 0)) { err.textContent = L().adjBad; err.hidden = false; return; }
-            const diff = r2(target - sumOf(o.data()));
+            const diff = r2(target - total());
             closeOv();
-            if (diff) W(['money', newId()], { at: Date.now(), amt: diff, note: '@adjust', ...by() });
+            if (diff) put({ at: Date.now(), amt: diff, note: '@adjust', ...by() });
           } })));
       setTimeout(() => { inp.focus(); inp.select(); }, 50);
     }
@@ -534,7 +548,10 @@
     function cheer() { if (!alive) return; confetti(pig); anim(pig, 'wig'); }
     const mq = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null, onScheme = () => render(false); // 화면 밝기가 바뀌면 다시 그림
     if (mq && mq.addEventListener) mq.addEventListener('change', onScheme);
-    const onVis = () => { if (document.hidden) flush(); };
+    const onVis = () => {
+      if (document.hidden) { const out = mode === 'out' && pending < 0 && !buyKey && !buyOwn.value.trim(), id = flush(); if (out && id) reopenId = id; mode = 'in'; return; }
+      if (reopenId && alive) { const id = reopenId; reopenId = ''; render(false); setTimeout(() => edit(id), 300); } // 돌아오면 무엇을 샀는지 고르기
+    };
     document.addEventListener('visibilitychange', onVis);
     window.addEventListener('pagehide', onHide);
     function onHide() { flush(); }

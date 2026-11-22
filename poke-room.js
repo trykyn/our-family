@@ -1,7 +1,7 @@
 /* 🥚 포켓몬 방 / 💖 티니핑 공주방(아린) — 우리가족 앱과 우리집 한눈에(아이패드)가 같이 씀. 다빈 · 아린 · 엄마 · 아빠 각자 방이 하나씩.
    네 명 모두 똑같이: 🎯 미션 탭에서 오늘 미션을 다 하면 선물 상자 → 스티커 + 열매/코인이 이 방 가방에 들어옴.
    처음엔 알 하나를 고름 (불꽃=파이리, 물=꼬부기, 풀=이상해씨, 번개=피카츄).
-   오늘 미션을 다 하면 선물 상자에서 열매(5가지) 또는 🪙 코인. 열매를 먹이면 알이 깨고(5개) 포켓몬이 진화(하트 10개, 15개).
+   오늘 미션을 다 하면 선물 상자에서 열매(5가지) 또는 🪙 코인. 열매를 먹이면 알이 깨고(3개) 포켓몬이 진화(하트 10개, 15개).
    좋아하는 열매는 하트 2개. 코인으로 새 알(10개)과 가구를 삼. 황금 스티커 = 🪙 3개, 황금 스티커 4개마다 🌟 황금 알(전설).
    🍚 돌보기 (다마고치, 2026-11-16): 밥 때(아침 7–12 · 점심 12–17 · 저녁 17–20)마다 방 친구 1~2마리가 배고파함 → 🍚 밥(공짜) → 🤚 쓰다듬기(꾹 누른 채 문지르기)
      → 다 하면 폴짝. 오늘 돌봐 준 친구(밥 · 쓰다듬기 · 목욕)는 미션 열매를 먹을 때 하트 +1 (하루 한 번 — 하트는 미션 열매로만, 2026-11-16 엄마). 하루 두 번 💩 (톡 눌러 치움). 밤엔 🌙 불 끄기 → 쿨쿨. 아침 첫 인사. 안 돌봐도 아프거나 떠나지 않음.
@@ -108,7 +108,7 @@
     };
   })();
   const HOME_MAX = 6, EGG_NEED = 3; // 알: 열매 3개 (2026-11-19 엄마: 5개는 너무 오래 걸림)
-  const BERRY_PRICE = 2; // 🛒 열매 1개 = 🪙 2
+  const BERRY_PRICE = 2, BERRY_DAY = 3; // 🛒 열매 1개 = 🪙 2, 하루 3개까지 (2026-11-22 엄마)
   const BERRY = Object.fromEntries(FS.BERRIES.map((b) => [b[0], b]));
   const jong = (w) => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c < 11172 ? c % 28 : 0; };
   const rang = (w) => w + (jong(w) ? '이랑' : '랑');
@@ -133,7 +133,7 @@
       soap: '목욕', ball: '공놀이', pill: '약', scrub: '뽀글뽀글 🫧', bathed: '뽀득뽀득! 깨끗해졌어요 ✨', bathIn: '첨벙! 욕조에 쏙 🫧', eggClean: '알은 반짝반짝 깨끗해요',
       soapHint: '🧼 씻길 친구를 톡톡톡 눌러요', ballHint: '⚽ 방바닥을 누르면 공을 던져요', pillHint: '💊 아픈 친구를 누르면 약을 줘요 (🪙 1개)', noPill: '💊 약이 없어요', noCoinPill: '🪙 코인이 1개 있어야 약을 줄 수 있어요. 푹 쉬면 이틀 뒤에 나아요',
       notSick: '안 아파요! 약은 아껴 둬요', cured: (n) => `💊 ${iga(n)} 다 나았어요! 고마워요`, sick: '🤒 아픈 친구가 있어요. 💊 약을 줘요', sickSay: (n) => `🤒 ${iga(n)} 감기에 걸렸어요… 💊 약을 주세요`,
-      caught: (n) => `🤧 ${iga(n)} 감기에 걸렸어요! 💊 약을 주세요`, achoo: '에취! 🤧', dirty: '🛁 목욕할 친구가 있어요. 🧼 비누로 씻겨 줘요',
+      caught: (n) => `🤧 ${iga(n)} 감기에 걸렸어요! 💊 약을 주세요`, bathCure: (n) => `🛁 ${iga(n)} 깨끗해지니 감기도 다 나았어요!`, berryLimit: (n) => `🍓 열매는 하루에 ${n}개까지 살 수 있어요. 내일 또 와요!`, berryToday: (a, n) => `오늘 ${a} / ${n}개`, achoo: '에취! 🤧', dirty: '🛁 목욕할 친구가 있어요. 🧼 비누로 씻겨 줘요',
       wishPlay: (n) => `💭 ${iga(n)} ⚽ 공놀이 하고 싶대요!`, wishBerry: (n, b) => `💭 ${iga(n)} ${b} 먹고 싶대요!`, wishHint: '💭 소원이 있는 친구가 있어요. 눌러 봐요', wishDone: (n) => `🌟 ${n}의 소원을 들어줬어요! 하트 +1`,
       age: (d) => (d ? `🎂 태어난 지 ${d}일` : '🎂 오늘 태어났어요'), party: (n, d, c) => `🎂 ${iga(n)} 태어난 지 ${d}일! 축하 선물 🪙 ${c}`, cheer: (ic, t) => `${ic} ${t} 했어?`,
       yay: '미션 다 했어! 최고! 🎉', allDone: '🎉 오늘 미션 다 했어요! 친구들이 신났어요', pills: '💊 약', pillTip: '아픈 친구에게 주면 바로 나아요', bought: '💊 약을 샀어요',
@@ -157,7 +157,7 @@
       soap: 'Baden', ball: 'Ball', pill: 'Medizin', scrub: 'Schrubb 🫧', bathed: 'Blitzsauber! ✨', bathIn: 'Platsch! Ab in die Wanne 🫧', eggClean: 'Eier sind schon sauber',
       soapHint: '🧼 Tippe 3× auf wen du baden willst', ballHint: '⚽ Tippe auf den Boden zum Werfen', pillHint: '💊 Tippe auf den Kranken (kostet 🪙 1)', noPill: '💊 Keine Medizin', noCoinPill: '🪙 Medizin kostet 1 Münze. Nach 2 Tagen Ruhe wird es auch so gesund',
       notSick: 'Nicht krank! Heb die Medizin auf', cured: (n) => `💊 ${n} ist wieder gesund! Danke`, sick: '🤒 Jemand ist krank. Gib 💊 Medizin', sickSay: (n) => `🤒 ${n} ist erkältet… gib 💊 Medizin`,
-      caught: (n) => `🤧 ${n} hat sich erkältet! Gib 💊 Medizin`, achoo: 'Hatschi! 🤧', dirty: '🛁 Jemand muss baden. Nimm die 🧼 Seife',
+      caught: (n) => `🤧 ${n} hat sich erkältet! Gib 💊 Medizin`, bathCure: (n) => `🛁 ${n} ist sauber – und die Erkältung ist weg!`, berryLimit: (n) => `🍓 Höchstens ${n} Beeren pro Tag. Morgen wieder!`, berryToday: (a, n) => `Heute ${a} / ${n}`, achoo: 'Hatschi! 🤧', dirty: '🛁 Jemand muss baden. Nimm die 🧼 Seife',
       wishPlay: (n) => `💭 ${n} will ⚽ Ball spielen!`, wishBerry: (n, b) => `💭 ${n} möchte ${b}!`, wishHint: '💭 Jemand hat einen Wunsch. Tipp es an', wishDone: (n) => `🌟 Wunsch von ${n} erfüllt! +1 Herz`,
       age: (d) => (d ? `🎂 ${d} Tage alt` : '🎂 Heute geschlüpft'), party: (n, d, c) => `🎂 ${n} ist ${d} Tage alt! Geschenk 🪙 ${c}`, cheer: (ic, t) => `${ic} ${t} schon gemacht?`,
       yay: 'Mission geschafft! Super! 🎉', allDone: '🎉 Heute alle Missionen geschafft! Alle freuen sich', pills: '💊 Medizin', pillTip: 'Macht Kranke sofort gesund', bought: '💊 Medizin gekauft',
@@ -838,17 +838,18 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     const sfx = (k) => { if (!o.snd || muted) return; if (k === 'pour') pourSound(); else beep(SFX[k]); }; // 소리를 넘긴 앱에서만
     let sayAt = 0;
     function voice(m, big) { // 🔊 포켓몬 울음소리 / 티니핑 '핑♪' + 이름 (이름은 8초에 한 번, 태어날 때 · 친해질 때는 꼭)
-      if (muted || !o.snd || !m || !hatched(m)) return;
+      if (!alive || muted || !o.snd || !m || !hatched(m)) return;
       if (SET.key !== 'ping') { playCry(m.p); return; }
       pingTone(m.p);
       if (!big && Date.now() - sayAt < 8000) return;
       sayAt = Date.now();
-      setTimeout(() => sayName(`${name(m.p).replace(/\s*\d+\s*(기)?$/, '')}!`, lang()), 300);
+      setTimeout(() => { if (alive) sayName(`${name(m.p).replace(/\s*\d+\s*(기)?$/, '')}!`, lang()); }, 300);
     }
     const roomEl = el('div', { class: 'pr-room' }, el('div', { class: 'pr-win', 'aria-hidden': 'true' }, el('i'), el('b')));
     const toolRow = el('div', { class: 'pr-tools' });
     const berryRow = el('div', { class: 'pr-berries' });
-    const coinEl = el('button', { type: 'button', class: 'pr-coins', onclick: () => coinSheet(o.data(), o.kid, lang()) }); // 🪙 누르면 코인 기록
+    const closers = new Set(); // 열려 있는 창 (도감 카드 · 코인 기록) — 방을 닫으면 같이 닫음
+    const coinEl = el('button', { type: 'button', class: 'pr-coins', onclick: () => { const c = coinSheet(o.data(), o.kid, lang()); if (typeof c === 'function') closers.add(c); } }); // 🪙 누르면 코인 기록
     const btnShop = el('button', { type: 'button', 'aria-pressed': 'false' });
     const btnDex = el('button', { type: 'button', 'aria-pressed': 'false' });
     const btnLight = el('button', { type: 'button', hidden: '' });
@@ -890,10 +891,11 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       const cur = homeIds();
       if (cur.includes(id)) return;
       if (cur.length >= HOME_MAX) {
-        const all = pk().mons || {}, out = cur.find((x) => all[x] && hatched(all[x]) && !(SET.romi && SET.romi.has(all[x].p)));
+        const all = pk().mons || {}, notRomi = (x) => all[x] && !(SET.romi && SET.romi.has(all[x].p));
+        const out = cur.find((x) => notRomi(x) && hatched(all[x])) || cur.find(notRomi); // 친구 먼저, 없으면 가장 오래된 알
         if (!out) return;
         cur.splice(cur.indexOf(out), 1);
-        const n = name(all[out].p); setTimeout(() => news(L().homeSwap(n)), 50); // 새 친구 알림 다음에
+        const n = hatched(all[out]) ? name(all[out].p) : eggName(all[out].egg); setTimeout(() => news(L().homeSwap(n)), 50); // 새 친구 알림 다음에
       }
       W(['home'], [...cur, id]);
     }
@@ -1017,7 +1019,8 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       // 🤧 감기: 사흘 넘게 못 왔으면 (반반) 또는 목욕을 아주 오래 못 했으면 — 하루에 한 마리만
       const now = Date.now(), all = pk().mons || {}, ids = homeIds().filter((id) => all[id] && hatched(all[id]) && !sickOf({ id, ...all[id] }));
       const away = wk && wk < dayKey(now - 3 * 864e5) && hash(t + o.kid) < 0.5;
-      const who = ids.find((id) => now > bathDue({ id, ...all[id] }) + 3 * 864e5) || (away ? [...ids].sort((a, b) => hash(a + t) - hash(b + t))[0] : '');
+      const fresh = (id) => now - (care(id).s || 0) > 5 * 864e5; // 감기 끝나고 사흘은 다시 안 걸림
+      const who = ids.filter(fresh).find((id) => now > bathDue({ id, ...all[id] }) + 3 * 864e5) || (away ? [...ids].filter(fresh).sort((a, b) => hash(a + t) - hash(b + t))[0] || '' : '');
       if (who) { setCare(who, { s: now }); news(L().caught(name(all[who].p))); }
       setTimeout(party, 1500);
     }
@@ -1052,7 +1055,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     // 머리 위 말풍선: 🤒 > 🍚 > 🤚 > 💭 소원 > 🛁
     function wantOf(m, set, w) {
       if (!m || !hatched(m)) return '';
-      if (sickOf(m)) return 'sick';
+      if (sickOf(m)) return dirtyOf(m) ? 'bath' : 'sick'; // 더러워서 걸린 감기: 🛁 를 보여 줘야 목욕으로 낫게 할 수 있음
       const nd = needOf(m, set);
       if (nd) return nd === 'eat' ? 'rice' : 'hand';
       if (w && w.id === m.id) return `w:${w.kind === 'play' ? 'ball' : w.berry}`; // 💭 소원
@@ -1074,12 +1077,14 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       const tub = el('span', { class: 'pr-tub', html: TUB, style: `left:${x}%;top:${bottom.toFixed(2)}%;width:${tw.toFixed(0)}px;z-index:${(parseInt(e.style.zIndex, 10) || 50) + 1}` });
       roomEl.append(tub); e.classList.add('inbath'); bubble(x, y - 4, L().bathIn); sfx('pour');
       setTimeout(() => hearts(x, y + 2, 5, 'bubbles', true), 700);
-      const was = dirtyOf(m);
+      const was = dirtyOf(m), cold = sickOf(m);
+      setCare(m.id, { b: Date.now(), ...(cold ? { m: Date.now() } : {}) }); // 바로 저장: 욕조 그림 중에 창을 닫아도 목욕한 것
       setTimeout(() => {
         tub.classList.add('out'); setTimeout(() => tub.remove(), 520);
         e.classList.remove('inbath'); for (const f of e.querySelectorAll('.foam')) f.remove(); e._shower = false;
         if (!alive) return;
-        setCare(m.id, { b: Date.now() }); hearts(x, y, 4, 'sparkle', true); snd.stick(); happy(e); bubble(x, y, L().bathed);
+        hearts(x, y, 4, 'sparkle', true); snd.stick(); happy(e); bubble(x, y, L().bathed);
+        if (cold) setTimeout(() => news(L().bathCure(name(m.p))), 400);
         if (was) setTimeout(() => hearts(x, y, 4), 700);
         renderRoom(); renderBar();
       }, 2300);
@@ -1136,14 +1141,14 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     function party() {
       if (!alive || isNight() || !root.offsetParent) return;
       const all = pk().mons || {}, bd = pk().bd || {}, now = Date.now();
-      for (const id of homeIds()) {
+      for (const id of Object.keys(all)) {
         const m = all[id];
         if (!m || !hatched(m) || !m.h) continue;
-        const age = Math.floor((now - m.h) / 864e5), ms = MILE.filter(([d]) => age >= d).pop();
-        if (!ms || Math.max(bd[id] || 0, local.bd[id] || 0) >= ms[0]) continue;
+        const age = Math.floor((now - m.h) / 864e5), had = Math.max(bd[id] || 0, local.bd[id] || 0), due = MILE.filter(([d]) => age >= d && d > had);
+        if (!due.length) continue;
+        const ms = due[due.length - 1];
         local.bd[id] = ms[0]; W(['bd', id], ms[0]);
-        for (let i = 0; i < ms[1]; i++) W(['items', `b${id}_${ms[0]}_${i}`], 'coin'); // 정해진 이름 = 두 기기가 같이 줘도 한 번
-        coinLog(ms[1], `bd:${m.p}:${ms[0]}`, `bd${id}_${ms[0]}`);
+        for (const [d, n] of due) { for (let i = 0; i < n; i++) W(['items', `b${id}_${d}_${i}`], 'coin'); coinLog(n, `bd:${m.p}:${d}`, `bd${id}_${d}`); } // 정해진 이름 = 두 기기가 같이 줘도 한 번
         const e = monEls.get(id);
         if (e) {
           const x = parseFloat(e.style.left), y = parseFloat(e.style.top);
@@ -1193,9 +1198,9 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
           rows.push(el('div', { class: 'pc-nx' }, el('span', { text: de ? 'Nächste Form ' : '다음 모습 ' }), ...nexts.slice(0, 3).map((q) => el('img', { src: SET.art(q), alt: '', class: seen.has(String(q)) ? 'pc-seen' : '' }))));
         }
         if (SET.romi && SET.romi.has(m.p) && (m.forms || []).length > 1) { // 👑 얻은 모습 중에서 고르기
-          const { id: mid, ...rest } = m;
+          const mid = m.id;
           rows.push(el('div', { class: 'pc-forms' }, el('span', { text: L().forms }), ...m.forms.map((q) => el('button', { type: 'button', class: q === m.p ? 'on' : '', 'aria-label': name(q),
-            onclick: (ev) => { ev.stopPropagation(); if (q === m.p) return; W(['mons', mid], { ...rest, p: q }); snd.stick(); closeCard(); } }, el('img', { src: SET.art(q), alt: '' })))));
+            onclick: (ev) => { ev.stopPropagation(); if (q === m.p) return; W(['mons', mid, 'p'], q); snd.stick(); closeCard(); } }, el('img', { src: SET.art(q), alt: '' })))));
         }
         if (nexts.length) { /* 위에서 그림 */ } else if (SET.friend) rows.push(...bar(f % FRIEND, FRIEND, 'heart', lv >= 3 ? (de ? `💗${lv} Beste Freunde` : `💗${lv} 단짝`) : `💗${lv} → 💗${lv + 1}`));
         else rows.push(...bar(1, 1, 'star', de ? '⭐ Letzte Entwicklung!' : '⭐ 최종 진화!', `💖 ${f}`));
@@ -1406,14 +1411,14 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       if (todo.length) {
         grantAt = Date.now();
         for (const w of todo) { for (const x of ['a', 'b', 'c']) W(['items', `g${w}${x}`], 'coin'); for (const x of ['d', 'e', 'f']) W(['items', `g${w}${x}`], FS.rewardItem(FS.newRewardD())); W(['gp', w], 1); }
-        news(L().goldBonus); return;
+        news(L().goldBonus); setTimeout(grants, 3200); return;
       }
       const all = pk().mons || {};
       for (let i = 1; i <= Math.floor(golds.length / 4); i++) {
         if (all[`gold${i}`]) continue;
         grantAt = Date.now();
         W(['mons', `gold${i}`], { egg: 'gold', f: 0, at: Date.now() }); addHome(`gold${i}`);
-        news(L().goldEgg); return;
+        news(L().goldEgg); setTimeout(grants, 3200); return;
       }
       // 👑 로미는 선물 (2026-11-17 엄마: 변신 모습이 많아서 처음부터): 티니핑 방에 한 번만. 예전에 🪙 20 주고 산 로미가 있으면 그 코인을 돌려줌
       //   room.romi = 1 (선물 줌) → 2 (방에도 나옴). 방이 꽉 차(6명) 있어도 로미는 맨 앞에 넣어 꼭 보이게 (맨 끝 친구는 친구 목록으로 — 도감에서 다시 넣을 수 있음)
@@ -1430,7 +1435,11 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
         }
         W(['romi'], 2);
         const h = homeIds();
-        if (rid && !h.includes(rid)) { W(['home'], [rid, ...h].slice(0, HOME_MAX)); if (rs) news(L().romiHome); }
+        if (rid && !h.includes(rid)) {
+          const cur = [...h], all = pk().mons || {};
+          if (cur.length >= HOME_MAX) { const out = cur.find((x) => all[x] && hatched(all[x])) || cur[0]; cur.splice(cur.indexOf(out), 1); const n = all[out] && hatched(all[out]) ? name(all[out].p) : ''; if (n) setTimeout(() => news(L().homeSwap(n)), 50); }
+          W(['home'], [rid, ...cur]); if (rs) news(L().romiHome);
+        }
       }
     }
     let newsAt = 0;
@@ -1683,7 +1692,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
         for (const z of e.querySelectorAll('.zz, .need')) z.remove();
         if (isNight()) { if (!e._egg) e.append(dark ? el('span', { class: 'zz', html: ICON.zz }) : el('span', { class: 'need', html: ICON.yawn })); } // 불 켜 두면 하품
         else { const ic = wantOf(all[id], set, w); if (ic) e.append(el('span', { class: 'need' + (ic.startsWith('w:') ? ' wish' : ''), html: ICON[ic.replace('w:', '')] })); }
-        e.classList.toggle('sick', sickOf(all[id])); e.classList.toggle('dirty', !isNight() && dirtyOf(all[id]) && !sickOf(all[id]));
+        e.classList.toggle('sick', sickOf(all[id])); e.classList.toggle('dirty', !isNight() && dirtyOf(all[id]));
         sizeImg(e);
       }
       // 🌙 불 끄면 침대가 있으면 두 마리까지 침대에서 쿨쿨
@@ -1743,8 +1752,10 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       btnShop.replaceChildren(icon('shop'), L().shop); btnShop.setAttribute('aria-pressed', String(open === 'shop'));
       btnDex.replaceChildren(icon('book'), `${SET.dex.filter((id) => seenSet().has(String(id))).length}/${SET.dex.length}`); btnDex.setAttribute('aria-pressed', String(open === 'dex'));
       if (!msgUntil || Date.now() > msgUntil) msg.replaceChildren(...rich(feeding === 'rice' ? L().riceHint : feeding === 'soap' ? L().soapHint : feeding === 'ball' ? L().ballHint : feeding === 'pill' ? L().pillHint : feeding ? L().feedHint(`${BERRY[feeding][1]} ${bName(feeding)}`)
-        : !mons().length ? '' : mons().some((m) => !hatched(m) && (m.q || (m.f || 0) >= EGG_NEED)) ? L().tapEgg : isNight() ? (lightsOff() || !awake() ? L().sleep : L().sleepy) : hint()));
+        : !mons().length ? '' : homeMons().some((m) => !hatched(m) && (m.q || (m.f || 0) >= EGG_NEED)) ? L().tapEgg : isNight() ? (lightsOff() || !awake() ? L().sleep : L().sleepy) : hint()));
     }
+    // 오늘 산 열매 수 (room.bb = { d: 날짜, n }) — 이 기기에서 방금 산 것도 바로 셈
+    function berriesToday() { const t = dayKey(Date.now()), a = pk().bb || {}, b = local.bb || {}; return Math.max(a.d === t ? a.n || 0 : 0, b.d === t ? b.n || 0 : 0); }
     function buy(key, price, done) {
       const c = count('coin');
       if (c < price) { say(L().needCoin(price - c)); armed = ''; renderPanel(); return; }
@@ -1761,8 +1772,10 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       const coins = count('coin');
       if (open === 'shop') {
         const deco = decoData();
-        const berries = el('div', { class: 'pr-grid' }, ...FS.BERRIES.map(([b, , ko, de]) => el('button', { type: 'button', class: armed === `berry:${b}` ? 'armed' : coins < BERRY_PRICE ? 'poor' : '',
-          onclick: () => buy(`berry:${b}`, BERRY_PRICE, () => { W(['items', uid('s')], b); say(L().berryGot(lang() === 'de' ? de : ko)); }) },
+        const bbN = berriesToday(), full = bbN >= BERRY_DAY;
+        const berries = el('div', { class: 'pr-grid' }, ...FS.BERRIES.map(([b, , ko, de]) => el('button', { type: 'button', class: armed === `berry:${b}` ? 'armed' : full || coins < BERRY_PRICE ? 'poor' : '',
+          onclick: () => { if (berriesToday() >= BERRY_DAY) { say(L().berryLimit(BERRY_DAY)); snd.boing(); return; }
+            buy(`berry:${b}`, BERRY_PRICE, () => { const v = { d: dayKey(Date.now()), n: berriesToday() + 1 }; local.bb = v; W(['bb'], v); W(['items', uid('s')], b); say(L().berryGot(lang() === 'de' ? de : ko)); }); } },
           el('span', { class: 'bry' }, icon(b)), el('span', { class: 'n', text: lang() === 'de' ? de : ko }), el('span', {}, icon('coin'), `${BERRY_PRICE}`))));
         const eggs = el('div', { class: 'pr-grid' }, ...SET.eggs.map((egg) => el('button', { type: 'button', class: armed === `egg:${egg}` ? 'armed' : coins < FS.EGG_PRICE ? 'poor' : '',
           onclick: () => buy(`egg:${egg}`, FS.EGG_PRICE, () => { const id = uid('e'); if (!pk().start) W(['start'], Date.now()); W(['mons', id], { egg, f: 0, at: Date.now() }); addHome(id); news(L().eggCame(eggName(egg))); }) },
@@ -1796,7 +1809,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
               meet(id); addHome(nid); news(L().whoCame(name(id))); setTimeout(() => voice({ p: id, h: 1 }, true), 500); });
           } }, el('img', { src: SET.art(id), alt: '', loading: 'lazy' }), el('span', { class: 'n', text: name(id) }), has ? el('span', { text: '✓' }) : el('span', {}, icon('coin'), `${price}`));
         })) : null;
-        panel.replaceChildren(el('h4', {}, el('span', {}, icon('coin'), L().shopHead(coins)), closeB), el('h4', {}, el('span', {}, ...rich(L().berries))), el('p', { text: L().berryTip }), berries,
+        panel.replaceChildren(el('h4', {}, el('span', {}, icon('coin'), L().shopHead(coins)), closeB), el('h4', {}, el('span', {}, ...rich(L().berries))), el('p', { text: `${L().berryTip} · ${L().berryToday(bbN, BERRY_DAY)}` }), berries,
           el('h4', {}, el('span', { text: L().eggs })), eggs,
           ...(who ? [el('h4', {}, el('span', {}, ...rich(L().whoHead))), el('p', { text: L().whoTip }), who] : []), // 포켓몬 방엔 없음 (replaceChildren 은 null 을 글자로 넣음)
           el('h4', {}, el('span', {}, ...rich(L().bgHead))), el('p', { text: L().bgTip }), bgGrid,
@@ -1836,7 +1849,8 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
       const box = el('div', { class: 'dc', style: `--t1:${col};--t2:${isPoke ? '#FFF6E0' : '#FFE3F1'}` });
       const ov = el('div', { class: 'pr-dexcard', role: 'dialog', 'aria-label': name(id), onclick: (e) => { if (e.target === ov) close(); } }, box);
       const esc = (e) => { if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') go(-1); else if (e.key === 'ArrowRight') go(1); };
-      function close() { ov.remove(); document.removeEventListener('keydown', esc); }
+      function close() { ov.remove(); document.removeEventListener('keydown', esc); closers.delete(close); }
+      closers.add(close);
       const i0 = seenL.findIndex((x) => String(x) === String(id));
       function go(d) { const n = seenL[i0 + d]; if (n != null) { snd.tap(2); close(); dexCard(n); } }
       const art = el('button', { type: 'button', class: 'dc-art', 'aria-label': D.cry, onclick: () => { art.classList.remove('boing'); void art.offsetWidth; art.classList.add('boing'); voice({ p: id, h: 1 }, true); } }, el('img', { src: SET.art(id), alt: '' }));
@@ -1902,13 +1916,18 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     const nightTimer = setInterval(() => { if (alive && root.offsetParent) { renderRoom(); renderBar(); } }, 60e3); // 밤낮 · 밥 때 · 💩 (시간으로 바뀌는 것)
     const ro = window.ResizeObserver ? new ResizeObserver(() => { if (alive) renderRoom(); }) : null;
     if (ro) ro.observe(roomEl);
-    function destroy() { alive = false; clearInterval(timer); clearInterval(nightTimer); clearTimeout(upT); if (ro) ro.disconnect(); }
+    function destroy() {
+      alive = false; clearInterval(timer); clearInterval(nightTimer); clearTimeout(upT); if (ro) ro.disconnect();
+      for (const c of [...closers]) c(); closers.clear();
+      try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch {}
+    }
     renderAll();
     // 쓰기는 mount 가 끝난 다음에 (앱이 쓰자마자 다시 그리면서 방을 또 만들지 않게)
     setTimeout(hangulLog, 600);
     setTimeout(grants, 900);
     setTimeout(refundGone, 1200);
     setTimeout(greet, 1600);
+    setTimeout(() => { if (alive) for (const m of mons()) if (!hatched(m) && (m.q || (m.f || 0) >= EGG_NEED) && !homeIds().includes(m.id)) addHome(m.id); }, 2200);
     setTimeout(party, 4000);
     setTimeout(() => { // 가구 · 장소 그림 미리 받아 두기 ('?' 안 보이게) — 내 방 + 산 장소만, 이 페이지에서 한 번씩
       if (!alive) return;

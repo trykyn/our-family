@@ -424,7 +424,8 @@
   };
 
   // 개수 규칙: 작은 스티커 small 개 = 큰 스티커 1장, 큰 스티커 big 장 = 선물
-  const cfgOf = (kidData, k) => ({ small: k === 'arin' ? 7 : 10, big: 4, reward: '', bigReward: '', start: 0, ...((kidData && kidData.cfg) || {}) });
+  const cfgOf = (kidData, k) => { const c = { small: k === 'arin' ? 7 : 10, big: 4, reward: '', bigReward: '', start: 0, ...((kidData && kidData.cfg) || {}) };
+    c.big = Math.min(8, Math.max(2, Math.round(Number(c.big)) || 4)); c.start = Number(c.start) || 0; return c; }; // 황금 스티커 2~8개 (이상한 값이면 4)
   const stickersOf = (kidData) => Object.entries((kidData && kidData.stickers) || {}).map(([id, s]) => ({ id, ...s })).sort((a, b) => (a.at || 0) - (b.at || 0));
   const boardOf = (kidData, k) => { const c = cfgOf(kidData, k); return stickersOf(kidData).filter((s) => (s.at || 0) >= (c.start || 0)); };
   function progressOf(kidData, k) {
@@ -479,8 +480,9 @@
       const bag = (x) => (kidData[x] && kidData[x].items ? kidData[x].items[got] : '');
       const it = got && !s ? bag(ROOM) || bag('poke') : ''; // 예전 엄마·아빠 방 선물 (스티커 없이 열매/코인만)
       const itD = it === 'coin' ? 2100 : it ? 2000 + BERRIES.findIndex((b) => b[0] === it) : -1;
-      const off = !got && (sick || !!(md[key] && md[key].off));
-      return { key, i, got: !!got, off, sick, id: got || '', d: s && typeof s.d === 'number' ? s.d : itD >= 2000 ? itD : i,
+      const rest = !got && missionsOf(kidData, k).length > 0 && !missionsOn(kidData, k, key).length; // 미션이 없는 날 (평일만 미션 → 주말) = 저절로 쉬는 날
+      const off = !got && (sick || rest || !!(md[key] && md[key].off));
+      return { key, i, got: !!got, off, sick, rest, id: got || '', d: s && typeof s.d === 'number' ? s.d : itD >= 2000 ? itD : i,
         status: got ? 'got' : off ? 'off' : key === today ? 'today' : key < today ? 'missed' : 'future' };
     });
     const count = days.filter((x) => x.got).length, offs = days.filter((x) => x.off).length;
@@ -502,7 +504,8 @@
     const c = cfgOf(kidData, k);
     const golds = Object.entries((kidData && kidData.golds) || {}).map(([week, g]) => ({ week, ...g }))
       .filter((g) => (g.at || 0) >= (c.start || 0)).sort((a, b) => (a.at || 0) - (b.at || 0));
-    return { c, golds, need: c.big, count: Math.min(golds.length, c.big), gift: golds.length >= c.big };
+    return { c, golds, need: c.big, count: Math.min(golds.length, c.big), gift: golds.length >= c.big, extra: Math.max(0, golds.length - c.big),
+      nextStart: golds.length > c.big ? (golds[c.big - 1].at || 0) + 1 : 0 }; // 새 판: 넘게 모은 것은 다음 판으로
   }
   const missionIcon = (x) => (MISSIONS[x.id] ? MISSIONS[x.id][0] : x.ic || '⭐');
   /* ── 🎯 미션 아이콘: 직접 그린 귀여운 그림 (이모지 대신). 직접 쓴 미션은 고른 이모지 그대로 ── */
