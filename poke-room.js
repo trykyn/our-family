@@ -120,7 +120,7 @@
       ate: (n) => `냠냠! ${n}`, fav: '좋아해요! 💖💖', hatched: (n) => `펑! ${iga(n)} 태어났어요!`, shinyHatch: (n) => `✨ 반짝이 ${iga(n)} 태어났어요!!`,
       evolved: (a, b) => `${iga(a)} ${euro(b)} 진화했어요!`, eggInfo: (n) => `🥚 열매 ${n}개 더 먹으면 태어나요`, toEvo: (n) => `진화까지 하트 ${n}개`, likes: (b) => `좋아하는 열매 ${b}`,
       shopHead: (c) => `코인 ${c}개`, berries: '🍓 열매', berryTip: '좋아하는 열매를 주면 하트 2개!', berryGot: (b) => `${b} 샀어요! 아래 열매 칸에 있어요`, eggs: '🥚 알', furn: '🪑 가구', bgHead: '🖼️ 장소 바꾸기', bgTip: '산 장소는 눌러서 언제든 바꿔요', bgOn: '사용 중', needCoin: (n) => `코인이 ${n}개 더 필요해요`, again: '한 번 더 누르면 사요',
-      eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, whoHead: '👑 로미와 친구들', whoTip: '알에서는 안 나와요. 가게에서 데려와요. 로미는 처음부터 선물로 놀러 오고, 하트 15개마다 새 모습으로 변신해요!', romiGift: '👑 로미가 선물로 놀러 왔어요! 하트 15개마다 변신해요', romiHome: '👑 로미가 방에 나왔어요!', romiBack: (c) => `👑 로미는 이제 선물이에요! 로미 살 때 쓴 🪙 코인 ${c}개를 돌려받았어요`, whoCame: (n) => `👑 ${iga(n)} 놀러 왔어요!`, whoHave: (n) => `${iga(n)} 벌써 우리 방에 있어요`, forms: '모습 고르기', decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
+      eggCame: (n) => `🥚 ${iga(n)} 왔어요!`, allSeen: '✓ 다 만났어요', whoHead: '👑 로미와 친구들', whoTip: '알에서는 안 나와요. 가게에서 데려와요. 로미는 처음부터 선물로 놀러 오고, 하트 15개마다 새 모습으로 변신해요!', romiGift: '👑 로미가 선물로 놀러 왔어요! 하트 15개마다 변신해요', romiHome: '👑 로미가 방에 나왔어요!', romiBack: (c) => `👑 로미는 이제 선물이에요! 로미 살 때 쓴 🪙 코인 ${c}개를 돌려받았어요`, whoCame: (n) => `👑 ${iga(n)} 놀러 왔어요!`, whoHave: (n) => `${iga(n)} 벌써 우리 방에 있어요`, forms: '모습 고르기', decoTip: '산 가구는 눌러서 놓거나 치워요. 방에서 끌어서 옮겨요.',
       homeHead: (n) => `방에 나온 친구 ${n} / ${HOME_MAX} — 눌러서 넣고 빼요`, homeFull: `방에는 ${HOME_MAX}마리까지 나올 수 있어요`, homeSwap: (n) => `🏠 방이 꽉 차서 ${iga(n)} 친구 목록에서 쉬어요 (📖 에서 다시 넣어요)`, dexHead: (n, N) => `도감 ${n} / ${N}`,
       tapEgg: '🥚 알을 톡 눌러 봐요! 바로 깨어나요', goldBonus: '🏅 황금 스티커 보너스! 🪙 코인 3개 + 🍓 열매 3개', coinLog: '기록', goldEgg: '🌟 황금 알이 생겼어요! 전설의 포켓몬이 들어 있대요', sleep: '쿨쿨… 밤이라 자고 있어요',
       rice: '밥', riceHint: '🍚 밥 줄 친구를 눌러요', full: (n) => `${n}: 배불러요 😋`, yum: '냠냠! 맛있어요 😋', eggRice: '알은 열매만 먹어요',
@@ -144,7 +144,7 @@
       ate: (n) => `Mampf! ${n}`, fav: 'Lecker! 💖💖', hatched: (n) => `Plopp! ${n} ist geschlüpft!`, shinyHatch: (n) => `✨ Ein schillerndes ${n} ist geschlüpft!!`,
       evolved: (a, b) => `${a} hat sich zu ${b} entwickelt!`, eggInfo: (n) => `🥚 Noch ${n} Beeren bis zum Schlüpfen`, toEvo: (n) => `Noch ${n} Herzen bis zur Entwicklung`, likes: (b) => `Lieblingsbeere ${b}`,
       shopHead: (c) => `${c} Münzen`, berries: '🍓 Beeren', berryTip: 'Lieblingsbeere = 2 Herzen!', berryGot: (b) => `${b} gekauft! Liegt unten bei den Beeren`, eggs: '🥚 Eier', furn: '🪑 Möbel', bgHead: '🖼️ Ort wechseln', bgTip: 'Gekaufte Orte jederzeit antippen zum Wechseln', bgOn: 'Aktiv', needCoin: (n) => `Dir fehlen noch ${n} Münzen`, again: 'Nochmal tippen zum Kaufen',
-      eggCame: (n) => `🥚 Ein ${n} ist da!`, whoHead: '👑 Romi & Freunde', whoTip: 'Kommen nicht aus Eiern – hier abholen. Romi kommt gleich als Geschenk und verwandelt sich alle 15 Herzen neu!', romiGift: '👑 Romi ist als Geschenk da! Alle 15 Herzen verwandelt sie sich', romiHome: '👑 Romi ist jetzt im Zimmer!', romiBack: (c) => `👑 Romi ist jetzt ein Geschenk – 🪙 ${c} Münzen zurück`, whoCame: (n) => `👑 ${n} ist zu Besuch!`, whoHave: (n) => `${n} ist schon da`, forms: 'Aussehen wählen', decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
+      eggCame: (n) => `🥚 Ein ${n} ist da!`, allSeen: '✓ Alle getroffen', whoHead: '👑 Romi & Freunde', whoTip: 'Kommen nicht aus Eiern – hier abholen. Romi kommt gleich als Geschenk und verwandelt sich alle 15 Herzen neu!', romiGift: '👑 Romi ist als Geschenk da! Alle 15 Herzen verwandelt sie sich', romiHome: '👑 Romi ist jetzt im Zimmer!', romiBack: (c) => `👑 Romi ist jetzt ein Geschenk – 🪙 ${c} Münzen zurück`, whoCame: (n) => `👑 ${n} ist zu Besuch!`, whoHave: (n) => `${n} ist schon da`, forms: 'Aussehen wählen', decoTip: 'Gekaufte Möbel antippen zum Aufstellen/Wegräumen. Im Zimmer verschieben.',
       homeHead: (n) => `Im Zimmer ${n} / ${HOME_MAX} – tippen zum Rein/Raus`, homeFull: `Höchstens ${HOME_MAX} im Zimmer`, homeSwap: (n) => `🏠 Zimmer voll – ${n} ruht in der Freundesliste (📖)`, dexHead: (n, N) => `Pokédex ${n} / ${N}`,
       tapEgg: '🥚 Tippe das Ei an – es schlüpft sofort!', goldBonus: '🏅 Goldsticker-Bonus! 🪙 3 Münzen + 🍓 3 Beeren', coinLog: 'Verlauf', goldEgg: '🌟 Ein Gold-Ei! Darin steckt ein legendäres Pokémon', sleep: 'Zzz… nachts wird geschlafen',
       rice: 'Futter', riceHint: '🍚 Tippe an, wen du füttern willst', full: (n) => `${n}: Satt 😋`, yum: 'Mampf! Lecker 😋', eggRice: 'Eier fressen nur Beeren',
@@ -376,6 +376,7 @@
 .pr-grid button { position: relative; border: 0; border-radius: 12px; background: #fff; padding: 4px 2px; font: inherit; font-size: calc(10.5px * var(--pr-s)); color: #6B3E12; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
 .pr-grid button img { width: 80%; aspect-ratio: 1; object-fit: contain; }
+.pr-grid button .allseen { font-size: .8em; color: #2E9D5A; font-weight: 800; }
 .pr-grid button .bry { font-size: calc(40px * var(--pr-s)); margin: 6px 0 2px; line-height: 1; } /* 🛒 열매 */
 .pr-grid button .eg { width: 42%; margin: 6px 0 2px; } .pr-grid button .eg .pk-egg { display: block; width: 100%; }
 .pr-grid button .e { font-size: calc(30px * var(--pr-s)); line-height: 1.3; }
@@ -1531,7 +1532,7 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
     function hatchEgg(e, m, x, y) {
       if (e._busy) return;
       const { id, q, ...v } = m;
-      const have = new Set(mons().filter(hatched).map((z) => z.p));
+      const have = seenSet(); // 도감에서 만난 친구는 다시 안 나옴 (진화한 모습 포함)
       const p = SET.valid(m.p) ? m.p : SET.hatch(m.egg, have), s = Math.random() < SET.shiny;
       e._busy = true; e.classList.add('hatch');
       hatchScene(m.egg, p, s); // 🐣 화면 전체 장면 (자료는 바로 저장)
@@ -1779,7 +1780,8 @@ ${[[14, 38, 7], [28, 32, 9], [44, 36, 6], [72, 34, 8], [88, 31, 10], [104, 37, 7
           el('span', { class: 'bry' }, icon(b)), el('span', { class: 'n', text: lang() === 'de' ? de : ko }), el('span', {}, icon('coin'), `${BERRY_PRICE}`))));
         const eggs = el('div', { class: 'pr-grid' }, ...SET.eggs.map((egg) => el('button', { type: 'button', class: armed === `egg:${egg}` ? 'armed' : coins < FS.EGG_PRICE ? 'poor' : '',
           onclick: () => buy(`egg:${egg}`, FS.EGG_PRICE, () => { const id = uid('e'); if (!pk().start) W(['start'], Date.now()); W(['mons', id], { egg, f: 0, at: Date.now() }); addHome(id); news(L().eggCame(eggName(egg))); }) },
-          el('span', { class: 'eg', html: SET.eggHTML(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', {}, icon('coin'), `${FS.EGG_PRICE}`))));
+          el('span', { class: 'eg', html: SET.eggHTML(egg) }), el('span', { class: 'n', text: eggName(egg) }), el('span', {}, icon('coin'), `${FS.EGG_PRICE}`),
+          SET.fresh && !SET.fresh(egg, seenSet()) ? el('span', { class: 'allseen', text: L().allSeen }) : null)));
         const BG = BGS[SET.room ? 'pp' : 'pk'], bgs = pk().bgs || {}, cur = (pk().bg && bgs[pk().bg]) ? pk().bg : 'base';
         const bgGrid = el('div', { class: 'pr-grid' }, ...Object.keys(BG).map((k) => {
           const [price, ko, de] = BG[k], has = k === 'base' || !!bgs[k], on = cur === k;

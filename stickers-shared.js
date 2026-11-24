@@ -126,10 +126,14 @@
   const EGG_PRICE = 10;
   const eggHTML = (egg) => `<img class="pk-egg" src="${BASE}poke/egg-${EGGS[egg] ? egg : 'mystery'}.png" alt="" draggable="false">`;
   // 알에서 나올 포켓몬: 그 알 타입의 첫 단계 (전설 빼고), 아직 없는 것 먼저. 황금 알 = 전설
+  // 알에서 나올 수 있는 포켓몬 (첫 모습만, 알 타입 · 전설)
+  const eggPool = (egg) => { const types = (EGGS[egg] || EGGS.mystery)[4];
+    return Object.keys(DEX).map(Number).filter((x) => (types === 'legend' ? DEX[x][3] : !DEX[x][2] && !DEX[x][3] && (!types || types.includes(DEX[x][4])))); };
+  const pokeLine = (x) => { const out = [x]; for (let i = 0; i < out.length; i++) out.push(...pokeNext(out[i])); return out; }; // 진화 모습까지
+  // 도감에서 이미 만난 친구(진화한 모습 포함)는 다시 안 나옴 (2026-11-24 엄마: 포니타가 또 나옴). 다 만났으면 그때만 아무나
+  const pokeFresh = (egg, have) => eggPool(egg).filter((x) => !pokeLine(x).some((y) => have.has(y) || have.has(String(y))));
   function hatchPick(egg, have) {
-    const types = (EGGS[egg] || EGGS.mystery)[4];
-    const all = Object.keys(DEX).map(Number).filter((x) => (types === 'legend' ? DEX[x][3] : !DEX[x][2] && !DEX[x][3] && (!types || types.includes(DEX[x][4]))));
-    const fresh = all.filter((x) => !have.has(x)), list = fresh.length ? fresh : all;
+    const all = eggPool(egg), fresh = pokeFresh(egg, have), list = fresh.length ? fresh : all;
     return list[Math.floor(Math.random() * list.length)];
   }
   /* ── 💖 티니핑 (아린 방) ── PING = [id, 한국어, 독일어 화면 이름, 좋아하는 열매, 전설(황금 하트에서만), 하츄핑 몇 기(0 = 변신 없음),
@@ -319,6 +323,7 @@
     const fresh = all.filter((x) => !have.has(x)), list = fresh.length ? fresh : all;
     return list[Math.floor(Math.random() * list.length)];
   }
+  const pingFresh = (egg, have) => PING.filter((r) => !r[5] && r[4] === (egg === 'gold' ? 1 : 0)).map((r) => r[0]).filter((x) => !have.has(x));
   // 👑 로미: 변신 모습(8번째 칸 'r')은 하트 15개마다 (2026-11-17 엄마: 로미는 선물이니 15개) 아직 못 본 것 중 랜덤 (어떤 걸 이미 봤는지는 방 자료 mons.{id}.forms — poke-room.js 가 거름)
   const ROMI_FORMS = PING.filter((r) => r[7] === 'r').map((r) => r[0]);
   const ROMI = new Set(['romi', ...ROMI_FORMS]);
@@ -327,11 +332,11 @@
   const SETS = {
     poke: { key: 'poke', name: pokeName, art: pokeArt, walk: pokeWalk, valid: (p) => !!DEX[p], next: pokeNext, evoNeed: (p) => (pokeStage(p) === 1 ? 10 : 15), fav: favBerry,
       dex: Array.from({ length: POKE_N }, (_, i) => i + 1), eggs: ['fire', 'water', 'grass', 'electric', 'mystery'], startEggs: START_EGGS, start: null,
-      eggName: (egg, lang) => (EGGS[egg] || EGGS.mystery)[lang === 'de' ? 3 : 2], eggHTML, hatch: hatchPick, shiny: 0.1, room: '' },
+      eggName: (egg, lang) => (EGGS[egg] || EGGS.mystery)[lang === 'de' ? 3 : 2], eggHTML, hatch: hatchPick, fresh: (egg, have) => pokeFresh(egg, have).length, shiny: 0.1, room: '' },
     ping: { key: 'ping', name: (id, lang) => (PINGD[id] ? PINGD[id][lang === 'de' ? 2 : 1] : ''), art: (id) => `${BASE}ping/${id}.webp`, walk: (id) => `${BASE}ping/${id}.webp`,
       valid: (p) => !!PINGD[p], next: pingNext, evoNeed: (p) => (ROMI.has(p) ? 15 : 10), fav: (id) => (PINGD[id] ? PINGD[id][3] : 'strawberry'),
       dex: PING.map((r) => r[0]), eggs: ['heart'], startEggs: null, start: 'heartsping1',
-      eggName: (egg, lang) => (PING_EGGS[egg] || PING_EGGS.heart)[lang === 'de' ? 1 : 0], eggHTML: pingHeart, hatch: pingHatch, shiny: 0,
+      eggName: (egg, lang) => (PING_EGGS[egg] || PING_EGGS.heart)[lang === 'de' ? 1 : 0], eggHTML: pingHeart, hatch: pingHatch, fresh: (egg, have) => pingFresh(egg, have).length, shiny: 0,
       friend: true, room: 'princess', romi: ROMI, buy: PING.filter((r) => r[7] === 'h').map((r) => r[0]), tall: (id) => (PINGD[id] && PINGD[id][7] ? 1.6 : 1) }, // 변신 없는 티니핑: 하트 5개마다 친해지기 단계 💗 (코인은 없음), 💗3부터 반짝 빛 · 춤
   };
   const charSet = (kid) => SETS[kid === 'arin' ? 'ping' : 'poke'];
